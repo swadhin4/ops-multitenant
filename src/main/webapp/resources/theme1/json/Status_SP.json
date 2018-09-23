@@ -1,0 +1,44 @@
+[
+	{
+		"ticket_count": "5",
+		"status_id": "1",
+		"status": "Raised",
+		"sp_id": "1",
+		"sp_name": "SP1"
+	},
+	{
+		"ticket_count": "10",
+		"status_id": "2",
+		"status": "Logged",
+		"sp_id": "1",
+		"sp_name": "SP1"
+	},
+	{
+		"ticket_count": "5",
+		"status_id": "4",
+		"status": "WIP",
+		"sp_id": "1",
+		"sp_name": "SP1"
+	},
+	{
+		"ticket_count": "7",
+		"status_id": "1",
+		"status": "Raised",
+		"sp_id": "2",
+		"sp_name": "SP2"
+	},
+	{
+		"ticket_count": "8",
+		"status_id": "2",
+		"status": "Logged",
+		"sp_id": "2",
+		"sp_name": "SP2"
+	},
+	{
+		"ticket_count": "12",
+		"status_id": "4",
+		"status": "WIP",
+		"sp_id": "2",
+		"sp_name": "SP2"
+	}
+]

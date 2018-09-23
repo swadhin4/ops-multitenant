@@ -1,0 +1,33 @@
+[{
+	"stateid": "OD",
+	"name": "ODISHA",
+	"cities": [{
+		"cityid": "BBSR",
+		"name": "BHUBANESWAR"
+	}, {
+		"cityid": "ROU",
+		"name": "ROURKELA"
+	}, {
+		"cityid": "BAM",
+		"name": "BERHAMPUR"
+	}, {
+		"cityid": "CTC",
+		"name": "CUTTUCK"
+	}, {
+		"cityid": "JAR",
+		"name": "JHARSUGUDA"
+	}]
+},{
+	"stateid": "WB",
+	"name": "WEST BENGAL",
+	"cities": [{
+		"cityid": "KOL",
+		"name": "KOLKATTA"
+	}, {
+		"cityid": "ASN",
+		"name": "ASANSOL"
+	}, {
+		"cityid": "DUR",
+		"name": "DURGAPUR"
+	}]
+}]

@@ -1,0 +1,27 @@
+[{
+	"id": "1",
+	"state": "Odisha",
+	"cities": [{
+		"id": "BBS",
+		"name": "Bhubaneswar"
+	}, {
+		"id": "CTC",
+		"name": "Cuttack"
+	}, {
+		"id": "ROU",
+		"name": "Rourkela"
+	}]
+}, {
+	"id": "2",
+	"state": "West Bengal",
+	"cities": [{
+		"id": "KOL",
+		"name": "Kolkatta"
+	}, {
+		"id": "DUR",
+		"name": "Durgapur"
+	}, {
+		"id": "ASN",
+		"name": "Asansol"
+	}]
+}]
