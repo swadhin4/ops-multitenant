@@ -373,7 +373,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
     			    }
     				$scope.equipmentData ={};
     				$scope.equipmentData.company=$scope.sessionUser.company;
-    				$scope.getServiceProviders($scope.equipmentData.company);
+    				//$scope.getServiceProviders($scope.equipmentData.company);
     				$scope.getAssetLocations();
     				$scope.getAllSites();
     				//$scope.getUserSiteAccess();
@@ -591,7 +591,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			if(viewMode.toUpperCase()=='NEW'){
 				statusService.retrieveAllStatus()
                 .then(function(data){
-                	//console.log(data);
+                	console.log(data);
                 	$("#statusSelect").empty();
     				var options = $("#statusSelect");
     				options.append($("<option />").val("").text("Select status"));
@@ -706,7 +706,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 $('#loadingDiv').show();
 			 assetService.getAssetBySite(selectedSite.siteId)
 				.then(function(data) {
-					//console.log(data);
+					console.log(data);
  					$scope.assetList=[];
  				if(data.statusCode==200){
  					if(data.object.length>0){
@@ -889,6 +889,8 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 						 });
 					 }
 				 }
+				  $('#statusComponent').attr("style :margin-top: -82px");
+				  
 				 $('#loadingDiv').hide();
 			 },function(data){
 				 //console.log(data);
@@ -913,10 +915,10 @@ $scope.setTicketraisedOnDate=function(){
 			 
 			 $scope.ticketData.assetId=$scope.assetList.selected.assetId;
 			 $scope.ticketData.assetName=$scope.assetList.selected.assetName;
-			 
-			 $scope.ticketData.categoryId=$scope.categoryList.selected.categoryId;
+			 $scope.ticketData.assetCategoryId=$scope.assetList.selected.assetCategoryId;
+			 $scope.ticketData.assignedTo = $scope.assetList.selected.assignedTo;
 			 $scope.ticketData.categoryName=$scope.categoryList.selected.categoryName;
-			 
+			 $scope.ticketData.subCategoryId1=$scope.assetList.selected.subCategoryId1;
 			 $scope.ticketData.subCategoryId2 = $scope.subRepairType.selected.subCategoryId2;
 			 
 			
@@ -2329,12 +2331,15 @@ function getSelectedAsset(dropDownId){
 						assetCategoryName:val.assetCategoryName
 				}
 				scope.assetList.selected.assetCategoryName=category.assetCategoryName;
-				scope.assetList.selected.assignedTo=val.serviceProviderName;
+				scope.assetList.selected.assignedSp=val.serviceProviderName;
+				scope.assetList.selected.assignedTo=val.serviceProviderId;
 				scope.assetList.selected.assetSubcategory1=val.assetSubcategory1;
+				scope.assetList.selected.assetCategoryId=val.categoryId;
 				if(val.assetType=='E'){
 					scope.getRepairType(category);
 					if(val.subCategoryId1!=null){
-					scope.getSubComponentType(val.subCategoryId1);
+						scope.assetList.selected.subCategoryId1=val.subCategoryId1
+					//scope.getSubComponentType(val.subCategoryId1);
 					}else{
 						scope.subRepairType.list=[];
 		    			$("#subcomponentTypeSelect").empty();
@@ -2342,7 +2347,7 @@ function getSelectedAsset(dropDownId){
 				}else if(val.assetType=='S'){
 					scope.getServiceRepairType(category);
 					if(val.subCategoryId1!=null){
-					scope.getServiceSubRepairType(val);
+					//scope.getServiceSubRepairType(val);
 					}else{
 						scope.subRepairType.list=[];
 		    			$("#subcomponentTypeSelect").empty();

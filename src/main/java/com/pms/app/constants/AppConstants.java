@@ -131,7 +131,9 @@ public class AppConstants {
 			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
 			+ " left OUTER join pm_service_provider psp on psp.sp_id = ps.sp_id "
 			+ " where ps.site_id = ? ";
-	public static final String TICKET_CATEGORY_QUERY ="select * from pm_ticket_categories ";
+	public static final String TICKET_CATEGORY_QUERY ="select * from pm_ticket_category ";
+	
+	public static final String TICKETS_STATUS_QUERY ="select * from pm_status where category=?";
 	
 	public static final String TICKET_PRIORITY_SP_SLA_QUERY = "select ps.settings_id, ps.category_id, ptc.id, ptc.ticket_category, ptp.priority_id, "
 			+ " ptp.priority, psp.sp_id, psp.sp_name, pss.duration, pss.unit from pm_ct_priority_settings ps "

@@ -226,8 +226,7 @@ $(function() {
 						</div>
 					<div class="box-body" style="height:72%" >
 					<input type="hidden" id="mode" value="${mode}">
-					<div class="col-md-8">
-					 	<div class="row" >
+						<div class="row" >
 		                   <div class="col-md-6">
 		                      <span class="badge pull-left"> <i class="fa fa-user" aria-hidden="true"></i> Raised by: {{ticketData.raisedBy}}
 		                   </div>
@@ -236,25 +235,12 @@ $(function() {
 		                  </div>
                 		</div>
 							<div class="row">
-							<div class="col-md-12 reqDiv required">							  	
+							<div class="col-md-6 reqDiv required">							  	
 							 <label class="control-label" for="title">Ticket Title</label>
 							 <input type="text" class="form-control" placeholder="Enter ticket title" name="title" maxlength="50"
 					                   ng-model="ticketData.ticketTitle"  required >
 							 </div>
-							
-							</div>
-							
-							<div class="row">							
-							 <div class="col-md-12">							  	
-							 <label class="control-label" for="ticketDescription">Ticket Description</label>
-								  <textarea class="form-control" style="width: 100%;
-   							 height: 100px;" rows="3" placeholder="Enter ticket description" name="title" 
-   				 			ng-model="ticketData.description"></textarea>	
-							 </div>
-							
-							</div>
-							
-								<div class="row">
+							 
 							   <div class="col-xs-6 reqDiv required">
 				                <label class="control-label">Site</label>				                 
 				                  <select name="siteSelect" id="siteSelect" class="form-control" 
@@ -263,7 +249,15 @@ $(function() {
 								 </select>
 								 <input type="hidden" ng-model="accessSite.selected">
 				                </div>
-				                <div class="col-xs-6 reqDiv required">
+				                </div>
+							<div class="row">							
+							 <div class="col-md-6">							  	
+							 <label class="control-label" for="ticketDescription">Ticket Description</label>
+								  <textarea class="form-control" style="width: 100%;
+   							 height: 158px;" rows="3" placeholder="Enter ticket description" name="title" 
+   				 			ng-model="ticketData.description"></textarea>	
+							 </div>
+							    <div class="col-xs-6 reqDiv required">
 				                <label class="control-label">Asset&nbsp;&nbsp;</label>
 				              <!--   <input name="asset_type" id="equipment" value="equipment" type="radio" ng-click="equipmentChecked()" />Equipment&nbsp;&nbsp;&nbsp;
 				                <input name="asset_type" id="service" value="service" type="radio" ng-click="serviceChecked()" />Service&nbsp;&nbsp;&nbsp;&nbsp; -->
@@ -274,43 +268,109 @@ $(function() {
 				                 <select name="assetSelect" id="assetSelect" class="form-control" onchange="getSelectedAsset('assetSelect')"
 								   required></select>
 								   	<input type="hidden" ng-model="selectedAsset.selected">
-				                </div>
-								</div>
-								<div class="row">
-									<div class="col-xs-6"></div>
-									<div class="col-xs-6" ng-if="assetType!=null && assetList.selected.assetName!=null">
-			          <div class="box box-widget widget-user-2">
+								   	
+			          <div class="box box-widget widget-user-2" ng-if="assetType!=null && assetList.selected.assetName!=null">
 			            <div class="box-footer no-padding">
 			              <ul class="nav nav-stacked">
-			                <li><a href="#">Category <span class=" pull-right badge bg-blue">{{assetList.selected.assetCategoryName}}</span></a></li>
-			                <li><a href="#">Component Type <span class=" pull-right  badge bg-aqua">{{assetList.selected.assetSubcategory1}}</span></a></li>
-			                <li><a href="#">Assigned SP (E)<span class=" pull-right  badge bg-green">{{assetList.selected.assignedTo}}</span></a></li>
+			                <li><a href="#"><b>Category</b> <span class=" pull-right badge bg-blue">{{assetList.selected.assetCategoryName}}</span></a></li>
+			                <li><a href="#"><b>Component Type</b> <span class=" pull-right  badge bg-aqua">{{assetList.selected.assetSubcategory1}}</span></a></li>
+			                <li><a href="#"><b>Assigned SP <span class="badge">(E)</span></b><span class=" pull-right  badge bg-green">{{assetList.selected.assignedSp}}</span></a></li>
 			              </ul>
 			            </div>
 			          </div>
-        			</div>
-								</div>
+								   	
+				                </div>
+							</div>
+							
+							<!-- 	<div class="row">
+							   <div class="col-xs-6 reqDiv required">
+				                <label class="control-label">Site</label>				                 
+				                  <select name="siteSelect" id="siteSelect" class="form-control" 
+								  onchange="getSelectedSite('siteSelect')" required>
+									
+								 </select>
+								 <input type="hidden" ng-model="accessSite.selected">
+				                </div>
+				                <div class="col-xs-6 reqDiv required">
+				                <label class="control-label">Asset&nbsp;&nbsp;</label>
+				                <input name="asset_type" id="equipment" value="equipment" type="radio" ng-click="equipmentChecked()" />Equipment&nbsp;&nbsp;&nbsp;
+				                <input name="asset_type" id="service" value="service" type="radio" ng-click="serviceChecked()" />Service&nbsp;&nbsp;&nbsp;&nbsp;
+				                 <input name="asset_type" id="equipment" value="equipment" ng-model="assetType" type="radio" ng-change="populateAssetType(assetType)" />Equipment&nbsp;&nbsp;&nbsp;
+				                <input name="asset_type" id="service" value="service" ng-model="assetType" type="radio" ng-change="populateAssetType(assetType)" />Service
+				               <a href data-toggle="modal" class="pull-right" ng-click="openAssetModal()" title="Please click to add asset if not available in list">
+				               <i class="fa fa-info-circle" aria-hidden="true"></i> <b>Add Asset</b></a>
+				                 <select name="assetSelect" id="assetSelect" class="form-control" onchange="getSelectedAsset('assetSelect')"
+								   required></select>
+								   	<input type="hidden" ng-model="selectedAsset.selected">
+				                </div>
+								</div> -->
 								<div class="row">
-								<div class="col-xs-6 reqDiv required">
-				                <label class="control-label">Ticket Category</label>
-				                 				                  
+								   <div class="col-xs-6 reqDiv required">
+					                <label class="control-label">Issue Start Time</label>
+					                <div class="form-group">
+				                <div class='input-group date' id='datetimepicker1'>
+				                    <input type='text' class="form-control" ng-model="ticketData.ticketStartTime" id="ticketStartTime" required/>
+				                    <span class="input-group-addon">
+				                        <span class="glyphicon glyphicon-calendar"></span>
+				                    </span>
+				                </div>
+			                </div>
+			                </div>
+									<div class="col-xs-6 reqDiv required">
+										   <label class="control-label">Ticket Category</label>
 				                  <select name="ticketCategorySelect" id="ticketCategorySelect" class="form-control" 
 								onchange="getSelectedCategory('ticketCategorySelect')" required>
-									
 								</select>
 								<input type="hidden" ng-model="selectedCategory.selected" >
-	               			   </div>
-	               			   <div class="col-xs-6">
-						          <div class="box box-widget widget-user-2">
+									<div class="box box-widget widget-user-2" ng-if="ticketData.priorityId!=null">
 						            <div class="box-footer no-padding">
 						              <ul class="nav nav-stacked">
-						                <li><a href="#">Priority <span class=" pull-right badge bg-blue">{{ticketData.priorityDescription}}</span></a></li>
-						                <li><a href="#">SLA Duration (Days/Hours)<span class=" pull-right  badge bg-red">{{ticketData.slaTime}}</span></a></li>
+						                <li><a href="#"><b>Priority</b> <span class=" pull-right badge bg-blue">{{ticketData.priorityDescription}}</span></a></li>
+						                <li><a href="#"><b>SLA Duration (Days/Hours)</b><span class=" pull-right  badge bg-red">{{ticketData.slaTime}}</span></a></li>
 						              </ul>
 						            </div>
 						          </div>
-        						</div>
+									</div>
+								</div>
+								<div class="row">
+									 <div class="col-xs-6 reqDiv required" id="statusComponent">
+					                <label class="control-label" >Status</label>
+					                <input type="hidden" ng-model="ticketData.status" class="form-control" required>
+					                  <select name="statusSelect" id="statusSelect" class="form-control" required
+									onchange="ticketStatusChange('statusSelect')">
+								</select>
+								<input type="hidden" ng-model="selectedTicketStatus.selected">
+					                </div>
+					                <div class="col-xs-6">
+					               <label class="control-label" > Please click <a href data-toggle="modal" ng-click="openFileAttachModal()"><b>Here</b></a> to attach File.</label>
+					              
+					              <a href class="btn btn-warning">Files attached <span class="badge">{{incidentImages.length}}</span> 
+					              <span class="badge" id="totalIncidentSize"></span></a>
+					              
+					               </div>
 	               			   </div>
+	               			   	<div class="row" id="ticketCloseDiv">
+							<div class="col-xs-4 reqDiv required">
+					                <label class="control-label" >Close Code</label>
+					                  <select name="closeCodeSelect" id="closeCodeSelect" class="form-control" required>
+									
+								</select>
+								<input type="hidden" ng-model="selectedCloseCode.selected">
+					                </div>
+					        <div class="col-xs-4 reqDiv required">
+					                <label class="control-label">Closed By</label>
+					                  <input type="text" class="form-control" 
+					                  name="raisedOn" id="raisedOn" ng-model="ticketData.closedBy"  required >
+					                </div>
+							<div class="col-md-4 reqDiv required">
+							  	
+							 <label class="control-label" >Close Note</label>
+								  <textarea class="form-control" style="width: 100%;
+   				 height: 70px;" rows="3" placeholder="Enter ticket close note" name="closeNote" id="closeNote" 
+   				 ng-model="ticketData.closeNote"></textarea>	
+							 </div>
+							
+							</div>
 								
 						<!-- 		<div class="row">
 								<div class="col-xs-3 required">
@@ -407,41 +467,9 @@ $(function() {
 									
 					                
 								</div> -->								
-							<div class="row">
-					               <div class="col-xs-4">
-					               Please click <a href data-toggle="modal" ng-click="openFileAttachModal()"><b>Here</b></a> to attach File.
-					              
-					              <a href class="btn btn-warning">Files attached <span class="badge">{{incidentImages.length}}</span> 
-					              <span class="badge" id="totalIncidentSize"></span></a>
-					              
-					               </div>
-							</div>
-							<div class="row" id="ticketCloseDiv">
-							<div class="col-xs-4 reqDiv required">
-					                <label class="control-label" >Close Code</label>
-					                  <select name="closeCodeSelect" id="closeCodeSelect" class="form-control" required>
-									
-								</select>
-								<input type="hidden" ng-model="selectedCloseCode.selected">
-					                </div>
-					        <div class="col-xs-4 reqDiv required">
-					                <label class="control-label">Closed By</label>
-					                  <input type="text" class="form-control" 
-					                  name="raisedOn" id="raisedOn" ng-model="ticketData.closedBy"  required >
-					                </div>
-							<div class="col-md-4 reqDiv required">
-							  	
-							 <label class="control-label" >Close Note</label>
-								  <textarea class="form-control" style="width: 100%;
-   				 height: 70px;" rows="3" placeholder="Enter ticket close note" name="closeNote" id="closeNote" 
-   				 ng-model="ticketData.closeNote"></textarea>	
-							 </div>
-							
-							</div>
+						
+						
 								</div>
-					
-								
-						</div>
 						<div class="box-footer">
 							<div class="col-md-12 ">
 							<div class="pull-right">		

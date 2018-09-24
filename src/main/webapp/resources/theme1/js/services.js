@@ -652,7 +652,7 @@ chrisApp.factory("statusService", ['$http', '$q',function ($http, $q) {
     // implementation
     function retrieveAllStatus() {
         var def = $q.defer();
-        $http.get(hostLocation+"/test/api/status/CT")
+        $http.get(hostLocation+"/incident/status/CT")
             .success(function(data) {
             	//console.log(data)
                 def.resolve(data);

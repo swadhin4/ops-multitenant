@@ -1,13 +1,11 @@
 package com.pms.web.service.impl;
 
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -18,7 +16,7 @@ import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
-import com.pms.jpa.entities.ServiceProviderSLADetails;
+import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketCategory;
 import com.pms.web.service.TicketService;
 
@@ -63,6 +61,24 @@ public class TicketServiceImpl implements TicketService {
 	public TicketPrioritySLAVO getTicketPriority(Long serviceProviderID, Long ticketCategoryId, LoginUser loginUser) throws Exception {
 		TicketPrioritySLAVO  ticketPriority = getIncidentDAO(loginUser.getDbName()).getSPSLADetails(serviceProviderID, ticketCategoryId);
 		return ticketPriority;
+	}
+
+	@Override
+	public List<Status> getStatusByCategory(LoginUser loginUser, String category) throws Exception {
+		List<Status> statusList = getIncidentDAO(loginUser.getDbName()).getStatusByCategory(category);
+		return statusList==null?Collections.emptyList():statusList;
+	}
+
+	@Override
+	public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser loginUser) throws Exception {
+		Long newIncidentNumber = null;
+		Long lastIncidentNumber = 900l;
+		newIncidentNumber = lastIncidentNumber + 1;
+		String ticketNumber = "IN" +  String.format("%08d", newIncidentNumber);
+		LOGGER.info("Ticket Number Generated : " + ticketNumber);
+		customerTicket.setTicketNumber(ticketNumber);
+		
+		return getIncidentDAO(loginUser.getDbName()).saveIncident(customerTicket, loginUser);
 	}
 
 	/*private TicketVO getSelectedTicketDetails(SimpleDateFormat simpleDateFormat, CustomerTicket customerTicket) {

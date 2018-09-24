@@ -5,8 +5,10 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.time.DateUtils;
@@ -18,14 +20,20 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.app.view.vo.CreateSiteVO;
+import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
+import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketCategory;
+import com.pms.web.util.ApplicationUtil;
 @Repository
 public class IncidentDAO {
 	private final static Logger LOGGER = LoggerFactory.getLogger(IncidentDAO.class);
@@ -120,5 +128,72 @@ public class IncidentDAO {
 				}
 			} );
 		return ticketPriority;
+	}
+	public List<Status> getStatusByCategory(String category) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<Status> ticketStatusList = jdbcTemplate.query(AppConstants.TICKETS_STATUS_QUERY, new Object[]{category}, new ResultSetExtractor<List<Status>>() {
+			@Override
+			public List<Status> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<Status> statusList = new ArrayList<Status>();
+				while(rs.next()){
+					Status  status = new Status();
+					status.setStatusId(rs.getLong("status_id"));
+					status.setStatus(rs.getString("status"));
+					status.setDescription(rs.getString("description"));
+					status.setCategory(rs.getString("category"));
+					statusList.add(status);
+				}
+				return statusList;
+			}
+	  });
+		return ticketStatusList;
+	}
+	
+	public TicketVO saveIncident (TicketVO ticketVO, LoginUser user){
+		LOGGER.info("IncidentDAO -- saveIncident -- Save Incident details using Procedure: ");
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getTenantDataSource());
+		if(ticketVO.getTicketId()==null){
+			SimpleJdbcCall insertJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("uspCreateCustIncident");
+			SqlParameterSource map = createNewIncidentParam(ticketVO, user);
+			Map<String, Object> out = insertJdbcCall.execute(map);
+			Map<String, String> resultMap1 = ApplicationUtil.extractResult(out);
+			ticketVO.setTicketId(Long.parseLong(resultMap1.get("@ticketId")));
+			LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketTitle() +" with ID : "+ ticketVO.getTicketId());
+			if(ticketVO.getTicketId()!=null){
+				LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
+				ticketVO.setMessage("Created");
+			}else{
+				LOGGER.info("Unable to create incident for "+  user.getUsername() + "in name of "+ ticketVO.getTicketTitle());
+			}
+		}else if(ticketVO.getTicketId()!=null){
+			//ticketVO.setMessage("Updated");
+			LOGGER.info("Incident updated for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
+		}
+		
+		LOGGER.info("Exit -- IncidentDAO -- saveIncident-- Save Incident details using Procedure: ");
+		return ticketVO;
+
+	}
+	private SqlParameterSource createNewIncidentParam(TicketVO ticketVO, LoginUser user) {
+		SqlParameterSource map = new MapSqlParameterSource()
+				.addValue("ticketNumber", ticketVO.getTicketNumber())
+				.addValue("ticketTitle", ticketVO.getTicketTitle())
+				.addValue("ticketDesc", ticketVO.getDescription())
+				.addValue("siteId", ticketVO.getSiteId())
+				.addValue("assetId", ticketVO.getAssetId())
+				.addValue("assetCatId",ticketVO.getAssetCategoryId())
+				.addValue("assetSubCat1Id", ticketVO.getSubCategoryId1())
+				.addValue("assetSubCat2Id", ticketVO.getSubCategoryId2())
+				.addValue("spId", ticketVO.getAssignedTo())
+				.addValue("ticketCatId", ticketVO.getCategoryId())
+				.addValue("ticketPriorityId",ticketVO.getPriorityId())
+				.addValue("ticketSLA", ticketVO.getSla())
+				.addValue("issueStartTime", ticketVO.getTicketStartTime())
+				.addValue("statusId", ticketVO.getStatusId())
+				.addValue("createdBy", user.getUsername())
+				.addValue("dbName", user.getDbName())
+				.addValue("ticketId", "@ticketId")
+				.addValue("isError", "@isError");
+				return map;
 	}
 }

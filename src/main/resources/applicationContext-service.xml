@@ -35,6 +35,8 @@
     </bean>
      <bean id="ticketService" class="com.pms.web.service.impl.TicketServiceImpl">
     </bean>
+     <bean id="emailService" class="com.pms.web.service.impl.EmailServiceImpl">
+    </bean>
      <bean id="tenantService" class="com.pms.web.service.impl.TenantServiceImpl">
     </bean>
 

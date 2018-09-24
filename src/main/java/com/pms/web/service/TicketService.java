@@ -5,6 +5,7 @@ import java.util.List;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
+import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketCategory;
 
 
@@ -15,6 +16,9 @@ public interface TicketService {
 	public List<TicketCategory> getTicketCategories(LoginUser loginUser) throws Exception;
 	
 	public TicketPrioritySLAVO getTicketPriority(Long serviceProviderID, Long ticketCategoryId, LoginUser loginUser) throws Exception;
+
+	public List<Status> getStatusByCategory(LoginUser loginUser, String category) throws Exception;
+	public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser use) throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 

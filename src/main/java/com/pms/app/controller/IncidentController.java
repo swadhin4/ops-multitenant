@@ -12,18 +12,24 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
+import com.pms.jpa.entities.Status;
+import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
+import com.pms.web.service.EmailService;
 import com.pms.web.service.TicketService;
 import com.pms.web.util.RestResponse;
 
@@ -38,10 +44,10 @@ public class IncidentController extends BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(IncidentController.class);
 	@Autowired
 	private TicketService ticketSerice;
-
-
-	/*@Autowired
+	@Autowired
 	private EmailService emailService;
+
+	/*
 
 	
 	@Autowired
@@ -162,10 +168,12 @@ public class IncidentController extends BaseController {
 		List<TicketCategory> categories = null;
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if(loginUser!=null){
 			categories = ticketSerice.getTicketCategories(loginUser);
 			if (categories.isEmpty()) {
 				return new ResponseEntity(HttpStatus.NO_CONTENT);
 				// You many decide to return HttpStatus.NOT_FOUND
+			}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -173,6 +181,27 @@ public class IncidentController extends BaseController {
 
 		return new ResponseEntity<List<TicketCategory>>(categories, HttpStatus.OK);
 	}
+	
+
+	@RequestMapping(value = "/status/{category}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<List<Status>> listAllOpenTickets(HttpSession session, @PathVariable (value="category") final String category) {
+		List<Status> statusList = null;
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if(loginUser!=null){
+			statusList = ticketSerice.getStatusByCategory(loginUser, category);
+			if (statusList.isEmpty()) {
+				return new ResponseEntity(HttpStatus.NO_CONTENT);
+				// You many decide to return HttpStatus.NOT_FOUND
+			}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new ResponseEntity<List<Status>>(statusList, HttpStatus.OK);
+	}
+
 	
 	@RequestMapping(value = "/priority/sla/{spId}/{categoryId}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> getPriorityAndSLA(@PathVariable(value = "spId") Long spId,
@@ -204,6 +233,89 @@ public class IncidentController extends BaseController {
 			response.setMessage("Your current session is expired. Please login again");
 			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
 		}
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> createNewIncident(final Locale locale, final ModelMap model,
+			@RequestBody final TicketVO ticketVO, final HttpSession session) {
+		logger.info("Inside IncidentController .. createNewIncident");
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		TicketVO savedTicketVO = null;
+		RestResponse emailResponse = null;
+		if (loginUser != null) {
+			try {
+				logger.info("TicektVO : " + ticketVO);
+				savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
+				if (savedTicketVO.getTicketId() != null && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+					response.setStatusCode(200);
+					/*List<TicketAttachment> fileAttachmentList = getIncidentAttachments(ticketVO.getTicketNumber());
+					if (!fileAttachmentList.isEmpty()) {
+						savedTicketVO.setAttachments(fileAttachmentList);
+					}*/
+					response.setObject(savedTicketVO);
+					response.setMessage("New Incident created successfully");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				} else if (savedTicketVO.getTicketId() != null
+						&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
+					response.setStatusCode(200);
+					/*List<TicketAttachment> fileAttachmentList = getIncidentAttachments(ticketVO.getTicketNumber());
+					if (!fileAttachmentList.isEmpty()) {
+						savedTicketVO.setAttachments(fileAttachmentList);
+					}*/
+					response.setObject(savedTicketVO);
+					response.setMessage("Incident updated successfully");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+
+			} catch (Exception e) {
+				logger.info("Exception in getting response", e);
+				response.setMessage("Exception while creating an incident");
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			}
+
+		/*	if (response.getStatusCode() == 200 && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+				final TicketVO ticketVOs = savedTicketVO;
+				TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+				theExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						logger.info("Email thread started : " + Thread.currentThread().getName());
+						try {
+							emailService.successTicketCreationSPEmail(ticketVOs, "CREATED",
+									loginUser.getCompany().getCompanyName());
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+			}*/ /*
+				 * else if(response.getStatusCode()==200 &&
+				 * savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")){
+				 * 
+				 * } /*else if(response.getStatusCode()==200 &&
+				 * savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")){
+				 * 
+				 * 
+				 * } /*else if(response.getStatusCode()==200 &&
+				 * savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")){
+				 * 
+				 * try { emailResponse =
+				 * emailService.successTicketCreationSPEmail(savedTicketVO,
+				 * "UPDATED"); } catch (Exception e) { logger.info(
+				 * "Exception in sending incident update mail", e); } }
+				 */
+		}
+		else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		logger.info("Exit SiteController .. createNewIncident");
 		return responseEntity;
 	}
 
