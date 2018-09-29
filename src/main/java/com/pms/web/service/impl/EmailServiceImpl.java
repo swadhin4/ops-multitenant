@@ -28,12 +28,12 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import com.pms.app.mail.EmailTemplate;
 import com.pms.app.view.vo.AppUserVO;
+import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.ServiceProvider;
-import com.pms.jpa.entities.Site;
 import com.pms.web.service.EmailService;
 import com.pms.web.util.RestResponse;
 
@@ -387,9 +387,9 @@ public class EmailServiceImpl implements EmailService {
 	@Async
 	public void successTicketCreationSPEmail(TicketVO savedticketVO, String creationStatus, String company) throws Exception {
 		// Create a Properties object to contain connection configuration information.
-		ServiceProvider serviceProvider = new ServiceProvider();
+		ServiceProvider serviceProvider = savedticketVO.getServiceProvider();
 		//Site site = siteRepo.findOne(savedticketVO.getSiteId());
-		Site site = new Site();
+		CreateSiteVO site =  savedticketVO.getSite();
 		final RestResponse response = new RestResponse();
 		
 		Properties props = System.getProperties();
@@ -409,7 +409,7 @@ public class EmailServiceImpl implements EmailService {
 
 		// Create a message with the specified information. 
 		final MimeMessage mimeMessage = new MimeMessage(session);
-		String toMailIds =""; //serviceProvider.getHelpDeskEmail(); // Send Email to Service Provider Helpdesk email in PROD
+		String toMailIds =serviceProvider.getHelpDeskEmail(); //serviceProvider.getHelpDeskEmail(); // Send Email to Service Provider Helpdesk email in PROD
 		//String toMailIds = "malay18@gmail.com"; 
 		mimeMessage.setFrom(new InternetAddress("c.gruen@novazure.com"));
 		//mimeMessage.setFrom(new InternetAddress("swadhin4@gmail.com"));
@@ -430,9 +430,9 @@ public class EmailServiceImpl implements EmailService {
 	        model.put("siteName", savedticketVO.getSiteName()==null?"":savedticketVO.getSiteName());
 	        model.put("siteOwner", site.getSiteOwner()==null?"":site.getSiteOwner());
 	        model.put("siteBrand", site.getBrandName()==null?"":site.getBrandName());
-	        model.put("siteIdNumber1", site.getSiteNumberOne()==null?"":site.getSiteNumberOne().toString());
-	        model.put("siteIdNumber2", site.getSiteNumberTwo()==null?"":site.getSiteNumberTwo().toString());
-	        model.put("siteContactName", site.getAreaManagerName()==null?"":site.getAreaManagerName());
+	        model.put("siteIdNumber1", site.getSiteNumber1()==null?"":site.getSiteNumber1().toString());
+	        model.put("siteIdNumber2", site.getSiteNumber2()==null?"":site.getSiteNumber2().toString());
+	        model.put("siteContactName", site.getContactName()==null?"":site.getContactName());
 	        model.put("siteContactEmail", site.getEmail()==null?"":site.getEmail());
 	        model.put("siteContactPhone", site.getPrimaryContact()==null?"":site.getPrimaryContact().toString());
 	        model.put("contactName", savedticketVO.getCreatedUser()==null?"":savedticketVO.getCreatedUser());

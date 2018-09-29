@@ -3,6 +3,9 @@ package com.pms.web.util;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.sql.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -107,6 +110,36 @@ public class ApplicationUtil {
 		        resultMap.put(entry[0].trim(), entry[1].trim());          //add them to the hashmap and trim whitespaces
 		    }
 		return resultMap;
+	}
+	
+	public static String makeSQLDateFromString(String dateString){
+		DateFormat df1 = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+		DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String sqlDateString="";
+		
+		try {
+			java.util.Date oldFormat = df1.parse(dateString);
+			sqlDateString =  df2.format(oldFormat);
+		} catch (ParseException e) {
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
+		}
+		return sqlDateString;
+	}
+	
+	public static String makeDateStringFromSQLDate(String dateString){
+		DateFormat df1 = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+		DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		String javaDateString="";
+		
+		try {
+			java.util.Date oldFormat = df2.parse(dateString);
+			javaDateString =  df1.format(oldFormat);
+		} catch (ParseException e) {
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
+		}
+		return javaDateString;
 	}
 
 }

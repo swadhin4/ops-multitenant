@@ -3,12 +3,15 @@
  */
 package com.pms.app.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.view.vo.IncidentImageVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
@@ -249,26 +253,21 @@ public class IncidentController extends BaseController {
 			try {
 				logger.info("TicektVO : " + ticketVO);
 				savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
-				if (savedTicketVO.getTicketId() != null && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
-					response.setStatusCode(200);
-					/*List<TicketAttachment> fileAttachmentList = getIncidentAttachments(ticketVO.getTicketNumber());
-					if (!fileAttachmentList.isEmpty()) {
-						savedTicketVO.setAttachments(fileAttachmentList);
-					}*/
-					response.setObject(savedTicketVO);
-					response.setMessage("New Incident created successfully");
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-				} else if (savedTicketVO.getTicketId() != null
-						&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
-					response.setStatusCode(200);
-					/*List<TicketAttachment> fileAttachmentList = getIncidentAttachments(ticketVO.getTicketNumber());
-					if (!fileAttachmentList.isEmpty()) {
-						savedTicketVO.setAttachments(fileAttachmentList);
-					}*/
-					response.setObject(savedTicketVO);
-					response.setMessage("Incident updated successfully");
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-				}
+				
+					if (savedTicketVO.getTicketId() != null && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+						response.setStatusCode(200);
+						response.setObject(savedTicketVO);
+						response.setMessage("New Incident created successfully");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					} else if (savedTicketVO.getTicketId() != null
+							&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
+						response.setStatusCode(200);
+						response.setObject(savedTicketVO);
+						response.setMessage("Incident updated successfully");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
+				
+				
 
 			} catch (Exception e) {
 				logger.info("Exception in getting response", e);
@@ -277,7 +276,9 @@ public class IncidentController extends BaseController {
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
 			}
 
-		/*	if (response.getStatusCode() == 200 && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+			if (response.getStatusCode() == 200 && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+				savedTicketVO.setCreatedUser(loginUser.getFirstName()+" "+loginUser.getLastName());
+				savedTicketVO.setCreatedBy(loginUser.getUsername());
 				final TicketVO ticketVOs = savedTicketVO;
 				TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
 				theExecutor.execute(new Runnable() {
@@ -293,7 +294,8 @@ public class IncidentController extends BaseController {
 						}
 					}
 				});
-			}*/ /*
+			}
+			/*
 				 * else if(response.getStatusCode()==200 &&
 				 * savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")){
 				 * 
@@ -319,6 +321,70 @@ public class IncidentController extends BaseController {
 		return responseEntity;
 	}
 
+	@RequestMapping(value = "/image/upload", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> imageUpload(final ModelMap model, HttpServletRequest request,
+			final HttpSession session, @RequestBody IncidentImageVO incidentImageVO) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		RestResponse response = new RestResponse();
+		Map<Integer, IncidentImageVO> imageList = (Map<Integer, IncidentImageVO>) session.getAttribute("imageList");
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+
+		if (loginUser != null) {
+
+			if (imageList == null) {
+				imageList = new HashMap<Integer, IncidentImageVO>();
+				response.setCalculatedVal(incidentImageVO.getFileSize());
+				imageList.put(incidentImageVO.getImgPos(), incidentImageVO);
+				session.setAttribute("imageList", imageList);
+			} else {
+				imageList = (Map<Integer, IncidentImageVO>) session.getAttribute("imageList");
+				for (Map.Entry<Integer, IncidentImageVO> imageEntry : imageList.entrySet()) {
+					if (imageEntry.getKey().equals(incidentImageVO.getImgPos())) {
+						IncidentImageVO imageVO = imageEntry.getValue();
+						imageVO.setBase64ImageString(incidentImageVO.getBase64ImageString());
+						imageVO.setFile(incidentImageVO.getFile());
+						imageVO.setFileExtension(incidentImageVO.getFileExtension());
+						imageVO.setFileName(incidentImageVO.getFileName());
+						imageVO.setIncidentImgId(incidentImageVO.getIncidentImgId());
+						imageVO.setFileSize(incidentImageVO.getFileSize());
+						imageList.put(incidentImageVO.getImgPos(), incidentImageVO);
+						break;
+					}
+				}
+				imageList.put(incidentImageVO.getImgPos(), incidentImageVO);
+				session.setAttribute("imageList", imageList);
+			}
+
+			response.setObject(imageList);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		return responseEntity;
+	}
+
+	@RequestMapping(value = "/image/remove", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> imageDelete(final ModelMap model, HttpServletRequest request,
+			final HttpSession session, @RequestBody IncidentImageVO incidentImageVO) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		RestResponse response = new RestResponse();
+		Map<Integer, IncidentImageVO> imageList = (Map<Integer, IncidentImageVO>) session.getAttribute("imageList");
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		if (loginUser != null) {
+			imageList.remove(incidentImageVO.getImgPos(), incidentImageVO);
+			session.setAttribute("imageList", imageList);
+			response.setObject(imageList);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		return responseEntity;
+	}
 /*
 	@RequestMapping(value = "/selected/ticket", method = RequestMethod.POST)
 	public ResponseEntity<RestResponse> getSelectedTicket(final ModelMap model, final HttpServletRequest request,

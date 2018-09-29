@@ -8,6 +8,7 @@ import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.jpa.entities.AssetCategory;
 import com.pms.jpa.entities.AssetLocation;
 import com.pms.jpa.entities.AssetRepairType;
+import com.pms.jpa.entities.AssetSubRepairType;
 import com.pms.web.util.RestResponse;
 
 
@@ -31,6 +32,8 @@ public interface AssetService {
 
 	public List<AssetVO> findAssetBySiteId(LoginUser loginUser, Long siteId) throws Exception;
 
+	public List<AssetSubRepairType> findAssetSubRepairTypeBy(LoginUser user, Long assetSubCategoryid) throws Exception;
+
 	/*public List<AssetVO> findAssetsBySite(Long siteId) throws Exception;
 
 	
@@ -41,6 +44,6 @@ public interface AssetService {
 
 	
 
-	public List<AssetSubRepairType> findAssetSubRepairTypeBy(Long assetSubCategoryid) throws Exception;*/
+	*/
 
 }

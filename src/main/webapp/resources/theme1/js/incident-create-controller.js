@@ -879,6 +879,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 					 $scope.ticketData.categoryId=data.object.ticketCategoryId;
 					 $scope.ticketData.unit= data.object.units;
 					 $scope.ticketData.duration = data.object.duration;
+					 $scope.ticketData.categoryName=ticketCategory.categoryName;
 					 $scope.ticketData.slaTime =  $scope.ticketData.duration + " " +  $scope.ticketData.unit;
 					 if(viewMode.toUpperCase()=='EDIT'){
 						 $.each($scope.priorityList,function(key,val){
@@ -920,10 +921,12 @@ $scope.setTicketraisedOnDate=function(){
 			 $scope.ticketData.categoryName=$scope.categoryList.selected.categoryName;
 			 $scope.ticketData.subCategoryId1=$scope.assetList.selected.subCategoryId1;
 			 $scope.ticketData.subCategoryId2 = $scope.subRepairType.selected.subCategoryId2;
-			 
 			
+			 $scope.ticketData.assetCategoryName=$scope.assetList.selected.assetCategoryName;
+			 $scope.ticketData.assetSubCategory1 = $scope.assetList.selected.assetSubCategory1;
+			 $scope.ticketData.assetSubCategory2 = $('#subcomponentTypeSelect option:selected').text();
 			 $scope.ticketData.statusId=$('#statusSelect').val();
-			 
+			 $scope.ticketData.status=$('#statusSelect option:selected').text();
 			 $scope.ticketData.ticketStartTime = $('#ticketStartTime').val();
 			 //console.log(moment($scope.ticketData.ticketStartTime, 'YYYY-MM-DD h:m:s A').format('YYYY-MM-DD HH:mm:ss'));
 			 //$scope.ticketData.ticketStartTime = moment($scope.ticketData.ticketStartTime, 'DD-MM-YYYY HH:MM').format('DD-MM-YYYY HH:MM');
@@ -944,7 +947,7 @@ $scope.setTicketraisedOnDate=function(){
 				 $scope.ticketData.closeCode =  parseInt($("#closeCodeSelect").val());
 			 }
 			 //console.log($scope.ticketData);
-			 $scope.ticketData.sla = $('#sla').val();
+			// $scope.ticketData.sla = $('#sla').val();
 			 $scope.persistTicket($scope.ticketData, "UPDATE");
 			//Added by Supravat for allowing SLA Due Date to update on incident update screen.
 			 //To Refresh SLA Percentage
@@ -2333,13 +2336,14 @@ function getSelectedAsset(dropDownId){
 				scope.assetList.selected.assetCategoryName=category.assetCategoryName;
 				scope.assetList.selected.assignedSp=val.serviceProviderName;
 				scope.assetList.selected.assignedTo=val.serviceProviderId;
+				scope.assetList.selected.spHelpDeskEmail=val.spHelpDeskEmail;
 				scope.assetList.selected.assetSubcategory1=val.assetSubcategory1;
 				scope.assetList.selected.assetCategoryId=val.categoryId;
 				if(val.assetType=='E'){
 					scope.getRepairType(category);
 					if(val.subCategoryId1!=null){
 						scope.assetList.selected.subCategoryId1=val.subCategoryId1
-					//scope.getSubComponentType(val.subCategoryId1);
+						scope.getSubComponentType(val.subCategoryId1);
 					}else{
 						scope.subRepairType.list=[];
 		    			$("#subcomponentTypeSelect").empty();
@@ -2347,7 +2351,7 @@ function getSelectedAsset(dropDownId){
 				}else if(val.assetType=='S'){
 					scope.getServiceRepairType(category);
 					if(val.subCategoryId1!=null){
-					//scope.getServiceSubRepairType(val);
+						scope.getServiceSubRepairType(val);
 					}else{
 						scope.subRepairType.list=[];
 		    			$("#subcomponentTypeSelect").empty();

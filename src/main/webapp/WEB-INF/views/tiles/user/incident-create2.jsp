@@ -226,7 +226,6 @@ $(function() {
 						</div>
 					<div class="box-body" style="height:72%" >
 					<input type="hidden" id="mode" value="${mode}">
-					 <div class="col-md-12">
 						<div class="row" >
 		                   <div class="col-md-6">
 		                      <span class="badge pull-left"> <i class="fa fa-user" aria-hidden="true"></i> Raised by: {{ticketData.raisedBy}}
@@ -275,19 +274,38 @@ $(function() {
 			              <ul class="nav nav-stacked">
 			                <li><a href="#"><b>Category</b> <span class=" pull-right badge bg-blue">{{assetList.selected.assetCategoryName}}</span></a></li>
 			                <li><a href="#"><b>Component Type</b> <span class=" pull-right  badge bg-aqua">{{assetList.selected.assetSubcategory1}}</span></a></li>
-			                <li><a href="#"><b>Assigned SP <span class="badge">(E)</span></b><span class=" pull-right  badge bg-green">
-			                {{assetList.selected.assignedSp}} {{assetList.selected.spHelpDeskEmail}} </span></a></li>
+			                <li><a href="#"><b>Assigned SP <span class="badge">(E)</span></b><span class=" pull-right  badge bg-green">{{assetList.selected.assignedSp}}</span></a></li>
 			              </ul>
 			            </div>
 			          </div>
 								   	
 				                </div>
 							</div>
-							</div>
-								
-								<div class="col-md-8">
+							
+							<!-- 	<div class="row">
+							   <div class="col-xs-6 reqDiv required">
+				                <label class="control-label">Site</label>				                 
+				                  <select name="siteSelect" id="siteSelect" class="form-control" 
+								  onchange="getSelectedSite('siteSelect')" required>
+									
+								 </select>
+								 <input type="hidden" ng-model="accessSite.selected">
+				                </div>
+				                <div class="col-xs-6 reqDiv required">
+				                <label class="control-label">Asset&nbsp;&nbsp;</label>
+				                <input name="asset_type" id="equipment" value="equipment" type="radio" ng-click="equipmentChecked()" />Equipment&nbsp;&nbsp;&nbsp;
+				                <input name="asset_type" id="service" value="service" type="radio" ng-click="serviceChecked()" />Service&nbsp;&nbsp;&nbsp;&nbsp;
+				                 <input name="asset_type" id="equipment" value="equipment" ng-model="assetType" type="radio" ng-change="populateAssetType(assetType)" />Equipment&nbsp;&nbsp;&nbsp;
+				                <input name="asset_type" id="service" value="service" ng-model="assetType" type="radio" ng-change="populateAssetType(assetType)" />Service
+				               <a href data-toggle="modal" class="pull-right" ng-click="openAssetModal()" title="Please click to add asset if not available in list">
+				               <i class="fa fa-info-circle" aria-hidden="true"></i> <b>Add Asset</b></a>
+				                 <select name="assetSelect" id="assetSelect" class="form-control" onchange="getSelectedAsset('assetSelect')"
+								   required></select>
+								   	<input type="hidden" ng-model="selectedAsset.selected">
+				                </div>
+								</div> -->
 								<div class="row">
-								<div class="col-xs-6 required">
+								<div class="col-xs-4 required">
 								<label class="control-label">SubComponent Type</label> 
 								<select name="subcomponentTypeSelect" id="subcomponentTypeSelect" class="form-control" required tabindex="5"
 								onchange="validateDropdownValues('subcomponentTypeSelect','E')">
@@ -295,7 +313,7 @@ $(function() {
 								</select>
 								<input type="hidden" ng-model="subcomponentTypeSelect.selected" >
 								</div>
-								   <div class="col-xs-6 reqDiv required">
+								   <div class="col-xs-4 reqDiv required">
 					                <label class="control-label">Issue Start Time</label>
 					                <div class="form-group">
 				                <div class='input-group date' id='datetimepicker1'>
@@ -305,25 +323,6 @@ $(function() {
 				                    </span>
 				                </div>
 			               		 </div>
-			                	</div>
-			                	</div>
-			                		<div class="row">
-									 <div class="col-xs-6 reqDiv required" id="statusComponent">
-					                <label class="control-label" >Status</label>
-					                <input type="hidden" ng-model="ticketData.status" class="form-control" required>
-					                  <select name="statusSelect" id="statusSelect" class="form-control" required
-									onchange="ticketStatusChange('statusSelect')">
-								</select>
-								<input type="hidden" ng-model="selectedTicketStatus.selected">
-					                </div>
-					                <div class="col-xs-6">
-					               <label class="control-label" > Please click <a href data-toggle="modal" ng-click="openFileAttachModal()"><b>Here</b></a> to attach File.</label>
-					              
-					              <a href class="btn btn-warning">Files attached <span class="badge">{{incidentImages.length}}</span> 
-					              <span class="badge" id="totalIncidentSize"></span></a>
-					              
-					               </div>
-	               			   </div>
 			                	</div>
 									<div class="col-xs-4 reqDiv required">
 										   <label class="control-label">Ticket Category</label>
@@ -341,7 +340,24 @@ $(function() {
 						          </div>
 									</div>
 									
-							
+								</div>
+								<div class="row">
+									 <div class="col-xs-6 reqDiv required" id="statusComponent">
+					                <label class="control-label" >Status</label>
+					                <input type="hidden" ng-model="ticketData.status" class="form-control" required>
+					                  <select name="statusSelect" id="statusSelect" class="form-control" required
+									onchange="ticketStatusChange('statusSelect')">
+								</select>
+								<input type="hidden" ng-model="selectedTicketStatus.selected">
+					                </div>
+					                <div class="col-xs-6">
+					               <label class="control-label" > Please click <a href data-toggle="modal" ng-click="openFileAttachModal()"><b>Here</b></a> to attach File.</label>
+					              
+					              <a href class="btn btn-warning">Files attached <span class="badge">{{incidentImages.length}}</span> 
+					              <span class="badge" id="totalIncidentSize"></span></a>
+					              
+					               </div>
+	               			   </div>
 	               			   	<div class="row" id="ticketCloseDiv">
 							<div class="col-xs-4 reqDiv required">
 					                <label class="control-label" >Close Code</label>
@@ -364,7 +380,102 @@ $(function() {
 							 </div>
 							
 							</div>
-													
+								
+						<!-- 		<div class="row">
+								<div class="col-xs-3 required">
+											<label class="control-label">Category</label> 
+											<input type="text" class="form-control"  id="category"
+								                  name="category" ng-model="ticketData.assetCategoryName"  required readonly>	
+											<input type="hidden" ng-model="ticketData.assetCategoryId" >
+								</div>
+							<div class="col-xs-4 required">
+										<label class="control-label">Component Type</label> 
+										<input type="text" class="form-control"  id="componentType"
+							                  name="componentType" ng-model="ticketData.assetSubcategory1"  required readonly>
+							                  	
+										<input type="hidden" ng-model="ticketData.subCategoryId1" >
+								</div>
+						<div class="col-xs-5 required">
+								<label class="control-label">SubComponent Type</label> 
+								<select name="subcomponentTypeSelect" id="subcomponentTypeSelect" class="form-control" required tabindex="5"
+								onchange="validateDropdownValues('subcomponentTypeSelect','E')">
+									
+								</select>
+								<input type="hidden" ng-model="subcomponentTypeSelect.selected" >
+						</div>
+							</div>
+								
+								<div class="row">
+								<div class="col-xs-4 reqDiv required">
+					               <label class="control-label">Assigned To</label>				                 				                  
+				                  <input type="text" class="form-control"  id="assignedTo"
+					                  name="assignedTo" ng-model="ticketData.assignedTo"  required readonly>								
+					                </div>
+								<div class="col-xs-4 reqDiv required">
+				                <label class="control-label">Ticket Category</label>
+				                 				                  
+				                  <select name="ticketCategorySelect" id="ticketCategorySelect" class="form-control" 
+								onchange="getSelectedCategory('ticketCategorySelect')" required>
+									
+								</select>
+								<input type="hidden" ng-model="selectedCategory.selected" >
+	               			   </div>
+	               			 <div class="col-xs-4 reqDiv required">
+					                <label class="control-label" >Priority</label>
+					                  <input type="text"  class="form-control"  
+					                  name="priority" ng-model="ticketData.priorityDescription" disabled="disabled"  required >
+					                </div>
+					                
+					                
+								 
+								<div class="col-xs-4 reqDiv required">
+					               <label class="control-label">Raised By</label>
+					               <input type="text"  class="form-control"  
+					                  name="raisedBy" ng-model="ticketData.raisedBy"  required readonly>				                  
+								
+					                </div>
+									 
+					                
+								</div>
+								<div class="row">
+								 
+					             <div class="col-xs-4 reqDiv required">
+					                <label class="control-label">SLA Duration (Days/Hours)</label>
+					                  <input type="text" class="form-control" ng-model="ticketData.slaTime" disabled="disabled"
+					                    required>
+					               </div>
+					               
+					               <div class="col-xs-4 reqDiv required">
+					                <label class="control-label">Issue Start Time</label>
+					                <div class="form-group">
+			                <div class='input-group date' id='datetimepicker1'>
+			                    <input type='text' class="form-control" ng-model="ticketData.ticketStartTime" id="ticketStartTime" required/>
+			                    <span class="input-group-addon">
+			                        <span class="glyphicon glyphicon-calendar"></span>
+			                    </span>
+			                </div>
+            			</div>
+					                  
+					               </div>
+	               			 <div class="col-xs-4 reqDiv required">
+					                <label class="control-label" >Status</label>
+					                <input type="text" ng-model="ticketData.status" class="form-control" required>
+					                  <select name="statusSelect" id="statusSelect" class="form-control" required
+								onchange="ticketStatusChange('statusSelect')">
+									
+								</select>
+								<input type="hidden" ng-model="selectedTicketStatus.selected">
+					                </div>
+					                
+					                  
+								<div class="col-xs-4 reqDiv required">
+					                <label class="control-label">Raised On</label>
+					                  <input type="text" class="form-control" 
+					                   ng-model="ticketData.raisedOn" disabled="disabled" required >
+					                </div>
+									
+					                
+								</div> -->								
 						
 						
 								</div>

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.pms.jpa.entities.Financials;
+import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.TicketAttachment;
 
 public class TicketVO {
@@ -69,6 +70,8 @@ public class TicketVO {
 	private String fileExtension;
 	private boolean isFileUploaded;
 	private List<Financials> financialList=new ArrayList<Financials>();
+	private ServiceProvider serviceProvider;
+	private CreateSiteVO site;
 	
 	public TicketVO() {
 		super();
@@ -448,19 +451,42 @@ public class TicketVO {
 	public void setFinancialList(List<Financials> financialList) {
 		this.financialList = financialList;
 	}
+	public ServiceProvider getServiceProvider() {
+		return serviceProvider;
+	}
+	public void setServiceProvider(ServiceProvider serviceProvider) {
+		this.serviceProvider = serviceProvider;
+	}
+	public CreateSiteVO getSite() {
+		return site;
+	}
+	public void setSite(CreateSiteVO site) {
+		this.site = site;
+	}
 	@Override
 	public String toString() {
 		return "TicketVO [ticketId=" + ticketId + ", ticketTitle=" + ticketTitle + ", description=" + description
-				+ ", siteId=" + siteId + ", siteName=" + siteName + ", assetId=" + assetId + ", assetName=" + assetName
-				+ ", categoryId=" + categoryId + ", categoryName=" + categoryName + ", statusId=" + statusId
-				+ ", status=" + status + ", raisedOn=" + raisedOn + ", assignedTo=" + assignedTo
-				+ ", assignedSP=" + assignedSP + ", raisedBy=" + raisedBy + ", raisedUser=" + raisedUser
-				+ ", priorityId=" + priorityId + ", priorityCode=" + priorityCode + ", priorityDescription="
-				+ priorityDescription + ", sla=" + sla + ", status=" + status + ", message=" + message + "]";
+				+ ", siteId=" + siteId + ", siteName=" + siteName + ", siteContact=" + siteContact + ", siteNumber1="
+				+ siteNumber1 + ", siteNumber2=" + siteNumber2 + ", siteAddress=" + siteAddress + ", ticketNumber="
+				+ ticketNumber + ", assetId=" + assetId + ", assetName=" + assetName + ", assetCategoryId="
+				+ assetCategoryId + ", assetCategoryName=" + assetCategoryName + ", subCategoryId1=" + subCategoryId1
+				+ ", assetSubCategory1=" + assetSubCategory1 + ", subCategoryId2=" + subCategoryId2
+				+ ", assetSubCategory2=" + assetSubCategory2 + ", categoryId=" + categoryId + ", categoryName="
+				+ categoryName + ", statusId=" + statusId + ", status=" + status + ", statusDescription="
+				+ statusDescription + ", raisedOn=" + raisedOn + ", assignedTo=" + assignedTo + ", assignedSP="
+				+ assignedSP + ", assignedSPEmail=" + assignedSPEmail + ", raisedBy=" + raisedBy + ", raisedUser="
+				+ raisedUser + ", priorityId=" + priorityId + ", priorityCode=" + priorityCode
+				+ ", priorityDescription=" + priorityDescription + ", sla=" + sla + ", duration=" + duration + ", unit="
+				+ unit + ", statusCode=" + statusCode + ", message=" + message + ", ticketStartTime=" + ticketStartTime
+				+ ", closeCode=" + closeCode + ", closedBy=" + closedBy + ", closeNote=" + closeNote + ", closedOn="
+				+ closedOn + ", createdBy=" + createdBy + ", createdUser=" + createdUser + ", createdOn=" + createdOn
+				+ ", modifiedOn=" + modifiedOn + ", modifiedBy=" + modifiedBy + ", serviceRestorationTime="
+				+ serviceRestorationTime + ", escalationLevelList=" + escalationLevelList + ", linkedTickets="
+				+ linkedTickets + ", escalatedTicketList=" + escalatedTicketList + ", ticketComments=" + ticketComments
+				+ ", incidentImageList=" + incidentImageList + ", attachments=" + attachments + ", slaPercent="
+				+ slaPercent + ", fileInput=" + fileInput + ", fileExtension=" + fileExtension + ", isFileUploaded="
+				+ isFileUploaded + ", financialList=" + financialList + "]";
 	}
-	
-	
-	
 	
 	
 	

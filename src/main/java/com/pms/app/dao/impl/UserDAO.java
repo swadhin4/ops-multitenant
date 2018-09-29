@@ -40,6 +40,7 @@ public class UserDAO {
                 	roleList.add(rs.getString("role_name"));
                 	savedUser.setSysPassword(rs.getString("sys_password"));
                 	savedUser.setCompanyId(rs.getLong("company_id"));
+                	savedUser.setCompanyCode(rs.getString("company_code"));
                 	savedUser.setCompanyName(rs.getString("company_name"));
                 	savedUser.setRoleNameList(roleList);
                 }

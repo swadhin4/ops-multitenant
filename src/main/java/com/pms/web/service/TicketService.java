@@ -19,6 +19,8 @@ public interface TicketService {
 
 	public List<Status> getStatusByCategory(LoginUser loginUser, String category) throws Exception;
 	public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser use) throws Exception;
+
+	public String updateSlaDate(String ticketNumber, int duration, String unit, LoginUser loginUser) throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 

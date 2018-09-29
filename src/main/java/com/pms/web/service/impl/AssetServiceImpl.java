@@ -27,6 +27,7 @@ import com.pms.jpa.entities.Asset;
 import com.pms.jpa.entities.AssetCategory;
 import com.pms.jpa.entities.AssetLocation;
 import com.pms.jpa.entities.AssetRepairType;
+import com.pms.jpa.entities.AssetSubRepairType;
 import com.pms.web.service.AssetService;
 import com.pms.web.util.RestResponse;
 
@@ -128,6 +129,12 @@ public class AssetServiceImpl implements AssetService {
 	public List<AssetRepairType> findAssetRepairTypeBy(LoginUser user, Long assetCategoryId) throws Exception {
 		return getAssetDAO(user.getDbName()).getAssetRepairTypeByAssetCategoryId(assetCategoryId);
 	}
+	
+	@Override
+	public List<AssetSubRepairType> findAssetSubRepairTypeBy(LoginUser user,Long assetSubCategoryid) throws Exception {
+		return getAssetDAO(user.getDbName()).getAssetSubRepairTypeByAssetRepairType(assetSubCategoryid);
+	}
+
 
 	@Override
 	public List<ServiceProviderVO> findSPByCompanyIdIn(LoginUser user) {
@@ -441,4 +448,5 @@ public class AssetServiceImpl implements AssetService {
 		return assetVO;
 	}
 
+	
 }

@@ -51,9 +51,6 @@ public class ConnectionManager {
 		ConnectionManager.setDataSource(dataSource);
 	}
 	
-	
-	
-
 	public static DataSource getDataSource() {
 		return dataSource;
 	}
@@ -70,11 +67,13 @@ public class ConnectionManager {
 	public static synchronized ConnectionManager getInstance(String userDB) {
 		
 		if(connectionManagerObj!=null && !StringUtils.isBlank(dbInstance) && getDbInstance().equalsIgnoreCase(userDB)){
-			LOGGER.info("Connected to DB - "+ userDB);
+			LOGGER.info("Connection already exisits for :"+ userDB);
 			return connectionManagerObj;
 		}
 		else {
+			LOGGER.info("Creating new connection to --"+ userDB);
 			LOGGER.info("Connected to DB - "+ userDB);
+			
 			setDbInstance(userDB);
 			connectionManagerObj = new ConnectionManager(userDB);
 		}

@@ -18,7 +18,7 @@ public class AppConstants {
 			+ " WHERE a.category_id = ? AND a.subcategory1_id = ?  and a.asset_id=? ";
 	
 	public static final String USER_ROLE_QUERY ="select u.user_id, u.first_name, u.last_name, u.email_id, u.password,u.enabled, "
-			+ " r.role_id, r.role_name, r.role_desc, u.sys_password, pc.company_id, pc.company_name "
+			+ " r.role_id, r.role_name, r.role_desc, u.sys_password, pc.company_id,pc.company_code, pc.company_name "
 			+ " from pm_users u inner join pm_user_role ur  INNER join pm_role r on ur.role_id=r.role_id "
 			+ " inner  join pm_company pc where u.company_id=pc.company_id and u.user_id=ur.user_id and u.email_id = ?";
 	
@@ -89,7 +89,7 @@ public class AppConstants {
 
 	public static final String ASSET_DETAILS_QUERY = "SELECT pa.asset_id,pa.asset_name, "
 			+ " pa.asset_code, pa.model_number, pa.category_id,pac.category_name, pa.subcategory1_id,pas.asset_subcategory1, "
-			+ " pa.sp_id,psp.sp_name, pa.location_id,pal.location_name, pa.date_commissioned, pa.date_decomissioned, "
+			+ " pa.sp_id,psp.sp_name,psp.help_desk_email, pa.location_id,pal.location_name, pa.date_commissioned, pa.date_decomissioned, "
 			+ " pa.site_id,ps.site_name, pa.content, pa.is_asset_electrical, pa.is_pw_sensor_attached, pa.pw_sensor_number, "
 			+ " pa.image_path, pa.document_path, pa.asset_desc, pa.del_flag, pac.asset_type, ps.site_owner,ps.contact_name, ps.email "
 			+ " FROM pm_asset pa LEFT JOIN pm_asset_category pac ON pa.category_id=pac.category_id "
@@ -107,6 +107,9 @@ public class AppConstants {
 	
 	public static final String EXTERNAL_SERVICE_PROVIDER_LIST = "select p.sp_id, p.sp_name, p.sp_email, 'E'"
 			+ " from pm_service_provider p left outer join pm_company pc on pc.company_id = p.customer_id where p.customer_id=?";
+	
+	public static final String EXTERNAL_SERVICE_PROVIDER_QUERY = "select * from pm_service_provider p where p.sp_id=?";
+	
 	
 	public static final String FIND_DUPLICATE_ASSET_QUERY = "select * from pm_asset where asset_code = :assetCode and site_id in (:siteIds ) and del_flag=0";
 	
@@ -126,7 +129,7 @@ public class AppConstants {
 			+ " on pst.status_id=pct.status_id where pct.site_id in (:siteIds) ";
 	
 	public static final String SITE_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
-			+ " psp.sp_id, psp.sp_name, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 from pm_asset ps "
+			+ " psp.sp_id, psp.sp_name, psp.help_desk_email,pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 from pm_asset ps "
 			+ " left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
 			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
 			+ " left OUTER join pm_service_provider psp on psp.sp_id = ps.sp_id "
@@ -136,9 +139,18 @@ public class AppConstants {
 	public static final String TICKETS_STATUS_QUERY ="select * from pm_status where category=?";
 	
 	public static final String TICKET_PRIORITY_SP_SLA_QUERY = "select ps.settings_id, ps.category_id, ptc.id, ptc.ticket_category, ptp.priority_id, "
-			+ " ptp.priority, psp.sp_id, psp.sp_name, pss.duration, pss.unit from pm_ct_priority_settings ps "
+			+ " ptp.description, psp.sp_id, psp.sp_name, pss.duration, pss.unit from pm_ct_priority_settings ps "
 			+ " left outer join pm_ticket_category ptc on ptc.id = ps.category_id "
 			+ " left outer join pm_ticket_priority ptp on ptp.priority_id = ps.priority_id "
 			+ " left outer join pm_sp_sla pss on pss.priority_id=ps.priority_id "
 			+ " left outer join pm_service_provider psp on psp.sp_id=pss.sp_id where pss.sp_id=? and ptc.id=?";
+	
+	public static final String INSERT_TICKET_QUERY = "insert into pm_cust_ticket(ticket_number, ticket_title,ticket_desc, status_id,ticket_category,"
+			+ " site_id,asset_id,asset_category_id,asset_subcategory1_id,asset_subcategory2_id,priority,assigned_to, "
+			+ " ticket_starttime, created_by, created_on) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())";
+	public static final String LAST_INCIDENT_NUMBER_QUERY="select id from pm_cust_ticket order by id desc limit 1"; 
+	
+	public static final String INSERT_TICKET_ATTACHMENT_QUERY = "insert into pm_cust_ticket_attachment(ticket_id,ticket_number, attachment_path, "
+			+ "created_by,created_on) values(?,?,?,?,NOW())";
+
 }

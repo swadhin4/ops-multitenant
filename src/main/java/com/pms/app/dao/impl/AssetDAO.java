@@ -33,6 +33,7 @@ import com.pms.jpa.entities.Asset;
 import com.pms.jpa.entities.AssetCategory;
 import com.pms.jpa.entities.AssetLocation;
 import com.pms.jpa.entities.AssetRepairType;
+import com.pms.jpa.entities.AssetSubRepairType;
 import com.pms.web.util.ApplicationUtil;
 
 @Repository
@@ -112,6 +113,25 @@ public class AssetDAO {
 		LOGGER.info("Exit CustomDAOImpl .. getAssetRepairTypeByAssetCategoryId");
 		return repairTypes;
 	}
+	
+	public List<AssetSubRepairType> getAssetSubRepairTypeByAssetRepairType(Long assetSubCategoryid) throws Exception {
+		LOGGER.info("Inside AssetDAO .. getAssetSubRepairTypeByAssetRepairType");
+		LOGGER.info("Getting list of asset sub repair types ");
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<AssetSubRepairType>  subRepairTypes = jdbcTemplate.query(AppConstants.ASSET_SUBREPAIRTYPE_QUERY, new Object[]{assetSubCategoryid},new RowMapper<AssetSubRepairType>(){
+
+			@Override
+			public AssetSubRepairType mapRow(ResultSet rs, int arg1) throws SQLException {
+				AssetSubRepairType assetSubRepairType = new AssetSubRepairType();
+				assetSubRepairType.setSubCategoryId2(rs.getLong(1));
+				assetSubRepairType.setAssetSubcategory2(rs.getString(2));
+				return assetSubRepairType;
+			}
+		});
+		LOGGER.info("Exit CustomDAOImpl .. getAssetRepairTypeByAssetCategoryId");
+		return subRepairTypes;
+	}
+
 
 	public List<AssetLocation> findAssetLocations() {
 		LOGGER.info("Inside AssetDAO .. findAssetLocations");
@@ -171,6 +191,7 @@ public class AssetDAO {
 			assetVO.setDocumentPath(rs.getString("document_path"));
 			assetVO.setServiceProviderId(rs.getLong("sp_id"));
 			assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name"))==true?null:rs.getString("sp_name"));
+			assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
 			String commissionedDate = df.format(rs.getDate("date_commissioned"));
 			String deComissionedDate = null==rs.getDate("date_decomissioned")?null:df.format(rs.getDate("date_decomissioned"));
 			assetVO.setCommisionedDate(commissionedDate);
@@ -334,6 +355,7 @@ public class AssetDAO {
 					assetVO.setAssetType(rs.getString("asset_type"));
 					assetVO.setServiceProviderId(rs.getLong("sp_id"));
 					assetVO.setServiceProviderName(rs.getString("sp_name"));
+					assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
 					assetVO.setCategoryId(rs.getLong("category_id"));
 					assetVO.setAssetCategoryName(rs.getString("category_name"));
 					assetVO.setSubCategoryId1(rs.getLong("subcategory1_id"));
@@ -347,4 +369,6 @@ public class AssetDAO {
 			});
 		return assetList;
 	}
+
+	
 }

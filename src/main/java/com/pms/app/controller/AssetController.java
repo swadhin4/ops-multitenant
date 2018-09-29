@@ -26,6 +26,7 @@ import com.pms.app.view.vo.LoginUser;
 import com.pms.jpa.entities.AssetCategory;
 import com.pms.jpa.entities.AssetLocation;
 import com.pms.jpa.entities.AssetRepairType;
+import com.pms.jpa.entities.AssetSubRepairType;
 import com.pms.web.service.AssetService;
 import com.pms.web.util.RestResponse;
 
@@ -270,6 +271,34 @@ public class AssetController extends BaseController {
 		}
 		
 		logger.info("Exit AssetController .. getAssetRepairType");
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/category/subrepairtype/{assetSubCategoryid}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> getAssetSubRepairType(final HttpSession session, @PathVariable(value="assetSubCategoryid") Long assetSubCategoryid) {
+		logger.info("Inside AssetController .. getAssetSubRepairType");
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser=getCurrentLoggedinUser(session);
+			if (loginUser!=null) {
+			List<AssetSubRepairType> assetSubRepairTypeVOList = assetService.findAssetSubRepairTypeBy(loginUser, assetSubCategoryid);
+			if (assetSubRepairTypeVOList.isEmpty()) {
+				response.setStatusCode(404);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			}else{
+				response.setStatusCode(200);
+				response.setObject(assetSubRepairTypeVOList);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			}
+			}
+		} catch (Exception e) {
+			logger.info("Exception while getting asset repair list ", e);
+			e.printStackTrace();
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+		}
+		
+		logger.info("Exit AssetController .. getAssetSubRepairType");
 		return responseEntity;
 	}
 	
