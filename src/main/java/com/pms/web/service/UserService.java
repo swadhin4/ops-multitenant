@@ -12,7 +12,9 @@ import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
+import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.User;
+import com.pms.jpa.entities.UserRole;
 import com.pms.web.service.security.AuthorizedUserDetails;
 import com.pms.web.util.RestResponse;
 
@@ -55,4 +57,8 @@ public interface UserService {
 	RestResponse resetForgotPassword(String email, String newPassword) throws Exception;
 
 	RestResponse updateProfile(AppUserVO appUserVO) throws Exception;
+
+	List<RoleStatus> getRoleStatus(LoginUser user) throws Exception;
+
+	List<RoleStatus> getRoleStatusByRoleId(Long roleId) throws Exception;
 }

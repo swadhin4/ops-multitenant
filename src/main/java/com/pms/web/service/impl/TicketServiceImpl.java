@@ -5,20 +5,26 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,12 +39,13 @@ import com.pms.app.dao.impl.IncidentDAO;
 import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.SelectedTicketVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
+import com.pms.jpa.entities.CustomerTicket;
 import com.pms.jpa.entities.ServiceProvider;
-import com.pms.jpa.entities.Site;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -106,34 +113,44 @@ public class TicketServiceImpl implements TicketService {
 	@Override
 	@Transactional
 	public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser loginUser) throws Exception {
-		Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated();
-		Long newIncidentNumber =null;
-		if(lastIncidentNumber == 0){
-			newIncidentNumber = 1l;
-		}else{
+		TicketVO incidentVO = null;;
+		if(customerTicket.getTicketId()==null){
+			incidentVO = customerTicket;
+			Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated();
+			Long newIncidentNumber =null;
+			if(lastIncidentNumber == 0){
+				newIncidentNumber = 1l;
+			}else{
+				newIncidentNumber = lastIncidentNumber + 1;
+			}
 			newIncidentNumber = lastIncidentNumber + 1;
+			String ticketNumber = "IN" +  String.format("%08d", newIncidentNumber);
+			LOGGER.info("Ticket Number Generated : " + ticketNumber);
+			incidentVO.setTicketNumber(ticketNumber);
+		}else{
+			incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			BeanUtils.copyProperties(customerTicket, incidentVO);
+			LOGGER.info("Updated Ticket : " +  incidentVO);
+			
 		}
-		newIncidentNumber = lastIncidentNumber + 1;
-		String ticketNumber = "IN" +  String.format("%08d", newIncidentNumber);
-		LOGGER.info("Ticket Number Generated : " + ticketNumber);
-		customerTicket.setTicketNumber(ticketNumber);
-		customerTicket.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
-		customerTicket = getIncidentDAO(loginUser.getDbName()).saveIncident(customerTicket, loginUser);
-		if(customerTicket.getTicketId()!=null && customerTicket.getMessage().equalsIgnoreCase("CREATED")){
-			ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(customerTicket);
-			CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(customerTicket.getSiteId());
-			customerTicket.setServiceProvider(serviceProvider);
-			customerTicket.setSite(site);
-			String folderLocation = createIncidentFolder(customerTicket.getTicketNumber(), loginUser, null);
-			if(StringUtils.isNotEmpty(folderLocation)){
-				if(!customerTicket.getIncidentImageList().isEmpty()){
-					boolean isUploaded = uploadIncidentImages(customerTicket, loginUser,null, folderLocation, loginUser.getUsername());
-					customerTicket.setFileUploaded(isUploaded);
-				}
+		incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
+		incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
+		if(incidentVO.getTicketId()!=null && incidentVO.getMessage().equalsIgnoreCase("CREATED")){
+			ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(incidentVO);
+			CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
+			incidentVO.setServiceProvider(serviceProvider);
+			incidentVO.setSite(site);
+		}else if (incidentVO.getTicketId()!=null && incidentVO.getMessage().equalsIgnoreCase("UPDATED")){
+			
+		}
+		String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
+		if(StringUtils.isNotEmpty(folderLocation)){
+			if(!incidentVO.getIncidentImageList().isEmpty()){
+				boolean isUploaded = uploadIncidentImages(incidentVO, loginUser,null, folderLocation, loginUser.getUsername());
+				incidentVO.setFileUploaded(isUploaded);
 			}
 		}
-		
-		return customerTicket;
+		return incidentVO;
 	}
 
 
@@ -265,7 +282,112 @@ public class TicketServiceImpl implements TicketService {
 		String bucketName="malay-first-s3-bucket-pms-test";
 		awsIntegrationService.uploadObject(new PutObjectRequest(bucketName, fileKey, destinationFile.toFile()).withCannedAcl(CannedAccessControlList.Private), s3client);
 	}
-	
+
+	@Override
+	@Transactional
+	public TicketVO getSelectedTicket(Long ticketId, LoginUser loginUser) throws Exception {
+		SelectedTicketVO selectedTicket = getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId);
+		TicketVO ticketVO = new TicketVO();
+		List<String> addressList = new ArrayList<String>(4);
+		ticketVO.setTicketId(selectedTicket.getId()); 
+		ticketVO.setTicketTitle(selectedTicket.getTicket_title());
+		ticketVO.setTicketNumber(selectedTicket.getTicket_number());
+		ticketVO.setDescription(selectedTicket.getTicket_desc());
+		
+		ticketVO.setSiteId(selectedTicket.getSite_id());
+		ticketVO.setSiteName(selectedTicket.getSite_name());	
+		ticketVO.setSiteNumber1(String.valueOf(selectedTicket.getSite_number1()));
+		ticketVO.setSiteNumber2(selectedTicket.getSite_number2()==null?null:String.valueOf(selectedTicket.getSite_number2()));
+		if(StringUtils.isNotEmpty(selectedTicket.getSite_address1())){
+			addressList.add(selectedTicket.getSite_address1());
+		}
+		if(StringUtils.isNotEmpty(selectedTicket.getSite_address2())){
+			addressList.add(selectedTicket.getSite_address2());
+		}
+		if(StringUtils.isNotEmpty(selectedTicket.getSite_address3())){
+			addressList.add(selectedTicket.getSite_address3());
+		}
+		if(StringUtils.isNotEmpty(selectedTicket.getSite_address4())){
+			addressList.add(selectedTicket.getSite_address4());
+		}
+		String finalAddress = StringUtils.join(addressList,", ");
+		ticketVO.setSiteAddress(finalAddress + ", " +selectedTicket.getPhone() +", "+ selectedTicket.getPost_code() );
+		ticketVO.setSiteContact(String.valueOf(selectedTicket.getPrimary_contact_number()));
+		
+		ticketVO.setAssetId(selectedTicket.getAsset_id());
+		ticketVO.setAssetCategoryId(selectedTicket.getAsset_category_id());
+		ticketVO.setAssetCategoryName(selectedTicket.getCategory_name());
+		ticketVO.setAssetName(selectedTicket.getAsset_name());
+		ticketVO.setAssetCode(selectedTicket.getAsset_code());
+		ticketVO.setAssetSubCategory1(selectedTicket.getAsset_subcategory1());
+		ticketVO.setAssetSubCategory2(selectedTicket.getSubcategory2_name());
+		
+		ticketVO.setCategoryId(selectedTicket.getTicket_category_id());
+		ticketVO.setCategoryName(selectedTicket.getTicket_category());
+		ticketVO.setPriorityDescription(selectedTicket.getPriority());
+		ticketVO.setSla(ApplicationUtil.makeDateStringFromSQLDate(selectedTicket.getSla_duedate()));
+		ticketVO.setTicketStartTime(ApplicationUtil.makeDateStringFromSQLDate(selectedTicket.getTicket_starttime()));
+		ticketVO.setServiceRestorationTime(selectedTicket.getService_restoration_ts());
+		ticketVO.setCloseCode(selectedTicket.getClose_code()==null?null:Long.parseLong(selectedTicket.getClose_code()));
+		ticketVO.setClosedNote(selectedTicket.getClosed_code_desc());
+		ticketVO.setAssignedTo(selectedTicket.getAssigned_to());
+		ticketVO.setAssignedSP(selectedTicket.getSp_name());
+		ticketVO.setClosedBy(selectedTicket.getClosed_by());
+		ticketVO.setClosedOn(selectedTicket.getClosed_on());
+		ticketVO.setCreatedUser(selectedTicket.getFirst_name()+" "+selectedTicket.getLast_name());
+		ticketVO.setRaisedBy(selectedTicket.getCreated_by());
+		ticketVO.setCreatedOn(ApplicationUtil.makeDateStringFromSQLDate(selectedTicket.getCreated_on()));
+		ticketVO.setStatusId(selectedTicket.getStatus_id());
+		ticketVO.setStatusDescription(selectedTicket.getDescription());
+		ticketVO.setStatus(selectedTicket.getStatus());
+		ticketVO.setSlaPercent(getSLAPercent(ticketVO));
+		
+		return ticketVO;
+	}
+	private double getSLAPercent(TicketVO customerTicket) {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+		double slaPercent=0.0;
+		try{
+		Date slaDueDate = simpleDateFormat.parse(customerTicket.getSla());
+		Date creationTime = simpleDateFormat.parse(customerTicket.getCreatedOn());
+		
+		if(customerTicket.getStatusId().intValue() != 15){
+			Date currentDateTime = new Date();
+			long numeratorDiff = currentDateTime.getTime() - creationTime.getTime(); 
+			long denominatorDiff = slaDueDate.getTime() - creationTime.getTime();
+		
+			
+			double numValue = TimeUnit.MINUTES.convert(numeratorDiff, TimeUnit.MILLISECONDS);
+			double deNumValue = TimeUnit.MINUTES.convert(denominatorDiff, TimeUnit.MILLISECONDS);
+			if (deNumValue != 0){
+				slaPercent = Math.round((numValue / deNumValue) * 100);
+			}	
+			return slaPercent;
+		}else{
+			if(customerTicket.getServiceRestorationTime()!=null){
+				Date restoredTime = simpleDateFormat.parse(customerTicket.getServiceRestorationTime());
+				long numeratorDiff = restoredTime.getTime() - creationTime.getTime(); 
+				long denominatorDiff = slaDueDate.getTime() - creationTime.getTime();
+				
+				double numValue = TimeUnit.MINUTES.convert(numeratorDiff, TimeUnit.MILLISECONDS);
+				double deNumValue = TimeUnit.MINUTES.convert(denominatorDiff, TimeUnit.MILLISECONDS);
+				if (deNumValue != 0){
+					slaPercent = Math.round((numValue / deNumValue) * 100);
+				}
+			}
+			return slaPercent;
+		}
+		}catch(ParseException e){
+			e.printStackTrace();
+		}
+		return 0;
+	}
+
+	@Override
+	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser) throws Exception {
+		List<TicketAttachment> selectedTicketAttachments = getIncidentDAO(loginUser.getDbName()).getTicketAttachments(ticketId);
+		return selectedTicketAttachments==null?Collections.emptyList():selectedTicketAttachments;
+	}
 	
 	/*private TicketVO getSelectedTicketDetails(SimpleDateFormat simpleDateFormat, CustomerTicket customerTicket) {
 		List<String> fullAddress = new ArrayList<String>();

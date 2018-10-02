@@ -1,5 +1,6 @@
 package com.pms.app.view.vo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,8 +8,15 @@ import com.pms.jpa.entities.Financials;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.TicketAttachment;
 
-public class TicketVO {
+public class TicketVO implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 700218158087698931L;
+	/**
+	 * 
+	 */
 	private Long ticketId;
 	private String ticketTitle;
 	private String description;
@@ -72,6 +80,7 @@ public class TicketVO {
 	private List<Financials> financialList=new ArrayList<Financials>();
 	private ServiceProvider serviceProvider;
 	private CreateSiteVO site;
+	private int isRootcauseResolved;
 	
 	public TicketVO() {
 		super();
@@ -463,6 +472,12 @@ public class TicketVO {
 	public void setSite(CreateSiteVO site) {
 		this.site = site;
 	}
+	public int getIsRootcauseResolved() {
+		return isRootcauseResolved;
+	}
+	public void setIsRootcauseResolved(int isRootcauseResolved) {
+		this.isRootcauseResolved = isRootcauseResolved;
+	}
 	@Override
 	public String toString() {
 		return "TicketVO [ticketId=" + ticketId + ", ticketTitle=" + ticketTitle + ", description=" + description
@@ -486,6 +501,35 @@ public class TicketVO {
 				+ ", incidentImageList=" + incidentImageList + ", attachments=" + attachments + ", slaPercent="
 				+ slaPercent + ", fileInput=" + fileInput + ", fileExtension=" + fileExtension + ", isFileUploaded="
 				+ isFileUploaded + ", financialList=" + financialList + "]";
+	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((ticketId == null) ? 0 : ticketId.hashCode());
+		result = prime * result + ((ticketNumber == null) ? 0 : ticketNumber.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TicketVO other = (TicketVO) obj;
+		if (ticketId == null) {
+			if (other.ticketId != null)
+				return false;
+		} else if (!ticketId.equals(other.ticketId))
+			return false;
+		if (ticketNumber == null) {
+			if (other.ticketNumber != null)
+				return false;
+		} else if (!ticketNumber.equals(other.ticketNumber))
+			return false;
+		return true;
 	}
 	
 	

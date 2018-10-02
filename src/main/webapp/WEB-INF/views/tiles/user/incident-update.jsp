@@ -120,8 +120,20 @@
     text-decoration: none;
     font-family: 'Open Sans', sans-serif;
 }
-
-
+.middle{
+margin-top: 17px;
+}
+.info-box{
+background:#deefe5
+}
+.info-box-number {
+    font-size: 15px;
+}
+.wordspace{
+ display: block;
+    word-wrap:break-word;
+    white-space: normal"
+}
 </style>
 
 <script>
@@ -270,7 +282,7 @@
 												
 											</li>
 											<!--  Ended by Supravat -->	
-											<li><a href="#attachments" data-toggle="tab">Attachments
+											<li><a href="#attachments" onclick="angular.element(this).scope().getAttachments()" data-toggle="tab">Attachments
 													<span class="label label-warning" style="position: relative;
     top: -8px;">{{ticketData.files.length || 0}}</span>
 											</a></li>
@@ -287,7 +299,60 @@
 										<div class="tab-content">
 											<div class="active tab-pane" id="primaryinfo">
 												<div class="row">
-													<div class="col-lg-3 col-xs-6">
+												<div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <span class="info-box-icon bg-aqua"><i class="fa fa-user middle" ></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">Raised By</span>
+              <span class="info-box-number">{{ticketData.raisedBy}}</span>
+               <a href="#" class="pull-right" style="margin-top: -43px;"
+				data-toggle="popover" data-trigger="hover"
+				data-html="true" data-popover-content="#raisedbypop"
+				data-placement="left"> <span
+				class="fa fa-info-circle fa-2x" aria-hidden="true"></span></a>
+            </div>
+          </div>
+        </div>
+        										<div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <span class="info-box-icon bg-red"><i class="fa fa-building middle"></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">Assigned To</span>
+              <span class="info-box-number">{{ticketData.assignedSP}}</span>
+            </div>
+          </div>
+        </div>
+        
+        										<div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <span class="info-box-icon bg-green"><i class="fa fa-calendar middle"></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">Raised On</span>
+              <span class="info-box-number">{{ticketData.createdOn}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <span class="info-box-icon bg-yellow"><i class="fa fa-cubes middle"></i></span>
+            <div class="info-box-content">
+              <span class="info-box-text">Asset</span>
+              <span class="info-box-number">{{ticketData.assetName}}</span>
+              <a href="#" class="pull-right" style="margin-top: -43px;"
+				data-toggle="popover" data-trigger="hover"
+				data-html="true" data-popover-content="#assetpop"
+				data-placement="left"> <span
+				class="fa fa-info-circle fa-2x" aria-hidden="true"></span></a>
+            </div>
+          </div>
+        </div>
+        </div>
+        <div class="row">
+        <form name="updateticketform" ng-submit="updateTicket()">
+													<!-- <div class="col-lg-3 col-xs-6">
 														<div class="small-box bg-yellow">
 															<div class="inner">
 																<p>
@@ -302,8 +367,8 @@
 															<a href="#" class="small-box-footer">
 																{{ticketData.createdBy}} </a>
 														</div>
-													</div>
-													<div class="col-lg-3 col-xs-6">
+													</div> -->
+													<!-- <div class="col-lg-3 col-xs-6">
 														<div class="small-box bg-yellow">
 															<div class="inner">
 																<p>Assigned To</p>
@@ -311,8 +376,8 @@
 															<a href="#" class="small-box-footer">
 																{{ticketData.assignedSP}} </a>
 														</div>
-													</div>
-													<div class="col-lg-3 col-xs-6">
+													</div> -->
+												<!-- 	<div class="col-lg-3 col-xs-6">
 														<div class="small-box bg-yellow">
 															<div class="inner">
 																<p>Raised On</p>
@@ -335,9 +400,9 @@
 															<a href="#" class="small-box-footer">
 																{{ticketData.assetName}} </a>
 														</div>
-													</div>
-												</div>
-												<div class="row">
+													</div> -->
+												
+												<%-- <div class="row">
 													<div class="col-md-12">
 														SLA {{ticketData.slaPercent}} %
 														<dl class="dl-horizontal">
@@ -345,14 +410,14 @@
 																<div class="progress-bar"
 																	ng-class="{'progress-bar-danger': ticketData.slaPercent >=100, 'progress-bar-warning': ticketData.slaPercent>75 && ticketData.slaPercent<100, 'progress-bar-info': ticketData.slaPercent>0 && ticketData.slaPercent<75}"
 																	role="progressbar"
-																	ng-style="{width: ticketData.width+'%'}"></div>
+																	ng-style="{width: ticketData.width+'%'}"></div> --%>
 
-																<%--   <div class="progress-bar" ng-class="{'progress-bar-danger': {{ticketData.slaPercent}}>=100}" role="progressbar" ng-style="{width:(ticketData.width+'%')}" ></div> --%>
-																<%--  <div class="progress-bar progress-bar-warning" ng-if="ticketData.slaPercent > 75 && ticketData.slaPercent < 100 " ></div> 
+																  <%-- <div class="progress-bar" ng-class="{'progress-bar-danger': {{ticketData.slaPercent}}>=100}" role="progressbar" ng-style="{width:(ticketData.width+'%')}" ></div>
+																 <div class="progress-bar progress-bar-warning" ng-if="ticketData.slaPercent > 75 && ticketData.slaPercent < 100 " ></div> 
 			                      <div class="progress-bar progress-bar-info" ng-if="ticketData.slaPercent > 0 && ticketData.slaPercent <=75 " ></div> 
-			                  --%>
+			                 
 
-																<%--  <div class="progress-bar progress-bar-danger active" role="progressbar" ng-if="ticketData.slaPercent >=100"
+																 <div class="progress-bar progress-bar-danger active" role="progressbar" ng-if="ticketData.slaPercent >=100"
   								aria-valuemin="0" aria-valuemax="100" style="width:100%">
    								  SLA {{ticketData.slaPercent}} %
   								</div>
@@ -360,21 +425,19 @@
   								<div class="progress-bar progress-bar-warning active" role="progressbar" ng-if="ticketData.slaPercent > 75 && ticketData.slaPercent < 100"
   								aria-valuemin="0" aria-valuemax="100" style="width: {{ticketData.slaPercent}} %">
    								  SLA {{ticketData.slaPercent}} %
-  								</div> --%>
+  								</div>
 
-																<%-- <div class="progress-bar progress-bar-danger active" 
+																<div class="progress-bar progress-bar-danger active" 
   								role="progressbar"
   								aria-valuemin="0" aria-valuemax="100" style="width:30 %">
    								  SLA {{ticketData.slaPercent}} %
   								</div> --%>
 
-															</div>
+													<!-- 		</div>
 														</dl>
 													</div>
-												</div>
-												<div class="row">
-													<div class="col-md-12">
-														<form name="updateticketform" ng-submit="updateTicket()">
+												</div> -->
+													<div class="col-md-8">
 															<div class="row">
 																<div class="col-md-12 reqDiv required">
 																	<label class="control-label" for="title">Ticket
@@ -384,19 +447,72 @@
 																		required>
 
 																</div>
-															</div>
-															<div class="row">
 																<div class="col-md-12">
 																	<label class="control-label">Ticket
 																		Description</label>
 																	<textarea class="form-control"
-																		style="width: 100%; height: 100px;" rows="3"
+																		style="width: 100%; height: 84px;" rows="3"
 																		placeholder="Enter ticket description" name="title"
 																		ng-model="ticketData.description"></textarea>
 																</div>
-
+																								
+																								
+													<div class="col-xs-12">
+											          <div class="info-box">
+											            <span class="info-box-icon bg-red">
+											            <i class="fa fa-sitemap middle"></i></span>
+											            <div class="info-box-content">
+											              <span class="info-box-text">Site</span>
+											              <span class="info-box-number wordspace">{{ticketData.siteName}}<br>
+											              Address :  {{ticketData.siteAddress}}
+											              </span>
+											            </div>
+											          </div>
+       												 </div>
+       												 </div>
+       												 <div class="row" id="ticketCloseDiv">
+     												 		<div class="col-xs-6 reqDiv required">
+     												 		 <div class="row">
+															<label class="control-label">Restoration confirmed by </label> 
+															<input type="text" class="form-control"
+																name="closedBy" id="closedBy" val="{{ticketData.closedBy}}"
+																ng-model="ticketData.closedBy" readonly="readonly" autofocus >
 															</div>
-															<div class="row">
+															 <div class="row">
+															<!-- <div class="col-xs-4 reqDiv required"> -->
+															<label class="control-label">Has issue been
+																fixed permanently ?</label> <select name="closeCodeSelect"
+																id="closeCodeSelect" class="form-control">
+															</select>
+															</div>
+															<!-- <input type="text" id="closeCode" ng-model="ticketData.codeClosed" class="form-control">
+															<input type="hidden" ng-model="selectedCloseCode.selected"> -->
+														<!-- 	</div>	 -->
+														</div>
+														
+														
+														<div class="col-md-6 reqDiv required">
+
+															<label class="control-label">Restoration notes</label>
+															<textarea class="form-control"
+																style="width: 100%; height: 92px;" rows="3"
+																placeholder="Enter ticket close note" name="closeNote"
+																id="closeNote" ng-model="ticketData.closeNote"></textarea>
+														</div>
+       												<!--  <div class="col-xs-6">
+											          <div class="info-box">
+											            <span class="info-box-icon bg-red">
+											            <i class="fa fa-sitemap middle"></i></span>
+											            <div class="info-box-content" >
+											              <span class="info-box-text">Address</span>
+											              <span class="info-box-number wordspace" >{{ticketData.siteAddress}}</span>
+											            </div>
+											          </div>
+       												 </div> -->
+																	</div>
+																</div>
+
+														<!-- 	<div class="row">
 																<div class="col-xs-4 reqDiv required">
 																	<label class="control-label">Site <a href="#"
 																		class="pull-right" data-toggle="popover"
@@ -406,14 +522,12 @@
 
 																	<input type="text" ng-model="ticketData.siteName"
 																		class="form-control" required readonly>
-																	<!--  <select name="siteSelect" id="siteSelect" class="form-control" 
-								  onchange="" required>
+																
 									
-								 </select> -->
 																	<input type="hidden" ng-model="selectedSite.selected">
-																</div>
+																</div> -->
 
-																<div class="col-xs-4 reqDiv required">
+															<!-- 	<div class="col-xs-4 reqDiv required">
 																	<label class="control-label">Ticket Category</label> <select
 																		name="ticketCategorySelect" id="ticketCategorySelect"
 																		class="form-control"
@@ -422,7 +536,7 @@
 
 																	</select> <input type="hidden"
 																		ng-model="selectedCategory.selected.categoryName">
-																</div>
+																</div> -->
 																<!--  <div class="col-xs-4 reqDiv required">
 				                <label class="control-label">Asset&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				                <input name="asset_type" id="equipment" value="equipment" type="radio" />Equipment&nbsp;&nbsp;&nbsp;
@@ -436,54 +550,10 @@
 				                  
 				                </div> -->
 
-															</div>
-
-															<div class="row">
+															<!-- </div> -->
 
 
-																<div class="col-xs-4 reqDiv required">
-																	<label class="control-label">Priority</label> <select
-																		name="prioritySelect" id="prioritySelect"
-																		class="form-control" required disabled="disabled"
-																		onchange="getSelectedPriority('prioritySelect')">
-
-																	</select>
-																	<!-- <input type="text"  class="form-control"  
-					                  name="priority" ng-model="ticketData.priority"  required > -->
-																</div>
-																<div class="col-xs-4 reqDiv required">
-																	<label class="control-label">SLA</label>
-																	<div class="form-group">
-																		<div class='input-group date' id='datetimepicker2'>
-																		<!-- Remove disabled properties from below input text by Supravat for allowing SLA Due Date to update on incident update screen.-->
-																			<span
-																				class="input-group-addon"> <span
-																				class="glyphicon glyphicon-calendar"></span>
-																			</span><input type='text' class="form-control" autocomplete="off"
-																				ng-model="ticketData.sla" id="sla"/> 
-																		</div>
-																	</div>
-
-																</div>
-																<div class="col-xs-4 reqDiv required">
-																	<label class="control-label">Status <a
-																		href="#" class="pull-right" data-toggle="popover"
-																		data-trigger="hover" data-html="true"
-																		data-popover-content="#statuspop"
-																		data-placement="left"> <span
-																			class="fa fa-info-circle" aria-hidden="true"></span></a></label>
-
-																	<select name="statusSelect" id="statusSelect"
-																		class="form-control" required
-																		onchange="ticketStatusChange('statusSelect')">
-
-																	</select> <input type="hidden"
-																		ng-model="selectedTicketStatus.selected">
-																</div>
-
-															</div>
-
-															<div class="row">
+														<!-- 	<div class="row">
 																<div class="col-xs-4 reqDiv required">
 																	<label class="control-label">Issue Start Time</label>
 																	<div class="form-group">
@@ -494,9 +564,9 @@
 
 																</div>
 
-															</div>
+															</div> -->
 
-															<div class="row" id="ticketCloseDiv">
+													<%-- 		<div class="row" id="ticketCloseDiv">
 															<div class="col-xs-4 reqDiv required">
 																	<label class="control-label">Restoration confirmed by </label> 
 																	<input type="text" class="form-control"
@@ -508,7 +578,7 @@
 																		fixed permanently ?</label> <select name="closeCodeSelect"
 																		id="closeCodeSelect" class="form-control">
 																	</select>
-																	<%-- <input type="text" id="closeCode" ng-model="ticketData.codeClosed" class="form-control"> --%>
+																	<input type="text" id="closeCode" ng-model="ticketData.codeClosed" class="form-control">
 																	<input type="hidden"
 																		ng-model="selectedCloseCode.selected">
 																</div>
@@ -523,11 +593,100 @@
 																</div>
 
 															</div>
+ --%>
 
-
-															<div class="row">
+														<!-- 	<div class="row">
 
 																<div class="col-md-12" style="margin-top:50px;">
+																	<div class="pull-right">
+																		<button type="submit" class="btn btn-success">Save
+																			changes</button>
+																		<button type="reset" id="reseCreateTicketForm" class="btn btn-success ">RESET</button>
+																	</div>
+																</div>
+															</div> -->
+														
+													
+
+
+															<!-- 	<div class="col-xs-4 reqDiv required">
+																	<label class="control-label">Priority</label> <select
+																		name="prioritySelect" id="prioritySelect"
+																		class="form-control" required disabled="disabled"
+																		onchange="getSelectedPriority('prioritySelect')">
+
+																	</select>
+																	<input type="text"  class="form-control"  
+					                  name="priority" ng-model="ticketData.priority"  required >
+																</div> -->
+																<div class="col-md-4">
+																<div class="row">
+																<div class="col-md-12  reqDiv required">
+																	<label class="control-label">SLA</label>
+																		<div class='input-group date' id='datetimepicker2'>
+																		<!-- Remove disabled properties from below input text by Supravat for allowing SLA Due Date to update on incident update screen.-->
+																			</span><input type='text' class="form-control" autocomplete="off"
+																				ng-model="ticketData.sla" id="sla"/> 
+																				<span
+																				class="input-group-addon"> <span
+																				class="glyphicon glyphicon-calendar"></span>
+																		</div>
+														<dl class="dl-horizontal">
+															<div class="progress">
+																<div class="progress-bar"
+																	ng-class="{'progress-bar-danger': ticketData.slaPercent >=100, 'progress-bar-warning': ticketData.slaPercent>75 && ticketData.slaPercent<100, 'progress-bar-info': ticketData.slaPercent>0 && ticketData.slaPercent<75}"
+																	role="progressbar"
+																	ng-style="{width: ticketData.width+'%'}">
+																	 <span class="progress-text">SLA(%) {{ticketData.slaPercent}} </span>
+																	</div>
+																	</div>
+																	
+																	</dl>
+					<%-- 						<div class="progress-group">
+                    <span class="progress-text">SLA {{ticketData.slaPercent}} %</span>
+                    <span class="progress-number"><b>160</b>/200</span>
+
+                    <div class="progress-bar">
+                      <div ng-class="{'progress-bar-danger': ticketData.slaPercent >=100, 'progress-bar-warning': ticketData.slaPercent>75 && ticketData.slaPercent<100, 'progress-bar-info': ticketData.slaPercent>0 && ticketData.slaPercent<75}" ng-style="{width: ticketData.width+'%'}"></div>
+                    </div>
+                  </div> --%>
+                  </div>
+                  </div>
+														<div class="row" >
+														<div class="col-md-12  reqDiv required">
+														 	 <label class="control-label">Issue Start Time</label> <span class="badge pull-right">{{ticketData.ticketStartTime}}</span><br>
+															<label class="control-label">Ticket Category</label> <select
+																name="ticketCategorySelect" id="ticketCategorySelect"
+																class="form-control"
+																onchange="getSelectedCategory('ticketCategorySelect')"
+																required>
+															</select> <input type="hidden"
+																ng-model="selectedCategory.selected.categoryName">
+																	<div class="box box-widget widget-user-2" ng-if="ticketData.priorityId!=null">
+				            <div class="box-footer no-padding">
+				              <ul class="nav nav-stacked">
+				                <li><a href="#"><b>Priority</b> <span class=" pull-right badge bg-blue">{{ticketData.priorityDescription}}</span></a></li>
+				              </ul>
+				            </div>
+				          </div>
+				         								 <label class="control-label">Status <a
+																		href="#" class="pull-right" data-toggle="popover"
+																		data-trigger="hover" data-html="true"
+																		data-popover-content="#statuspop"
+																		data-placement="left"> <span
+																			class="fa fa-info-circle" aria-hidden="true"></span></a></label>
+
+																	<select name="statusSelect" id="statusSelect"
+																		class="form-control" required
+																		onchange="ticketStatusChange('statusSelect')">
+
+																	</select> <input type="hidden"
+																		ng-model="selectedTicketStatus.selected">
+				          
+																</div>
+															</div>
+															<div class="row">
+															<div class="col-md-12" style="margin-top:50px;">
 																	<div class="pull-right">
 																		<button type="submit" class="btn btn-success">Save
 																			changes</button>
@@ -535,9 +694,10 @@
 																	</div>
 																</div>
 															</div>
-														</form>
-													</div>
-												</div>
+															</div>	
+															
+															</form>
+											</div>
 											</div>
 											<div class="tab-pane" id="escalate">
 												<table id="example2"
@@ -813,7 +973,7 @@
 																		</li>
 
 																		<li class="time-label"><span class="bg-green">
-																				Created On : {{ticketData.raisedOn}} </span></li>
+																				Created On : {{ticketData.createdOn}} </span></li>
 
 																		<li><i class="fa fa-clock-o bg-gray"></i></li>
 																	</ul>
@@ -1026,7 +1186,7 @@
 								<div class="col-md-6" id="chatWindow" style="display: none">
 									<div class="box">
 										<div
-											style="width: 30%; position: fixed; bottom: 13px; right: 0px; margin: 0; background-color: #dbdcdc">
+											style="z-index:9;width: 30%; position: fixed; bottom: 13px; right: 0px; margin: 0; background-color: #dbdcdc">
 											<div class="box-header with-border">
 												<h3 class="box-title" style="color: #000">Work Notes</h3>
 												<div class="box-tools pull-right">

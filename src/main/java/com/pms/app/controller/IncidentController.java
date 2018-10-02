@@ -3,6 +3,8 @@
  */
 package com.pms.app.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -11,7 +13,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -253,7 +254,6 @@ public class IncidentController extends BaseController {
 			try {
 				logger.info("TicektVO : " + ticketVO);
 				savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
-				
 					if (savedTicketVO.getTicketId() != null && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
 						response.setStatusCode(200);
 						response.setObject(savedTicketVO);
@@ -385,7 +385,7 @@ public class IncidentController extends BaseController {
 		}
 		return responseEntity;
 	}
-/*
+
 	@RequestMapping(value = "/selected/ticket", method = RequestMethod.POST)
 	public ResponseEntity<RestResponse> getSelectedTicket(final ModelMap model, final HttpServletRequest request,
 			final HttpSession session, @RequestBody TicketVO ticketVO) {
@@ -394,69 +394,8 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				//TicketVO selectedTicketVO = ticketSerice.getSelectedTicket(ticketVO.getTicketId());
-				/*ServiceProviderVO serviceProviderVO = serviceProviderService.findServiceProvider(selectedTicketVO.getAssignedTo());
-				if (StringUtils.isNotBlank(serviceProviderVO.getHelpDeskEmail())) {
-					ticketVO.setAssignedSPEmail(serviceProviderVO.getHelpDeskEmail());
-				}
-				List<EscalationLevelVO> escalationLevelVOs = serviceProviderVO.getEscalationLevelList();
-				if (escalationLevelVOs.isEmpty()) {
-
-				} else {
-					List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
-					for (EscalationLevelVO escalationVO : escalationLevelVOs) {
-						TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(selectedTicketVO.getTicketId(), escalationVO.getEscId());
-						EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
-						if (ticketEscalationVO.getCustEscId() != null) {
-							tempEscalationVO.setStatus("Escalated");
-						}
-						tempEscalationVO.setEscId(escalationVO.getEscId());
-						tempEscalationVO.setEscalationEmail(escalationVO.getEscalationEmail());
-						tempEscalationVO.setEscalationLevel(escalationVO.getEscalationLevel());
-						tempEscalationVO.setLevelId(escalationVO.getLevelId());
-						tempEscalationVO.setServiceProdviderId(escalationVO.getServiceProdviderId());
-						tempEscalationVO.setEscalationPerson(escalationVO.getEscalationPerson());
-						finalEscalationList.add(tempEscalationVO);
-					}
-
-					ticketVO.setEscalationLevelList(finalEscalationList);
-				}
-				List<CustomerSPLinkedTicketVO> customerLinkedTickets = ticketSerice.getAllLinkedTickets(selectedTicketVO.getTicketId());
-				if (!customerLinkedTickets.isEmpty()) {
-					ticketVO.setLinkedTickets(customerLinkedTickets);
-				}
-
-				List<TicketCommentVO> selectedTicketComments = ticketSerice.getTicketComments(selectedTicketVO.getTicketId());
-				if (!selectedTicketComments.isEmpty()) {
-					ticketVO.setTicketComments(selectedTicketComments);
-				}
-
-				List<TicketAttachment> fileAttachments = ticketAttachmentRepo.findByTicketNumber(selectedTicketVO.getTicketNumber());
-				if (fileAttachments == null) {
-					logger.info("Not Ticket Attachment for " + selectedTicketVO.getTicketNumber());
-				} else {
-					if (fileAttachments.isEmpty()) {
-						logger.info("Not Ticket Attachment for " + selectedTicketVO.getTicketNumber());
-					} else {
-						List<TicketAttachment> fileAttachmentList = new ArrayList<TicketAttachment>();
-						SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-						for (TicketAttachment ticketAttachment : fileAttachments) {
-							ticketAttachment.setCreatedDate(formatter.format(ticketAttachment.getCreatedOn()));
-							fileAttachmentList.add(ticketAttachment);
-						}
-						selectedTicketVO.setAttachments(fileAttachmentList);
-					}
-				}
-				selectedTicketVO.setLinkedTickets(ticketVO.getLinkedTickets());
-				// selectedTicketVO.getEscalationLevelList().clear();
-				selectedTicketVO.setEscalationLevelList(ticketVO.getEscalationLevelList());
-				selectedTicketVO.setTicketComments(ticketVO.getTicketComments());
-				// Changes added by ankit for Financials Data
-				List<Financials> finacialsList = finService.findByTicketId(selectedTicketVO.getTicketId());
-				selectedTicketVO.setFinancialList(finacialsList);
-				System.out.println("these are financials====>>> " + selectedTicketVO.getFinancialList());
-				// Changes end here
-			session.setAttribute("selectedTicket", ticketVO);
+				//SelectedTicketVO selectedTicketVO = ticketSerice.getSelectedTicket(ticketVO.getTicketId(),loginUser);
+			    session.setAttribute("selectedTicket", ticketVO);
 				response.setStatusCode(200);
 				response.setObject(ticketVO);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
@@ -473,6 +412,126 @@ public class IncidentController extends BaseController {
 
 		return responseEntity;
 	}
-*/
+	@RequestMapping(value = "/session/ticket/update", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> incidentSessionTicket(ModelMap model, HttpServletRequest request,
+			HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		if (loginUser != null) {
+			model.put("user", loginUser);
+			TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+			try {
+				if (selectedTicketVO != null) {
+					selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(),loginUser);
+					/*ServiceProviderVO serviceProviderVO = serviceProviderService.findServiceProvider(selectedTicketVO.getAssignedTo());
+					if (StringUtils.isNotBlank(serviceProviderVO.getHelpDeskEmail())) {
+						selectedTicketVO.setAssignedSPEmail(serviceProviderVO.getHelpDeskEmail());
+					}
+					List<EscalationLevelVO> escalationLevelVOs = serviceProviderVO.getEscalationLevelList();
+					if (escalationLevelVOs.isEmpty()) {
 
+					} else {
+						List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
+						for (EscalationLevelVO escalationVO : escalationLevelVOs) {
+							TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(selectedTicketVO.getTicketId(), escalationVO.getEscId());
+							EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
+							if (ticketEscalationVO.getCustEscId() != null) {
+								tempEscalationVO.setStatus("Escalated");
+							}
+							tempEscalationVO.setEscId(escalationVO.getEscId());
+							tempEscalationVO.setEscalationEmail(escalationVO.getEscalationEmail());
+							tempEscalationVO.setEscalationLevel(escalationVO.getEscalationLevel());
+							tempEscalationVO.setLevelId(escalationVO.getLevelId());
+							tempEscalationVO.setServiceProdviderId(escalationVO.getServiceProdviderId());
+							tempEscalationVO.setEscalationPerson(escalationVO.getEscalationPerson());
+							finalEscalationList.add(tempEscalationVO);
+						}
+
+						selectedTicketVO.setEscalationLevelList(finalEscalationList);
+					}
+					List<CustomerSPLinkedTicketVO> customerLinkedTickets = ticketSerice.getAllLinkedTickets(selectedTicketVO.getTicketId());
+					if (!customerLinkedTickets.isEmpty()) {
+						selectedTicketVO.setLinkedTickets(customerLinkedTickets);
+					}
+
+					List<TicketCommentVO> selectedTicketComments = ticketSerice.getTicketComments(selectedTicketVO.getTicketId());
+					if (!selectedTicketComments.isEmpty()) {
+						selectedTicketVO.setTicketComments(selectedTicketComments);
+					}
+
+					List<TicketAttachment> fileAttachments = ticketAttachmentRepo.findByTicketNumber(selectedTicketVO.getTicketNumber());
+					if (fileAttachments == null) {
+						logger.info("Not Ticket Attachment for " + selectedTicketVO.getTicketNumber());
+					} else {
+						if (fileAttachments.isEmpty()) {
+							logger.info("Not Ticket Attachment for " + selectedTicketVO.getTicketNumber());
+						} else {
+							List<TicketAttachment> fileAttachmentList = new ArrayList<TicketAttachment>();
+							SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+							for (TicketAttachment ticketAttachment : fileAttachments) {
+								ticketAttachment.setCreatedDate(formatter.format(ticketAttachment.getCreatedOn()));
+								fileAttachmentList.add(ticketAttachment);
+							}
+							selectedTicketVO.setAttachments(fileAttachmentList);
+						}
+					}
+					selectedTicketVO.setLinkedTickets(selectedTicketVO.getLinkedTickets());
+					// selectedTicketVO.getEscalationLevelList().clear();
+					selectedTicketVO.setEscalationLevelList(selectedTicketVO.getEscalationLevelList());
+					selectedTicketVO.setTicketComments(selectedTicketVO.getTicketComments());
+					// Changes added by ankit for Financials Data
+					//List<Financials> finacialsList = finService.findByTicketId(selectedTicketVO.getTicketId());
+					//selectedTicketVO.setFinancialList(finacialsList);
+					logger.info("these are financials====>>> " + selectedTicketVO.getFinancialList());
+					// Changes end here
+*/					session.setAttribute("selectedTicket", selectedTicketVO);
+					response.setStatusCode(200);
+					response.setObject(selectedTicketVO);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				} else {
+					response.setStatusCode(404);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+				logger.info("Exception in getting ticket response", e);
+			}
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		return responseEntity;
+	}
+	@RequestMapping(value = "/file/attachments/{ticketId}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getTicketAttachments(@PathVariable(value="ticketId") Long ticketId ,HttpSession session) throws Exception {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		if (loginUser != null) {
+			TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+			List<TicketAttachment> fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser);
+			if (fileAttachments == null) {
+				logger.info("Not Ticket Attachment for " + ticketId);
+			} else {
+				if (fileAttachments.isEmpty()) {
+					logger.info("Not Ticket Attachment for " + ticketId);
+				} else {
+					List<TicketAttachment> fileAttachmentList = new ArrayList<TicketAttachment>();
+					SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+					for (TicketAttachment ticketAttachment : fileAttachments) {
+						ticketAttachment.setCreatedDate(formatter.format(ticketAttachment.getCreatedOn()));
+						fileAttachmentList.add(ticketAttachment);
+					}
+					 selectedTicketVO.setAttachments(fileAttachmentList);
+					 response.setStatusCode(200);
+					 response.setObject(selectedTicketVO);
+					 responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+			}
+		}
+		return responseEntity;
+	}
 }

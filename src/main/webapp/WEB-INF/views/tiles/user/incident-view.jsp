@@ -206,7 +206,7 @@ $(function() {
 				        </div>
 				        <!-- /.box-body -->
 				        <div class="box-footer">
-				          {{ticketData.raisedOn}}
+				          {{ticketData.createdOn}}
 				        </div>
 				      </div>
 				      </div>

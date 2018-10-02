@@ -54,6 +54,7 @@ public class SiteServiceImpl implements SiteService{
 	}
 	
 	@Override
+	@Transactional
 	public List<Integer> saveSiteLicense(List<SiteLicenceVO> siteLicenseVOList, Long siteId, LoginUser user) throws Exception {
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
 		List<Integer> savedLicenseRecords = new ArrayList<Integer>();
@@ -87,6 +88,7 @@ public class SiteServiceImpl implements SiteService{
 		return savedLicenseRecords;
 	}
 	@Override
+	@Transactional
 	public int updateSiteLicense(List<SiteLicenceVO> siteLicenseVOList, Long siteId, LoginUser user) throws Exception {
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
 		int licenseRecordsUpdated=0;
@@ -97,6 +99,7 @@ public class SiteServiceImpl implements SiteService{
 	}
 
 	@Override
+	@Transactional
 	public int saveSiteOperatingTimings(CreateSiteVO createSiteVO, Long siteId, LoginUser user, String mode) throws Exception {
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
 		int siteOperation=0;
@@ -110,6 +113,7 @@ public class SiteServiceImpl implements SiteService{
 	}
 	
 	@Override
+	@Transactional
 	public int saveSiteSubmeter(List<SiteSubmeterVO> siteSubmeterVOList, Long siteId, LoginUser user, String mode) throws Exception {
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
 		List<Integer> savedSubmeterVORecords = new ArrayList<Integer>();
@@ -180,6 +184,7 @@ public class SiteServiceImpl implements SiteService{
 	}
 
 	@Override
+	@Transactional
 	public CreateSiteVO updateSite(CreateSiteVO siteVO, LoginUser user) throws Exception {
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
 		CreateSiteVO savedSiteVO = null;

@@ -262,7 +262,8 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				//console.log(data)
 				if(data.statusCode == 200){
 					$scope.ticketData=angular.copy(data.object);
-					$scope.ticketData.createdBy=data.object.raisedBy;
+					//$scope.ticketData.createdBy=$scope.sessionUser.username;
+					$scope.getAttachments($scope.ticketData.ticketId);
 					$scope.setSLAWidth($scope.ticketData);
 					$scope.getUserRoleStatusMap();
 					$scope.getTicketCategory();
@@ -278,7 +279,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 						$scope.getCloseCode();
 						$('#closeNote').prop("disabled", true);
 						$.each($scope.closeCodeList,function(key,val){
-							if(val.id == $scope.ticketData.closeCode){
+							if(val.code == $scope.ticketData.closeCode){
 								$scope.ticketData.codeClosed=val.code;								
 								$('#closeCode').prop("disabled", true);
 								return false;
@@ -947,7 +948,7 @@ $scope.setTicketraisedOnDate=function(){
 				 $scope.ticketData.closeCode =  parseInt($("#closeCodeSelect").val());
 			 }
 			 //console.log($scope.ticketData);
-			// $scope.ticketData.sla = $('#sla').val();
+			 $scope.ticketData.sla = $('#sla').val();
 			 $scope.persistTicket($scope.ticketData, "UPDATE");
 			//Added by Supravat for allowing SLA Due Date to update on incident update screen.
 			 //To Refresh SLA Percentage
@@ -2295,6 +2296,27 @@ $scope.setTicketraisedOnDate=function(){
 	$scope.changeStatusDescription=function(description){
 		$scope.ticketData.statusDescription=description;
 		$('#statusDesc').text("Description: "+ description);
+	}
+	
+	$scope.getAttachments=function(ticketId){
+		ticketService.getTicketAttachment($scope.ticketData.ticketId)
+		.then(function(data){
+			if(data.statusCode==200){
+				$scope.ticketData.files=[];
+				$.each(data.object.attachments,function(key,val){
+					var  fileInfo={
+							fileId:val.attachmentId,
+							fileName: val.attachmentPath.substring(val.attachmentPath.lastIndexOf("/")+1),
+							createdOn: val.createdDate,
+							filePath: val.attachmentPath
+					}
+					$scope.ticketData.files.push(fileInfo);
+				});
+			}
+		},function(data){
+			console.log(data);
+		})
+		
 	}
 			 
 }]);

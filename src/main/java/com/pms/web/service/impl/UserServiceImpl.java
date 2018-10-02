@@ -7,11 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.pms.app.dao.impl.UserDAO;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
+import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.User;
 import com.pms.web.service.UserService;
 import com.pms.web.service.security.AuthorizedUserDetails;
@@ -23,6 +25,10 @@ public class UserServiceImpl implements UserService {
 
 	public UserServiceImpl() {
 		super();
+	}
+	
+	private UserDAO getUserDAO(String dbName) {
+		return new UserDAO(dbName);
 	}
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
@@ -138,6 +144,35 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public RestResponse updateProfile(AppUserVO appUserVO) throws Exception {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+	@Override
+	public List<RoleStatus> getRoleStatus(LoginUser user) {
+		try {
+			System.out.println("Role ID --- > "+user.getUserRoles().get(0));
+			List<RoleStatus> roleStatus = getUserDAO(user.getDbName()).getRoleStatus(user.getUserRoles().get(0).getRole().getRoleId());
+			return roleStatus;
+		} catch (Exception e) {
+			LOGGER.error("Error Occured while fetching Role Status mapping");
+			e.printStackTrace();
+			return null;
+		}
+
+	}
+	
+	@Override
+	public List<RoleStatus> getRoleStatusByRoleId(final Long roleId) {
+		try {
+			System.out.println("Role ID --- > "+roleId);
+			//List<RoleStatus> roleStatus = getUserDAO(dbName).getRoleStatus(roleId);
+			//return roleStatus;
+		} catch (Exception e) {
+			LOGGER.error("Error Occured while fetching Role Status mapping");
+			e.printStackTrace();
+			return null;
+		}
 		return null;
 	}
 

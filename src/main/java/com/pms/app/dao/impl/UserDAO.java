@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
+import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.UserModel;
 
 
@@ -48,5 +49,25 @@ public class UserDAO {
 			}
 		});
 	}
+
+	public List<RoleStatus> getRoleStatus(Long roleId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<RoleStatus> roleStatusList = jdbcTemplate.query(AppConstants.USER_ROLE_STATUS_MAPPING, new Object[] {roleId}, new ResultSetExtractor<List<RoleStatus>>(){
+			List<RoleStatus> roleStatusMap = new ArrayList<RoleStatus>();
+			@Override
+			public List<RoleStatus> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					RoleStatus roleStatus = new RoleStatus();
+					roleStatus.setId(rs.getLong("role_status_map_id"));
+					roleStatus.setRoleId(rs.getLong("role_id"));
+					roleStatus.setStatusId(rs.getLong("status_id"));
+					roleStatusMap.add(roleStatus);
+				}
+				return roleStatusMap;
+			}
+		});
+		return roleStatusList;
+	}
+	
 	
 }

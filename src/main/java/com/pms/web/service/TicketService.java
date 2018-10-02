@@ -3,9 +3,11 @@ package com.pms.web.service;
 import java.util.List;
 
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.SelectedTicketVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Status;
+import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
 
 
@@ -21,6 +23,10 @@ public interface TicketService {
 	public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser use) throws Exception;
 
 	public String updateSlaDate(String ticketNumber, int duration, String unit, LoginUser loginUser) throws Exception;
+
+	public TicketVO getSelectedTicket(Long ticketId,LoginUser loginUser) throws Exception;
+
+	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser) throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 
@@ -37,7 +43,7 @@ public interface TicketService {
 
 	
 
-	public TicketVO getSelectedTicket(Long ticketId) throws Exception;
+	
 	
 	
 

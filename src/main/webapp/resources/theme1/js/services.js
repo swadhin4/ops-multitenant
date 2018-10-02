@@ -699,12 +699,28 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
         saveFinalcialsCostItems:saveFinalcialsCostItems,
 		//Ended By Supravat.
         //Added By Supravat for Related Tickets Requirements.
-        getRelatedTicketData:getRelatedTicketData
+        getRelatedTicketData:getRelatedTicketData,
 		//Ended By Supravat.
+        getTicketAttachment:getTicketAttachment
         
         
     };
  	return TicketService;
+ 	
+ 	 // implementation
+    function getTicketAttachment(ticketId) {
+        var def = $q.defer();
+        $http.get(hostLocation+"/incident/file/attachments/"+ticketId)
+            .success(function(data) {
+            	//console.log(data)
+                def.resolve(data);
+            })
+            .error(function(data) {
+            	console.log(data)
+                def.reject(data);
+            });
+        return def.promise;
+    }
  	
  	//Added By Supravat for Related Tickets Requirements.
  	function getRelatedTicketData(relatedInputData, mode) {

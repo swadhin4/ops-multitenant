@@ -12,11 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
@@ -29,15 +31,14 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.StringUtils;
 
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.SelectedTicketVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
-import com.pms.jpa.entities.Asset;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
@@ -167,41 +168,75 @@ public class IncidentDAO {
 		});
 		return lastTicketId;
 	}
-	public TicketVO saveIncident (TicketVO ticketVO, LoginUser user){
-		LOGGER.info("IncidentDAO -- saveIncident -- Save Incident details using Procedure: ");
+	
+	public TicketVO saveOrUpdateIncident (final TicketVO ticketVO, LoginUser user){
+		LOGGER.info("IncidentDAO -- saveOrUpdateIncident -- Save Incident details using Procedure: ");
 		if(ticketVO.getTicketId()==null){
-			//JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getTenantDataSource());
-			/*SimpleJdbcCall insertJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("uspCreateCustIncident");			SqlParameterSource map = createNewIncidentParam(ticketVO, user);
-			Map<String, Object> out = insertJdbcCall.execute(map);
-			Map<String, String> resultMap1 = ApplicationUtil.extractResult(out);
-			ticketVO.setTicketId(Long.parseLong(resultMap1.get("@ticketId")));
-			ticketVO.setStatusCode(Integer.parseInt(resultMap1.get("@isError")));*/
 			try {
-				ticketVO = insertTicketData(ticketVO,user);
-				LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketTitle() +" with ID : "+ ticketVO.getTicketId());
-				if(ticketVO.getTicketId()!=null ){
+				TicketVO savedTicketVO = insertTicketData(ticketVO,user);
+				if(savedTicketVO.getTicketId()!=null ){
 					LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
-					ticketVO.setStatusCode(200);
-					ticketVO.setMessage("Created");
+					savedTicketVO.setStatusCode(200);
+					savedTicketVO.setMessage("Created");
 				}else{
-					ticketVO.setTicketId(null);
 					LOGGER.info("Unable to create incident for "+  user.getUsername() + "in name of "+ ticketVO.getTicketTitle());
 				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		
 		}else if(ticketVO.getTicketId()!=null){
-			//ticketVO.setMessage("Updated");
+			try {
+				TicketVO savedTicketVO = updateTicketData(ticketVO,user);
+				if(savedTicketVO.getTicketId()!=null ){
+					LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
+					LOGGER.info("Status of the incident updated to : " +  ticketVO.getStatus());
+					LOGGER.info("Incident Modified by : " +  ticketVO.getModifiedBy());
+					savedTicketVO.setStatusCode(200);
+					savedTicketVO.setMessage("Updated");
+				}else{
+					LOGGER.info("Unable to update incident for "+  user.getUsername() + "in name of "+ ticketVO.getTicketTitle());
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			LOGGER.info("Incident updated for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
 		}
 		
-		LOGGER.info("Exit -- IncidentDAO -- saveIncident-- Save Incident details using Procedure: ");
+		LOGGER.info("Exit -- IncidentDAO -- saveOrUpdateIncident-- Save Incident details using Procedure: ");
 		return ticketVO;
 
 	}
 	
+	private TicketVO updateTicketData(TicketVO ticketVO, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		 jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_TICKET_QUERY);
+	            ps.setString(1, ticketVO.getTicketTitle());
+	            ps.setString(2, ticketVO.getDescription());
+	            ps.setString(3,  ApplicationUtil.makeSQLDateFromString(ticketVO.getSla()));
+	            ps.setLong(4,  ticketVO.getCategoryId());
+	            ps.setLong(5, ticketVO.getStatusId());
+	            ps.setString(6, ticketVO.getPriorityDescription());
+	            ps.setLong(7, ticketVO.getStatusId().intValue()==15?ticketVO.getCloseCode():0l);
+	            ps.setString(8, StringUtils.isEmpty(ticketVO.getCloseNote())==true?null:ticketVO.getCloseNote());
+	            ps.setDate(9, ticketVO.getStatusId().intValue()==13?ApplicationUtil.getSqlDate(new Date()):null);
+	            ps.setInt(10, ticketVO.getIsRootcauseResolved());
+	            ps.setDate(11, ticketVO.getStatusId().intValue()==15?ApplicationUtil.getSqlDate(new Date()):null);
+	            ps.setString(12, ticketVO.getStatusId().intValue()==13?user.getUsername():ticketVO.getClosedBy()); //closed by if status is closed
+	            ps.setString(13,  user.getUsername());//Modified by username
+	            ps.setDate(14,  ApplicationUtil.getSqlDate(new Date()));//Modified date
+	            ps.setLong(15, ticketVO.getTicketId());
+		        return ps;
+		      }
+		    });
+		 	LOGGER.info("Update customer ticket {} with id {}.", ticketVO.getTicketNumber(), ticketVO.getTicketId());
+		    ticketVO.setTicketId(ticketVO.getTicketId());
+		    ticketVO.setModifiedBy(user.getUsername());
+		    return ticketVO;
+	}
 	private TicketVO insertTicketData(TicketVO ticketVO, LoginUser user) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
@@ -343,5 +378,29 @@ public class IncidentDAO {
 			}
 		});
 		return serviceProvider;
+	}
+	public SelectedTicketVO getSelectedTicket(Long ticketId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		SelectedTicketVO selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(AppConstants.TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
+		return selectedTicketVO;
+	}
+	public List<TicketAttachment> getTicketAttachments(Long ticketId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketAttachment> ticketAttachments = jdbcTemplate.query(AppConstants.TICKET_ATTACHMENTS,new Object[]{ticketId}, new ResultSetExtractor<List<TicketAttachment>>(){
+			@Override
+			public List<TicketAttachment> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<TicketAttachment> attachments = new ArrayList<TicketAttachment>();
+				while(rs.next()){
+					TicketAttachment ticketAttachment = new TicketAttachment();
+					ticketAttachment.setAttachmentId(rs.getLong("id"));
+					ticketAttachment.setTicketNumber(rs.getString("ticket_number"));
+					ticketAttachment.setAttachmentPath(rs.getString("attachment_path"));
+					attachments.add(ticketAttachment);
+				}
+				return attachments;
+			}
+		
+		});
+		return ticketAttachments;
 	}
 }

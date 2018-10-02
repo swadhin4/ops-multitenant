@@ -435,6 +435,7 @@ public class AssetServiceImpl implements AssetService {
 	
 
 	@Override
+	@Transactional
 	public AssetVO deleteAsset(AssetVO assetVO, LoginUser user) throws Exception {
 		LOGGER.info("Inside AssetServiceImpl .. deleteAsset");
 		try {
