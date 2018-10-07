@@ -35,14 +35,21 @@ import org.springframework.stereotype.Repository;
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
+import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
+import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
+import com.pms.app.view.vo.TicketCommentVO;
+import com.pms.app.view.vo.TicketEscalationVO;
+import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
+import com.pms.jpa.entities.CustomerSPLinkedTicket;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
+import com.pms.jpa.entities.TicketComment;
 import com.pms.web.util.ApplicationUtil;
 @Repository
 public class IncidentDAO {
@@ -283,62 +290,7 @@ public class IncidentDAO {
 	      return slaDueDate;
 	      
 	}
-	private SqlParameterSource createNewIncidentParam(TicketVO ticketVO, LoginUser user) {
-		SqlParameterSource map = new MapSqlParameterSource()
-				.addValue("ticketNumber", ticketVO.getTicketNumber())
-				.addValue("ticketTitle", ticketVO.getTicketTitle())
-				.addValue("ticketDesc", ticketVO.getDescription())
-				.addValue("siteId", ticketVO.getSiteId())
-				.addValue("assetId", ticketVO.getAssetId())
-				.addValue("assetCatId",ticketVO.getAssetCategoryId())
-				.addValue("assetSubCat1Id", ticketVO.getSubCategoryId1())
-				.addValue("assetSubCat2Id", ticketVO.getSubCategoryId2())
-				.addValue("spId", ticketVO.getAssignedTo())
-				.addValue("ticketCatId", ticketVO.getCategoryId())
-				.addValue("ticketPriority",ticketVO.getPriorityDescription())
-				.addValue("issueStartTime", ticketVO.getTicketStartTime())
-				.addValue("slaDuration", ticketVO.getDuration())
-				.addValue("slaUnit", ticketVO.getUnit())
-				.addValue("statusId", ticketVO.getStatusId())
-				.addValue("createdBy", user.getUsername())
-				.addValue("dbName", user.getDbName())
-				.addValue("ticketId", "@ticketId")
-				.addValue("isError", "@isError");
-				return map;
-	}
 	
-	private int createTicketUsingProc(TicketVO ticketVO, LoginUser user)
-            throws Exception {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getTenantDataSource());
-        int updatedRows = jdbcTemplate.update("call tenants.uspCreateCustIncident(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                new PreparedStatementSetter() {
-
-                    @Override
-                    public void setValues(PreparedStatement ps) throws SQLException {
-                    	ps.setString(1, ticketVO.getTicketNumber());
-                        ps.setString(2, ticketVO.getTicketTitle());
-                        ps.setString(3, ticketVO.getDescription());
-                        ps.setLong(4, ticketVO.getSiteId());
-                        ps.setLong(5, ticketVO.getAssetId());
-                        ps.setLong(6, ticketVO.getAssetCategoryId());
-                        ps.setLong(7, ticketVO.getSubCategoryId1());
-                        ps.setLong(8, ticketVO.getSubCategoryId2());
-                        ps.setLong(9, ticketVO.getAssignedTo());
-                        ps.setLong(10,  ticketVO.getCategoryId());
-                        ps.setString(11, ticketVO.getPriorityDescription());
-                        ps.setString(12, ticketVO.getTicketStartTime());
-                        ps.setLong(13, ticketVO.getDuration());
-                        ps.setString(14, ticketVO.getUnit());
-                        ps.setLong(15, ticketVO.getStatusId());
-                        ps.setString(16,  user.getUsername());
-                        ps.setString(17,  user.getDbName());
-                      //  ps.setString(18, "@isError");
-                    }
-
-
-                });
-        return updatedRows;
-    }
 	public int insertOrUpdateTicketAttachments(List<TicketAttachment> ticketAttachments) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
         int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.INSERT_TICKET_ATTACHMENT_QUERY , 
@@ -402,5 +354,245 @@ public class IncidentDAO {
 		
 		});
 		return ticketAttachments;
+	}
+	public TicketComment saveTicketComment(TicketComment ticketComment, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_TICKET_COMMENT_QUERY, 
+	            Statement.RETURN_GENERATED_KEYS);
+	        ps.setLong(1, ticketComment.getTicketId());
+	        ps.setString(2, ticketComment.getCustTicketNumber());
+	    	ps.setString(3, ticketComment.getComment());
+            ps.setString(4,  user.getUsername());
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved customer ticket comment {} with id {}.", ticketComment.getCustTicketNumber(), key.getKey());
+	    ticketComment.setCommentId(key.getKey().longValue());
+		return ticketComment;
+	}
+	
+	public List<TicketCommentVO> getTicketComments(Long ticketId){
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketCommentVO> ticketComments = jdbcTemplate.query(AppConstants.TICKET_COMMENTS,new Object[]{ticketId}, new ResultSetExtractor<List<TicketCommentVO>>(){
+			@Override
+			public List<TicketCommentVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<TicketCommentVO> comments = new ArrayList<TicketCommentVO>();
+				while(rs.next()){
+					TicketCommentVO comment = new TicketCommentVO();
+					comment.setCommentId(rs.getLong("comment_id"));
+					comment.setComment(rs.getString("comment"));
+					comment.setCreatedBy(rs.getString("created_by"));
+					comment.setCreatedDate(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_date")));
+					comments.add(comment);
+				}
+				return comments;
+			}
+		});
+		return ticketComments;
+		
+	}
+	public List<TicketHistoryVO> getTicketHistory(String ticketNumber) {
+		
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketHistoryVO> ticketHistory = jdbcTemplate.query(AppConstants.TICKET_HISTORY,new Object[]{ticketNumber}, new ResultSetExtractor<List<TicketHistoryVO>>(){
+			@Override
+			public List<TicketHistoryVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<TicketHistoryVO> historyList = new ArrayList<TicketHistoryVO>();
+				while(rs.next()){
+					TicketHistoryVO history = new TicketHistoryVO();
+					history.setHistoryId(rs.getLong("history_id"));
+					history.setTicketNumber(rs.getString("ticket_number"));
+					history.setAction(rs.getString("action").charAt(0));
+					history.setMessage(rs.getString("message"));
+					history.setColumnName(rs.getString("column_name"));
+					SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+					history.setTimeStamp(simpleDateFormat.format(rs.getDate("ts")));
+					history.setValueBefore(rs.getString("value_before"));
+					history.setValueAfter(rs.getString("value_after"));
+					history.setWho(rs.getString("who"));
+					historyList.add(history);
+				}
+				return historyList;
+			}
+		});
+		return ticketHistory;
+	}
+	public List<CustomerSPLinkedTicketVO> findByCustTicketIdAndDelFlag(Long custTicketId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<CustomerSPLinkedTicketVO> spLinkedTickets = jdbcTemplate.query(AppConstants.EXT_SP_LINKED_TICKETS,new Object[]{custTicketId}, new ResultSetExtractor<List<CustomerSPLinkedTicketVO>>(){
+			@Override
+			public List<CustomerSPLinkedTicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<CustomerSPLinkedTicketVO> linkedTickets = new ArrayList<CustomerSPLinkedTicketVO>();
+				while(rs.next()){
+					CustomerSPLinkedTicketVO customerSPLinkedTicketVO = new CustomerSPLinkedTicketVO();
+					customerSPLinkedTicketVO.setId(rs.getLong("id"));
+					customerSPLinkedTicketVO.setSpLinkedTicket(rs.getString("spticket_no"));
+					customerSPLinkedTicketVO.setCustTicketId(rs.getString("cust_ticket_id"));
+					customerSPLinkedTicketVO.setCustTicketNumber(rs.getString("customer_ticket_no"));
+					customerSPLinkedTicketVO.setClosedFlag(rs.getString("closed_flag"));
+					linkedTickets.add(customerSPLinkedTicketVO);
+				}
+				return linkedTickets;
+			}
+			
+		});
+		return spLinkedTickets;
+	}
+	
+	public List<TicketVO> findRelatedTickets(Long custTicketId, Long siteId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.RELATED_TICKETS_QUERY,new Object[]{custTicketId, siteId}, new ResultSetExtractor<List<TicketVO>>(){
+			@Override
+			public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<TicketVO> relatedTickets = new ArrayList<TicketVO>();
+				while(rs.next()){
+					TicketVO tckt = new TicketVO();
+					tckt.setTicketId(rs.getLong("id"));
+					tckt.setTicketNumber(rs.getString("ticket_number"));
+					tckt.setSiteId(rs.getLong("site_id"));
+					tckt.setSiteName(rs.getString("site_name")); 
+					tckt.setAssetName(rs.getString("asset_name"));
+					tckt.setTicketTitle(rs.getString("ticket_title"));
+					tckt.setCreatedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
+					tckt.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
+					tckt.setStatus(rs.getString("status"));
+					tckt.setAssignedSP(rs.getString("sp_name"));
+					relatedTickets.add(tckt);
+				}
+				return relatedTickets;
+			}
+			
+		});
+		return ticketList;
+	}
+	
+	public CustomerSPLinkedTicketVO saveLinkedTicket(CustomerSPLinkedTicketVO customerSPLinkedTicketVO, LoginUser user ){
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_TICKET_MAPPING_QUERY, 
+	            Statement.RETURN_GENERATED_KEYS);
+	    	ps.setLong(1, Long.parseLong(customerSPLinkedTicketVO.getCustTicketId()));
+            ps.setString(2, customerSPLinkedTicketVO.getCustTicketNumber());
+            ps.setString(3, customerSPLinkedTicketVO.getSpLinkedTicket());
+            ps.setString(4, customerSPLinkedTicketVO.getClosedFlag());
+            ps.setString(5,  StringUtils.isEmpty(customerSPLinkedTicketVO.getCloseTime())==true?null:customerSPLinkedTicketVO.getCloseTime());
+            ps.setString(6,  user.getUsername());
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved customer linked ticket {} with id {}.", customerSPLinkedTicketVO.getSpLinkedTicket(), key.getKey());
+	    customerSPLinkedTicketVO.setId(key.getKey().longValue());
+	    return customerSPLinkedTicketVO;
+	}
+	
+	public int changeLinkedTicketStatus(Long linkedTicket, LoginUser user) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updatedRow = jdbcTemplate.update(AppConstants.STATUS_CHANGED_LINKED_TICKET, new PreparedStatementSetter(){
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setString(1, user.getUsername());
+	            ps.setLong(2, linkedTicket);
+			}
+		});
+		return updatedRow;
+	}
+	
+	public int deleteLinkedTicket(Long linkedTicket, LoginUser user) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updatedRow = jdbcTemplate.update(AppConstants.DELETE_LINKED_TICKET, new PreparedStatementSetter(){
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setString(1, user.getUsername());
+	            ps.setLong(2, linkedTicket);
+			}
+		});
+		return updatedRow;
+	}
+	public TicketEscalationVO saveTicketEscalations(TicketEscalationVO ticketEscalationLevel, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_TICKET_ESCALATION_QUERY, 
+	            Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, ticketEscalationLevel.getTicketId());
+            ps.setString(2,ticketEscalationLevel.getTicketNumber());
+            ps.setString(3,  "Level " +ticketEscalationLevel.getEscLevelDesc());
+            ps.setString(4, user.getUsername());
+            ps.setLong(5,  ticketEscalationLevel.getEscId());
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved customer escalation for ticket {} with id {}.", ticketEscalationLevel.getTicketNumber(), key.getKey());
+	    ticketEscalationLevel.setCustEscId(key.getKey().longValue());
+	    ticketEscalationLevel.setEscalationStatus("Escalated");
+	    return ticketEscalationLevel;
+	}
+	public List<TicketEscalationVO> getAllEscalations(Long ticketId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketEscalationVO> ticketList = jdbcTemplate.query(AppConstants.TICKET_ESCALATIONS,new Object[]{ticketId}, new ResultSetExtractor<List<TicketEscalationVO>>(){
+			@Override
+			public List<TicketEscalationVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<TicketEscalationVO> escTickets = new ArrayList<TicketEscalationVO>();
+				while(rs.next()){
+					TicketEscalationVO ticketEscalationVO = new TicketEscalationVO();
+					ticketEscalationVO.setCustEscId(rs.getLong("ct_esc_id"));
+					ticketEscalationVO.setTicketId(rs.getLong("ticket_id"));
+					ticketEscalationVO.setTicketNumber(rs.getString("ticket_number"));
+					ticketEscalationVO.setEscLevelDesc(rs.getString("esc_level"));
+					ticketEscalationVO.setEscalatedBy(rs.getString("escalated_by"));
+					escTickets.add(ticketEscalationVO);
+				}
+				return escTickets;
+			}
+			
+		});
+		return ticketList;
+	}
+	public TicketEscalationVO findByTicketIdAndEscLevelId(Long ticketId, Long escId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		TicketEscalationVO escVO = jdbcTemplate.query(AppConstants.TICKET_BY_ESCID,new Object[]{ticketId, escId}, new ResultSetExtractor<TicketEscalationVO>(){
+			@Override
+			public TicketEscalationVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+				TicketEscalationVO ticketEscalationVO = new TicketEscalationVO();
+				if(rs.next()){
+					ticketEscalationVO.setCustEscId(rs.getLong("ct_esc_id"));
+					ticketEscalationVO.setTicketId(rs.getLong("ticket_id"));
+					ticketEscalationVO.setTicketNumber(rs.getString("ticket_number"));
+					ticketEscalationVO.setEscLevelDesc(rs.getString("esc_level"));
+					ticketEscalationVO.setEscalatedBy(rs.getString("escalated_by"));
+				}
+				return ticketEscalationVO;
+			  }
+			});
+		return escVO;
+	}
+	public List<EscalationLevelVO> getSPEscalation(Long spAssignedTo, LoginUser loginUser) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<EscalationLevelVO> escList = jdbcTemplate.query(AppConstants.SP_ESCALATIONS_QUERY,new Object[]{spAssignedTo}, new ResultSetExtractor<List<EscalationLevelVO>>(){
+			@Override
+			public List<EscalationLevelVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<EscalationLevelVO> escVals = new ArrayList<EscalationLevelVO>();
+				while(rs.next()){
+					EscalationLevelVO ticketEscalationVO = new EscalationLevelVO();
+					ticketEscalationVO.setEscId(rs.getLong("esc_id"));
+					ticketEscalationVO.setServiceProdviderId(rs.getLong("sp_id"));
+					ticketEscalationVO.setEscalationLevel(rs.getString("esc_level"));
+					ticketEscalationVO.setEscalationEmail(rs.getString("esc_email"));
+					ticketEscalationVO.setEscalationPerson(rs.getString("esc_person"));
+					escVals.add(ticketEscalationVO);
+				}
+				return escVals;
+			}
+		});
+		return escList;
 	}
 }

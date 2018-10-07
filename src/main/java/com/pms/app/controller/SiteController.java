@@ -25,10 +25,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.DistrictVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Area;
 import com.pms.jpa.entities.Cluster;
 import com.pms.web.service.DistrictService;
 import com.pms.web.service.SiteService;
+import com.pms.web.service.TicketService;
 import com.pms.web.util.RestResponse;
 
 /**
@@ -46,6 +48,9 @@ public class SiteController extends BaseController {
 	
 	@Autowired
 	private DistrictService districtService;
+	
+	@Autowired
+	private TicketService ticketSerice;
 	
 	@RequestMapping(value = "/home", method = RequestMethod.GET, produces = "application/json")
 	public String userHome(final Locale locale, final ModelMap model,
@@ -312,6 +317,32 @@ public class SiteController extends BaseController {
 		}
 
 		logger.info("Exit SiteController .. getSelectedSite");
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/relatedtickets/{ticketId}/{siteId}", method = RequestMethod.GET)
+	public ResponseEntity<RestResponse> getRelatedTickets(@PathVariable Long ticketId, @PathVariable Long siteId,
+			final HttpSession session) {
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		if (loginUser != null) {
+			try {
+				List<TicketVO> relatedTicketList = ticketSerice.getRelatedTickets(ticketId, siteId, loginUser);
+				response.setStatusCode(200);
+				response.setObject(relatedTicketList);
+				response.setMessage("Related Tickets fetched");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			} catch (Exception e) {
+				response.setStatusCode(204);
+				response.setMessage("Error while fetching Related Tickets");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.CONFLICT);
+			}
+		} else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
 		return responseEntity;
 	}
 	

@@ -2,8 +2,12 @@ package com.pms.web.service;
 
 import java.util.List;
 
+import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
+import com.pms.app.view.vo.TicketCommentVO;
+import com.pms.app.view.vo.TicketEscalationVO;
+import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Status;
@@ -27,6 +31,29 @@ public interface TicketService {
 	public TicketVO getSelectedTicket(Long ticketId,LoginUser loginUser) throws Exception;
 
 	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser) throws Exception;
+
+	public TicketCommentVO saveTicketComment(TicketCommentVO ticketCommentVO, LoginUser loginUser) throws Exception;
+
+	public List<TicketCommentVO> getTicketComments(Long ticketId, LoginUser loginUser) throws Exception;
+
+	public List<TicketHistoryVO> getTicketHistory(String ticketNumber, LoginUser loginUser) throws Exception;
+
+	public List<CustomerSPLinkedTicketVO> getAllLinkedTickets(Long custTicketId, LoginUser loginUser) throws Exception;
+	
+	public List<TicketVO> getRelatedTickets(Long ticketId, Long siteId, LoginUser loginUser) throws Exception;
+
+	public int changeLinkedTicketStatus(Long linkedTicket, LoginUser loginUser) throws Exception;
+
+	public int deleteLinkedTicket(Long linkedTicket, LoginUser loginUser) throws Exception;
+
+	public CustomerSPLinkedTicketVO saveLinkedTicket(Long custTicket, String custTicketNumber, String linkedTicket,
+			LoginUser user) throws Exception;
+
+	public TicketEscalationVO saveTicketEscalations(TicketEscalationVO ticketEscalationLevel, LoginUser user) throws Exception;
+
+	public List<TicketEscalationVO> getAllEscalationLevels(Long ticketId, LoginUser user);
+
+	public TicketEscalationVO getEscalationStatus(Long ticketId, Long escId, LoginUser user) throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 
@@ -74,7 +101,7 @@ public interface TicketService {
 	public TicketCommentVO saveSPTicketComment(TicketCommentVO ticketCommentVO, SPLoginVO savedLoginVO) throws Exception;
 	
 	//Added By Ankit for Related Tickets
-		public List<TicketVO> getRelatedTickets(Long ticketId,Long siteId) throws Exception;
+		
 	
 	//Added By Ankit for SP Related Tickets
 	public List<TicketVO> getSPRelatedTickets(Long ticketId,Long siteId, Long spId) throws Exception;		*/

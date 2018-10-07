@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +28,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
+import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.IncidentImageVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.TicketCommentVO;
+import com.pms.app.view.vo.TicketEscalationVO;
+import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
+import com.pms.jpa.entities.CustomerSPLinkedTicket;
+import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -424,17 +432,13 @@ public class IncidentController extends BaseController {
 			try {
 				if (selectedTicketVO != null) {
 					selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(),loginUser);
-					/*ServiceProviderVO serviceProviderVO = serviceProviderService.findServiceProvider(selectedTicketVO.getAssignedTo());
-					if (StringUtils.isNotBlank(serviceProviderVO.getHelpDeskEmail())) {
-						selectedTicketVO.setAssignedSPEmail(serviceProviderVO.getHelpDeskEmail());
-					}
-					List<EscalationLevelVO> escalationLevelVOs = serviceProviderVO.getEscalationLevelList();
+					List<EscalationLevelVO> escalationLevelVOs = selectedTicketVO.getEscalationLevelList();
 					if (escalationLevelVOs.isEmpty()) {
 
 					} else {
 						List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
 						for (EscalationLevelVO escalationVO : escalationLevelVOs) {
-							TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(selectedTicketVO.getTicketId(), escalationVO.getEscId());
+							TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser);
 							EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
 							if (ticketEscalationVO.getCustEscId() != null) {
 								tempEscalationVO.setStatus("Escalated");
@@ -442,7 +446,6 @@ public class IncidentController extends BaseController {
 							tempEscalationVO.setEscId(escalationVO.getEscId());
 							tempEscalationVO.setEscalationEmail(escalationVO.getEscalationEmail());
 							tempEscalationVO.setEscalationLevel(escalationVO.getEscalationLevel());
-							tempEscalationVO.setLevelId(escalationVO.getLevelId());
 							tempEscalationVO.setServiceProdviderId(escalationVO.getServiceProdviderId());
 							tempEscalationVO.setEscalationPerson(escalationVO.getEscalationPerson());
 							finalEscalationList.add(tempEscalationVO);
@@ -450,6 +453,11 @@ public class IncidentController extends BaseController {
 
 						selectedTicketVO.setEscalationLevelList(finalEscalationList);
 					}
+					/*ServiceProviderVO serviceProviderVO = serviceProviderService.findServiceProvider(selectedTicketVO.getAssignedTo());
+					if (StringUtils.isNotBlank(serviceProviderVO.getHelpDeskEmail())) {
+						selectedTicketVO.setAssignedSPEmail(serviceProviderVO.getHelpDeskEmail());
+					}
+				
 					List<CustomerSPLinkedTicketVO> customerLinkedTickets = ticketSerice.getAllLinkedTickets(selectedTicketVO.getTicketId());
 					if (!customerLinkedTickets.isEmpty()) {
 						selectedTicketVO.setLinkedTickets(customerLinkedTickets);
@@ -534,4 +542,316 @@ public class IncidentController extends BaseController {
 		}
 		return responseEntity;
 	}
+	
+	@RequestMapping(value = "/comment/save", method = RequestMethod.POST)
+	public ResponseEntity<RestResponse> comment(final ModelMap model, final HttpServletRequest request,
+			final HttpSession session, @RequestBody TicketCommentVO ticketCommentVO) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				TicketCommentVO savedComment = ticketSerice.saveTicketComment(ticketCommentVO, loginUser);
+				if (savedComment.getCommentId() != null) {
+					response.setStatusCode(200);
+					response.setObject(savedComment);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		} catch (Exception e) {
+			response.setStatusCode(500);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			logger.info("Exception while saving comment", e);
+		}
+
+		return responseEntity;
+	}
+	
+
+	@RequestMapping(value = "/comment/list/{ticketId}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> commentLint(final ModelMap model,
+			@PathVariable(value = "ticketId") Long ticketId, final HttpServletRequest request,
+			final HttpSession session) throws Exception {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		if (loginUser != null) {
+			List<TicketCommentVO> selectedTicketComments = ticketSerice.getTicketComments(ticketId, loginUser);
+			if (!selectedTicketComments.isEmpty()) {
+				response.setStatusCode(200);
+				response.setObject(selectedTicketComments);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			} else {
+				response.setStatusCode(404);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			}
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		return responseEntity;
+	}
+	
+
+	@RequestMapping(value = "/history/{ticketnumber}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> incidentSessionTicket(final ModelMap model,
+			@PathVariable(value = "ticketnumber") String ticketnumber, final HttpServletRequest request,
+			final HttpSession session) throws Exception {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		if (loginUser != null) {
+			model.put("user", loginUser);
+			List<TicketHistoryVO> selectedTicketHistory = ticketSerice.getTicketHistory(ticketnumber, loginUser);
+			if (!selectedTicketHistory.isEmpty()) {
+				response.setStatusCode(200);
+				response.setObject(selectedTicketHistory);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			} else {
+				response.setStatusCode(404);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			}
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		return responseEntity;
+	}
+	
+
+	@RequestMapping(value = "/linkedticket/{custticket}/{custticketnumber}/{linkedticket}", method = RequestMethod.GET)
+	public ResponseEntity<RestResponse> linked(final ModelMap model, HttpServletRequest request, HttpSession session,
+			@PathVariable(value = "custticket") Long custTicket,
+			@PathVariable(value = "custticketnumber") String custTicketNumber,
+			@PathVariable(value = "linkedticket") String linkedTicket) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				CustomerSPLinkedTicketVO savedTicketLinked = ticketSerice.saveLinkedTicket(custTicket, custTicketNumber,
+						linkedTicket, loginUser);
+				if (savedTicketLinked.getId() != null) {
+					response.setStatusCode(200);
+					response.setObject(savedTicketLinked);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		} catch (Exception e) {
+			response.setStatusCode(500);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			logger.info("Exception while escalations", e);
+		}
+
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/linkedticket/list/{custTicketId}", method = RequestMethod.GET)
+	public ResponseEntity<RestResponse> listLinkedTickets(final ModelMap model, final HttpServletRequest request,
+			final HttpSession session, @PathVariable(value = "custTicketId") Long custTicketId) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				List<CustomerSPLinkedTicketVO> linkedTickets = ticketSerice.getAllLinkedTickets(custTicketId, loginUser);
+				response.setStatusCode(200);
+				TicketVO ticketVO = (TicketVO) session.getAttribute("selectedTicket");
+				ticketVO.getLinkedTickets().clear();
+				ticketVO.setLinkedTickets(linkedTickets);
+				session.setAttribute("selectedTicket", ticketVO);
+				response.setObject(ticketVO);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		} catch (Exception e) {
+			response.setStatusCode(500);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			logger.info("Exception while getting listLinkedTickets", e);
+		}
+
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/linkedticket/status/{linkedTicket}/{status}", method = RequestMethod.GET)
+	public ResponseEntity<RestResponse> changeStatusLinkedTicket(final ModelMap model, final HttpServletRequest request,
+			final HttpSession session, @PathVariable(value = "linkedTicket") Long linkedTicket) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				int statusChanged = ticketSerice.changeLinkedTicketStatus(linkedTicket,loginUser);
+				if (statusChanged==1) {
+					response.setStatusCode(200);
+					TicketVO ticketVO = (TicketVO) session.getAttribute("selectedTicket");
+					ticketVO.getLinkedTickets().clear();
+					ticketVO.setLinkedTickets(ticketVO.getLinkedTickets());
+					session.setAttribute("selectedTicket", ticketVO);
+					response.setObject(ticketVO);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		} catch (Exception e) {
+			response.setStatusCode(500);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			logger.info("Exception while getting listLinkedTickets", e);
+		}
+
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/linkedticket/delete/{linkedTicketId}", method = RequestMethod.GET)
+	public ResponseEntity<RestResponse> deleteLinkedTicket(final ModelMap model, final HttpServletRequest request,
+			final HttpSession session, @PathVariable(value = "linkedTicketId") Long linkedTicketId) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				int deletedTicket = ticketSerice.deleteLinkedTicket(linkedTicketId,	loginUser);
+				if(deletedTicket==1){
+					response.setStatusCode(200);
+					TicketVO sessionTicket = (TicketVO) session.getAttribute("selectedTicket");
+					List<CustomerSPLinkedTicketVO> customerLinkedTickets = sessionTicket.getLinkedTickets();
+					boolean isAvailable = false;
+					CustomerSPLinkedTicketVO foundTicket = null;
+					for (CustomerSPLinkedTicketVO custTicket : customerLinkedTickets) {
+						if (custTicket.getId().equals(linkedTicketId)) {
+							foundTicket = custTicket;
+							isAvailable = true;
+							break;
+						}
+					}
+					boolean isRemoved = false;
+					if (isAvailable) {
+						isRemoved = customerLinkedTickets.remove(foundTicket);
+					}
+					if (isRemoved) {
+						response.setObject(customerLinkedTickets);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
+				}
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		} catch (Exception e) {
+			response.setStatusCode(500);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			logger.info("Exception while deleting", e);
+		}
+
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/escalate", method = RequestMethod.POST)
+	public ResponseEntity<RestResponse> escalate(final ModelMap model, final HttpServletRequest request,
+			final HttpSession session, @RequestBody TicketEscalationVO ticketEscalationLevels) {
+		logger.info("Inside IncidentController .. escalate");
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		TicketEscalationVO savedTicketEscalation = null;
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				savedTicketEscalation = ticketSerice.saveTicketEscalations(ticketEscalationLevels, loginUser);
+				if (savedTicketEscalation.getCustEscId() != null) {
+					response.setStatusCode(200);
+					response.setObject(savedTicketEscalation);
+					response.setMessage("Incident " + savedTicketEscalation.getTicketNumber() + "escalated to "
+							+ savedTicketEscalation.getEscLevelDesc());
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		} catch (Exception e) {
+			response.setStatusCode(500);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			logger.info("Exception while escalations", e);
+		}
+		if (response.getStatusCode() == 200) {/*
+			List<String> escCCMailList = new ArrayList<String>(0);
+			SPEscalationLevels spEscalationLevel = null;
+			List<EscalationLevelVO> escalationLevelVOs = ticketEscalationLevels.getTicketData().getEscalationLevelList();
+
+			if (escalationLevelVOs.size() == 0) {
+				logger.info("No escalation list available");
+			} else {
+				logger.info("Escalation Level list : " + escalationLevelVOs.size());
+				spEscalationLevel = spEscalationRepo.findOne(savedTicketEscalation.getEscId());
+				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+				for(EscalationLevelVO escalatedTicket :selectedTicketVO.getEscalationLevelList()){
+					if(StringUtils.isNotBlank(escalatedTicket.getStatus())){
+						escCCMailList.add(escalatedTicket.getEscalationEmail());
+					}
+					
+				}
+		
+				logger.info("escCCMailList :" + escCCMailList);
+			}
+			final SPEscalationLevels spEscLevel = spEscalationLevel;
+			final TicketEscalationVO savedTicketEsc = savedTicketEscalation;
+			TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+			theExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					logger.info("Email thread started : " + Thread.currentThread().getName());
+					if (spEscLevel != null) {
+						String ccEscList = "";
+						if (!escCCMailList.isEmpty()) {
+							ccEscList = StringUtils.join(escCCMailList, ',');
+							logger.info("Escalation CC List : " + ccEscList);
+							try {
+								emailService.successEscalationLevel(ticketEscalationLevels.getTicketData(), spEscLevel,
+										ccEscList, savedTicketEsc.getEscLevelDesc());
+							} catch (Exception e) {
+								logger.info("Exception while sending email", e);
+							}
+						}else{
+							logger.info("Escalation To List : " + spEscLevel.getEscalationEmail());
+							logger.info("Escalation CC list is empty");
+							try {
+								emailService.successEscalationLevel(ticketEscalationLevels.getTicketData(), spEscLevel,
+										ccEscList, savedTicketEsc.getEscLevelDesc());
+							} catch (Exception e) {
+								logger.info("Exception while sending email", e);
+							}
+							
+						}
+
+					} else {
+						logger.info("No ticket escalated for SP");
+					}
+
+				}
+			});
+
+		*/}
+
+		logger.info("Exit IncidentController .. escalate");
+		return responseEntity;
+	}
+	
 }

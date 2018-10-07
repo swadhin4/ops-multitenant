@@ -38,6 +38,7 @@ import com.pms.web.util.ApplicationUtil;
 @Repository
 public class SiteDAO {
 	private final static Logger LOGGER = LoggerFactory.getLogger(SiteDAO.class);
+	
 	public SiteDAO(String userConfig) {
 		ConnectionManager.getInstance(userConfig);
 	}
@@ -140,8 +141,9 @@ public class SiteDAO {
 				Map<String, Object> out2 =  insertJdbcCall.execute(map2);
 				LOGGER.info("Updating SiteUserAccess table for new site created by : "+  user.getUsername() + "/ Site : "+ siteVO.getSiteName());
 				Map<String, String> resultMap2 = extractResult(out2);
-				if(Integer.parseInt(resultMap2.get("@isError"))==200)
+				if(Integer.parseInt(resultMap2.get("@isError"))==200){
 				siteVO.setStatus(201);	
+				}
 			}else{
 				LOGGER.info("Unable to create site for "+  user.getUsername() + "in name of "+ siteVO.getSiteName());
 			}

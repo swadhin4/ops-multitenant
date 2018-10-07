@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -38,17 +37,22 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.pms.app.dao.impl.IncidentDAO;
 import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.CreateSiteVO;
+import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
+import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
+import com.pms.app.view.vo.TicketCommentVO;
+import com.pms.app.view.vo.TicketEscalationVO;
+import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
-import com.pms.jpa.entities.CustomerTicket;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
+import com.pms.jpa.entities.TicketComment;
 import com.pms.web.service.AwsIntegrationService;
 import com.pms.web.service.TicketService;
 import com.pms.web.util.ApplicationUtil;
@@ -341,9 +345,14 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setStatusDescription(selectedTicket.getDescription());
 		ticketVO.setStatus(selectedTicket.getStatus());
 		ticketVO.setSlaPercent(getSLAPercent(ticketVO));
-		
+		List<TicketCommentVO> ticketComments = getTicketComments(ticketVO.getTicketId(), loginUser);
+		List<EscalationLevelVO> escalationLevelVOs = getTicketEscalationList(selectedTicket.getAssigned_to(), loginUser);
+		ticketVO.setTicketComments(ticketComments);
+		ticketVO.setEscalationLevelList(escalationLevelVOs);
 		return ticketVO;
 	}
+	
+
 	private double getSLAPercent(TicketVO customerTicket) {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 		double slaPercent=0.0;
@@ -383,145 +392,112 @@ public class TicketServiceImpl implements TicketService {
 		return 0;
 	}
 
+	
+	
 	@Override
 	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser) throws Exception {
 		List<TicketAttachment> selectedTicketAttachments = getIncidentDAO(loginUser.getDbName()).getTicketAttachments(ticketId);
 		return selectedTicketAttachments==null?Collections.emptyList():selectedTicketAttachments;
 	}
 	
-	/*private TicketVO getSelectedTicketDetails(SimpleDateFormat simpleDateFormat, CustomerTicket customerTicket) {
-		List<String> fullAddress = new ArrayList<String>();
-		TicketVO tempCustomerTicketVO = new TicketVO();
-		tempCustomerTicketVO.setTicketId(customerTicket.getId());
-		tempCustomerTicketVO.setTicketNumber(customerTicket.getTicketNumber());
-		tempCustomerTicketVO.setTicketTitle(customerTicket.getTicketTitle());
-		tempCustomerTicketVO.setDescription(customerTicket.getTicketDesc());
-		tempCustomerTicketVO.setSiteId(customerTicket.getSite().getSiteId());
-		tempCustomerTicketVO.setSiteName(customerTicket.getSite().getSiteName());
-		tempCustomerTicketVO.setAssetId(customerTicket.getAsset().getAssetId());
-		tempCustomerTicketVO.setAssetName(customerTicket.getAsset().getAssetName());
-		tempCustomerTicketVO.setAssetCode(customerTicket.getAsset().getAssetCode());
-		
-		if(customerTicket.getSite().getPrimaryContact()!=null){
-			tempCustomerTicketVO.setSiteContact(customerTicket.getSite().getPrimaryContact().toString());
-			}
-			if(customerTicket.getSite().getSiteNumberOne()!=null){
-			tempCustomerTicketVO.setSiteNumber1(customerTicket.getSite().getSiteNumberOne().toString());
-			}
-			if(customerTicket.getSite().getSiteNumberTwo()!=null){
-			tempCustomerTicketVO.setSiteNumber2(customerTicket.getSite().getSiteNumberTwo().toString());
-			}
+	@Override
+	public TicketCommentVO saveTicketComment(TicketCommentVO ticketCommentVO, LoginUser user) throws Exception {
+			TicketComment ticketComment = new TicketComment();
+			ticketComment.setCreatedBy(user.getUsername());
+			ticketComment.setCustTicketNumber(ticketCommentVO.getTicketNumber());
+			ticketComment.setTicketId(ticketCommentVO.getTicketId());
+			ticketComment.setComment(ticketCommentVO.getComment());
+			ticketComment = getIncidentDAO(user.getDbName()).saveTicketComment(ticketComment, user);
 			
-			if(customerTicket.getAsset().getModelNumber()!=null){
-			tempCustomerTicketVO.setAssetModel(customerTicket.getAsset().getModelNumber());
+			if(ticketComment.getCommentId()!=null){
+				ticketCommentVO.setTicketNumber(ticketComment.getCustTicketNumber());
+				ticketCommentVO.setTicketId(ticketComment.getTicketId());
+				ticketCommentVO.setCommentId(ticketComment.getCommentId());
+				ticketCommentVO.setComment(ticketComment.getComment());
+				ticketCommentVO.setCreatedBy(ticketComment.getCreatedBy());
+				SimpleDateFormat simpleDateFormat=new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+				ticketCommentVO.setCreatedDate(simpleDateFormat.format(ticketComment.getCreatedDate()));
 			}
+		return ticketCommentVO;
 		
-		tempCustomerTicketVO.setCategoryId(customerTicket.getTicketCategory().getId());
-		tempCustomerTicketVO.setCategoryName(customerTicket.getTicketCategory().getDescription());
-		if(customerTicket.getAssetCategory()!=null){
-			tempCustomerTicketVO.setAssetCategoryName(customerTicket.getAssetCategory().getAssetCategoryName());
-			tempCustomerTicketVO.setAssetSubCategory1(customerTicket.getAssetRepairType().getAssetSubcategory1());
-			tempCustomerTicketVO.setAssetSubCategory2(customerTicket.getAssetSubRepairType().getAssetSubcategory2());
-		}
-		tempCustomerTicketVO.setAssignedSP(customerTicket.getAssignedTo().getName());
-		tempCustomerTicketVO.setAssignedTo(customerTicket.getAssignedTo().getServiceProviderId());
-		tempCustomerTicketVO.setPriorityDescription(customerTicket.getPriority());
-		tempCustomerTicketVO.setStatusId(customerTicket.getStatus().getStatusId());
-		tempCustomerTicketVO.setStatus(customerTicket.getStatus().getStatus());
-		if(StringUtils.isNotEmpty(customerTicket.getStatus().getDescription())){
-			tempCustomerTicketVO.setStatusDescription(customerTicket.getStatus().getDescription());
-			}
-		tempCustomerTicketVO.setRaisedOn(simpleDateFormat.format(customerTicket.getCreatedOn()));
-		tempCustomerTicketVO.setRaisedBy(customerTicket.getCreatedBy());
-		tempCustomerTicketVO.setTicketStartTime(simpleDateFormat.format(customerTicket.getTicketStarttime()));
-		tempCustomerTicketVO.setSla(simpleDateFormat.format(customerTicket.getSlaDuedate()));
-		tempCustomerTicketVO.setCloseCode(customerTicket.getCloseCode());
-		tempCustomerTicketVO.setClosedNote(customerTicket.getCloseNote());
-		
-		if(!StringUtils.isEmpty(customerTicket.getSite().getSiteAddress1())){
-			fullAddress.add(customerTicket.getSite().getSiteAddress1());
-		}
-		if(!StringUtils.isEmpty(customerTicket.getSite().getSiteAddress2())){
-			fullAddress.add(customerTicket.getSite().getSiteAddress2());
-		}
-		if(!StringUtils.isEmpty(customerTicket.getSite().getSiteAddress3())){
-			fullAddress.add(customerTicket.getSite().getSiteAddress3());
-		}
-		if(!StringUtils.isEmpty(customerTicket.getSite().getSiteAddress4())){
-			fullAddress.add(customerTicket.getSite().getSiteAddress4());
-		}
-		if(!StringUtils.isEmpty(customerTicket.getSite().getPostCode())){
-			fullAddress.add(customerTicket.getSite().getPostCode());
-		}
-		
-		String finalAddress = org.apache.commons.lang3.StringUtils.join(fullAddress,",");
-		tempCustomerTicketVO.setSiteAddress(finalAddress);
-		
-		if(StringUtils.isNotBlank(customerTicket.getClosedBy())){
-			tempCustomerTicketVO.setClosedBy(customerTicket.getClosedBy());
-		}
-		
-		if(customerTicket.getClosedOn()!=null){
-		tempCustomerTicketVO.setClosedOn(simpleDateFormat.format(customerTicket.getClosedOn()));
-		}
-		
-		if(customerTicket.getCloseNote()!=null){
-			tempCustomerTicketVO.setClosedNote(customerTicket.getCloseNote());
-		}
-		if(customerTicket.getModifiedOn()!=null){
-			tempCustomerTicketVO.setModifiedOn(simpleDateFormat.format(customerTicket.getModifiedOn()));
-		}
-		
-		if(StringUtils.isNotBlank(customerTicket.getModifiedBy())){
-			tempCustomerTicketVO.setModifiedBy(customerTicket.getModifiedBy());
-		}
-		
-		if(customerTicket.getServiceRestorationTime()!=null){
-			tempCustomerTicketVO.setServiceRestorationTime(simpleDateFormat.format(customerTicket.getServiceRestorationTime()));
-		}
-		
-		if(user!=null){
-		tempCustomerTicketVO.setRaisedUser(user.getPhone());
-		tempCustomerTicketVO.setCreatedUser(user.getFirstName() +" "+ user.getLastName());
-		}
-		double slaPercentage = getSLAPercent(customerTicket);
-		tempCustomerTicketVO.setSlaPercent(slaPercentage);
-		return tempCustomerTicketVO;
+	}
+	
+	@Override
+	public List<TicketCommentVO> getTicketComments(Long ticketId, LoginUser user) {
+		List<TicketCommentVO> commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId);
+		return commentListVO == null?Collections.EMPTY_LIST:commentListVO;
 	}
 
-	private double getSLAPercent(CustomerTicket customerTicket) {
-		Date slaDueDate = customerTicket.getSlaDuedate();
-		Date creationTime = customerTicket.getCreatedOn();
-		
-		if(customerTicket.getStatus().getStatusId().intValue() != 15){
-			Date currentDateTime = new Date();
-			long numeratorDiff = currentDateTime.getTime() - creationTime.getTime(); 
-			long denominatorDiff = slaDueDate.getTime() - creationTime.getTime();
-			double slaPercent=0.0;
-			
-			double numValue = TimeUnit.MINUTES.convert(numeratorDiff, TimeUnit.MILLISECONDS);
-			double deNumValue = TimeUnit.MINUTES.convert(denominatorDiff, TimeUnit.MILLISECONDS);
-			if (deNumValue != 0){
-				slaPercent = Math.round((numValue / deNumValue) * 100);
-			}	
-			return slaPercent;
-		}else{
-			double slaPercent =0.0; 
-			if(customerTicket.getServiceRestorationTime()!=null){
-				Date restoredTime = customerTicket.getServiceRestorationTime();
-				long numeratorDiff = restoredTime.getTime() - creationTime.getTime(); 
-				long denominatorDiff = slaDueDate.getTime() - creationTime.getTime();
-				
-				double numValue = TimeUnit.MINUTES.convert(numeratorDiff, TimeUnit.MILLISECONDS);
-				double deNumValue = TimeUnit.MINUTES.convert(denominatorDiff, TimeUnit.MILLISECONDS);
-				if (deNumValue != 0){
-					slaPercent = Math.round((numValue / deNumValue) * 100);
-				}
-			}
-			return slaPercent;
-		}
+	@Override
+	public List<TicketHistoryVO> getTicketHistory(String ticketNumber, LoginUser user) throws Exception {
+		List<TicketHistoryVO> ticketHistoryList = getIncidentDAO(user.getDbName()).getTicketHistory(ticketNumber);
+		return ticketHistoryList == null?Collections.EMPTY_LIST:ticketHistoryList;
 	}
-*/
 	
+	@Override
+	public CustomerSPLinkedTicketVO saveLinkedTicket(Long custTicket, String custTicketNumber, String linkedTicket, LoginUser user) throws Exception {
+		LOGGER.info("Inside TicketServiceImpl - saveLinkedTicket");
+		CustomerSPLinkedTicketVO  customerSPLinkedTicketVO = new CustomerSPLinkedTicketVO();
+		customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
+		customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
+		customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicket);
+		customerSPLinkedTicketVO.setClosedFlag("OPEN");
+		CustomerSPLinkedTicketVO savedLinkedTicket = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user);
+		LOGGER.info("Exit TicketServiceImpl - saveLinkedTicket");
+		return savedLinkedTicket;
+	}
+
+	@Override
+	public List<CustomerSPLinkedTicketVO> getAllLinkedTickets(Long custTicketId, LoginUser loginUser) throws Exception {
+		List<CustomerSPLinkedTicketVO> customerSPLinkedTickets = getIncidentDAO(loginUser.getDbName()).findByCustTicketIdAndDelFlag(custTicketId);
+		return customerSPLinkedTickets== null?Collections.EMPTY_LIST:customerSPLinkedTickets;
+	}
+	
+	@Override
+	public int changeLinkedTicketStatus(Long linkedTicket, LoginUser loginUser) throws Exception {
+		int linkedStatus =  getIncidentDAO(loginUser.getDbName()).changeLinkedTicketStatus(linkedTicket, loginUser);
+		return linkedStatus;
+	}
+
+	@Override
+	public int deleteLinkedTicket(Long linkedTicket, LoginUser loginUser) throws Exception {
+		int linkedStatus =  getIncidentDAO(loginUser.getDbName()).deleteLinkedTicket(linkedTicket, loginUser);
+		return linkedStatus;
+	}
+	
+	@Override
+	public List<TicketVO> getRelatedTickets(Long ticketId, Long siteId, LoginUser loginUser) throws Exception {
+		List<TicketVO> customerTicketList = getIncidentDAO(loginUser.getDbName()).findRelatedTickets(ticketId, siteId);
+		return customerTicketList == null?Collections.EMPTY_LIST:customerTicketList;
+	}
+
+	private List<EscalationLevelVO> getTicketEscalationList(Long spAssignedTo, LoginUser loginUser) {
+		List<EscalationLevelVO> escalationLevels =	getIncidentDAO(loginUser.getDbName()).getSPEscalation(spAssignedTo,loginUser);		
+		return escalationLevels == null?Collections.EMPTY_LIST:escalationLevels;
+	}
+	
+
+	@Override
+	public TicketEscalationVO saveTicketEscalations(TicketEscalationVO ticketEscalationLevel, LoginUser user) {
+		LOGGER.info("Inside TicketServiceImpl - saveTicketEscalations");
+		TicketEscalationVO savedTicketEscVO =  getIncidentDAO(user.getDbName()).saveTicketEscalations(ticketEscalationLevel,user);
+		
+		LOGGER.info("Exit TicketServiceImpl - saveTicketEscalations");
+		return savedTicketEscVO;
+	}
+	
+	@Override
+	public List<TicketEscalationVO> getAllEscalationLevels(Long ticketId, LoginUser user ) {
+		List<TicketEscalationVO> escalatedTickets =  getIncidentDAO(user.getDbName()).getAllEscalations(ticketId);
+		return escalatedTickets == null?Collections.EMPTY_LIST:escalatedTickets;
+	}
+
+
+	@Override
+	public TicketEscalationVO getEscalationStatus(Long ticketId, Long escId, LoginUser user) {
+		TicketEscalationVO savedTicketEscVO = getIncidentDAO(user.getDbName()).findByTicketIdAndEscLevelId(ticketId, escId);
+		savedTicketEscVO.setEscalationStatus("Escalated");
+		return savedTicketEscVO;
+	}
 
 }

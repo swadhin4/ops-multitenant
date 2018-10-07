@@ -23,7 +23,7 @@
 	href='<c:url value="/resources/theme1/css/bootstrap-datetimepicker.css"></c:url>' />
 <link rel="stylesheet" media="screen"
 	href='<c:url value="/resources/css/bootstrap-datetimepicker.min.css"></c:url>' />
-<link href="//netdna.bootstrapcdn.com/font-awesome/3.0/css/font-awesome.css" rel="stylesheet">
+<link href='<c:url value="/resources/theme1/font-awesome-4.7.0/css/font-awesome.min.css"></c:url>'  rel="stylesheet">
 
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/bootstrap-toggle.min.js"></c:url>'></script>
@@ -161,9 +161,9 @@ background:#deefe5
 			
 		}); */
 
-		$('.toggle-on').removeAttr('style');
+		/* $('.toggle-on').removeAttr('style');
 		$('.toggle-off').removeAttr('style');
-
+ */
 		$('.select2').select2();
 
 		var isIE = window.ActiveXObject || "ActiveXObject" in window;
@@ -267,10 +267,10 @@ background:#deefe5
 										<ul class="nav nav-tabs">
 											<li class="active"><a href="#primaryinfo"
 												data-toggle="tab">Primary Details</a></li>
-											<li><a href="#linkedticket" data-toggle="tab">External
-													Ticket of Service provider</a>
+											<li><a href="#linkedticket" data-toggle="tab">External Service provider 
+													Ticket</a>
 										<span class="label label-warning" style="position: relative;
-        top: -33px; left: 226px">{{ticketData.linkedTickets.length || 0}}</span></a>			
+        top: -33px; left: 211px">{{ticketData.linkedTickets.length || 0}}</span></a>			
 													
 													</li>
 											<li><a href="#escalate" data-toggle="tab"
@@ -700,7 +700,50 @@ background:#deefe5
 											</div>
 											</div>
 											<div class="tab-pane" id="escalate">
-												<table id="example2"
+											<div class="row">
+												<div class="col-md-12">
+												<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Escalation levels</h3>
+												</div>	
+												<div class="box-body">	
+													<div class="row">
+													<div class="col-md-4 col-sm-6 col-xs-12" ng-repeat="escalation in escalationLevelDetails">
+											          <div class="info-box">
+											            <span class="info-box-icon white">
+											            <i class="fa fa-user middle" ></i><br>
+											            </span>
+											            <div class="info-box-content">
+											              <span class="info-box-text">{{escalation.escTo}}</span>
+											              <span class="info-box-number ng-binding">{{escalation.escEmail}}</span>
+											              <span class="badge"  ng-if="escalation.escStatus!='Escalated'" >
+											               <input
+															type="checkbox" id="chkEscalation{{$index}}"
+															ng-change="getSelectedEscalation(escalation,$index)"
+															ng-model="escalation.selected" /> Check to escalate</span>
+															 <a style="color:red" ng-if="escalation.escStatus=='Escalated'">
+																<span class="fa fa-info-circle " aria-hidden="true">{{escalation.escStatus}} to Level {{escalation.escLevelDesc}}</span>
+															</a>
+											            </div>
+											          </div>
+											        </div>
+											        </div>
+									       		 </div>
+									       		 <div class="box-footer">
+									       		 	<div class="row">
+									       		 		<div class="col-md-12">
+									       		 		<button class="btn btn-xs btn-danger pull-right"
+																	type="button" data-toggle="modal"
+																	ng-click="escalateTicketConfirmation()"
+																	data-title="Escalate Ticket"
+																	data-message="Are you sure you want to escalate this ticket ?">Escalate</button>
+									       		 		</div>
+									       		 	</div>
+									       		 </div>
+									        </div>
+									        </div>
+									        </div>
+												<!-- <table id="example2"
 													class="table table-hover table-condensed">
 													<thead>
 														<tr>
@@ -740,8 +783,6 @@ background:#deefe5
 															<td></td>
 															<td></td>
 															<td>
-																<!-- <button type="button" class="btn btn-success pull-right"
-											ng-click="escalateTicket()">Escalate</button> -->
 																<button class="btn btn-xs btn-danger pull-right"
 																	type="button" data-toggle="modal"
 																	ng-click="escalateTicketConfirmation()"
@@ -751,32 +792,31 @@ background:#deefe5
 														</tr>
 
 													</tbody>
-												</table>
+												</table> -->
 											</div>
 											<div class="tab-pane" id="linkedticket">
-												<div class="col-md-12">
-													<div class="col-sm-2">
-														<label for="inputSkills" class="control-label">Linked
-															Ticket</label>
-													</div>
-
-													<div class="col-sm-8">
+												<div class="row">
+												<div class="col-md-6">
+												<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Add linked ticket</h3>
+												</div>	
+													<div class="box-body">	
 														<input type="text" class="form-control" id="linkedTicket"
+														   placeholder="Add a linked ticket to associate customer ticket {{ticketData.ticketNumber}}"
 															maxlength="20" ng-model="linkedTicket.ticketNumber">
-													</div>
-													<div class="col-sm-2">
 														<a class="btn btn-success" ng-click="LinkNewTicket()">
 															<i class="fa fa-link" aria-hidden="true"></i> Create
-														</a>
+														</a>	
 													</div>
-												</div>
-												</br> </br>
-
+													</div>	
+													</div>
+											<div class="col-md-6">
 												<div class="form-group"
 													ng-if="ticketData.linkedTickets.length>0">
 													<div class="box box-success">
 														<div class="box-header with-border">
-															<h3 class="box-title">Linked ticket details</h3>
+															<h3 class="box-title">List of Linked tickets</h3>
 														</div>
 														<div class="box-body">
 															<table id="example2"
@@ -802,15 +842,15 @@ background:#deefe5
 																			<!-- <input type="text" class="form-control" ng-model="linkedTicket.linkedTicketNo" disabled="disabled"> -->
 																		</td>
 
-																		<td style="vertical-align:middle"><span
+																		<td style="vertical-align:middle">
+																		<span
 																			ng-class="{{linkedTkt.closedFlag == 'CLOSED'}} ? 'label label-danger' : 'label label-success'">{{linkedTkt.closedFlag}}</span>
 																		</td>
-																		<td><a type="button"
+																		<td><a type="button" data-toggle="tooltip" title="Unlink the ticket "
 																			class="btn-sm btn-info pull-right"
 																			ng-click="unlinkTicketConfirmation($index,linkedTkt)"
 																			confirm="Are you sure?"> <i
-																				class="fa fa-chain-broken" aria-hidden="true"></i>
-																				UNLINK
+																				class="fa fa-trash-o" aria-hidden="true"></i>
 																		</a></td>
 
 																	</tr>
@@ -832,7 +872,8 @@ background:#deefe5
 													</div>
 												</div>
 											</div>
-
+											</div>
+											</div>
 											<div class="tab-pane" id="attachments">
 												<div class="box-body">
 													<div class="row">

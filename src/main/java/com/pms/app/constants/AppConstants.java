@@ -191,4 +191,43 @@ public class AppConstants {
 
 	public static final String TICKET_ATTACHMENTS = "select id, ticket_number, attachment_path from pm_cust_ticket_attachment where ticket_id=?";
 
+	public  static final String INSERT_TICKET_COMMENT_QUERY = "INSERT into pm_cust_ticket_comment(ticket_id,custticket_number,comment, created_by, created_date) "
+			+ " values(?,?,?,?,NOW())";
+
+	public static final String TICKET_COMMENTS = "select * from pm_cust_ticket_comment where ticket_id=?";
+
+	public static final String TICKET_HISTORY = "select * from pm_ct_historic_activities where ticket_number=?";
+	
+	public static final String EXT_SP_LINKED_TICKETS = "select * from pm_cust_sp_ticketmapping where cust_ticket_id=? and del_flag=0";
+	
+	public static final String RELATED_TICKETS_QUERY = "select ct.id, ct.ticket_number, ct.ticket_title, ct.status_id, "
+			+ " sts.`status`, ct.site_id,st.site_name,ct.sla_duedate, "
+			+ " ct.asset_id,ast.asset_name, ct.created_on, ct.assigned_to, "
+			+ " sp.sp_name FROM pm_cust_ticket ct "
+			+" LEFT JOIN pm_site st ON ct.site_id = st.site_id "
+			+" LEFT JOIN pm_status sts ON ct.status_id = sts.status_id "
+			+" LEFT JOIN pm_asset ast ON ct.asset_id = ast.asset_id "
+			+" LEFT JOIN pm_service_provider sp ON ct.assigned_to = sp.sp_id "
+			+" where  ct.id <> ? and ct.site_id = ?";
+	
+	public static final String INSERT_TICKET_MAPPING_QUERY= "INSERT INTO pm_cust_sp_ticketmapping "
+			+ " (cust_ticket_id,customer_ticket_no,spticket_no,closed_flag,closed_time,created_by,"
+			+ " created_on,del_flag) VALUES (?,?,?,?,?,?,NOW(),0)";
+
+	public static final String STATUS_CHANGED_LINKED_TICKET = "UPDATE pm_cust_sp_ticketmapping set closed_flag='CLOSED', "
+			+ "closed_time=NOW(), modified_by=?, modified_on=NOW() where id=? ";
+	
+	public static final String DELETE_LINKED_TICKET = "UPDATE pm_cust_sp_ticketmapping set del_flag=1, "
+			+ " modified_by=?, modified_on=NOW() where id=? ";
+
+	public static final String INSERT_TICKET_ESCALATION_QUERY = "INSERT INTO pm_ct_escalations "
+			+ " (ticket_id, ticket_number, esc_level, escalated_by,esc_id, escalated_date)"
+			+ " values (?,?,?,?,?,NOW())";
+	
+	public static final String TICKET_ESCALATIONS = "select * from pm_ct_escalations where ticket_id=?";
+	
+	public static final String TICKET_BY_ESCID = "select * from pm_ct_escalations where ticket_id=? and esc_id=?";
+	
+	public static final String SP_ESCALATIONS_QUERY= "select * from pm_sp_escalation_levels where sp_id=?";
+
 }

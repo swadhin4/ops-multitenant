@@ -264,6 +264,9 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 					$scope.ticketData=angular.copy(data.object);
 					//$scope.ticketData.createdBy=$scope.sessionUser.username;
 					$scope.getAttachments($scope.ticketData.ticketId);
+					if(viewMode.toUpperCase()=="EDIT"){
+	    				$scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+    				}
 					$scope.setSLAWidth($scope.ticketData);
 					$scope.getUserRoleStatusMap();
 					$scope.getTicketCategory();
@@ -383,9 +386,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
     			//	$scope.getAsset();
     			//	$scope.getCloseCode();
     				//$scope.setTicketPriorityAndSLA();
-    				if(viewMode.toUpperCase()=="EDIT"){
-	    				$scope.getLinkedTicketDetails($scope.ticketData.ticketId);
-    				}
+    				
     				$scope.ticketData.raisedBy=$scope.sessionUser.email;
     				$scope.ticketData.closedBy=$scope.sessionUser.email;
     				$scope.setTicketraisedOnDate();
@@ -1187,7 +1188,7 @@ $scope.setTicketraisedOnDate=function(){
 	}
 	
 	$scope.getTicketHistory=function(){
-		var ticketId =  $scope.ticketData.ticketId;
+		var ticketId =  $scope.ticketData.ticketNumber;
 		ticketService.getTicketHistory(ticketId)
 		.then(function(data){
 			//console.log(data);
