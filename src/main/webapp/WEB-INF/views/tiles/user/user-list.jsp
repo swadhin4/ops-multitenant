@@ -87,7 +87,7 @@ a {
     border-top: 1px solid #e7ebee;
     padding: 12px 8px;
 }
-#errorMessageDiv, #successMessageDiv{
+/* #errorMessageDiv, #successMessageDiv{
     top: 0%;
     /* left: 50%; */
    /*  width: 45em; */
@@ -97,7 +97,7 @@ a {
     border: 1px solid #ccc;
     background-color: #fff;
     position: fixed;
-}
+} */
  #modalMessageDiv{
    top: -7%;
     left: 47%;
@@ -113,14 +113,17 @@ a {
 	background-color: #000;
     padding: 8px 8px 10px;
     position: relative;
-    left: 8px;
+    left: 6px;
 }
 
 .reqDiv.required .control-label:after {
   content:"*";
   color:red;
 }
-  
+#error-container {
+     margin-top:10px;
+     position: fixed;
+}
 </style>
 <script>
 $(function() {
@@ -134,22 +137,37 @@ $(function() {
 		<div style="display:none" id="loadingDiv"><div class="loader">Loading...</div></div>
 			<section class="content" style="min-height:35px;display:none" id="messageWindow">
 				<div class="row">
-					<div class="col-md-6 col-sm-offset-4">
+				<!-- 	<div class="col-md-6 col-sm-offset-4">
 						<div class="alert alert-success alert-dismissable" id="successMessageDiv"
 							style="display: none;  height: 34px;white-space: nowrap;">
-							<!-- <button type="button" class="close" >x</button> -->
+							<button type="button" class="close" >x</button>
 							<strong>Success! </strong> {{successMessage}} <a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
 						</div>
 						<div class="alert alert-danger alert-dismissable" id="errorMessageDiv"
 							style="display: none;  height: 34px;white-space: nowrap;">
-							<!-- <button type="button" class="close">x</button> -->
+							<button type="button" class="close">x</button>
 							<strong>Error! </strong> {{errorMessage}} <span class="messageClose" ng-click="closeMessageWindow()">X</span>
 						</div>
-					</div>
+					</div> -->
 				</div>
 			</section>	
 			<section class="content">
 				<div class="row">
+				<div class="col-md-12">
+				<div id="errorMessageDiv" class="alert alert-error alert-fixed-top"
+				style="display: none;">
+				<button type="button" class="close" data-dismiss="modal"
+					onclick="$('.alert').hide()" ng-click="closeMessageWindow()">X</button>
+				<strong style="align: center;">
+				{{errorMessage}} </strong>
+				</div>
+					<div id="successMessageDiv" class="alert alert-success alert-fixed-top"
+					style="display: none;">
+					<button type="button" class="close" data-dismiss="modal"
+						onclick="$('.alert').hide()" ng-click="closeMessageWindow()">X</button>
+					<strong style="align: center;">{{successMessage}} </strong>
+					</div>
+				</div>
 				<div class="col-md-6">
 						<div class="box" >
 							<div class="box-header with-border">
@@ -195,7 +213,7 @@ $(function() {
 														<td><a href >
 																{{user.firstName}} {{user.lastName}}</a></td>	
 														<td><i class="fa fa-mobile" aria-hidden="true"></i>
-															{{user.role.description}}</td>
+															{{user.description}}</td>
 													</tr>
 												</tbody>
 											</table>
@@ -273,7 +291,7 @@ $(function() {
 													<span style="color:{{selectedUser.status}}">{{selectedUser.label}}</span>
 												</b>
 												<br>
-												<i class="fa fa-info-circle" aria-hidden="true"></i> {{selectedUser.role.description}}
+												<i class="fa fa-info-circle" aria-hidden="true"></i> {{selectedUser.description}}
 											</a>
 										</div>
 								</div>
@@ -290,7 +308,7 @@ $(function() {
 								<div class="row">
 									<div class="col-sm-4 col-xs-6">
 										<div class="description-block border-right pull-left">
-											<i class="fa fa-building" aria-hidden="true"></i> {{selectedUser.company.companyName}}
+											<i class="fa fa-building" aria-hidden="true"></i> {{selectedUser.company}}
 										</div>
 									</div>
 									<!-- <div class="col-sm-2 col-xs-6">
@@ -305,7 +323,12 @@ $(function() {
 									</div>
 									<div class="col-sm-4 col-xs-6">
 										<div class="description-block pull-right" style="margin-top: 0px;">
-											
+											<h5 ng-if="selectedUser.isEnabled == 1">
+									<a href class="btn btn-danger pull-right" style="margin-top: -10px;" 
+									ng-click="updateAccountStatus(selectedUser, '0')">Disable the account</a></h5>
+									<h5 ng-if="selectedUser.isEnabled == 0">
+									<a href class="btn btn-success pull-right" style="margin-top: -10px;" 
+									ng-click="updateAccountStatus(selectedUser,'1')" >Enable the account</a></h5>
 										</div>
 									</div> 
 								</div>
@@ -321,7 +344,7 @@ $(function() {
 							</div>
 							<div class="box-body">
 								<div class="row">
-								<div class="col-md-12">
+							<!-- 	<div class="col-md-12">
 								<h5 ng-if="selectedUser.isEnabled == 0">
 									User Account is currently Locked. 
 									<a href class="btn btn-success pull-right" style="margin-top: -10px;" 
@@ -331,7 +354,7 @@ $(function() {
 									<a href class="btn btn-danger pull-right" style="margin-top: -10px;" 
 									ng-click="updateAccountStatus(selectedUser, '0')">Disable the account</a></h5>
 								
-								</div>
+								</div> -->
 								</div>
 								<div class="row">
 									<div class="col-md-8">

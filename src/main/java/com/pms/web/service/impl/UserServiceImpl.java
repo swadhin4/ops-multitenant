@@ -1,11 +1,13 @@
 package com.pms.web.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pms.app.dao.impl.UserDAO;
 import com.pms.app.view.vo.AppUserVO;
@@ -83,20 +85,20 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserVO updateRoles(UserVO userVO, LoginUser user) {
-		// TODO Auto-generated method stub
-		return null;
+		UserVO savedUserVO	= getUserDAO(user.getDbName()).updateRole(userVO);
+		return savedUserVO;
 	}
 
 	@Override
 	public UserVO saveUser(AppUserVO appUserVO) throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<UserVO> findALLUsers(Long companyId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	@Transactional
+	public List<UserVO> findALLUsers(Long companyId, LoginUser user) throws Exception {
+		List<UserVO> userList =  getUserDAO(user.getDbName()).getAllUsers(companyId);
+		return userList==null?Collections.emptyList():userList;
 	}
 
 	@Override
@@ -174,6 +176,12 @@ public class UserServiceImpl implements UserService {
 			return null;
 		}
 		return null;
+	}
+
+	@Override
+	public List<Role> findAllRoles(LoginUser user) throws Exception {
+		List<Role> roleList =  getUserDAO(user.getDbName()).getAllRoles();
+		return roleList==null?Collections.emptyList():roleList;
 	}
 
 }

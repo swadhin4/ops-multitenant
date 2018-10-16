@@ -40,7 +40,7 @@ public interface UserService {
 
 	UserVO saveUser(AppUserVO appUserVO) throws Exception;
 
-	List<UserVO> findALLUsers(Long companyId) throws Exception;
+	List<UserVO> findALLUsers(Long companyId, LoginUser user) throws Exception;
 
 	AuthorizedUserDetails getAuthorizedUser(Authentication springAuthentication) throws Exception;
 
@@ -61,4 +61,6 @@ public interface UserService {
 	List<RoleStatus> getRoleStatus(LoginUser user) throws Exception;
 
 	List<RoleStatus> getRoleStatusByRoleId(Long roleId) throws Exception;
+
+	List<Role> findAllRoles(LoginUser user) throws Exception;
 }

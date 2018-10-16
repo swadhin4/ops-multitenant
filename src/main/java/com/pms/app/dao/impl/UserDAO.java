@@ -1,23 +1,31 @@
 package com.pms.app.dao.impl;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
+import com.pms.app.view.vo.UserVO;
+import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.UserModel;
 
 
 @Repository
 public class UserDAO {
+	private final static Logger LOGGER = LoggerFactory.getLogger(UserDAO.class);
 
 	public UserDAO(String userConfig) {
 		ConnectionManager.getInstance(userConfig);
@@ -68,6 +76,63 @@ public class UserDAO {
 		});
 		return roleStatusList;
 	}
-	
+
+	public List<UserVO> getAllUsers(Long companyId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<UserVO> userList = jdbcTemplate.query(AppConstants.USER_LIST_QUERY, new Object[] {companyId}, new ResultSetExtractor<List<UserVO>>(){
+			List<UserVO> userList = new ArrayList<UserVO>();
+			@Override
+			public List<UserVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					UserVO userVO = new UserVO();
+					userVO.setUserId(rs.getLong("user_id"));
+					userVO.setFirstName(rs.getString("first_name"));
+					userVO.setLastName(rs.getString("last_name"));
+					userVO.setEmailId(rs.getString("email_id"));
+					userVO.setPhoneNo(rs.getString("phone"));
+					userVO.setRoleId(rs.getLong("role_id"));
+					userVO.setRoleName(rs.getString("description"));
+					userVO.setEnabled(rs.getInt("enabled"));
+					userVO.setCompanyName(rs.getString("company_name"));
+					userList.add(userVO);
+				}
+				return userList;
+			}
+		});
+		return userList;
+	}
+
+	public List<Role> getAllRoles() {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<Role> roleList = jdbcTemplate.query(AppConstants.USER_ROLE_LIST_QUERY, new ResultSetExtractor<List<Role>>(){
+			List<Role> roleList = new ArrayList<Role>();
+			@Override
+			public List<Role> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					Role role = new Role();
+					role.setRoleId(rs.getLong("role_id"));
+					role.setDescription(rs.getString("role_desc"));
+					roleList.add(role);
+				}
+				return roleList;
+			}
+		});
+		return roleList;
+	}
+
+	public UserVO updateRole(UserVO userVO) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		 jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_USER_ROLE);
+	            ps.setLong(1, userVO.getRoleSelected().getRoleId());
+	            ps.setLong(2, userVO.getUserId());
+	            return ps;
+		      }
+		      });
+		 	LOGGER.info("Update user {} with role id  {}.", userVO.getUserName(),  userVO.getRoleId());
+		    return userVO;   
+	}
 	
 }

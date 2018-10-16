@@ -1265,12 +1265,8 @@ chrisApp.factory("roleService", ['$http', '$q',function ($http, $q) {
     
  // implementation
     function updateRole(userInfo) {
-    	var userRoleData={
-    			userId:userInfo.userId,
-    			role:userInfo.roleSelected
-    	}
         var def = $q.defer();
-        $http.post(hostLocation+"/user/update/role", userRoleData)
+        $http.post(hostLocation+"/user/role/update", userInfo)
             .success(function(data) {
             	//console.log(data)
                 def.resolve(data);

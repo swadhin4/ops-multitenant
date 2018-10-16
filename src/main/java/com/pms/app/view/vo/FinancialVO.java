@@ -1,8 +1,14 @@
 package com.pms.app.view.vo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class FinancialVO {
+public class FinancialVO implements Serializable{
+
+		/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2088751500409682110L;
 
 		private String costId;
 		
@@ -95,6 +101,37 @@ public class FinancialVO {
 
 		public void setIsEdited(String isEdited) {
 			this.isEdited = isEdited;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((costId == null) ? 0 : costId.hashCode());
+			result = prime * result + ((ticketID == null) ? 0 : ticketID.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			FinancialVO other = (FinancialVO) obj;
+			if (costId == null) {
+				if (other.costId != null)
+					return false;
+			} else if (!costId.equals(other.costId))
+				return false;
+			if (ticketID == null) {
+				if (other.ticketID != null)
+					return false;
+			} else if (!ticketID.equals(other.ticketID))
+				return false;
+			return true;
 		}
 
 			

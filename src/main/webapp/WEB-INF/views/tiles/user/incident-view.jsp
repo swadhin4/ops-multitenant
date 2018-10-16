@@ -171,7 +171,7 @@ $(function() {
 	             <div class="tab-content" style="background-color: #eee;">
 	              <div class="active tab-pane" id="primaryinfo">
 			        <div class="row">
-		        	 <div class="col-md-12 col-sm-12">
+		        	 <div class="col-md-8 col-sm-12">
 	                  	<div class="box">
 				        <div class="box-body">
 				        <img class="img-circle img-bordered-sm" src="${contextPath}/resources/img/incident.png" alt="user image" style="    width: 6%;">  
@@ -184,6 +184,20 @@ $(function() {
 				        </div>
 				        
 				      </div>
+	                  </div>
+	                  <div class="col-md-4 col-sm-12">
+	                  <div class="box">
+	                   <div class="box-body">
+			         SLA {{ticketData.slaPercent}} %
+					 <dl class="dl-horizontal">
+			             <div class="progress">
+			                 <div class="progress-bar" 
+			                 ng-class="{'progress-bar-danger': ticketData.slaPercent >=100, 'progress-bar-warning': ticketData.slaPercent>75 && ticketData.slaPercent<100, 'progress-bar-info': ticketData.slaPercent>0 && ticketData.slaPercent<75}" 
+			                 role="progressbar" ng-style="{width: ticketData.width+'%'}"></div>
+			             </div>                                           
+			    	 </dl>
+			    	 </div>
+			    	 </div>
 	                  </div>
 	                  </div>
 	                  <div class="row">
@@ -324,21 +338,8 @@ $(function() {
 				      </div>
 	
 			        <div class="row">
-			        <div class="col-md-12 col-sm-12">
-                  		<div class="box">
-				        <div class="box-body">
-			         SLA {{ticketData.slaPercent}} %
-					 <dl class="dl-horizontal">
-			             <div class="progress">
-			                 <div class="progress-bar" 
-			                 ng-class="{'progress-bar-danger': ticketData.slaPercent >=100, 'progress-bar-warning': ticketData.slaPercent>75 && ticketData.slaPercent<100, 'progress-bar-info': ticketData.slaPercent>0 && ticketData.slaPercent<75}" 
-			                 role="progressbar" ng-style="{width: ticketData.width+'%'}"></div>
-			             </div>                                           
-			    	 </dl>
-			    	 </div>
-			    	 <!-- External Ticket providers -->
+			     	 <div class="col-md-6" >
 			    	 <div class="tab-pane table-responsive" id="linkedticket">
-					<div class="form-group" >
 						<div class="box box-success">
 							<div class="box-header with-border">
 								<h3 class="box-title">Linked ticket details</h3>
@@ -380,23 +381,62 @@ $(function() {
 								
 							<!-- /.box-body -->
 						</div>
-					</div>
+						</div>
+						</div>
+						<div class="col-md-6" >
+						<div class="box box-success">
+							<div class="box-header with-border">
+								<h3 class="box-title">Financial Details</h3>
+							</div>
+							
+							<div class="box-body" >
+			    	 <div class="tab-pane" id="escalate">
+						<table id="example2"
+							class="table table-hover table-condensed">
+							<thead>
+								<tr>
+									<th><b>Cost Name</b></th>
+									<th><b>Cost (&euro;)</b></th>
+									<th><b>Charge Back</b></th>
+									<th><b>Billable</b></th>
+
+								</tr>
+							</thead>
+							<tbody ng-if="financialCostDetails.length > 0">
+								<tr ng-repeat="financialRow in financialCostDetails">
+									<td>{{financialRow.costName}}</td>
+									<td>{{financialRow.cost}}</td>
+									<td>{{financialRow.chargeBack == 1 ? "Yes" : "No"}}</td>
+									<td>{{financialRow.billable == 1 ? "Yes" : "No"}}</td>
+
+								</tr>
+
+							</tbody>
+							<tbody ng-if="financialCostDetails.length == 0">
+								<tr >
+									<td>
+										There are no financial cost available.
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						</div>
+			    	 </div>
+			    	 </div>
+			    	 </div>
 					</div>
 			    	 
 			    	 <!-- Escalation -->
 			    	 
-			    	 <div class="tab-pane table-responsive" id="escalationDetails">
-					<div class="form-group" >
+			    	 <div class="row" id="escalationDetails">
+						<div class="col-md-6" >
 						<div class="box box-success">
 							<div class="box-header with-border">
 								<h3 class="box-title">Escalation Details</h3>
 							</div>
 							
 							<div class="box-body" >
-			    	 
-			    	 
-			    	 
-			    	 <div class="tab-pane" id="escalate">
+			    		 <div class="tab-pane" id="escalate">
 						<table id="example2"
 							class="table table-hover table-condensed">
 							<thead>
@@ -439,63 +479,7 @@ $(function() {
 			    	 </div>
 			    	 </div>
 			    	 </div>
-			    	 </div>
-			    	 <!-- Financials -->
-			    	 
-			    	 
-			    	 
-			    	 <div class="tab-pane table-responsive" id="financialDetails">
-					<div class="form-group" >
-						<div class="box box-success">
-							<div class="box-header with-border">
-								<h3 class="box-title">Financial Details</h3>
-							</div>
-							
-							<div class="box-body" >
-			    	 
-			    	 
-			    	 
-			    	 <div class="tab-pane" id="escalate">
-						<table id="example2"
-							class="table table-hover table-condensed">
-							<thead>
-								<tr>
-									<th><b>Cost Name</b></th>
-									<th><b>Cost (&euro;)</b></th>
-									<th><b>Charge Back</b></th>
-									<th><b>Billable</b></th>
-
-								</tr>
-							</thead>
-							<tbody ng-if="financialCostDetails.length > 0">
-								<tr ng-repeat="financialRow in financialCostDetails">
-									<td>{{financialRow.costName}}</td>
-									<td>{{financialRow.cost}}</td>
-									<td>{{financialRow.chargeBack == 1 ? "Yes" : "No"}}</td>
-									<td>{{financialRow.billable == 1 ? "Yes" : "No"}}</td>
-
-								</tr>
-
-							</tbody>
-							<tbody ng-if="financialCostDetails.length == 0">
-								<tr >
-									<td>
-										There are no financial cost available.
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						</div>
-			    	 </div>
-			    	 </div>
-			    	 </div>
-			    	 </div>
-			    	 
-			    	 
-			    	 <!-- Attachments -->
-			    	 
-			    	 <div class="tab-pane table-responsive" id="attachmentticket">
-					<div class="form-group" >
+					<div class="col-md-6" >
 						<div class="box box-success">
 							<div class="box-header with-border">
 								<h3 class="box-title">Attachment Details</h3>
@@ -615,42 +599,6 @@ $(function() {
 				</div>
 				</div>
 				</div>
-				
-				<!-- 	<div class="col-md-3" style="background-color:#E2E0DF">
-					<div class="box box-warning direct-chat direct-chat-warning">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Work Notes</h3>                  
-                </div>
-                /.box-header
-                <div class="box-body">
-                  Conversations are loaded here
-                  <div class="direct-chat-messages" style="height:475px" >
-                    Message. Default to the left
-                    <div class="direct-chat-msg" ng-repeat="ticket in ticketComments">
-                      <div class="direct-chat-info clearfix">
-                        <span class="direct-chat-name pull-left">{{ticket.createdBy}}</span>
-                        <span class="direct-chat-timestamp pull-right">{{ticket.createdDate}}</span>
-                      </div>
-                                          
-                      <div class="direct-chat-text">
-                        {{ticket.comment}}
-                      </div>
-                     
-                    </div>
-
-                  </div>
-                  
-                </div>
-                <div class="box-footer">
-                    <div class="input-group">
-                      <input type="text" name="ticketMessage" id="ticketMessage" ng-model="ticketComment.comment" placeholder="Enter Comment ..." class="form-control">
-                          <span class="input-group-btn">
-                            <button type="button" class="btn btn-success btn-flat" ng-click="addNewComment()">Post</button>
-                          </span>
-                    </div>
-                </div>
-              </div>
-				</div> -->
 				
 					 <div class="col-md-6" id="chatWindow" style="display:none">
           <div class="box" >

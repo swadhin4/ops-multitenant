@@ -81,6 +81,7 @@ public class TicketVO implements Serializable{
 	private ServiceProvider serviceProvider;
 	private CreateSiteVO site;
 	private int isRootcauseResolved;
+	private String mode;
 	
 	public TicketVO() {
 		super();
@@ -477,6 +478,12 @@ public class TicketVO implements Serializable{
 	}
 	public void setIsRootcauseResolved(int isRootcauseResolved) {
 		this.isRootcauseResolved = isRootcauseResolved;
+	}
+	public String getMode() {
+		return mode;
+	}
+	public void setMode(String mode) {
+		this.mode = mode;
 	}
 	@Override
 	public String toString() {

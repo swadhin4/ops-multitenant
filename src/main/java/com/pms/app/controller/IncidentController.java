@@ -3,6 +3,7 @@
  */
 package com.pms.app.controller;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
+import com.pms.app.view.vo.FinUpdReqBodyVO;
 import com.pms.app.view.vo.IncidentImageVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketCommentVO;
@@ -37,8 +41,7 @@ import com.pms.app.view.vo.TicketEscalationVO;
 import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
-import com.pms.jpa.entities.CustomerSPLinkedTicket;
-import com.pms.jpa.entities.SPEscalationLevels;
+import com.pms.jpa.entities.Financials;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -262,16 +265,23 @@ public class IncidentController extends BaseController {
 			try {
 				logger.info("TicektVO : " + ticketVO);
 				savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
-					if (savedTicketVO.getTicketId() != null && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+					if (ticketVO.getMode().equalsIgnoreCase("NEW") && savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
 						response.setStatusCode(200);
 						response.setObject(savedTicketVO);
 						response.setMessage("New Incident created successfully");
 						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-					} else if (savedTicketVO.getTicketId() != null
+					} else if (ticketVO.getMode().equalsIgnoreCase("UPDATE")
 							&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
 						response.setStatusCode(200);
 						response.setObject(savedTicketVO);
 						response.setMessage("Incident updated successfully");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
+					else if (ticketVO.getMode().equalsIgnoreCase("IMAGEUPLOAD")
+							&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
+						response.setStatusCode(200);
+						response.setObject(savedTicketVO);
+						response.setMessage("Incident images uploaded successfully");
 						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 					}
 				
@@ -493,7 +503,11 @@ public class IncidentController extends BaseController {
 					//selectedTicketVO.setFinancialList(finacialsList);
 					logger.info("these are financials====>>> " + selectedTicketVO.getFinancialList());
 					// Changes end here
-*/					session.setAttribute("selectedTicket", selectedTicketVO);
+					 * 
+*/					
+					List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),loginUser);
+					selectedTicketVO.setFinancialList(finacialsList);
+					session.setAttribute("selectedTicket", selectedTicketVO);
 					response.setStatusCode(200);
 					response.setObject(selectedTicketVO);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
@@ -852,6 +866,68 @@ public class IncidentController extends BaseController {
 
 		logger.info("Exit IncidentController .. escalate");
 		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/updateFinancial", method = RequestMethod.POST)
+	public ResponseEntity<RestResponse> updateFinacials(final HttpSession session,@RequestBody final String finVO){
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		try{
+		if(loginUser!=null){
+			List<FinUpdReqBodyVO> finVOList = getFinancialVOList(finVO);
+			List<Financials> financials = ticketSerice.saveFinancials(finVOList, loginUser);
+			if(!financials.isEmpty()){
+				TicketVO sessionTicket = (TicketVO) session.getAttribute("selectedTicket");
+				sessionTicket.setFinancialList(financials);
+				response.setStatusCode(200);
+				response.setObject(financials);
+				response.setMessage("Cost Item(s) Updated successfully");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			}else{
+				response.setStatusCode(204);
+				response.setMessage("Unable to update the cost Item(s) for selected ticket.");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.CONFLICT);
+			}
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+			}catch(Exception e){
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+				logger.info("Exception while updating financial data.", e);
+			}
+		return responseEntity;
+	}
+
+	private List<FinUpdReqBodyVO> getFinancialVOList(final String finVO) {
+		JSONArray jsonArray = new JSONArray(finVO);
+		List<FinUpdReqBodyVO> finVOList = new ArrayList<FinUpdReqBodyVO>();
+		for (int i = 0; i < jsonArray.length(); i++) {
+		    JSONObject explrObject = jsonArray.getJSONObject(i);
+		    Long costId=null;
+		    if(explrObject.has("costId")){
+		    	if(!StringUtils.isEmpty(String.valueOf(explrObject.get("costId")))){
+		    		costId = Long.parseLong(String.valueOf(explrObject.get("costId")));
+		    	}
+		    }
+		    FinUpdReqBodyVO fins = new FinUpdReqBodyVO(costId,explrObject.getLong("ticketID"), explrObject.getString("costName"), new BigDecimal(explrObject.getDouble("cost")),
+		    		 explrObject.getString("chargeBack"),  explrObject.getString("billable"));
+		    if(explrObject.has("isDeleteCheck")){
+		    	if(explrObject.getBoolean("isDeleteCheck")){
+		    	fins.setDeleteCheck(explrObject.getBoolean("isDeleteCheck"));
+		     }
+		    }
+		    if(explrObject.has("isEdited")){
+			    if(explrObject.getBoolean("isEdited")){
+			    	fins.setEdited(explrObject.getBoolean("isEdited"));
+			    }
+		    }
+		    finVOList.add(fins);
+		}
+		return finVOList;
 	}
 	
 }

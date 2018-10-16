@@ -1,5 +1,6 @@
 package com.pms.app.dao.impl;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,6 +8,7 @@ import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,7 @@ import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
+import com.pms.app.view.vo.FinancialVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
 import com.pms.app.view.vo.TicketCommentVO;
@@ -44,7 +47,7 @@ import com.pms.app.view.vo.TicketEscalationVO;
 import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
-import com.pms.jpa.entities.CustomerSPLinkedTicket;
+import com.pms.jpa.entities.Financials;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
@@ -595,4 +598,88 @@ public class IncidentDAO {
 		});
 		return escList;
 	}
+	
+	public List<Financials> getTicketFinancials(Long ticketId, LoginUser loginUser) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<Financials> financialVOList = jdbcTemplate.query(AppConstants.TICKET_FINANCE_SELECT_QUERY,new Object[]{ticketId}, new ResultSetExtractor<List<Financials>>(){
+			@Override
+			public List<Financials> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<Financials> financeList = new ArrayList<Financials>();
+				while(rs.next()){
+					Financials financeVO = new Financials();
+					financeVO.setId(rs.getLong("cost_id"));
+					financeVO.setTicketId(rs.getLong("ticket_id"));
+					financeVO.setCostName(rs.getString("cost_name"));
+					financeVO.setCost(new BigDecimal(rs.getString("cost")));
+					financeVO.setChargeBack(rs.getString("charge_back"));
+					financeVO.setBillable(rs.getString("billable"));
+					financeVO.setCreatedBy(rs.getString("created_by"));
+					financeList.add(financeVO);
+				}
+				return financeList;
+			}
+		});
+		return financialVOList == null?Collections.emptyList():financialVOList;
+	}
+	
+	public Financials getTicketFinanceById(Long costId, LoginUser loginUser) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		Financials financeObj = jdbcTemplate.query(AppConstants.TICKET_FINANCE_BY_ID,new Object[]{costId}, new ResultSetExtractor<Financials>(){
+			@Override
+			public Financials extractData(ResultSet rs) throws SQLException, DataAccessException {
+				Financials financeVO = new Financials();
+				if(rs.next()){
+					financeVO.setId(rs.getLong("cost_id"));
+					financeVO.setTicketId(rs.getLong("ticket_id"));
+					financeVO.setCostName(rs.getString("cost_name"));
+					financeVO.setCost(new BigDecimal(rs.getString("cost")));
+					financeVO.setChargeBack(rs.getString("charge_back"));
+					financeVO.setBillable(rs.getString("billable"));
+					financeVO.setCreatedBy(rs.getString("created_by"));
+				}
+				return financeVO;
+			}
+		});
+		return financeObj ;
+	}
+
+	public Financials saveFinance(Financials financialVO, LoginUser user)
+            throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.TICKET_FINANCE_INSERT_QUERY, 
+	            Statement.RETURN_GENERATED_KEYS);
+	        ps.setLong(1, financialVO.getTicketId());
+    		ps.setString(2, financialVO.getCostName());
+    		ps.setDouble(3, financialVO.getCost().doubleValue());
+    		ps.setString(4, financialVO.getChargeBack());
+    		ps.setString(5, financialVO.getBillable());
+    		ps.setString(6, user.getUsername());
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved Finance ticket {} with id {}.", financialVO.getCost(), key.getKey());
+	    financialVO.setId(key.getKey().longValue());
+	    return financialVO;
+    }
+	
+	public Financials updateFinance(Financials financeVO, LoginUser user)
+            throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int updatedRows = jdbcTemplate.update(AppConstants.TICKET_FINANCE_UPDATE_QUERY,     new PreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps) throws SQLException {
+                		ps.setString(1, financeVO.getCostName());
+                		ps.setDouble(2, financeVO.getCost().doubleValue());
+                		ps.setString(3, financeVO.getChargeBack());
+                		ps.setString(4, financeVO.getBillable());
+                		ps.setString(5, user.getUsername());
+                		ps.setLong(6, financeVO.getId());
+                }
+                });
+        return updatedRows>0?financeVO:null;
+    }
 }

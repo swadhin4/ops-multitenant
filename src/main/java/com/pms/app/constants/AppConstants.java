@@ -229,5 +229,24 @@ public class AppConstants {
 	public static final String TICKET_BY_ESCID = "select * from pm_ct_escalations where ticket_id=? and esc_id=?";
 	
 	public static final String SP_ESCALATIONS_QUERY= "select * from pm_sp_escalation_levels where sp_id=?";
+	
+	public static final String TICKET_FINANCE_SELECT_QUERY= "select * from pm_cust_ticket_financials where ticket_id=?";
+	
+	public static final String TICKET_FINANCE_BY_ID= "select * from pm_cust_ticket_financials where cost_id=?";
+	
+	public static final String TICKET_FINANCE_INSERT_QUERY= "INSERT into pm_cust_ticket_financials"
+			+ " (ticket_id, cost_name, cost, charge_back, billable, created_by) values(?, ?,?,?, ?,?)";
+	
+	public static final String TICKET_FINANCE_UPDATE_QUERY= "UPDATE  pm_cust_ticket_financials"
+			+  "set cost_name=?, cost=?, charge_back=?, billable=?, modified_by=?, modified_on=NOW() where cost_id=?";
+	
+	public static final String USER_LIST_QUERY= "SELECT u.user_id,u.first_name,u.last_name,u.email_id,u.phone,"
+			+ " ur.role_id,r.role_desc as description,u.enabled, pc.company_name from pm_users u "
+			+ " LEFT JOIN pm_user_role ur ON u.user_id = ur.user_id LEFT JOIN pm_role r ON r.role_id = ur.role_id"
+			+ " LEFT JOIN pm_company pc on pc.company_id=u.company_id WHERE u.company_id = ?";
+
+	public static final String USER_ROLE_LIST_QUERY = "select * from pm_role";
+	
+	public static final String UPDATE_USER_ROLE = "UPDATE pm_user_role set role_id=?  where user_id=?";
 
 }

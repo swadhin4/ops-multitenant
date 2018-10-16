@@ -3,6 +3,7 @@
  */
 package com.pms.app.controller;
 
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -10,15 +11,20 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.UserVO;
+import com.pms.jpa.entities.Role;
+import com.pms.web.service.UserService;
 import com.pms.web.util.RestResponse;
 
 /**
@@ -32,6 +38,8 @@ public class UserController extends BaseController {
 	private static final Logger logger = LoggerFactory
 			.getLogger(UserController.class);
 
+	@Autowired
+	private UserService userService;
 
 
 	@RequestMapping(value = "/home", method = RequestMethod.GET, produces = "application/json")
@@ -59,13 +67,24 @@ public class UserController extends BaseController {
 			return "redirect:/login";
 		}
 	}
+	
+	@RequestMapping(value = "/details", method = RequestMethod.GET)
+	public String userDetails(final Locale locale, final ModelMap model,
+			final HttpServletRequest request, final HttpSession session) {
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.put("user", loginUser);
+			return "user.details";
+		} else {
+			return "redirect:/login";
+		}
+	}
 
 	@RequestMapping(value = "/logged", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse>  loggedInUserDetail(final ModelMap model,final HttpSession session) {
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		LoginUser loginUser=getCurrentLoggedinUser(session);
-		String responseObject=null;
 		if (loginUser!=null) {
 			AppUserVO appUserVO = new AppUserVO();
 			response.setStatusCode(200);
@@ -87,18 +106,7 @@ public class UserController extends BaseController {
 		return responseEntity;
 	}
 
-	@RequestMapping(value = "/details", method = RequestMethod.GET)
-	public String userDetails(final Locale locale, final ModelMap model,
-			final HttpServletRequest request, final HttpSession session) {
-		LoginUser loginUser=getCurrentLoggedinUser(session);
-		if (loginUser!=null) {
-			model.put("user", loginUser);
-			return "user.details";
-		} else {
-			return "redirect:/login";
-		}
-	}
-	/*@RequestMapping(value = "/list", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/list", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> userList(final HttpServletRequest request, final HttpSession session) {
 		logger.info("Inside UserController - userList" );
 		RestResponse response = new RestResponse();
@@ -106,7 +114,7 @@ public class UserController extends BaseController {
 		LoginUser loginUser=getCurrentLoggedinUser(session);
 		if (loginUser!=null) {
 			try {
-				List<UserVO> userList = userService.findALLUsers(loginUser.getCompany().getCompanyId());
+				List<UserVO> userList = userService.findALLUsers(loginUser.getCompany().getCompanyId(), loginUser);
 				if(userList.size()>0){
 					response.setStatusCode(200);
 					response.setObject(userList);
@@ -131,36 +139,50 @@ public class UserController extends BaseController {
 		logger.info("Exit UserController - userList" );
 		return responseEntity;
 	}
-
-
+	
 	@RequestMapping(value = "/roles", method = RequestMethod.GET, produces = "application/json")
-	public @ResponseBody RestResponse userRoles(final HttpSession session) {
+	public ResponseEntity<RestResponse> userRoles(final HttpSession session) {
 		logger.info("Inside UserController - userRoles" );
-		RestResponse response=new RestResponse();
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		LoginUser user = getCurrentLoggedinUser(session);
 		if(user!=null){
-			List<com.pms.jpa.entities.Role> roles=applicationService.findAllRoles(user);
-			if(!roles.isEmpty()){
-				response.setStatusCode(200);
-				response.setObject(roles);;
-			}else{
-				response.setStatusCode(404);
-
+			
+			try {
+				List<Role> roles = userService.findAllRoles(user);
+				if(!roles.isEmpty()){
+					response.setStatusCode(200);
+					response.setObject(roles);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}else{
+					response.setStatusCode(404);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+			}
+			catch (Exception e) {
+				response.setStatusCode(500);
+				response.setMessage("Exception while getting role list ");
+				logger.error("Exception while getting role list", e);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
 			}
 		}else {
 			response.setStatusCode(401);
 			response.setMessage("Your current session is expired. Please login again");
 		}
 		logger.info("Exit UserController - userRoles" );
-		return response;
+		return responseEntity;
 	}
+
+
+	
 
 
 
 	@RequestMapping(value = "/role/update", method = RequestMethod.POST, produces = "application/json")
-	public @ResponseBody RestResponse updateUserRoles(@RequestBody final UserVO userVO, final HttpSession session) {
+	public ResponseEntity<RestResponse>  updateUserRoles(@RequestBody final UserVO userVO, final HttpSession session) {
 		logger.info("Inside UserController - updateUserRoles" );
-		RestResponse response=new RestResponse();
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		LoginUser user=(LoginUser)session.getAttribute("loginUser");
 		if(user!=null){
 		try{
@@ -168,21 +190,28 @@ public class UserController extends BaseController {
 			UserVO savedUser=userService.updateRoles(userVO,user);
 			if(savedUser!=null){
 				response.setStatusCode(200);
+				response.setMessage("User role updated successfully");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 			}else{
 				response.setStatusCode(201);
+				response.setMessage("Unable to update role");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
 			}
 		}catch(Exception e){
 			e.printStackTrace();
 			response.setStatusCode(500);
+			response.setMessage("Exception while updating role");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		}else {
 			response.setStatusCode(401);
 			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
 		}
 		logger.info("Exit UserController - updateUserRoles" );
-		return response;
+		return responseEntity;
 	}
-
+	/*
 	@RequestMapping(value = "/register", method = RequestMethod.POST, produces = "application/json")
 	public @ResponseBody RestResponse saveNewUser(final HttpSession session,  @RequestBody final AppUserVO appUserVO) {
 		logger.info("Inside UserController - saveNewUser" );

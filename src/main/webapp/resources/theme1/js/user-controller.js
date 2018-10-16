@@ -98,6 +98,11 @@ chrisApp.controller('userController',  ['$rootScope', '$scope', '$filter', '$loc
 			 }
 	    	 var enabledOrDisabled= $('#toggle-event1').prop('checked');
 	    	 $scope.selectedUser.roleSelected=role;
+	    	 $scope.selectedUser.companyName= $scope.selectedUser.company;
+	    	 var userCompany={
+	    			 company:$scope.selectedUser.company
+	    	 }
+	    	 $scope.selectedUser.company= userCompany;
 	    	// $scope.selectedUser.enabledordisabled=enabledOrDisabled;
 	    	console.log($scope.selectedUser);
 	    		$scope.updateRoleInfo($scope.selectedUser);
@@ -118,20 +123,14 @@ chrisApp.controller('userController',  ['$rootScope', '$scope', '$filter', '$loc
 	    			if(data.statusCode == 200){
 	    				$scope.appUsers=[];
 	    				$.each(data.object,function(key,val){
-	    					var role ={};
-	    					if(val.roleNames.length>0){
-	    						var roles = val.roleNames[0].split(",");
-	    						role.roleId=roles[0];
-	    						role.description=roles[1];
-	    					}
 	    					var userData={
 	    							userId:val.userId,
 	    							firstName:val.firstName,
 	    							lastName:val.lastName,
 	    							email:val.emailId,
-	    							role:role,
-	    							createdAt:val.createdAt,
-	    							company:val.company,
+	    							roleId:val.roleId,
+	    							description:val.roleName,
+	    							company:val.companyName,
 	    							isEnabled:val.enabled,
 	    							phone:val.phoneNo
 	    					}
@@ -144,6 +143,7 @@ chrisApp.controller('userController',  ['$rootScope', '$scope', '$filter', '$loc
 	            },
 	            function(data) {
 	                console.log('UserList retrieval failed.')
+	                $('#loadingDiv').hide();
 	            }); 	
 		    	//}
 		    	// appuser.retrieveAllUsers();
@@ -323,6 +323,7 @@ chrisApp.controller('userController',  ['$rootScope', '$scope', '$filter', '$loc
 	            },
 	            function(data) {
 	                console.log('Unable to change the role for the user')
+	                $('#loadingDiv').hide();
 	                
 	            }); 	
 		    }

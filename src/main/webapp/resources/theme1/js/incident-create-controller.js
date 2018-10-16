@@ -938,7 +938,7 @@ $scope.setTicketraisedOnDate=function(){
 			 //console.log($scope.accessSite.selected);
 			 
 			 //console.log($scope.ticketData);
-			 
+			 $scope.ticketData.mode="NEW";
 			$scope.persistTicket($scope.ticketData, "NEW");
 		 }
 		 
@@ -950,6 +950,7 @@ $scope.setTicketraisedOnDate=function(){
 			 }
 			 //console.log($scope.ticketData);
 			 $scope.ticketData.sla = $('#sla').val();
+			 $scope.ticketData.mode="UPDATE";
 			 $scope.persistTicket($scope.ticketData, "UPDATE");
 			//Added by Supravat for allowing SLA Due Date to update on incident update screen.
 			 //To Refresh SLA Percentage
@@ -1574,6 +1575,7 @@ $scope.setTicketraisedOnDate=function(){
     		}else{
 			 $scope.ticketData.incidentImageList=$scope.incidentImages;
 			 if(mode=="EDIT"){
+				 $scope.ticketData.mode="IMAGEUPLOAD"
 			     $scope.persistTicket( $scope.ticketData, "UPLOAD");
 			 }else{
 				 $('#btnUploadCancel').click();

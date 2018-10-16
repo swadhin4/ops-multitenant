@@ -39,6 +39,8 @@ import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
+import com.pms.app.view.vo.FinUpdReqBodyVO;
+import com.pms.app.view.vo.FinancialVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
 import com.pms.app.view.vo.TicketCommentVO;
@@ -48,6 +50,7 @@ import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
+import com.pms.jpa.entities.Financials;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
@@ -118,7 +121,7 @@ public class TicketServiceImpl implements TicketService {
 	@Transactional
 	public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser loginUser) throws Exception {
 		TicketVO incidentVO = null;;
-		if(customerTicket.getTicketId()==null){
+		if(customerTicket.getTicketId()==null && customerTicket.getMode().equalsIgnoreCase("NEW")){
 			incidentVO = customerTicket;
 			Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated();
 			Long newIncidentNumber =null;
@@ -131,27 +134,37 @@ public class TicketServiceImpl implements TicketService {
 			String ticketNumber = "IN" +  String.format("%08d", newIncidentNumber);
 			LOGGER.info("Ticket Number Generated : " + ticketNumber);
 			incidentVO.setTicketNumber(ticketNumber);
-		}else{
+		}else if(customerTicket.getTicketId()!=null && customerTicket.getMode().equalsIgnoreCase("UPDATE")){
 			incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
 			BeanUtils.copyProperties(customerTicket, incidentVO);
 			LOGGER.info("Updated Ticket : " +  incidentVO);
 			
 		}
-		incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
-		incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
-		if(incidentVO.getTicketId()!=null && incidentVO.getMessage().equalsIgnoreCase("CREATED")){
-			ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(incidentVO);
-			CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
-			incidentVO.setServiceProvider(serviceProvider);
-			incidentVO.setSite(site);
-		}else if (incidentVO.getTicketId()!=null && incidentVO.getMessage().equalsIgnoreCase("UPDATED")){
-			
+		if(!customerTicket.getMode().equalsIgnoreCase("IMAGEUPLOAD")){
+			if(incidentVO.getTicketId()!=null && incidentVO.getMessage().equalsIgnoreCase("CREATED")){
+				ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(incidentVO);
+				CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
+				incidentVO.setServiceProvider(serviceProvider);
+				incidentVO.setSite(site);
+			}else if (incidentVO.getTicketId()!=null && incidentVO.getMessage().equalsIgnoreCase("UPDATED")){
+				
+			}
+			incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
+			incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
+		}else{
+			incidentVO = customerTicket; 
 		}
+		
 		String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
 		if(StringUtils.isNotEmpty(folderLocation)){
 			if(!incidentVO.getIncidentImageList().isEmpty()){
 				boolean isUploaded = uploadIncidentImages(incidentVO, loginUser,null, folderLocation, loginUser.getUsername());
-				incidentVO.setFileUploaded(isUploaded);
+				if(isUploaded){
+					incidentVO.setFileUploaded(isUploaded);
+					incidentVO.setMessage("UPDATED");
+				}else{
+					incidentVO.setFileUploaded(isUploaded);
+				}
 			}
 		}
 		return incidentVO;
@@ -498,6 +511,115 @@ public class TicketServiceImpl implements TicketService {
 		TicketEscalationVO savedTicketEscVO = getIncidentDAO(user.getDbName()).findByTicketIdAndEscLevelId(ticketId, escId);
 		savedTicketEscVO.setEscalationStatus("Escalated");
 		return savedTicketEscVO;
+	}
+	@Override
+	public List<Financials> findFinanceByTicketId(Long ticketId, LoginUser user) {
+		try {
+			return getIncidentDAO(user.getDbName()).getTicketFinancials(ticketId,user);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+/*	
+	@Override
+	public boolean deleteById(Long costid) {
+		try {
+			finRepo.delete(costid);
+			return true;
+		} catch (Exception e) {
+			logger.error(
+					"ERROR while Deleting Financials with CostId--> " + costid + " , Probably it was not found!!!! ");
+			return false;
+		}
+
+	}*/
+
+	@Override
+	@Transactional
+	public List<Financials> save(List<Financials> finList, LoginUser user) {
+		List<Financials> financials=new ArrayList<Financials>();
+		try {
+			for (Financials fin : finList) {
+				if (fin.getId() != null) {
+					Financials savedFinancial = getIncidentDAO(user.getDbName()).getTicketFinanceById(fin.getId(),user);
+					org.springframework.beans.BeanUtils.copyProperties(fin, savedFinancial);
+					savedFinancial.setModifiedOn(new Date());
+					savedFinancial.setModifiedBy(user.getUsername());
+					Financials editedFinance = getIncidentDAO(user.getDbName()).updateFinance(savedFinancial, user);
+					if(editedFinance!=null){
+						financials.add(editedFinance);
+					}
+				} else {
+					fin.setCreatedBy(user.getUsername());
+					Financials savedFinance= getIncidentDAO(user.getDbName()).saveFinance(fin, user);
+					if(savedFinance!=null){
+						financials.add(savedFinance);
+					}
+				}
+
+			}
+		} catch (Exception e) {
+			LOGGER.error("ERROR while updating Financials ", e);
+		}
+		return financials == null ? Collections.EMPTY_LIST:financials;
+	}
+
+	@Override
+	@Transactional
+	public List<Financials> saveAndUpdate(List<FinancialVO> financialVOList, LoginUser user) {
+			List<Financials> financials=new ArrayList<Financials>();
+			for(FinancialVO finVO : financialVOList){
+				Financials fin = new Financials();
+				if(!StringUtils.isEmpty(finVO.getCostId())) {
+					if(finVO.getIsEdited().equalsIgnoreCase("true")){
+						fin.setId(Long.parseLong(finVO.getCostId()));
+						fin.setCost(finVO.getCost());
+						fin.setBillable(finVO.getBillable());
+						fin.setChargeBack(finVO.getChargeBack());
+						fin.setCreatedBy(user.getUsername());
+						fin.setCostName(finVO.getCostName());
+						fin.setTicketId(finVO.getTicketID());
+						financials.add(fin);	
+					}
+				}
+				else if(StringUtils.isEmpty(finVO.getCostId())) {
+					fin.setCost(finVO.getCost());
+					fin.setBillable(finVO.getBillable());
+					fin.setChargeBack(finVO.getChargeBack());
+					fin.setCreatedBy(user.getUsername());
+					fin.setCostName(finVO.getCostName());
+					fin.setTicketId(finVO.getTicketID());
+					financials.add(fin);	
+				}
+				
+			}
+			List<Financials> savedFinanceList= save(financials, user);
+			return savedFinanceList == null ? Collections.EMPTY_LIST:savedFinanceList;
+	}
+
+	@Override
+	public List<Financials> saveFinancials(List<FinUpdReqBodyVO> finVOList, LoginUser user) {
+		List<Financials> financialList = new ArrayList<Financials>();
+		finVOList.forEach(FinupdVO -> {
+			if (FinupdVO.getCostId()!=null) {
+				if(FinupdVO.isEdited()){
+				Financials fin = new Financials(FinupdVO.getCostId(),FinupdVO.getTicketID(), FinupdVO.getCostName(),
+						FinupdVO.getCost(), String.valueOf(FinupdVO.getChargeBack()),String.valueOf(FinupdVO.getBillable()));
+				financialList.add(fin);
+				}
+
+			} else {
+				Financials fin = new Financials( FinupdVO.getTicketID(), FinupdVO.getCostName(),
+						FinupdVO.getCost(), String.valueOf(FinupdVO.getChargeBack()),
+						String.valueOf(FinupdVO.getBillable()));
+				fin.setCreatedOn(new Date());
+				financialList.add(fin);
+			}
+		});
+		List<Financials> savedFinanceList = save(financialList, user);
+		return savedFinanceList == null ? Collections.EMPTY_LIST:savedFinanceList;
 	}
 
 }

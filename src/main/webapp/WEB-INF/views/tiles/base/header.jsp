@@ -32,6 +32,7 @@
 
 
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/pms-admintLTE.css"></c:url>' />
+<link rel="stylesheet" href='<c:url value="/resources/theme1/css/style4.css"></c:url>' />
 <%-- <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/style.css"></c:url>' />
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/skins/skin-red.min.css"></c:url>' /> --%>
 <link rel="stylesheet" href='<c:url value="/resources/theme1/css/bootstrap-multiselect.css"></c:url>' />
@@ -88,6 +89,8 @@
     }
    
     .alert{
+        width: 100%;
+    	margin-top: -33px;
         padding: 7px;
             margin-bottom: 0px;
             border: 0px solid transparent !important;
@@ -285,15 +288,15 @@ function removeLoader(){
         </div>
       <div class="navbar-custom-menu" ng-controller="languageController" >
         <ul class="nav navbar-nav">
-          <li class="dropdown">
+          <!-- <li class="dropdown">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
             	<i class="fa fa-language fa-2x" aria-hidden="true"></i> {{ language }}
             </a>
             <ul class="dropdown-menu">
               <li> <a href="javascript:void(0);" ng-click="changeLanguage('en')">English</a></li>
-            <!--   <li> <a href="javascript:void(0);" ng-click="changeLanguage('fr')">French</a> </li> -->
+              <li> <a href="javascript:void(0);" ng-click="changeLanguage('fr')">French</a> </li>
             </ul>
-          </li>
+          </li> -->
           <li class="dropdown notifications-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <i class="fa fa-bell-o"></i>
