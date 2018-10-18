@@ -140,21 +140,20 @@ public class TicketServiceImpl implements TicketService {
 			LOGGER.info("Updated Ticket : " +  incidentVO);
 			
 		}
-		if(!customerTicket.getMode().equalsIgnoreCase("IMAGEUPLOAD")){
-			if(incidentVO.getTicketId()!=null && incidentVO.getMessage().equalsIgnoreCase("CREATED")){
+		if(!StringUtils.isEmpty(customerTicket.getMode())){
+			if(!customerTicket.getMode().equalsIgnoreCase("IMAGEUPLOAD")){
 				ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(incidentVO);
 				CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
 				incidentVO.setServiceProvider(serviceProvider);
 				incidentVO.setSite(site);
-			}else if (incidentVO.getTicketId()!=null && incidentVO.getMessage().equalsIgnoreCase("UPDATED")){
-				
 			}
+			else{
+				incidentVO = customerTicket; 
+			}
+			
 			incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
 			incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
-		}else{
-			incidentVO = customerTicket; 
 		}
-		
 		String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
 		if(StringUtils.isNotEmpty(folderLocation)){
 			if(!incidentVO.getIncidentImageList().isEmpty()){
