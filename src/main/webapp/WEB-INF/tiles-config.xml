@@ -23,6 +23,11 @@
 		<put-attribute name="body" value="" />
 		<put-attribute name="footer" value="/WEB-INF/views/tiles/base/footer.jsp" />
 	</definition>
+	<definition name="sp.user.definition"	template="/WEB-INF/views/tiles/base/layout.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/tiles/base/header.jsp" />
+		<put-attribute name="body" value="" />
+		<put-attribute name="footer" value="/WEB-INF/views/tiles/base/footer.jsp" />
+	</definition>
 
 	<!-- <definition name="default" extends="admin.login.definition">
 		<put-attribute name="title" value="Index" />
@@ -49,6 +54,11 @@
 		<put-attribute name="body" value="/WEB-INF/views/tiles/home/home.jsp" />
 	</definition>
 	
+	<definition name="sp.home" extends="user.definition">
+		<put-attribute name="title" value="Home" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-home.jsp" />
+	</definition>
+	
 	<definition name="user.profile" extends="user.definition">
 		<put-attribute name="title" value="Profile" />
 		<put-attribute name="body" value="/WEB-INF/views/tiles/user/profile.jsp" />
@@ -58,6 +68,12 @@
 		<put-attribute name="title" value="Profile" />
 		<put-attribute name="body" value="/WEB-INF/views/tiles/user/user-list.jsp" />
 	</definition>
+	
+	<definition name="sp.user.details" extends="sp.user.definition">
+		<put-attribute name="title" value="Profile" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-user-list.jsp" />
+	</definition>
+	
 	<definition name="site.details" extends="user.definition">
 		<put-attribute name="title" value="Profile" />
 		<put-attribute name="body" value="/WEB-INF/views/tiles/user/site-list.jsp" />

@@ -959,7 +959,12 @@ $scope.setTicketraisedOnDate=function(){
 			 
 		 }
 		 $scope.persistTicket=function(ticketData, type){
-			 $('#loadingDiv').show();
+			 if(type.toUpperCase()=='UPDATE'){
+				 $('#loadingDiv1').show();
+			 }
+			 else if(type.toUpperCase()=='UPLOAD'){
+				 $('#loadingDiv5').show();
+			 }
 			 ticketService.saveTicket(ticketData)
 			 .then(function(data){
 				 //console.log(data);
@@ -1003,7 +1008,8 @@ $scope.setTicketraisedOnDate=function(){
 	    					 }
 	    				}
 				 }
-				 $('#loadingDiv').hide();
+				 $('#loadingDiv1').hide();
+				 $('#loadingDiv5').hide();
 			 },function(data){
 				//console.log(data); 
 				$('#loadingDiv').hide();

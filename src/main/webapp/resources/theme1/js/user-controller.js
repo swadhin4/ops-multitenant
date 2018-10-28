@@ -297,7 +297,9 @@ chrisApp.controller('userController',  ['$rootScope', '$scope', '$filter', '$loc
 	    				$scope.successMessage = data.message;
 	    				$('#successMessageDiv').show();
 	    				$('#successMessageDiv').alert();
-	    				$scope.findAllUsers();
+	    				//$scope.findAllUsers();
+	    				$scope.selectedUser.isEnabled = data.calculatedVal;
+	    				$scope.getUserDetail($scope.selectedUser);
 	    				$('#loadingDiv').hide();
 	    			}
 	            },

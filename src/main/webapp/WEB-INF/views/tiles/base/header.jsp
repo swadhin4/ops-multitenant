@@ -167,7 +167,7 @@
                 transform: rotate(360deg);
             }
         }
-        #loadingDiv {
+        #loadingDiv, #loadingDiv1, #loadingDiv2 , #loadingDiv3, #loadingDiv4, #loadingDiv5{
             position:absolute;;
             top: 52px;
    			 left: 0px;
@@ -376,6 +376,13 @@ function removeLoader(){
             <i class="fa fa-dashboard" data-toggle="tooltip" data-placement="right" data-container="body"  id="dashboard"></i> <span >Dashboard</span>
           </a>
         </li>
+         <sec:authorize access="hasAnyRole('ROLE_SP_ADMIN')">
+    	 <li>
+          <a href="${contextPath}/user/details" >
+            <i class="fa fa-users" aria-hidden="true" data-toggle="tooltip" data-placement="right"  id="user" ></i> <span>SP User</span>
+          </a>
+        </li>
+        </sec:authorize>
         <sec:authorize access="hasAnyRole('ROLE_ADMIN')">
     	 <li>
           <a href="${contextPath}/user/details" >

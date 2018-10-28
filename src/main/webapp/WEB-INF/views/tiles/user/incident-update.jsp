@@ -201,9 +201,6 @@ background:#deefe5
 <c:set var="contextPath" value="${pageContext.request.contextPath}"></c:set>
 <div class="content-wrapper">
 	<div ng-controller="incidentCreateController" id="incidentCreateWindow">
-		<div style="display: none" id="loadingDiv">
-			<div class="loader">Loading...</div>
-		</div>
 		<section class="content" style="min-height: 35px; display: none"
 			id="messageWindow">
 			<div class="row">
@@ -298,6 +295,9 @@ background:#deefe5
 										</ul>
 										<div class="tab-content">
 											<div class="active tab-pane" id="primaryinfo">
+											<div style="display: none" id="loadingDiv1">
+			<div class="loader">Loading...</div>
+		</div>
 												<div class="row">
 												<div class="col-md-3 col-sm-6 col-xs-12">
           <div class="info-box">
@@ -700,6 +700,9 @@ background:#deefe5
 											</div>
 											</div>
 											<div class="tab-pane" id="escalate">
+											<div style="display: none" id="loadingDiv2">
+			<div class="loader">Loading...</div>
+		</div>
 											<div class="row">
 												<div class="col-md-12">
 												<div class="box box-success">
@@ -795,6 +798,9 @@ background:#deefe5
 												</table> -->
 											</div>
 											<div class="tab-pane" id="linkedticket">
+											<div style="display: none" id="loadingDiv3">
+			<div class="loader">Loading...</div>
+		</div>
 												<div class="row">
 												<div class="col-md-6">
 												<div class="box box-success">
@@ -875,6 +881,9 @@ background:#deefe5
 											</div>
 											</div>
 											<div class="tab-pane" id="attachments">
+											<div style="display: none" id="loadingDiv4">
+			<div class="loader">Loading...</div>
+		</div>
 												<div class="box-body">
 													<div class="row">
 														<div class="nav-tabs-custom">
@@ -982,7 +991,6 @@ background:#deefe5
 
 														<!-- <div class="table-responsive"> -->
 															<div class="row">
-																<div class="col-md-12">
 																	<!-- The time line -->
 																	<ul class="timeline">
 																		<!-- timeline time label -->
@@ -1019,7 +1027,6 @@ background:#deefe5
 																		<li><i class="fa fa-clock-o bg-gray"></i></li>
 																	</ul>
 																</div>
-															</div>
 														<!-- </div> -->
 													</div>
 
@@ -1029,7 +1036,9 @@ background:#deefe5
 
 												<!-- Added By Supravat for Financials Requirements. -->
 											<div class="tab-pane" id="financials">
-
+<div style="display: none" id="loadingDiv5">
+			<div class="loader">Loading...</div>
+		</div>
 												<div class="box">
 													<div class="box-header with-border">
 														<h3 class="box-title">Cost Details</h3>
@@ -1170,15 +1179,11 @@ background:#deefe5
 											
 											<!-- Added By Supravat for Related Tickets Requirements. -->
 											<div class="tab-pane" id="relatedTickets">
-
 												<div class="box">
 													<div class="box-header with-border">
 														<h3 class="box-title">Related Tickets</h3>
 													</div>
 													<div class="box-body">
-															<div class="row">
-																<div class="col-md-12">
-																	
 																	<table id="financialsTable"
 																		class="table table-bordered table-hover table-condensed">
 																		<thead>
@@ -1201,8 +1206,6 @@ background:#deefe5
 																		</tbody>
 																	</table>
 
-																</div>
-															</div>
 													</div>
 													<div class="box-footer">
 													<div class="row">

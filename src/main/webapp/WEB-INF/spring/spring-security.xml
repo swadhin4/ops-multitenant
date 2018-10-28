@@ -16,11 +16,13 @@
 				 <password-encoder ref="bcryptEncoder">
      			 </password-encoder>
 				</authentication-provider>
-			</authentication-manager>
+	</authentication-manager>
 		
   	<beans:bean id="bcryptEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" ></beans:bean>
  
-    <beans:bean id="userAuthorizationService" class="com.pms.web.service.security.AuthorizedUserDetailServiceImpl" ></beans:bean>
+    <beans:bean id="userAuthorizationService" class="com.pms.web.service.security.AuthorizedUserDetailServiceImpl" >
+    	
+    </beans:bean>
     
    
 </beans:beans>
