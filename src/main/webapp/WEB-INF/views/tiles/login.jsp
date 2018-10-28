@@ -203,9 +203,22 @@ a, a:hover, a:active {
 								class="errorMsg pull-right"> <i
 						class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 						Please enter the password
-					</span>
-								<input type="password" ng-model="user.password" name="j_password" placeholder="Enter password.." class="form-control" required>
+						</span>
+							<input type="password" ng-model="user.password" name="j_password" placeholder="Enter password.." class="form-control" required>
 						</div>	
+						<div class="col-sm-12 form-group">
+							<label><i class="fa fa-unlock-alt" aria-hidden="true"></i> User Type</label>
+								<span ng-show="loginForm.j_password.$invalid && !loginForm.j_password.$pristine"	
+								class="errorMsg pull-right"> <i
+						class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+						Select User Type
+						</span>
+							<select type="select" name="usertype" id="usertype" class="form-control">
+								<option value="0" selected>Select User type</option>
+								<option value="1">User</option>
+								<option value="2">Service Provider</option>
+							</select>
+						</div>
 						
 					<button type="submit" class="btn btn-lg btn-info" ng-disabled="loginForm.$invalid">Sign in</button>	&nbsp;&nbsp;&nbsp;
 					<label><a href="${contextPath}/forgot/password/page">Forgot Password ?</a></label>
