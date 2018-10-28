@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,7 +21,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.UserDAO;
 import com.pms.jpa.entities.Tenant;
 import com.pms.jpa.entities.UserModel;
@@ -36,14 +41,31 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 	@Autowired
 	private TenantService tenantService;
 	
+	 @Autowired
+	 private HttpServletRequest request;
+	 
+	
 	@Override
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 		try {
-
-			UserModel user = getUserDetails(username);
+		     request  = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
+		    String userType= request.getParameter("usertype");
+		    System.out.println(userType);
+		    UserModel user=null;
+		    if(userType.equals("1")){
+			 user = getUserDetails(username, "USER");
+			
+		    }else{
+		    	user = getUserDetails(username, "SP");
+		    }
 			if (user == null) {
 				throw new UsernameNotFoundException("Username not found");
 			} else {
+				  if(userType.equals("1")){
+					user.setUserType("USER");
+				    }else{
+				    user.setUserType("SP");
+				   }
 				boolean accountNonExpired = true;
 				boolean credentialsNonExpired = true;
 				boolean accountNonLocked = true;
@@ -64,13 +86,21 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 
 
 
-	private UserModel getUserDetails(String username) {
-		Properties prop = getProperties();
-		Tenant tenant = tenantService.getTenantDB(username);
-		UserDAO userDAO = new UserDAO(tenant.getDb_name());
-		UserModel user = userDAO.getUserDetails(username);
-		user.setDbName(tenant.getDb_name());
-		return user;
+	private UserModel getUserDetails(String username, String type) {
+		Tenant tenant = tenantService.getTenantDB(username, type);
+		UserModel appUser=null;
+		if(type.equalsIgnoreCase("USER")){
+			UserDAO userDAO = new UserDAO(tenant.getDb_name());
+			UserModel user = userDAO.getUserDetails(username);
+			appUser = user;
+		}
+		else if(type.equalsIgnoreCase("SP")){
+			SPUserDAO spUserDAO = new SPUserDAO(tenant.getDb_name());
+			UserModel user = spUserDAO.getUserDetails(username);
+			appUser = user;
+		}
+		appUser.setDbName(tenant.getDb_name());
+		return appUser;
 	}
 
 

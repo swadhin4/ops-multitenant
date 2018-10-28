@@ -1,10 +1,16 @@
 package com.pms.app.view.vo;
 
+import java.io.Serializable;
+
 import com.pms.jpa.entities.Company;
 import com.pms.jpa.entities.Role;
 
-public class AppUserVO {
+public class AppUserVO implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1402291382333587542L;
 	private Long userId;
 	private String firstName;
 	private String lastName;
@@ -73,6 +79,29 @@ public class AppUserVO {
 	public void setPhoneNo(String phoneNo) {
 		this.phoneNo = phoneNo;
 	}
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		return result;
+	}
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AppUserVO other = (AppUserVO) obj;
+		if (email == null) {
+			if (other.email != null)
+				return false;
+		} else if (!email.equals(other.email))
+			return false;
+		return true;
+	}
 
-
+	
 }

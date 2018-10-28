@@ -9,5 +9,5 @@ public interface TenantService {
 
 	public List<Tenant> getAllTenants();
 
-	public Tenant getTenantDB(String username);
+	public Tenant getTenantDB(String username, String type);
 }

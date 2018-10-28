@@ -89,8 +89,8 @@ public class BaseController {
 								loginUser.setLastName(authUser.getUser().getLastName());
 								loginUser.setUsername(authUser.getUser().getEmailId());
 								loginUser.setSysPassword(authUser.getUser().getSysPassword());
-								//loginUser.setDbName(authUser.getUser().getDbName());
-								loginUser.setDbName("probmng30");
+								loginUser.setDbName(authUser.getUser().getDbName());
+								//loginUser.setDbName("probmng30");
 								List<String> roles = authUser.getUser().getRoleNameList();
 								Role role = new Role();
 								role.setRoleId(authUser.getUser().getRoleId());
@@ -104,6 +104,7 @@ public class BaseController {
 								loginUser.getCompany().setCompanyName(authUser.getUser().getCompanyName());
 								loginUser.getCompany().setCompanyCode(authUser.getUser().getCompanyCode());
 								loginUser.getCompany().setCountryId(1l);
+								loginUser.setUserType(authUser.getUser().getUserType());
 								//loginUser.setCompany(authUser.getUser().getCompany());
 								//loginUser.setPhoneNo(String.valueOf(authUser.getUser().getPhone()));
 							//	UserRole loggedInUserRole = userRole;

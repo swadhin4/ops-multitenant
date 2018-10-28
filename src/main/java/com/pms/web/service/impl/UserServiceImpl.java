@@ -19,6 +19,8 @@ import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.User;
 import com.pms.web.service.UserService;
 import com.pms.web.service.security.AuthorizedUserDetails;
+import com.pms.web.util.QuickPasswordEncodingGenerator;
+import com.pms.web.util.RandomUtils;
 import com.pms.web.util.RestResponse;
 
 @Service("userService")
@@ -90,8 +92,22 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public UserVO saveUser(AppUserVO appUserVO) throws Exception {
-		return null;
+	@Transactional
+	public UserVO saveUser(AppUserVO appUserVO, LoginUser user) throws Exception {
+		String generatedRawPassword = RandomUtils.randomAlphanumeric(8);
+		String encryptedPassword = QuickPasswordEncodingGenerator.encodePassword(generatedRawPassword);
+		appUserVO.setGeneratedPassword(encryptedPassword);
+		UserVO savedUserVO	= getUserDAO(user.getDbName()).saveNewUser(appUserVO, user);
+		if(savedUserVO.getUserId()!=null){
+			savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
+			Long roleId = getUserDAO(user.getDbName()).saveUserRole(savedUserVO);
+			if(roleId>0){
+				LOGGER.info("User created with role");
+			}else{
+				LOGGER.info("User not created with role");
+			}
+		}
+		return savedUserVO;
 	}
 
 	@Override
@@ -120,9 +136,19 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public RestResponse updateStatus(AppUserVO appUserVO, String isEnabled) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public RestResponse updateStatus(AppUserVO appUserVO, LoginUser user) throws Exception {
+		int updated = getUserDAO(user.getDbName()).updateUserStatus(appUserVO);
+		RestResponse response = new RestResponse();
+		if(updated==1 && Integer.parseInt(appUserVO.getIsEnabled())==0){
+			response.setStatusCode(200);
+			response.setCalculatedVal(updated);
+			response.setMessage("User account disabled successfully");
+		}else if(updated==1  && Integer.parseInt(appUserVO.getIsEnabled())==1){
+			response.setStatusCode(200);
+			response.setCalculatedVal(updated);
+			response.setMessage("User account enabled successfully");
+		}
+		return response;
 	}
 
 	@Override

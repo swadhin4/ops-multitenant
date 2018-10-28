@@ -14,7 +14,6 @@ import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.User;
-import com.pms.jpa.entities.UserRole;
 import com.pms.web.service.security.AuthorizedUserDetails;
 import com.pms.web.util.RestResponse;
 
@@ -38,7 +37,7 @@ public interface UserService {
 
 	UserVO updateRoles(UserVO userVO,LoginUser user);
 
-	UserVO saveUser(AppUserVO appUserVO) throws Exception;
+	UserVO saveUser(AppUserVO appUserVO, LoginUser user) throws Exception;
 
 	List<UserVO> findALLUsers(Long companyId, LoginUser user) throws Exception;
 
@@ -48,7 +47,7 @@ public interface UserService {
 
 	RestResponse updateRole(AppUserVO appUserVO, LoginUser user) throws Exception;
 
-	RestResponse updateStatus(AppUserVO appUserVO, String isEnabled) throws Exception ;
+	RestResponse updateStatus(AppUserVO appUserVO, LoginUser user) throws Exception ;
 
 	int checkUserAvailibility(String email)  throws Exception ;
 

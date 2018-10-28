@@ -96,9 +96,10 @@ public class HomeController extends BaseController {
 			}else {
 				LOGGER.info("Logged in User : " + loginUser.getUsername());
 				model.addAttribute("user", loginUser);
-				RestResponse response=null;//applicationService.checkUserRole(loginUser);
-				if(loginUser.getSysPassword().equalsIgnoreCase("YES")){
+				if(loginUser.getUserType().equalsIgnoreCase("USER") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
 					return "redirect:/user/profile";
+				}else if(loginUser.getUserType().equalsIgnoreCase("SP") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
+					return "redirect:/sp/user/profile";
 				}else{
 					return "home";
 

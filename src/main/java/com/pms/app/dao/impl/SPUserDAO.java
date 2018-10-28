@@ -29,17 +29,17 @@ import com.pms.jpa.entities.UserModel;
 
 
 @Repository
-public class UserDAO {
-	private final static Logger LOGGER = LoggerFactory.getLogger(UserDAO.class);
+public class SPUserDAO {
+	private final static Logger LOGGER = LoggerFactory.getLogger(SPUserDAO.class);
 
-	public UserDAO(String userConfig) {
+	public SPUserDAO(String userConfig) {
 		ConnectionManager.getInstance(userConfig);
 	}
 	
 	public UserModel getUserDetails(String username){
 		final UserModel savedUser = new UserModel();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		return jdbcTemplate.query(AppConstants.USER_ROLE_QUERY, new Object[]{username}, new ResultSetExtractor<UserModel>() {
+		return jdbcTemplate.query(AppConstants.SP_USER_ROLE_QUERY, new Object[]{username}, new ResultSetExtractor<UserModel>() {
 			@Override
 			public UserModel extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<String> roleList = new ArrayList<String>();
@@ -53,9 +53,9 @@ public class UserDAO {
                 	savedUser.setRoleId(rs.getLong("role_id"));
                 	roleList.add(rs.getString("role_name"));
                 	savedUser.setSysPassword(rs.getString("sys_password"));
-                	savedUser.setCompanyId(rs.getLong("company_id"));
-                	savedUser.setCompanyCode(rs.getString("company_code"));
-                	savedUser.setCompanyName(rs.getString("company_name"));
+                	savedUser.setCompanyId(rs.getLong("sp_cid"));
+                	savedUser.setCompanyCode(rs.getString("sp_code"));
+                	savedUser.setCompanyName(rs.getString("sp_cname"));
                 	savedUser.setRoleNameList(roleList);
                 }
                 return savedUser;
@@ -82,31 +82,6 @@ public class UserDAO {
 		return roleStatusList;
 	}
 
-	public List<UserVO> getAllUsers(Long companyId) {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<UserVO> userList = jdbcTemplate.query(AppConstants.USER_LIST_QUERY, new Object[] {companyId}, new ResultSetExtractor<List<UserVO>>(){
-			List<UserVO> userList = new ArrayList<UserVO>();
-			@Override
-			public List<UserVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
-				while(rs.next()){
-					UserVO userVO = new UserVO();
-					userVO.setUserId(rs.getLong("user_id"));
-					userVO.setFirstName(rs.getString("first_name"));
-					userVO.setLastName(rs.getString("last_name"));
-					userVO.setEmailId(rs.getString("email_id"));
-					userVO.setPhoneNo(rs.getString("phone"));
-					userVO.setRoleId(rs.getLong("role_id"));
-					userVO.setRoleName(rs.getString("description"));
-					userVO.setEnabled(rs.getInt("enabled"));
-					userVO.setCompanyName(rs.getString("company_name"));
-					userVO.setUserType("USER");
-					userList.add(userVO);
-				}
-				return userList;
-			}
-		});
-		return userList;
-	}
 
 	public List<Role> getAllRoles() {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
@@ -206,6 +181,32 @@ public class UserDAO {
 		      });
 		 	LOGGER.info("Update user status with  {}.", appUserVO.getIsEnabled());
 		 	return updated;
+	}
+
+	public List<UserVO> getAllSPUsers(Long companyId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<UserVO> userList = jdbcTemplate.query(AppConstants.SP_USER_LIST_QUERY, new Object[] {companyId}, new ResultSetExtractor<List<UserVO>>(){
+			List<UserVO> userList = new ArrayList<UserVO>();
+			@Override
+			public List<UserVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					UserVO userVO = new UserVO();
+					userVO.setUserId(rs.getLong("user_id"));
+					userVO.setFirstName(rs.getString("first_name"));
+					userVO.setLastName(rs.getString("last_name"));
+					userVO.setEmailId(rs.getString("email_id"));
+					userVO.setPhoneNo(rs.getString("phone"));
+					userVO.setRoleId(rs.getLong("role_id"));
+					userVO.setRoleName(rs.getString("description"));
+					userVO.setEnabled(rs.getInt("enabled"));
+					userVO.setCompanyName(rs.getString("company_name"));
+					userVO.setUserType("SP");
+					userList.add(userVO);
+				}
+				return userList;
+			}
+		});
+		return userList;
 	}
 	
 }

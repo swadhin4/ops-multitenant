@@ -22,6 +22,7 @@ public class UserModel implements Serializable {
 	private Long companyId;
 	private String companyName;
 	private String companyCode;
+	private String userType;
 	
 	public Long getUserId() {
 		return userId;
@@ -102,6 +103,12 @@ public class UserModel implements Serializable {
 	}
 	public void setCompanyCode(String companyCode) {
 		this.companyCode = companyCode;
+	}
+	public String getUserType() {
+		return userType;
+	}
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 	@Override
 	public int hashCode() {

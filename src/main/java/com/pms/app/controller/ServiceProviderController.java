@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
+import com.pms.app.view.vo.UserVO;
 import com.pms.web.service.ServiceProviderService;
-import com.pms.web.service.UserService;
 import com.pms.web.util.RestResponse;
 
 /**
@@ -56,6 +56,40 @@ public class ServiceProviderController extends BaseController {
 		}
 	}
 
+	@RequestMapping(value = "/user/list", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> userList(final HttpServletRequest request, final HttpSession session) {
+		logger.info("Inside UserController - userList" );
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			try {
+				List<UserVO> userList = serviceProviderService.findALLSPUsers(loginUser.getCompany().getCompanyId(), loginUser);
+				if(userList.size()>0){
+					response.setStatusCode(200);
+					response.setObject(userList);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}else{
+					response.setStatusCode(404);
+					response.setMessage("No user available ");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				response.setStatusCode(500);
+				response.setMessage("Exception while getting user list ");
+				logger.error("Exception while getting user list", e);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			}
+
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		logger.info("Exit UserController - userList" );
+		return responseEntity;
+	}
+	
 /*	@RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<RestResponse> createNewServiceProvider(final Locale locale, final ModelMap model,
 			@RequestBody final ServiceProviderVO serviceProviderVO, final HttpSession session) {

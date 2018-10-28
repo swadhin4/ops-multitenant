@@ -6,6 +6,7 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
 	 			user:{},
 	            userList: [],
 	            retrieveAllUsers:retrieveAllUsers,
+	            retrieveAllSPUsers:retrieveAllSPUsers,
 	            validateUser:validateUser,
 	            getLoggedInUser:getLoggedInUser,
 	            registerUser:registerUser,
@@ -105,6 +106,21 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
         function retrieveAllUsers() {
             var def = $q.defer();
             $http.get(hostLocation+"/user/list")
+                .success(function(data) {
+                	//console.log(data)
+                	UserService.userList = data;
+                    def.resolve(data);
+                })
+                .error(function() {
+                    def.reject("Failed to get albums");
+                });
+            return def.promise;
+        }
+        
+        // implementation
+        function retrieveAllSPUsers() {
+            var def = $q.defer();
+            $http.get(hostLocation+"/serviceprovidercompany/getusers")
                 .success(function(data) {
                 	//console.log(data)
                 	UserService.userList = data;

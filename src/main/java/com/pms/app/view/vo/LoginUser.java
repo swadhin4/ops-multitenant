@@ -21,6 +21,7 @@ public class LoginUser implements Serializable{
 	private String email;
 	private Long userId;
 	private Long employeeId;
+	private Long spId;
 	private List<AppFeature> featureList = new ArrayList<AppFeature>();
 	private List<String> accessLevelList = new ArrayList<String>();
 	private String sysPassword;
@@ -31,6 +32,7 @@ public class LoginUser implements Serializable{
 	private String message;
 	private String phoneNo;
 	private String dbName;
+	private String userType;
 
 	public String getUsername() {
 		return username;
@@ -127,6 +129,18 @@ public class LoginUser implements Serializable{
 	}
 	public void setDbName(String dbName) {
 		this.dbName = dbName;
+	}
+	public Long getSpId() {
+		return spId;
+	}
+	public void setSpId(Long spId) {
+		this.spId = spId;
+	}
+	public String getUserType() {
+		return userType;
+	}
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 	@Override
 	public String toString() {

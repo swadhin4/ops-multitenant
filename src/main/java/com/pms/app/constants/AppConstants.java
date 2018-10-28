@@ -6,7 +6,8 @@ public class AppConstants {
 	
 	public static String email="";
 	
-	
+	public static final String SP_USER_TENANT="select t.tenant_id tenant_id, t.sp_user_email user_email, st.db_name db_name from sp_user_mapping t "
+			+ " inner join sp_tenants st on st.tenant_id = t.tenant_id and  t.sp_user_email=?";
 	
 	public static final String ASSET_SUBREPAIRTYPE_QUERY = "select subcategory2_id, subcategory2_name from pm_asset_subcategory2 where "
 			+ " subcategory1_id = ? order by subcategory2_name";
@@ -21,6 +22,11 @@ public class AppConstants {
 			+ " r.role_id, r.role_name, r.role_desc, u.sys_password, pc.company_id,pc.company_code, pc.company_name "
 			+ " from pm_users u inner join pm_user_role ur  INNER join pm_role r on ur.role_id=r.role_id "
 			+ " inner  join pm_company pc where u.company_id=pc.company_id and u.user_id=ur.user_id and u.email_id = ?";
+	
+	public static final String SP_USER_ROLE_QUERY ="select u.user_id, u.first_name, u.last_name, u.email_id, u.password,u.enabled, "
+			+ " r.role_id, r.role_name, r.role_desc, u.sys_password, pc.sp_cid,pc.sp_code, pc.sp_cname "
+			+ " from sp_users u inner join sp_user_role ur  INNER join sp_role r on ur.role_id=r.role_id "
+			+ " inner  join sp_company pc where u.sp_id=pc.sp_cid and u.user_id=ur.user_id and u.email_id =  ?";
 	
 	public static final String USER_ROLE_STATUS_MAPPING="select role_status_map_id, role_id, status_id from pm_role_status_mapping where role_id=?";
 	
@@ -244,6 +250,11 @@ public class AppConstants {
 			+ " ur.role_id,r.role_desc as description,u.enabled, pc.company_name from pm_users u "
 			+ " LEFT JOIN pm_user_role ur ON u.user_id = ur.user_id LEFT JOIN pm_role r ON r.role_id = ur.role_id"
 			+ " LEFT JOIN pm_company pc on pc.company_id=u.company_id WHERE u.company_id = ?";
+	
+	public static final String SP_USER_LIST_QUERY= "SELECT u.user_id,u.first_name,u.last_name,u.email_id,u.phone,"
+			+ " ur.role_id,r.role_desc as description,u.enabled, pc.sp_cname company_name from sp_users u "
+			+ " LEFT JOIN sp_user_role ur ON u.user_id = ur.user_id LEFT JOIN sp_role r ON r.role_id = ur.role_id"
+			+ " LEFT JOIN sp_company pc on pc.sp_cid=u.sp_id WHERE u.sp_id = ?";
 
 	public static final String USER_ROLE_LIST_QUERY = "select * from pm_role";
 	
@@ -255,5 +266,25 @@ public class AppConstants {
 			+ " values(?,?,?,?,?, ?,?,?,NOW(),'YES',0)";
 	
 	public static final String INSERT_NEW_USER_ROLE_QUERY = "INSERT into pm_user_role(user_id, role_id)  values(?,?)";
+	
+	public static final String INSERT_SERVICEPROVIDER_USER_QUERY = "insert into sp_users (sp_id,first_name,last_name,email_id,password,sys_password,phone,enabled,created_date,created_by) "
+			+ " values(?,?,?,?,?,?,?,?,?,?)";
+	public static final String SERVICEPROVIDER_USERBY_USERNAME_QUERY = "select user_id,sp_id,first_name,last_name,email_id,phone,enabled,created_by,created_date,modified_by,modified_date from sp_users where email_id=?";
+	
+	public static final String SERVICEPROVIDER_USERS_QUERY = "select user_id,sp_id,first_name,last_name,email_id,phone,enabled,created_by,created_date,modified_by,modified_date from sp_users";
+	
+	public static final String SERVICEPROVIDER_USERS_ROLE_QUERY = "select user_role_id,user_id,role_id,created_by,created_date,modified_by,modified_date from sp_user_role where user_id=?";
+	
+	public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select access_id,user_id,sp_cust_id,created_on,created_by from sp_user_access where user_id=? and del_flag=0";
+	
+	public static final String INSERT_SERVICEPROVIDER_USER_ROLE_QUERY = "insert into sp_user_role (user_id,role_id,created_date,created_by) "
+			+ " values(?,?,?,?)";
+	public static final String INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY = "insert into sp_user_access (user_id,sp_cust_id,created_on,created_by) "
+			+ " values(?,?,?,?)";
+	public static final String UPDATE_SERVICEPROVIDER_USER_QUERY = "update sp_users set sp_id=?, first_name=?, last_name=?, email_id=?, user_password=?, phone=?, enabled=?, modified_date=?, modified_by=? where user_id=? ";
+	
+	public static final String UPDATE_SERVICEPROVIDER_USER_ROLE_QUERY = "update sp_user_role set role_id=?, modified_by=?, modified_date=? where user_id=? ";
+	
+	public static final String DELETE_SERVICEPROVIDER_USER_ACCESS_QUERY = "update sp_user_access set del_flag=1 where sp_cust_id=? ";
 
 }
