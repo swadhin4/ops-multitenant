@@ -238,15 +238,18 @@ function removeLoader(){
           <li class="dropdown user user-menu">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
               <img src="${contextPath}/resources/img/swadhin.jpg" class="user-image" alt="User Image">
-              <span class="hidden-xs">${savedsp.spName}</span>
+              <span class="hidden-xs">${savedsp.lastName}</span>
             </a>
             <ul class="dropdown-menu">
               <!-- User image -->
               <li class="user-header">
                 <img src="${contextPath}/resources/img/swadhin.jpg" class="img-circle" alt="User Image">
                 <p style="color: #000">
-                 ${savedsp.spName}
-                  <small> ${savedsp.role}</small>
+                 ${savedsp.lastName}
+                  <small> ${user.company.companyName}</small>
+                  <c:forEach items="${user.userRoles}" var="roles">
+                  <small style="color: #000">${roles.role.roleName}</small>
+                     </c:forEach>
                 </p>
               </li>
                 <li class="user-footer">
@@ -275,7 +278,7 @@ function removeLoader(){
       </div>
       <ul class="sidebar-menu" data-widget="tree">
           <li>
-          <a href="${contextPath}/sp/incident/details"><i class="fa fa-ticket" aria-hidden="true" data-toggle="tooltip" data-placement="right"  id="inc"></i> 
+          <a href="${contextPath}/user/extsp/incident/details"><i class="fa fa-ticket" aria-hidden="true" data-toggle="tooltip" data-placement="right"  id="inc"></i> 
             <span>Incident</span>
           </a>
         </li>

@@ -211,7 +211,7 @@ $(function() {
 									<!-- /.col -->
 									<div class="col-sm-4 col-xs-6">
 										<div class="description-block border-right">
-											<sec:authorize access="hasAnyRole('ROLE_SALES_MANAGER', 'ROLE_OPS_MANAGER')">
+											<sec:authorize access="hasAnyRole('ROLE_SP_EXTERNAL')">
 								<div class="btn-group pull-right" ng-if="ticket.list.length> 0">
 								</div>
 								</sec:authorize>

@@ -180,7 +180,7 @@ a, a:hover, a:active {
           <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
               <li class="active"><a href="#registereduser" data-toggle="tab">Registered User LogIn</a></li>              
-              <li><a href="#externaluser" data-toggle="tab">External User LogIn</a></li>
+              <li><a href="#externaluser" data-toggle="tab">External Service Provider LogIn</a></li>
             </ul>
             <div class="tab-content" >
               <div class="active tab-pane" style="background-color:lightblue;border-color:green;" id="registereduser">
@@ -230,7 +230,7 @@ a, a:hover, a:active {
               </div>
               
               <div class="tab-pane" id="externaluser">
-                 <form name="extloginForm" class="form-horizontal"  method="post" action="${contextPath}/sp/login/validator">
+                 <form name="extloginForm" class="form-horizontal"  method="post" action="${contextPath}/j_spring_security_check">
 					<div class="col-sm-12">
 						<div class="row">
 							<div class="col-sm-12 form-group">
@@ -240,7 +240,7 @@ a, a:hover, a:active {
 						class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 						Please enter a valid username
 					</span>
-								<input type="text" ng-model="sp.email"  name="spemail" 
+								<input type="text" ng-model="sp.email"  name="j_username" 
 								placeholder="Enter username here.." class="form-control" required>
 							</div>
 						<div class="col-sm-12 form-group">
@@ -250,7 +250,8 @@ a, a:hover, a:active {
 						class="fa fa-exclamation-triangle" aria-hidden="true"></i>
 						Please enter the access code
 					</span>
-								<input type="password" ng-model="sp.accesscode" name="accesscode" placeholder="Enter access code.." class="form-control" required>
+								<input type="password" ng-model="sp.accesscode" name="j_password" placeholder="Enter access code.." class="form-control" required>
+								<input type="hidden" name="usertype" value="extsp" class="form-control">
 						</div>	
 						</div>
 					<button type="submit" class="btn btn-lg btn-info" ng-disabled="extloginForm.$invalid">Sign in</button>	
