@@ -35,8 +35,8 @@ public class UserVO implements Serializable{
 	private String phoneNo;
 	private String userType;
 	private ServiceProviderUserRoleVO userRole;
-	private List<ServiceProviderUserAccessVO> customers;
-	private List<CustomerVO> customerList;
+	//private List<ServiceProviderUserAccessVO> customers;
+	private List<CustomerVO> customers;
 	public Long getUserId() {
 		return userId;
 	}
@@ -158,17 +158,11 @@ public class UserVO implements Serializable{
 	public void setUserRole(ServiceProviderUserRoleVO userRole) {
 		this.userRole = userRole;
 	}
-	public List<ServiceProviderUserAccessVO> getCustomers() {
+	public List<CustomerVO> getCustomers() {
 		return customers;
 	}
-	public void setCustomers(List<ServiceProviderUserAccessVO> customers) {
+	public void setCustomers(List<CustomerVO> customers) {
 		this.customers = customers;
-	}
-	public List<CustomerVO> getCustomerList() {
-		return customerList;
-	}
-	public void setCustomerList(List<CustomerVO> customerList) {
-		this.customerList = customerList;
 	}
 	@Override
 	public int hashCode() {
