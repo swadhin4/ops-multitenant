@@ -105,6 +105,9 @@ public class BaseController {
 								loginUser.getCompany().setCompanyCode(authUser.getUser().getCompanyCode());
 								loginUser.getCompany().setCountryId(1l);
 								loginUser.setUserType(authUser.getUser().getUserType());
+								if(authUser.getUser().getUserType().equalsIgnoreCase("EXTSP")){
+									loginUser.setSpId(authUser.getUser().getSpId());
+								}
 								//loginUser.setCompany(authUser.getUser().getCompany());
 								//loginUser.setPhoneNo(String.valueOf(authUser.getUser().getPhone()));
 							//	UserRole loggedInUserRole = userRole;

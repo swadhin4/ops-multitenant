@@ -139,6 +139,12 @@ public class AppConstants {
 			+ " left outer join pm_service_provider psp on psp.sp_id=pa.sp_id left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where pct.site_id in (:siteIds) ";
 	
+	public static final String EXTSP_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+			+ " pct.sla_duedate, psp.sp_id, psp.sp_name, pct.status_id, pst.status, pst.description from pm_cust_ticket pct "
+			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
+			+ " left outer join pm_service_provider psp on psp.sp_id=pa.sp_id left outer join pm_status pst "
+			+ " on pst.status_id=pct.status_id where pct.assigned_to = ? ";
+	
 	public static final String SITE_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
 			+ " psp.sp_id, psp.sp_name, psp.help_desk_email,pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 from pm_asset ps "
 			+ " left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "

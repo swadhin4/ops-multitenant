@@ -93,6 +93,16 @@ public class TicketServiceImpl implements TicketService {
 		LOGGER.info("Exit TicketServiceImpl - getAllCustomerTickets");
 		return customerTicketList == null?Collections.emptyList():customerTicketList;
 	}
+	
+	@Override
+	public List<TicketVO> getAllSPTickets(LoginUser loginUser) throws Exception {
+		LOGGER.info("Inside TicketServiceImpl - getAllSPTickets");
+		LOGGER.info("Getting ticket List for logged in SP user : "+  loginUser.getLastName());
+		List<TicketVO> customerTicketList = getIncidentDAO(loginUser.getDbName()).findTicketsAssignedToSP(loginUser.getSpId());
+		//SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+		LOGGER.info("Exit TicketServiceImpl - getAllSPTickets");
+		return customerTicketList == null?Collections.emptyList():customerTicketList;
+	}
 
 	@Override
 	public List<TicketCategory> getTicketCategories(LoginUser loginUser) throws Exception {

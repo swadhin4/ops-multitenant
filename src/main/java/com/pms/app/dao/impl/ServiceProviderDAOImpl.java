@@ -310,9 +310,10 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 						List<CustomerVO> customerVOList = new ArrayList<CustomerVO>();
 						while (rs.next()) {
 							CustomerVO customerVO = new CustomerVO();
+							customerVO.setCustomerId(rs.getLong("sp_cust_id"));
 							customerVO.setCustomerCode(rs.getString("customer_code"));
 							customerVO.setCustomerName(rs.getString("customer_name"));
-							customerVO.setCustomerName(rs.getString("country_name"));
+							customerVO.setCountryName(rs.getString("country_name"));
 							if (rs.getInt("del_flag") == 1) {
 								customerVO.setSelected(true);
 							} else {

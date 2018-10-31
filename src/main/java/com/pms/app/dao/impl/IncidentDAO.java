@@ -682,4 +682,15 @@ public class IncidentDAO {
                 });
         return updatedRows>0?financeVO:null;
     }
+	public List<TicketVO> findTicketsAssignedToSP(Long spId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.EXTSP_TICKET_LIST_QUERY, new Object[]{spId} ,
+				new RowMapper<TicketVO>() {
+					@Override
+					public TicketVO mapRow(ResultSet rs, int arg1) throws SQLException {
+						return toTicketList(rs);
+					}
+				});
+		return ticketList;
+	}
 }
