@@ -100,10 +100,12 @@ public class HomeController extends BaseController {
 					return "redirect:/user/profile";
 				}else if(loginUser.getUserType().equalsIgnoreCase("SP") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
 					return "redirect:/sp/user/profile";
+				}
+				else if(loginUser.getUserType().equalsIgnoreCase("EXTSP") && loginUser.getSysPassword().equalsIgnoreCase("NO")){
+					return "redirect:/user/extsp/incident/details";
 				}else{
 					return "home";
-
-					}
+				}
 				}
 		}else {
 			model.addAttribute("message", "Invalid username or password");

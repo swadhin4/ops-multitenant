@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.app.dao.ServiceProviderDAO;
+import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderUserAccessVO;
@@ -276,7 +277,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 		return serviceProviderUserRoleVO;
 	}
 
-	@Override
+	/*@Override
 	public List<ServiceProviderUserAccessVO> getCustomersByUserID(String userId) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		List<ServiceProviderUserAccessVO> serviceProviderUserAccessVOs =  jdbcTemplate.query(AppConstants.SERVICEPROVIDER_USERS_CUSTOMERS_QUERY, new Object[]{userId}, new ResultSetExtractor<List<ServiceProviderUserAccessVO>>() {
@@ -297,6 +298,33 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 			}
 		});
 		return serviceProviderUserAccessVOs;
+	}*/
+	
+	@Override
+	public List<CustomerVO> getCustomersByUserID(String userId) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<CustomerVO> customerVOs = jdbcTemplate.query(AppConstants.SERVICEPROVIDER_USERS_CUSTOMERS_QUERY,
+				new Object[] { userId }, new ResultSetExtractor<List<CustomerVO>>() {
+					@Override
+					public List<CustomerVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<CustomerVO> customerVOList = new ArrayList<CustomerVO>();
+						while (rs.next()) {
+							CustomerVO customerVO = new CustomerVO();
+							customerVO.setCustomerCode(rs.getString("customer_code"));
+							customerVO.setCustomerName(rs.getString("customer_name"));
+							customerVO.setCustomerName(rs.getString("country_name"));
+							if (rs.getInt("del_flag") == 1) {
+								customerVO.setSelected(true);
+							} else {
+								customerVO.setSelected(false);
+							}
+
+							customerVOList.add(customerVO);
+						}
+						return customerVOList;
+					}
+				});
+		return customerVOs;
 	}
 
 }

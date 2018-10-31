@@ -9,6 +9,7 @@ public class Tenant implements Serializable {
 	 */
 	private static final long serialVersionUID = 7600884721775705191L;
 	private int tenant_id;
+	private String sp_username;
 	private String user_email;
 	private String company_code;
 	private String db_name;
@@ -36,6 +37,12 @@ public class Tenant implements Serializable {
 	}
 	public void setDb_name(String db_name) {
 		this.db_name = db_name;
+	}
+	public String getSp_username() {
+		return sp_username;
+	}
+	public void setSp_username(String sp_username) {
+		this.sp_username = sp_username;
 	}
 	@Override
 	public String toString() {

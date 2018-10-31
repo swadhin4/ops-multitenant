@@ -9,6 +9,9 @@ public class AppConstants {
 	public static final String SP_USER_TENANT="select t.tenant_id tenant_id, t.sp_user_email user_email, st.db_name db_name from sp_user_mapping t "
 			+ " inner join sp_tenants st on st.tenant_id = t.tenant_id and  t.sp_user_email=?";
 	
+	public static final String USER_TENANT="select * from tenants where user_email=?";
+	
+	
 	public static final String ASSET_SUBREPAIRTYPE_QUERY = "select subcategory2_id, subcategory2_name from pm_asset_subcategory2 where "
 			+ " subcategory1_id = ? order by subcategory2_name";
 	
@@ -275,7 +278,9 @@ public class AppConstants {
 	
 	public static final String SERVICEPROVIDER_USERS_ROLE_QUERY = "select user_role_id,user_id,role_id,created_by,created_date,modified_by,modified_date from sp_user_role where user_id=?";
 	
-	public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select access_id,user_id,sp_cust_id,created_on,created_by from sp_user_access where user_id=? and del_flag=0";
+	/*public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select access_id,user_id,sp_cust_id,created_on,created_by from sp_user_access where user_id=? and del_flag=0";*/
+	
+	public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select customer_code,customer_name,country_name,del_flag from vw_user_cust_mapping where user_id=?";
 	
 	public static final String INSERT_SERVICEPROVIDER_USER_ROLE_QUERY = "insert into sp_user_role (user_id,role_id,created_date,created_by) "
 			+ " values(?,?,?,?)";
@@ -286,5 +291,11 @@ public class AppConstants {
 	public static final String UPDATE_SERVICEPROVIDER_USER_ROLE_QUERY = "update sp_user_role set role_id=?, modified_by=?, modified_date=? where user_id=? ";
 	
 	public static final String DELETE_SERVICEPROVIDER_USER_ACCESS_QUERY = "update sp_user_access set del_flag=1 where sp_cust_id=? ";
+
+	public static final String EXT_SP_USER_TENANT="select sp_username as username, sp_email as user_email, db_name from ext_user_sp_mapping where sp_username=?";
+	
+	public static final String EXT_SP_USER_DETAIL_QUERY = "select s.sp_id, s.sp_username, s.sp_email, s.sp_name,s.access_key, s.customer_id, pc.company_name, pc.company_code"
+			+ " from pm_service_provider s left outer join pm_company pc on pc.company_id=s.customer_id"
+			+ " where s.sp_username= ?";
 
 }

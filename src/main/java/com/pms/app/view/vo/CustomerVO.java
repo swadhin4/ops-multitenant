@@ -10,6 +10,11 @@ public class CustomerVO {
 
 	private boolean isRegistered = false;
 
+	private String customerCode;
+	private String customerName;
+	private String countryName;
+	private boolean selected;
+
 	public Long getCustomerId() {
 		return customerId;
 	}
@@ -42,5 +47,36 @@ public class CustomerVO {
 		this.isRegistered = isRegistered;
 	}
 
+	public String getCustomerCode() {
+		return customerCode;
+	}
+
+	public void setCustomerCode(String customerCode) {
+		this.customerCode = customerCode;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getCountryName() {
+		return countryName;
+	}
+
+	public void setCountryName(String countryName) {
+		this.countryName = countryName;
+	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public void setSelected(boolean selected) {
+		this.selected = selected;
+	}
 
 }

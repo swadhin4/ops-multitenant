@@ -16,7 +16,7 @@ public class AuthorizedUserDetails extends User {
 	private com.pms.jpa.entities.UserModel user;
 	
 	private ServiceProvider serviceProvider;
-
+	
 	public AuthorizedUserDetails(
 			final String userName, 
 			final String password, 

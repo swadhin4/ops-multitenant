@@ -208,5 +208,35 @@ public class SPUserDAO {
 		});
 		return userList;
 	}
+
+	public  UserModel getExtUserDetails(String username) {
+		final UserModel savedUser = new UserModel();
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		return jdbcTemplate.query(AppConstants.EXT_SP_USER_DETAIL_QUERY, new Object[]{username}, new ResultSetExtractor<UserModel>() {
+			@Override
+			public UserModel extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next()) {
+                	savedUser.setUserId(rs.getLong("sp_id"));
+                	savedUser.setSpId(rs.getLong("sp_id"));
+                	savedUser.setSpUsername(rs.getString("sp_username"));
+                	savedUser.setEmailId(rs.getString("sp_username"));
+                	savedUser.setPassword(rs.getString("access_key"));
+                	savedUser.setFirstName("");
+                	savedUser.setLastName(rs.getString("sp_name"));
+                	savedUser.setSpName(rs.getString("sp_name"));
+                	savedUser.setSysPassword("NO");
+                	savedUser.setCompanyId(rs.getLong("customer_id"));
+                	savedUser.setEnabled(1);
+                	savedUser.setCompanyName(rs.getString("company_name"));
+                	savedUser.setCompanyCode(rs.getString("company_code"));
+                	savedUser.setUserType("EXTSP");
+                	String role = "ROLE_SP_EXTERNAL";
+                	savedUser.setRoleId(6l);
+                	savedUser.getRoleNameList().add(role);
+                }
+                return savedUser;
+			}
+		});
+	}
 	
 }

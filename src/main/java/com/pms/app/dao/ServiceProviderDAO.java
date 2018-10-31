@@ -2,9 +2,9 @@ package com.pms.app.dao;
 
 import java.util.List;
 
+import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
-import com.pms.app.view.vo.ServiceProviderUserAccessVO;
 import com.pms.app.view.vo.ServiceProviderUserRoleVO;
 import com.pms.app.view.vo.UserVO;
 
@@ -30,6 +30,6 @@ public interface ServiceProviderDAO {
 
 	public ServiceProviderUserRoleVO getUserRoleByUserID(String userId) throws Exception;
 
-	public List<ServiceProviderUserAccessVO> getCustomersByUserID(String userId) throws Exception;
+	public List<CustomerVO> getCustomersByUserID(String userId) throws Exception;
 
 }

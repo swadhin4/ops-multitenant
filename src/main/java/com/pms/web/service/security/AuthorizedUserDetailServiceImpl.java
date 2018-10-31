@@ -48,35 +48,39 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
 		try {
-		     request  = ((ServletRequestAttributes)RequestContextHolder.getRequestAttributes()).getRequest();
-		    String userType= request.getParameter("usertype");
-		    System.out.println(userType);
-		    UserModel user=null;
-		    if(userType.equals("1")){
-			 user = getUserDetails(username, "USER");
-			
-		    }else{
-		    	user = getUserDetails(username, "SP");
-		    }
+			request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+			String userType = request.getParameter("usertype");
+			System.out.println(userType);
+			UserModel user = null;
+			if (userType.equals("1")) {
+				user = getUserDetails(username, "USER");
+
+			} else if (userType.equals("2")) {
+				user = getUserDetails(username, "SP");
+			} else if (userType.equalsIgnoreCase("EXTSP")) {
+				user = getUserDetails(username, "EXTSP");
+			}
 			if (user == null) {
 				throw new UsernameNotFoundException("Username not found");
 			} else {
-				  if(userType.equals("1")){
-					user.setUserType("USER");
-				    }else{
-				    user.setUserType("SP");
-				   }
 				boolean accountNonExpired = true;
 				boolean credentialsNonExpired = true;
 				boolean accountNonLocked = true;
+				if (userType.equals("1")) {
+					user.setUserType("USER");
+				} else if (userType.equals("2")) {
+					user.setUserType("SP");
+				} else if (userType.equals("EXTSP")) {
+					user.setUserType("EXTSP");
+				}
+
 				AuthorizedUserDetails authorizedUserDetails = new AuthorizedUserDetails(user.getEmailId(),
 						user.getPassword(), true, accountNonExpired, credentialsNonExpired, accountNonLocked,
 						getAuthorities(user.getRoleNameList()));
 				authorizedUserDetails.setUser(user);
 				return authorizedUserDetails;
 			}
-			
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException(e);
@@ -96,8 +100,13 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 		}
 		else if(type.equalsIgnoreCase("SP")){
 			SPUserDAO spUserDAO = new SPUserDAO(tenant.getDb_name());
-			UserModel user = spUserDAO.getUserDetails(username);
-			appUser = user;
+			UserModel regSPUser = spUserDAO.getUserDetails(username);
+			appUser = regSPUser;
+		}
+		else if(type.equalsIgnoreCase("EXTSP")){
+			SPUserDAO spUserDAO = new SPUserDAO(tenant.getDb_name());
+			UserModel extSPUser = spUserDAO.getExtUserDetails(username);
+			appUser = extSPUser;
 		}
 		appUser.setDbName(tenant.getDb_name());
 		return appUser;

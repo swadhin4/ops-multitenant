@@ -1,6 +1,7 @@
 package com.pms.jpa.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserModel implements Serializable {
@@ -10,14 +11,18 @@ public class UserModel implements Serializable {
 	 */
 	private static final long serialVersionUID = 970503426253229669L;
 	private Long userId;
+	private Long spId;
+	private Long extSPId;
+	private String spName;
 	private String firstName;
+	private String spUsername;
 	private String lastName;
 	private String emailId;
 	private String password;
 	private String sysPassword;
 	private int enabled;
 	private Long roleId;
-	private List<String> roleNameList;
+	private List<String> roleNameList = new ArrayList<String>();
 	private String dbName;
 	private Long companyId;
 	private String companyName;
@@ -109,6 +114,30 @@ public class UserModel implements Serializable {
 	}
 	public void setUserType(String userType) {
 		this.userType = userType;
+	}
+	public Long getExtSPId() {
+		return extSPId;
+	}
+	public void setExtSPId(Long extSPId) {
+		this.extSPId = extSPId;
+	}
+	public String getSpName() {
+		return spName;
+	}
+	public void setSpName(String spName) {
+		this.spName = spName;
+	}
+	public Long getSpId() {
+		return spId;
+	}
+	public void setSpId(Long spId) {
+		this.spId = spId;
+	}
+	public String getSpUsername() {
+		return spUsername;
+	}
+	public void setSpUsername(String spUsername) {
+		this.spUsername = spUsername;
 	}
 	@Override
 	public int hashCode() {

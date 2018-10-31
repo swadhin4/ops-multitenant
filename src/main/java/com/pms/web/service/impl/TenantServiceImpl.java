@@ -40,10 +40,12 @@ public class TenantServiceImpl implements TenantService {
 		Tenant tenant =null;
 		if(type.equalsIgnoreCase("SP")){
 			 tenant = (Tenant) jdbcTemplate.queryForObject(AppConstants.SP_USER_TENANT, new Object[]{username}, new BeanPropertyRowMapper(Tenant.class));
-		}else{
-			 tenant = (Tenant) jdbcTemplate.queryForObject("select * from tenants where user_email='"+username+"'", new BeanPropertyRowMapper(Tenant.class));
+		}else if(type.equalsIgnoreCase("USER")){
+			 tenant = (Tenant) jdbcTemplate.queryForObject(AppConstants.USER_TENANT,new Object[]{username}, new BeanPropertyRowMapper(Tenant.class));
 		}
-		
+		else if(type.equalsIgnoreCase("EXTSP")){
+			 tenant = (Tenant) jdbcTemplate.queryForObject(AppConstants.EXT_SP_USER_TENANT,new Object[]{username}, new BeanPropertyRowMapper(Tenant.class));
+		}
 		try {
 			connectionManager.getTenantConnection().close();
 		} catch (SQLException e) {
