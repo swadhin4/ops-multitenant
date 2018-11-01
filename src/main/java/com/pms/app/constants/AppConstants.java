@@ -290,6 +290,11 @@ public class AppConstants {
 	
 	public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select sp_cust_id,customer_code,customer_name,country_name,del_flag from vw_user_cust_mapping where user_id=?";
 	
+	public static final String SP_ALL_CUSTOMERS_QUERY = "select sp.sp_cust_id, spc.sp_cname, spc.sp_code, sp.customer_code, sp.customer_name, sp.cust_country_id, "
+			+ " c.country_code, c.country_name from sp_customers sp left join sp_country c"
+			+ " on c.country_id = sp.cust_country_id left join sp_company spc on spc.sp_cid=sp.sp_id"
+			+ " where sp.sp_id=? and spc.sp_code=?";
+	
 	public static final String INSERT_SERVICEPROVIDER_USER_ROLE_QUERY = "insert into sp_user_role (user_id,role_id,created_date,created_by) "
 			+ " values(?,?,?,?)";
 	public static final String INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY = "insert into sp_user_access (user_id,sp_cust_id,created_on,created_by) "

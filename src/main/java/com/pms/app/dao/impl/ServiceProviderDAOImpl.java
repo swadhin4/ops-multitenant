@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.dao.DataAccessException;
@@ -301,10 +302,10 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 	}*/
 	
 	@Override
-	public List<CustomerVO> getCustomersByUserID(String userId) throws Exception {
+	public List<CustomerVO> getCustomersBySPID(String userId, String spCode) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<CustomerVO> customerVOs = jdbcTemplate.query(AppConstants.SERVICEPROVIDER_USERS_CUSTOMERS_QUERY,
-				new Object[] { userId }, new ResultSetExtractor<List<CustomerVO>>() {
+		List<CustomerVO> customerVOs = jdbcTemplate.query(AppConstants.SP_ALL_CUSTOMERS_QUERY,
+				new Object[] { userId, spCode }, new ResultSetExtractor<List<CustomerVO>>() {
 					@Override
 					public List<CustomerVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
 						List<CustomerVO> customerVOList = new ArrayList<CustomerVO>();
@@ -314,18 +315,40 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 							customerVO.setCustomerCode(rs.getString("customer_code"));
 							customerVO.setCustomerName(rs.getString("customer_name"));
 							customerVO.setCountryName(rs.getString("country_name"));
-							if (rs.getInt("del_flag") == 1) {
-								customerVO.setSelected(true);
-							} else {
-								customerVO.setSelected(false);
-							}
-
+							customerVO.setSelected(false);
 							customerVOList.add(customerVO);
 						}
 						return customerVOList;
 					}
 				});
-		return customerVOs;
+		return customerVOs == null?Collections.emptyList():customerVOs;
 	}
-
+	
+	@Override
+	public List<CustomerVO> getCustomersBySelectedSPUser(String spId) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<CustomerVO> customerVOs = jdbcTemplate.query(AppConstants.SERVICEPROVIDER_USERS_CUSTOMERS_QUERY,
+				new Object[] { spId }, new ResultSetExtractor<List<CustomerVO>>() {
+					@Override
+					public List<CustomerVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<CustomerVO> customerVOList = new ArrayList<CustomerVO>();
+						while (rs.next()) {
+							CustomerVO customerVO = new CustomerVO();
+							customerVO.setCustomerId(rs.getLong("sp_cust_id"));
+							customerVO.setCustomerCode(rs.getString("customer_code"));
+							customerVO.setCustomerName(rs.getString("customer_name"));
+							customerVO.setCountryName(rs.getString("country_name"));
+							if(rs.getInt("del_flag")==1){
+							customerVO.setSelected(true);
+							}else{
+								customerVO.setSelected(false);
+							}
+							customerVOList.add(customerVO);
+						}
+						return customerVOList;
+					}
+				});
+		return customerVOs == null?Collections.emptyList():customerVOs;
+	}
+	
 }

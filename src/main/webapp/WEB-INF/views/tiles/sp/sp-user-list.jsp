@@ -410,14 +410,14 @@ $(function() {
 											</thead>
 											<tbody ng-repeat="mUser in SPUserCustomers">
 												<tr>
-													<td><label for="chkCustomerCode_{{mUser.CustomerCode}}">
-															<input id="chkCustomerCode_{{mUser.CustomerCode}}"
-															type="checkbox" ng-model="mUser.Selected"
+													<td><label for="chkCustomerCode_{{mUser.customerCode}}">
+															<input id="chkCustomerCode_{{mUser.customerCode}}"
+															type="checkbox" ng-model="mUser.selected"
 															ng-change="CheckUncheckHeaderUser()"
 															style="margin-top: 0px; width: 20px; height: 20px;" />
 													</label></td>
-													<td>{{mUser.CustomerName}}</td>
-													<td>{{mUser.Country}}</td>
+													<td>{{mUser.customerName}}</td>
+													<td>{{mUser.countryName}}</td>
 												</tr>
 											</tbody>
 										</table>
@@ -548,14 +548,14 @@ $(function() {
 														</thead>
 														<tbody ng-repeat="mUserAll in SPUserAllCustomers">
 															<tr>
-																<td><label for="chkCustomerCode_{{mUserAll.CustomerCode}}">
-																		<input id="chkCustomerCode_{{mUserAll.CustomerCode}}"
-																		type="checkbox" ng-model="mUserAll.Selected"
+																<td><label for="chkCustomerCode_{{mUserAll.customerCode}}">
+																		<input id="chkCustomerCode_{{mUserAll.customerCode}}"
+																		type="checkbox" ng-model="mUserAll.selected"
 																		ng-change="CheckUncheckHeaderUserAll()"
 																		style="margin-top: 0px; width: 20px; height: 20px;" />
 																</label></td>
-																<td>{{mUserAll.CustomerName}}</td>
-																<td>{{mUserAll.Country}}</td>
+																<td>{{mUserAll.customerName}}</td>
+																<td>{{mUserAll.countryName}}</td>
 															</tr>
 														</tbody>
 													</table>

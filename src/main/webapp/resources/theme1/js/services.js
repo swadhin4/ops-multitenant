@@ -6,7 +6,6 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
 	 			user:{},
 	            userList: [],
 	            retrieveAllUsers:retrieveAllUsers,
-	            retrieveAllSPUsers:retrieveAllSPUsers,
 	            validateUser:validateUser,
 	            getLoggedInUser:getLoggedInUser,
 	            registerUser:registerUser,
@@ -15,7 +14,10 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
 	            changePassword:changePassword,
 	            enableOrDisableUser:enableOrDisableUser,
 	            updateProfile:updateProfile,
-	            getUserRoleStatusMap:getUserRoleStatusMap
+	            getUserRoleStatusMap:getUserRoleStatusMap,
+	            retrieveAllSPRoles:retrieveAllSPRoles,
+	            retrieveAllSPCustomers:retrieveAllSPCustomers,
+	            retrieveCustomersBySelectedSP:retrieveCustomersBySelectedSP
 	        };
 	 	
 	 	return UserService;
@@ -118,9 +120,39 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
         }
         
         // implementation
-        function retrieveAllSPUsers() {
+        function retrieveAllSPRoles() {
             var def = $q.defer();
             $http.get(hostLocation+"/serviceprovidercompany/getusers")
+                .success(function(data) {
+                	//console.log(data)
+                	UserService.userList = data;
+                    def.resolve(data);
+                })
+                .error(function() {
+                    def.reject("Failed to get albums");
+                });
+            return def.promise;
+        }
+     // implementation
+        function retrieveAllSPCustomers() {
+            var def = $q.defer();
+            $http.get(hostLocation+"/serviceprovidercompany/getcustomers")
+                .success(function(data) {
+                	//console.log(data)
+                	UserService.userList = data;
+                    def.resolve(data);
+                })
+                .error(function() {
+                    def.reject("Failed to get albums");
+                });
+            return def.promise;
+        }
+        
+        
+     // implementation
+        function retrieveCustomersBySelectedSP(spid) {
+            var def = $q.defer();
+            $http.get(hostLocation+"/serviceprovidercompany/selectedcustomer/"+spid)
                 .success(function(data) {
                 	//console.log(data)
                 	UserService.userList = data;

@@ -30,6 +30,8 @@ public interface ServiceProviderDAO {
 
 	public ServiceProviderUserRoleVO getUserRoleByUserID(String userId) throws Exception;
 
-	public List<CustomerVO> getCustomersByUserID(String userId) throws Exception;
+	public List<CustomerVO> getCustomersBySPID(String userId, String spCode) throws Exception;
+
+	public List<CustomerVO> getCustomersBySelectedSPUser(String spId) throws Exception;
 
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
+import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderVO;
@@ -86,14 +87,25 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 	}
 
 	@Override
-	public List<UserVO> getAllUsersWithRoleAndCustomers(LoginUser user) throws Exception {
+	public List<UserVO> getAllUsersWithRole(LoginUser user) throws Exception {
 		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(user.getDbName());
 		List<UserVO> spusers = serviceProviderDAOImpl.getAllSPUsers(user.getCompany().getCompanyId());
 		for (UserVO sPUserVo : spusers) {
 			sPUserVo.setUserRole(serviceProviderDAOImpl.getUserRoleByUserID(String.valueOf(sPUserVo.getUserId())));
-			sPUserVo.setCustomers(serviceProviderDAOImpl.getCustomersByUserID(String.valueOf(sPUserVo.getUserId())));
+			//sPUserVo.setCustomers(serviceProviderDAOImpl.getCustomersByUserID(String.valueOf(sPUserVo.getUserId())));
 		}
 		return spusers;
+	}
+	@Override
+	public List<CustomerVO> getCustomerForSelectedUser(LoginUser loginUser, Long spuserid) throws Exception {
+		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getDbName());
+		return serviceProviderDAOImpl.getCustomersBySelectedSPUser(String.valueOf(spuserid));
+	}
+	
+	@Override
+	public List<CustomerVO> getAllCustomers(LoginUser loginUser) throws Exception {
+		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getDbName());
+		return serviceProviderDAOImpl.getCustomersBySPID(String.valueOf(loginUser.getUserId()), loginUser.getCompany().getCompanyCode());
 	}
 	
 

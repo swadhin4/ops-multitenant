@@ -58,15 +58,30 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    };
 	    
 	    $scope.addNewSPUser=function(){
-	    	$('#resetAddSPUserForm').click();
-	    //	$scope.getAllROCompanies();
-	    	$scope.getSPUserAllRoles('NEW');
-	    	$('#createSPUserModal').modal('show');
+	    	 $scope.SPUserAllCustomers = [];
+	    	userService.retrieveAllSPCustomers()
+	    	.then(function(data){
+	    		console.log(data);
+	    		$('#resetAddSPUserForm').click();
+		    	if(data.statusCode==200){
+		    		if(data.object.length>0){
+		    			$.each(data.object,function(key,val){
+		    				 $scope.SPUserAllCustomers.push(val);
+		    			});
+		    		}
+		    		$scope.getSPUserAllRoles('NEW');
+		    		$('#createSPUserModal').modal('show');
+		    	}
+		    	
+	    	},function(data){
+	    		console.log(data);
+	    	});
+	    	
 	    };
 	    
 	    
 	    
-	    $scope.SPUserCustomers = [
+	   /* $scope.SPUserCustomers = [
             { CustomerCode: 1, CustomerName: "ABC", Country: "United States", Selected: true },
             { CustomerCode: 2, CustomerName: "XYZ Ltd", Country: "India", Selected: false },
             { CustomerCode: 3, CustomerName: "KBC Ltd", Country: "France", Selected: true },
@@ -77,9 +92,9 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
             { CustomerCode: 8, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
             { CustomerCode: 9, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
             { CustomerCode: 10, CustomerName: "PMS Ltd", Country: "Russia", Selected: false }
-           ];
+           ];*/
 	    
-	    $scope.SPUserAllCustomers = [
+	/*    $scope.SPUserAllCustomers = [
             { CustomerCode: 1, CustomerName: "ABC", Country: "United States", Selected: false },
             { CustomerCode: 2, CustomerName: "XYZ Ltd", Country: "India", Selected: false },
             { CustomerCode: 3, CustomerName: "KBC Ltd", Country: "France", Selected: false },
@@ -91,7 +106,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
             { CustomerCode: 9, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
             { CustomerCode: 10, CustomerName: "PMS Ltd", Country: "Russia", Selected: false }
            ];
-	    
+	    */
 	    
 	    $scope.CheckUncheckHeaderUser = function () {
             $scope.IsAllCheckedUser = true;
@@ -114,7 +129,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
         $scope.CheckUncheckHeaderUserAll = function () {
             $scope.IsAllCheckedUserAll = true;
             for (var i = 0; i < $scope.SPUserAllCustomers.length; i++) {
-                if (!$scope.SPUserAllCustomers[i].Selected) {
+                if (!$scope.SPUserAllCustomers[i].selected) {
                     $scope.IsAllCheckedUserAll = false;
                     break;
                 }
@@ -124,7 +139,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 
         $scope.CheckUncheckAllUserAll = function () {
             for (var i = 0; i < $scope.SPUserAllCustomers.length; i++) {
-                $scope.SPUserAllCustomers[i].Selected = $scope.IsAllCheckedUserAll;
+                $scope.SPUserAllCustomers[i].selected = $scope.IsAllCheckedUserAll;
             }
         };
         
@@ -133,12 +148,12 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    	$scope.selectedUser = angular.copy(user);
 	    	$scope.SPUserCustomersData = [];
 	    	for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
-	    		if($scope.SPUserCustomers[i].Selected){
-                	console.log("2222 Inside IF",$scope.SPUserCustomers[i].CustomerName);
+	    		if($scope.SPUserCustomers[i].selected){
+                	console.log("2222 Inside IF",$scope.SPUserCustomers[i].customerName);
                 	
                 	$scope.SPUserCustomersData.push({
-            			"CustomerName":$scope.SPUserCustomers[i].CustomerName,
-            			"Country": $scope.SPUserCustomers[i].Country
+            			"customerName":$scope.SPUserCustomers[i].customerName,
+            			"countryName": $scope.SPUserCustomers[i].countryName
             		});
             		
                 }
@@ -155,6 +170,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    };
 	    $scope.getSPUserDetail=function(user){
 	    	console.log(user)
+	    	 $scope.SPUserCustomers=[];
 	    	$scope.selectedUser = angular.copy(user);
 	    	if($scope.selectedUser.isEnabled == 1){
 	    		$scope.selectedUser.label="Active";
@@ -168,6 +184,21 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    		//$('.divToggle').addClass('btn btn-default off');
 	    		//$('.divToggle').removeClass('btn-primary');
 	    	}
+	    	
+	    	userService.retrieveCustomersBySelectedSP($scope.selectedUser.userId)
+	    	.then(function(data){
+	    		console.log(data);
+		    	if(data.statusCode==200){
+		    		if(data.object.length>0){
+		    			$.each(data.object,function(key,val){
+		    				 $scope.SPUserCustomers.push(val);
+		    			});
+		    		}
+		    	}
+		    	
+	    	},function(data){
+	    		console.log(data);
+	    	});
 	    };
 	    
 	    $scope.updateUserRole=function(){

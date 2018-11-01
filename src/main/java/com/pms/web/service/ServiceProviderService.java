@@ -2,6 +2,7 @@ package com.pms.web.service;
 
 import java.util.List;
 
+import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderVO;
@@ -27,5 +28,9 @@ public interface ServiceProviderService {
 
 	public String updateServiceProviderUser(SPUserVo sPUserVo, LoginUser user) throws Exception;
 	
-	public List<UserVO> getAllUsersWithRoleAndCustomers(LoginUser user) throws Exception;
+	public List<UserVO> getAllUsersWithRole(LoginUser user) throws Exception;
+
+	public List<CustomerVO> getCustomerForSelectedUser(LoginUser loginUser, Long spuserid) throws Exception;
+
+	List<CustomerVO> getAllCustomers(LoginUser loginUser) throws Exception;
 }
