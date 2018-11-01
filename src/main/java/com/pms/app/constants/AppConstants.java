@@ -267,6 +267,8 @@ public class AppConstants {
 
 	public static final String USER_ROLE_LIST_QUERY = "select * from pm_role";
 	
+	public static final String SP_USER_ROLE_LIST_QUERY = "select * from sp_role";
+	
 	public static final String UPDATE_USER_ROLE = "UPDATE pm_user_role set role_id=?  where user_id=?";
 	
 	public static final String UPDATE_USER_STATUS = "UPDATE pm_users set enabled=?  where user_id=?";
@@ -286,7 +288,7 @@ public class AppConstants {
 	
 	/*public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select access_id,user_id,sp_cust_id,created_on,created_by from sp_user_access where user_id=? and del_flag=0";*/
 	
-	public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select customer_code,customer_name,country_name,del_flag from vw_user_cust_mapping where user_id=?";
+	public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select sp_cust_id,customer_code,customer_name,country_name,del_flag from vw_user_cust_mapping where user_id=?";
 	
 	public static final String INSERT_SERVICEPROVIDER_USER_ROLE_QUERY = "insert into sp_user_role (user_id,role_id,created_date,created_by) "
 			+ " values(?,?,?,?)";

@@ -1,5 +1,6 @@
 package com.pms.web.service.impl;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -206,7 +207,12 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public List<Role> findAllRoles(LoginUser user) throws Exception {
-		List<Role> roleList =  getUserDAO(user.getDbName()).getAllRoles();
+		List<Role> roleList = new ArrayList<Role>();
+		 if( user.getUserType().equalsIgnoreCase("USER")){
+			 roleList =	 getUserDAO(user.getDbName()).getAllRoles();
+		 }else if( user.getUserType().equalsIgnoreCase("SP")) {
+			 roleList =  getUserDAO(user.getDbName()).getAllSPRoles();
+		 }
 		return roleList==null?Collections.emptyList():roleList;
 	}
 

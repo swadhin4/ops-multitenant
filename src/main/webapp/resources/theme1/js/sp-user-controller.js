@@ -1,5 +1,3 @@
-
-
 chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$location','userService','authService',
                                         'companyService','registrationService','roleService','siteService',
                                         function ($rootScope, $scope , $filter,$location,userService,authService,
@@ -10,7 +8,8 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	$scope.selectedUser ={};
 	$scope.sessionUser={};
 	$scope.loggedInUserEmail = "";
-	$scope.SPCustomers={};
+	$scope.SPUserCustomers={};
+	$scope.SPUserAllCustomers={};
 	
 	$scope.onlyNumbers = /^\d+$/;
 	$scope.filterValue = function($event){
@@ -67,30 +66,86 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    
 	    
 	    
-	    $scope.SPCustomers = [
-            { CustomerCode: 1, CustomerName: "John Hammond", Location: "United States", Selected: true },
-            { CustomerCode: 2, CustomerName: "Mudassar Khan", Location: "India", Selected: true },
-            { CustomerCode: 3, CustomerName: "Suzanne Mathews", Location: "France", Selected: true },
-            { CustomerCode: 4, CustomerName: "Robert Schidner", Location: "Russia", Selected: true }
+	    $scope.SPUserCustomers = [
+            { CustomerCode: 1, CustomerName: "ABC", Country: "United States", Selected: true },
+            { CustomerCode: 2, CustomerName: "XYZ Ltd", Country: "India", Selected: false },
+            { CustomerCode: 3, CustomerName: "KBC Ltd", Country: "France", Selected: true },
+            { CustomerCode: 4, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 5, CustomerName: "PMS Ltd", Country: "Russia", Selected: true },
+            { CustomerCode: 6, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 7, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 8, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 9, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 10, CustomerName: "PMS Ltd", Country: "Russia", Selected: false }
+           ];
+	    
+	    $scope.SPUserAllCustomers = [
+            { CustomerCode: 1, CustomerName: "ABC", Country: "United States", Selected: false },
+            { CustomerCode: 2, CustomerName: "XYZ Ltd", Country: "India", Selected: false },
+            { CustomerCode: 3, CustomerName: "KBC Ltd", Country: "France", Selected: false },
+            { CustomerCode: 4, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 5, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 6, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 7, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 8, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 9, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
+            { CustomerCode: 10, CustomerName: "PMS Ltd", Country: "Russia", Selected: false }
            ];
 	    
 	    
-	    $scope.CheckUncheckHeader = function () {
-            $scope.IsAllChecked = true;
-            for (var i = 0; i < $scope.SPCustomers.length; i++) {
-                if (!$scope.SPCustomers[i].Selected) {
-                    $scope.IsAllChecked = false;
+	    $scope.CheckUncheckHeaderUser = function () {
+            $scope.IsAllCheckedUser = true;
+            for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
+                if (!$scope.SPUserCustomers[i].Selected) {
+                    $scope.IsAllCheckedUser = false;
                     break;
                 }
             };
         };
-        $scope.CheckUncheckHeader();
+        
 
-        $scope.CheckUncheckAll = function () {
-            for (var i = 0; i < $scope.SPCustomers.length; i++) {
-                $scope.SPCustomers[i].Selected = $scope.IsAllChecked;
+        $scope.CheckUncheckAllUser = function () {
+            for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
+                $scope.SPUserCustomers[i].Selected = $scope.IsAllCheckedUser;
             }
         };
+        
+        
+        $scope.CheckUncheckHeaderUserAll = function () {
+            $scope.IsAllCheckedUserAll = true;
+            for (var i = 0; i < $scope.SPUserAllCustomers.length; i++) {
+                if (!$scope.SPUserAllCustomers[i].Selected) {
+                    $scope.IsAllCheckedUserAll = false;
+                    break;
+                }
+            };
+        };
+        
+
+        $scope.CheckUncheckAllUserAll = function () {
+            for (var i = 0; i < $scope.SPUserAllCustomers.length; i++) {
+                $scope.SPUserAllCustomers[i].Selected = $scope.IsAllCheckedUserAll;
+            }
+        };
+        
+        $scope.updateUserMapping=function(user){
+	    	console.log("updateUserMapping",user)
+	    	$scope.selectedUser = angular.copy(user);
+	    	$scope.SPUserCustomersData = [];
+	    	for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
+	    		if($scope.SPUserCustomers[i].Selected){
+                	console.log("2222 Inside IF",$scope.SPUserCustomers[i].CustomerName);
+                	
+                	$scope.SPUserCustomersData.push({
+            			"CustomerName":$scope.SPUserCustomers[i].CustomerName,
+            			"Country": $scope.SPUserCustomers[i].Country
+            		});
+            		
+                }
+	    	}
+	    	console.log("SPUserCustomersData---->",$scope.SPUserCustomersData);
+	    	
+        }
 	    
 	    
 	    $scope.saveNewSPUser=function(){
@@ -145,7 +200,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 		    	//var appuser=this;
 			  //  appuser.userList=[];
 		    	//appuser.retrieveAllUsers=function(){
-	    		userService.retrieveAllSPUsers()
+	    		userService.retrieveAllUsers()
 	    		.then(function(data) {
 	    			console.log(data)
 	    			if(data.statusCode == 200){

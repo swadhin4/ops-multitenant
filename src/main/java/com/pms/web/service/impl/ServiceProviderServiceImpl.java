@@ -87,10 +87,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
 	@Override
 	public List<UserVO> getAllUsersWithRoleAndCustomers(LoginUser user) throws Exception {
-		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(user.getDbName());
+		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(user.getDbName());
 		List<UserVO> spusers = serviceProviderDAOImpl.getAllSPUsers(user.getCompany().getCompanyId());
 		for (UserVO sPUserVo : spusers) {
-			//sPUserVo.setUserRole(serviceProviderDAOImpl.getUserRoleByUserID(String.valueOf(sPUserVo.getUserId())));
+			sPUserVo.setUserRole(serviceProviderDAOImpl.getUserRoleByUserID(String.valueOf(sPUserVo.getUserId())));
 			sPUserVo.setCustomers(serviceProviderDAOImpl.getCustomersByUserID(String.valueOf(sPUserVo.getUserId())));
 		}
 		return spusers;

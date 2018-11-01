@@ -375,6 +375,61 @@ $(function() {
 							</div>
 						</div>
 						
+						<!-- Supravat Start -->
+
+					<div class="modal-body"
+						style="background-color: #eee; padding: 5px;">
+						<div class="row">
+							<div class="col-md-12">
+								<!-- general form elements -->
+								<div class="box box-primary" style="margin-bottom: 5px;">
+
+									<div class="box-header">										
+										
+										<h3 class="box-title">Map Customers</h3>
+											<a href class="btn btn-success pull-right"
+												style="float:right;"
+												ng-click="updateUserMapping(selectedUser)">Save</a>
+									</div>
+									<!-- /.box-header -->
+									<!-- form start -->
+
+									<div class="box-body"
+										style="display: block; max-height: 140px; overflow-y: scroll; width: 100%">
+
+										<table
+											class="table table-bordered table-hover table-condensed">
+											<thead>
+												<th class="th-sm"><label> <input
+														type="checkbox" ng-model="IsAllCheckedUser"
+														ng-change="CheckUncheckAllUser()"
+														style="width: 20px; height: 20px;" />
+												</label></th>
+												<th class="th-sm">Customer Name</th>
+												<th class="th-sm">Country</th>
+											</thead>
+											<tbody ng-repeat="mUser in SPUserCustomers">
+												<tr>
+													<td><label for="chkCustomerCode_{{mUser.CustomerCode}}">
+															<input id="chkCustomerCode_{{mUser.CustomerCode}}"
+															type="checkbox" ng-model="mUser.Selected"
+															ng-change="CheckUncheckHeaderUser()"
+															style="margin-top: 0px; width: 20px; height: 20px;" />
+													</label></td>
+													<td>{{mUser.CustomerName}}</td>
+													<td>{{mUser.Country}}</td>
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Supravat End -->
 						
 						</div>
 						
@@ -393,11 +448,11 @@ $(function() {
 														<strong>Error! </strong> {{modalErrorMessage}} <span class="messageClose">X</span>
 													</div>
 												</div>
-												<div class="modal-body" style="background-color: #eee">
+												<div class="modal-body" style="background-color: #eee;padding:5px;">
 													<div class="row">
 														<div class="col-md-12">
 															<!-- general form elements -->
-															<div class="box box-primary">
+															<div class="box box-primary" style="margin-bottom: 5px;">
 
 																<div class="box-header">
 																	<h3 class="box-title">Profile Information</h3>
@@ -405,160 +460,116 @@ $(function() {
 																<!-- /.box-header -->
 																<!-- form start -->
 
-																<div class="box-body">
-																   <div class="row">
-																	<div class="col-md-4 reqDiv required">
-																		<label class="control-label">First Name</label> <input maxlength="50"
-																			ng-model="user.firstName" type="text" class="form-control" id="firstName"
-																			placeholder="Enter first name" required>
-																	</div>
-																	<div class="col-md-4 reqDiv required">
-																		<label class="control-label">Last Name</label> <input maxlength="50"
-																			ng-model="user.lastName"  type="text" class="form-control" id="lastName"
-																			placeholder="Enter last name" required>
-																	</div>
-																	<div class="col-md-4 reqDiv required">
-																		<label class="control-label">Email</label> 
-																			<input type="email" class="form-control"
-																			id="email" ng-model="user.email"  maxlength="50"
-																			placeholder="EmailvalidateSPUserDropdownValues" required>
-																	</div>
-																  </div>
-																   <div class="row">
-																	
-																	<div class="col-md-4 reqDiv required">
-																		<label class="control-label">Phone / Mobile</label> <input
-																			ng-model="user.phoneNo"  type="text" class="form-control" id="lastName"
-																			placeholder="Enter Phone Number"
-																			ng-pattern="onlyNumbers" ng-keypress="filterValue($event)"  maxlength="11" required>
-																	</div>
-																	<div class="col-md-4 reqDiv required">
-																		<label class="control-label">Select Role</label>																		
-																		 <select name="roleSelect" id="roleSelect" class="form-control" 
-								 										 onchange="validateSPUserDropdownValues'roleSelect')">
-																		 </select>
-																		<input type="hidden" ng-model="user.role">
-																					
-																	</div>
-																	<div class="col-md-4 reqDiv required">
-																	
-																	<div class="checkbox">
-																		<input id="toggle-event" type="checkbox"
-																			data-width="100" data-height="35" checked 
-																			data-toggle="toggle" 
-																			data-off="Disabled" data-on="Enabled">																	
-																		<input type="hidden" id="enabledUser" value="">
-																	   </div>
-																	</div>
-																	</div>
-																	</br>
-																	
-																	<div class="row">
-																<div class="col-md-12">
-																	
-																	
-																	<table cellpadding="1" cellspacing="1">
-            <tr>
-                <th align = "left">
-                    <label>
-                        <input type="checkbox" ng-model="IsAllChecked" ng-change="CheckUncheckAll()" />
-                        Customer Code</label>
-                </th>
-                <th>
-                    Customer Name
-                </th>
-                <th>
-                    Location
-                </th>
-            </tr>
-            <tbody ng-repeat="m in SPCustomers">
-                <tr>
-                    <td>
-                        <label for="chkCustomer_{{m.CustomerCode}}">
-                            <input id="chkCustomer_{{m.CustomerCode}}" type="checkbox" ng-model="m.Selected" ng-change="CheckUncheckHeader()" />
-                            {{m.CustomerCode}}
-                        </label>
-                    </td>
-                    <td>
-                        {{m.CustomerName}}
-                    </td>
-                    <td>
-                        {{m.Location}}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-																	
-																	
-																	<!-- <table id="customerlistTable"
-																		class="table table-bordered table-hover table-condensed">
-																		<thead>
-																			<tr>
-																				<th style="width:30%;"><b>Customer Name</b></th>
-																				<th style="width:40%;"><b>Customer Code</b></th>
-																				<th style="width:20%;"><b>Location</b></th>
-																				<th style="width:10%;"><b></b></th>
-																			</tr>
-																		</thead>
-																		<tbody>
+												<div class="box-body">
+													<div class="row">
+														<div class="col-md-4 reqDiv required">
+															<label class="control-label">First Name</label> <input
+																maxlength="50" ng-model="user.firstName" type="text"
+																class="form-control" id="firstName"
+																placeholder="Enter first name" required>
+														</div>
+														<div class="col-md-4 reqDiv required">
+															<label class="control-label">Last Name</label> <input
+																maxlength="50" ng-model="user.lastName" type="text"
+																class="form-control" id="lastName"
+																placeholder="Enter last name" required>
+														</div>
+														<div class="col-md-4 reqDiv required">
+															<label class="control-label">Email</label> <input
+																type="email" class="form-control" id="email"
+																ng-model="user.email" maxlength="50"
+																placeholder="Email" required>
+														</div>
+													</div>
+													<br>
+													<div class="row">
 
-																			<tr >
-																				<td>{{customer.customername}}</td>
-																				<td>{{customer.customercode}}</td>
-																				<td>{{customer.location}}</td>
-																				<td>
-                                													<label class="custom-control custom-checkbox">
-                                   													 <input type="checkbox" class="custom-control-input">
-                                    												<span class="custom-control-indicator"></span>
-                                													</label>
-                            													</td>
-																				
-																			</tr>
-																			<tr >
-																				<td>{{customer.customername}}</td>
-																				<td>{{customer.email}}</td>
-																				<td>{{customer.location}}</td>
-																				<td>
-                                													<label class="custom-control custom-checkbox">
-                                   													 <input type="checkbox" class="custom-control-input">
-                                    												<span class="custom-control-indicator"></span>
-                                													</label>
-                            													</td>
-																				
-																			</tr>
-																			<tr >
-																				<td>{{customer.customername}}</td>
-																				<td>{{customer.email}}</td>
-																				<td>{{customer.location}}</td>
-																				<td>
-                                													<label class="custom-control custom-checkbox">
-                                   													 <input type="checkbox" class="custom-control-input">
-                                    												<span class="custom-control-indicator"></span>
-                                													</label>
-                            													</td>
-																				
-																			</tr>
+														<div class="col-md-4 reqDiv required">
+															<label class="control-label">Phone / Mobile</label> <input
+																ng-model="user.phoneNo" type="text" class="form-control"
+																id="lastName" placeholder="Enter Phone Number"
+																ng-pattern="onlyNumbers"
+																ng-keypress="filterValue($event)" maxlength="11"
+																required>
+														</div>
+														<div class="col-md-4 reqDiv required">
+															<label class="control-label">Select Role</label> <select
+																name="roleSelect" id="roleSelect" class="form-control"
+																onchange="validateSPUserDropdownValues'roleSelect')">
+															</select> <input type="hidden" ng-model="user.role">
 
-																		</tbody>
-																	</table> -->
+														</div>
+														<div class="col-md-4 reqDiv required" style="margin-top: 13px;">
 
-																</div>
-								</div>
-																	
-																</div>
-
-																<div class="box-footer">
-																	<!--  <button type="submit" class="btn btn-primary">Submit</button> -->
-																</div>
-
+															<div class="checkbox">
+																<input id="toggle-event" type="checkbox"
+																	data-width="100" data-height="35" checked
+																	data-toggle="toggle" data-off="Disabled"
+																	data-on="Enabled"> <input type="hidden"
+																	id="enabledUser" value="">
 															</div>
+														</div>
+													</div>
+
+
+												</div>
+
+											</div>
 														</div>
 												</div>
 												</div>
-												
-							
-												
-												<div class="modal-footer">
+
+								<div class="modal-body"
+									style="background-color: #eee; padding: 5px;">
+									<div class="row">
+										<div class="col-md-12">
+											<!-- general form elements -->
+											<div class="box box-primary" style="margin-bottom: 5px;">
+
+												<div class="box-header">
+													<h3 class="box-title">Map Customers</h3>
+												</div>
+												<!-- /.box-header -->
+												<!-- form start -->
+
+												<div class="box-body"
+													style="display: block; max-height: 250px; overflow-y: scroll; width: 100%">
+
+													<table
+														class="table table-bordered table-hover table-condensed">
+														<thead>
+															<th class="th-sm"><label> <input
+																	type="checkbox" ng-model="IsAllCheckedUserAll"
+																	ng-change="CheckUncheckAllUserAll()"
+																	style="width: 20px; height: 20px;" />
+															</label></th>
+															<th class="th-sm">Customer Name</th>
+															<th class="th-sm">Country</th>
+														</thead>
+														<tbody ng-repeat="mUserAll in SPUserAllCustomers">
+															<tr>
+																<td><label for="chkCustomerCode_{{mUserAll.CustomerCode}}">
+																		<input id="chkCustomerCode_{{mUserAll.CustomerCode}}"
+																		type="checkbox" ng-model="mUserAll.Selected"
+																		ng-change="CheckUncheckHeaderUserAll()"
+																		style="margin-top: 0px; width: 20px; height: 20px;" />
+																</label></td>
+																<td>{{mUserAll.CustomerName}}</td>
+																<td>{{mUserAll.Country}}</td>
+															</tr>
+														</tbody>
+													</table>
+
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+
+								<div class="modal-footer">
 													<button type="button" class="btn btn-default pull-left"	id="newUserCloseBtn" data-dismiss="modal">Close</button>
 													<button type="submit" class="btn btn-primary">Save changes</button>
 													<button type="reset" id="resetAddSPUserForm" class="btn btn-primary">RESET</button>

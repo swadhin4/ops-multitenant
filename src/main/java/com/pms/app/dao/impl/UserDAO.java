@@ -207,5 +207,23 @@ public class UserDAO {
 		 	LOGGER.info("Update user status with  {}.", appUserVO.getIsEnabled());
 		 	return updated;
 	}
+
+	public List<Role> getAllSPRoles() {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<Role> roleList = jdbcTemplate.query(AppConstants.SP_USER_ROLE_LIST_QUERY, new ResultSetExtractor<List<Role>>(){
+			List<Role> roleList = new ArrayList<Role>();
+			@Override
+			public List<Role> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					Role role = new Role();
+					role.setRoleId(rs.getLong("role_id"));
+					role.setDescription(rs.getString("role_desc"));
+					roleList.add(role);
+				}
+				return roleList;
+			}
+		});
+		return roleList;
+	}
 	
 }
