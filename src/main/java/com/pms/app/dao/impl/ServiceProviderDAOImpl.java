@@ -4,10 +4,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,7 +26,9 @@ import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderUserAccessVO;
 import com.pms.app.view.vo.ServiceProviderUserRoleVO;
+import com.pms.app.view.vo.SiteLicenceVO;
 import com.pms.app.view.vo.UserVO;
+import com.pms.web.util.ApplicationUtil;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
 
 public class ServiceProviderDAOImpl implements ServiceProviderDAO {
@@ -128,26 +134,25 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 	}
 
 	@Override
-	public String createServiceProviderUserAccess(SPUserVo useraccessvo, LoginUser loginUser) throws Exception {
+	public int createServiceProviderUserAccess(List<CustomerVO> customerList , LoginUser loginUser) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY,
 				new BatchPreparedStatementSetter() {
 
 					@Override
 					public void setValues(PreparedStatement ps, int i) throws SQLException {
-						ServiceProviderUserAccessVO serviceProviderUserAccessVO = useraccessvo.getCustomers().get(i);
-						ps.setInt(1, useraccessvo.getUserId());
-						ps.setInt(2, serviceProviderUserAccessVO.getSpCustId());
-						ps.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-						ps.setString(4, loginUser.getUsername());
+						CustomerVO spUserAccessVO = customerList.get(i);
+						ps.setLong(1, loginUser.getUserId());
+						ps.setLong(2, spUserAccessVO.getCustomerId());
+						ps.setString(3, loginUser.getUsername());
 					}
 
 					@Override
 					public int getBatchSize() {
-						return useraccessvo.getCustomers().size();
+						return customerList.size();
 					}
 				});
-		return insertedRows.toString();
+		return insertedRows.length;
 	}
 
 	@Override
@@ -200,6 +205,36 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 		return "success";
 	}
 
+	@Override
+	public int[] updateServiceProviderUserAccess(List<CustomerVO> customerList, Long selectedSPUserId, LoginUser loginUser) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		for (CustomerVO spUserAccessVO : customerList) {
+			if (spUserAccessVO.getAccessId()!=null && spUserAccessVO.isDelFlagEnabled()) {
+				jdbcTemplate.update(AppConstants.DELETE_SERVICEPROVIDER_USER_ACCESS_QUERY,
+						new PreparedStatementSetter() {
+
+							@Override
+							public void setValues(PreparedStatement ps) throws SQLException {
+								ps.setLong(1, spUserAccessVO.getCustomerId());
+							}
+						});
+
+			} else if (spUserAccessVO.getAccessId() == null) {
+				jdbcTemplate.update(AppConstants.INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY,
+						new PreparedStatementSetter() {
+
+							@Override
+							public void setValues(PreparedStatement ps) throws SQLException {
+								ps.setLong(1, selectedSPUserId);
+								ps.setLong(2, spUserAccessVO.getCustomerId());
+								ps.setString(3, loginUser.getUsername());
+							}
+						});
+			}
+		}
+		return null;
+	
+	}
 /*	@Override
 	public List<SPUserVo> getAllUsers() throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
@@ -338,10 +373,13 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 							customerVO.setCustomerCode(rs.getString("customer_code"));
 							customerVO.setCustomerName(rs.getString("customer_name"));
 							customerVO.setCountryName(rs.getString("country_name"));
-							if(rs.getInt("del_flag")==1){
-							customerVO.setSelected(true);
+							if(StringUtils.isNotBlank(rs.getString("del_flag")) && rs.getInt("del_flag")==0){
+								customerVO.setSelected(true);
+								customerVO.setAccessId(rs.getLong("access_id"));
+								customerVO.setDelFlagEnabled(true); 
 							}else{
 								customerVO.setSelected(false);
+								customerVO.setDelFlagEnabled(false); 
 							}
 							customerVOList.add(customerVO);
 						}

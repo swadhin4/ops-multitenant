@@ -28,7 +28,8 @@
 <%-- <link rel="stylesheet" href='<c:url value="/resources/css/bootstrap-datetimepicker.min.css"></c:url>' /> --%>
 
 
-<link rel="stylesheet"	href='<c:url value="/resources/dist/css/AdminLTE.min.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/dist/css/pms-admintLTE.css"></c:url>' />
+<link rel="stylesheet" href='<c:url value="/resources/theme1/css/style4.css"></c:url>' />
 <%-- <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/style.css"></c:url>' /> --%>
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/skins/skin-black-light.min.css"></c:url>' />
 
@@ -246,9 +247,9 @@ function removeLoader(){
                 <img src="${contextPath}/resources/img/swadhin.jpg" class="img-circle" alt="User Image">
                 <p style="color: #000">
                  ${savedsp.lastName}
-                  <small> ${user.company.companyName}</small>
+                  <small> ${savedsp.company.companyName}</small>
                   <c:forEach items="${user.userRoles}" var="roles">
-                  <small style="color: #000">${roles.role.roleName}</small>
+                  <small style="color: #000">${roles.role}</small>
                      </c:forEach>
                 </p>
               </li>

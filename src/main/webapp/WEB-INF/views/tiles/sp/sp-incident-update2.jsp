@@ -249,7 +249,7 @@
 										<li><a href="#linkedticket" data-toggle="tab">External
 												Ticket of Service provider</a>
 							<span class="label label-warning" style="position: relative;
-     top: -33px; left: 226px">{{ticketData.linkedTickets.length || 0}}</span></a>							
+     top: -33px; left: 236px">{{ticketData.linkedTickets.length || 0}}</span></a>							
 												</li>
 										<li><a href="#escalate" data-toggle="tab"
 											onclick="initializeEscalateTicket()">Escalation</a></li>
@@ -270,7 +270,7 @@
 											ng-click="getRelatedTicketDetails()" data-toggle="tab">Related
 												Tickets</a>
 									<span class="label label-warning" style="position: relative;
-     top: -33px;left: 110px;">{{relatedTicketData.length || 0}}</span>			
+     top: -33px;left: 124px;">{{relatedTicketData.length || 0}}</span>			
 												</li>
 										<!--  Ended by Supravat -->
 									</ul>

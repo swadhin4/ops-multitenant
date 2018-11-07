@@ -129,7 +129,7 @@ $(function() {
 				<div class="row">
 				</div>
 			</section>	
-			<section class="content">
+			<section class="content" style="padding-left: 5px;padding-right: 5px;">
 				<div class="row">
 				<div class="col-md-12">
 				<div id="errorMessageDiv" class="alert alert-error alert-fixed-top"
@@ -146,17 +146,17 @@ $(function() {
 					<strong style="align: center;">{{successMessage}} </strong>
 					</div>
 				</div>
-				<div class="col-md-6">
-						<div class="box" >
+				<div class="col-md-6" style="padding-right: 9px;padding-left: 9px;">
+						<div class="box">
 							<div class="box-header with-border">
-								<h3 class="box-title">List of SP Users</h3>
+								<h3 class="box-title">List of Users</h3>
 								<div class="box-tools pull-right">
 								 	<button type="button" class="btn btn-box-tool">
-										<a href  class="btn btn-success" ng-click="addNewSPUser()" style="    margin-top: -8px;"><i class="fa fa-user-plus" aria-hidden="true"></i> Add User</a>
+										<a href class="btn btn-success" ng-click="addNewSPUser()" style="margin-top: -8px;"><i class="fa fa-user-plus" aria-hidden="true"></i> Add User</a>
 									</button>									
 								</div>
 							</div>
-							<div class="box-body" style="height:440px">
+							<div class="box-body" style="height:510px">
 								<div class="row">
 	 								<div class="col-md-12">
 										<input type="text" class="form-control"
@@ -218,8 +218,9 @@ $(function() {
 							</div>	
 						</div>	
 						
-								<div class="col-md-6">
-						<div class="box">
+								<div class="col-md-6" style="padding-right: 9px;padding-left: 9px;">
+								<div class="box">
+						<div class="box" style="margin-bottom: 5px;">
 							<div class="box-header with-border">
 								<h3 class="box-title">User Detail</h3>
 								<div class="box-tools pull-right">
@@ -239,7 +240,7 @@ $(function() {
 										</div>
 									</div>
 									   <div class="col-md-4">
-											 <a href="#" >
+											<!--  <a href="#" > -->
 												<b>
 													<i class="fa fa-user" aria-hidden="true"></i> {{selectedUser.firstName}}
 													{{selectedUser.lastName}}
@@ -248,17 +249,17 @@ $(function() {
 												 <i class="fa fa-envelope" aria-hidden="true"></i> {{selectedUser.email}}
 												 <br>
 												 <i class="fa fa-phone-square" aria-hidden="true"></i> {{selectedUser.phone}}
-											</a>
+											<!-- </a> -->
 										</div>
 										 <div class="col-md-5">
-											 <a href="#" >
+											 <!-- <a href="#" > -->
 												<b>
 													<i class="fa fa-check-circle-o" aria-hidden="true"></i> 
 													<span style="color:{{selectedUser.status}}">{{selectedUser.label}}</span>
 												</b>
 												<br>
 												<i class="fa fa-info-circle" aria-hidden="true"></i> {{selectedUser.description}}
-											</a>
+											<!-- </a> -->
 										</div>
 								</div>
 								<%-- <div class="row">
@@ -290,18 +291,18 @@ $(function() {
 									<div class="col-sm-4 col-xs-6">
 										<div class="description-block pull-right" style="margin-top: 0px;">
 											<h5 ng-if="selectedUser.isEnabled == 1">
-									<a href class="btn btn-danger pull-right" style="margin-top: -10px;" 
-									ng-click="updateSPAccountStatus(selectedUser, '0')">Disable the account</a></h5>
+									<a href class="btn btn-danger pull-right" title="Deactivate" style="float:right;width:130px;" 
+									ng-click="updateSPAccountStatus(selectedUser, '0')"><i class="fa fa-toggle-on"></i> Deactivate</a></h5>
 									<h5 ng-if="selectedUser.isEnabled == 0">
-									<a href class="btn btn-success pull-right" style="margin-top: -10px;" 
-									ng-click="updateSPAccountStatus(selectedUser,'1')" >Enable the account</a></h5>
+									<a href class="btn btn-success pull-right" title="Activate" style="float:right;width:130px;" 
+									ng-click="updateSPAccountStatus(selectedUser,'1')" ><i class="fa fa-toggle-on"></i> Activate</a></h5>
 										</div>
 									</div> 
 								</div>
 							</div>
 						</div>
 						
-						<div class="box">
+						<div class="box" style="margin-bottom: 5px;">
 							<div class="box-header with-border">
 								<h3 class="box-title">Manage User</h3>
 								<div class="box-tools pull-right">
@@ -322,26 +323,35 @@ $(function() {
 								
 								</div> -->
 								</div>
-								<div class="row">
+							<div class="row">
+								<div class="col-md-10">Select a role from the drop-down and click to change the role.</div>
+							</div>
+							<div class="row" style="margin-top: 10px;">
+								<div class="col-md-5">
+								<select name="roleSelect1" id="roleSelect1" class="form-control" 
+ 										 onchange="validateSPUserDropdownValues('roleSelect1')">
+										 </select></div>
+								<div class="col-md-5" style="float:right;width:100px;">
+								<a href class="btn btn-success pull-right" title="Change Role" ng-click="updateUserRole(selectedUser)">
+								<i class="fa fa-pencil-square-o"></i> Change Role</a></h5></div>
+							</div>
+							<!-- <div class="row">
 									<div class="col-md-8">
-										Select a role from the dropdown and click to change the role.
+										Select a role from the drop-down and click to change the role.
 										<select name="roleSelect1" id="roleSelect1" class="form-control" 
  										 onchange="validateSPUserDropdownValues('roleSelect1')">
 										 </select>
 									</div>
 									<div class="col-md-4">
-									<a href class="btn btn-success pull-right" style="margin-top: 18px;" ng-click="updateUserRole(selectedUser)" >Change Role</a></h5>
+									<a href class="btn btn-success pull-right" style="margin-top: 38px;" ng-click="updateUserRole(selectedUser)" >Change Role</a></h5>
 									</div>
-									<!-- <div class="col-md-4" ng-if="">
+									<div class="col-md-4" ng-if="">
 								     <input id="toggle-event1" type="checkbox" class="toggleYesNo"
 										data-width="100" data-height="35" checked 
 										data-toggle="toggle" 
 										data-off="Disabled" data-on="Enabled">
-									</div> -->
-									<div class="col-md-4">
-								    	
 									</div>
-								</div>
+								</div> -->
 							</div>
 							<div class="box-footer">
 								<div class="row">
@@ -376,12 +386,82 @@ $(function() {
 						</div>
 						
 						<!-- Supravat Start -->
+						<div class="box" style="margin-bottom: 5px;">
+							<div class="box-header with-border">
+								<h3 class="box-title">Map Customers</h3>
+											<a href class="btn btn-success pull-right" title="Update Map Customer"
+												style="float:right;width:130px;"
+												ng-click="updateUserMapping(selectedUser)"><i class="fa fa-map-marker"></i> Save</a>
+							</div>
+							<div class="box-body"
+										style="display: block; overflow-y: scroll; width: 100%;height:153px">
 
-					<div class="modal-body"
+										<table
+											class="table table-bordered table-hover table-condensed">
+											<thead>
+												<th class="th-sm"><label> <input
+														type="checkbox" ng-model="IsAllCheckedUser"
+														ng-change="CheckUncheckAllUser()"
+														style="margin-left:4px;width: 20px; height: 20px;" />
+												</label></th>
+												<th class="th-sm">Customer Name</th>
+												<th class="th-sm">Country</th>
+											</thead>
+											<tbody ng-repeat="mUser in SPUserCustomers">
+												<tr>
+													<td><label for="chkCustomerCode_{{mUser.customerCode}}">
+															<input id="chkCustomerCode_{{mUser.customerCode}}"
+															type="checkbox" ng-model="mUser.selected"
+															ng-change="CheckUncheckHeaderUser()"
+															style="margin-top: 0px; width: 20px; height: 20px;" />
+													</label>
+													<input type="hidden" class="form-control"
+																	ng-model="mUser.customerId"
+																	id="customerId{{$index}}"> <input type="hidden"
+																	class="form-control" ng-model="mUser.customerCode"
+																	id="customerCode{{$index}}"></td>
+													<td>{{mUser.customerName}}</td>
+													<td>{{mUser.countryName}}</td>
+												</tr>
+											</tbody>
+										</table>
+
+									</div>
+							<div class="box-footer">
+								<div class="row">
+									<div class="col-sm-3 col-xs-6">
+										<div class="description-block border-right">											
+										</div>
+									</div>
+									<!-- /.col -->
+									<div class="col-sm-3 col-xs-6">
+										<div class="description-block border-right">
+											
+										</div>
+										<!-- /.description-block -->
+									</div>
+									<!-- /.col -->
+									<div class="col-sm-3 col-xs-6">
+										<div class="description-block border-right">
+											
+										</div>
+										<!-- /.description-block -->
+									</div>
+									<!-- /.col -->
+									<div class="col-sm-3 col-xs-6">
+										<div class="description-block">
+											
+										</div>
+										<!-- /.description-block -->
+									</div>
+								</div>
+							</div>
+						</div>
+					<!-- <div class="modal-body"
 						style="background-color: #eee; padding: 5px;">
 						<div class="row">
 							<div class="col-md-12">
-								<!-- general form elements -->
+								general form elements
 								<div class="box box-primary" style="margin-bottom: 5px;">
 
 									<div class="box-header">										
@@ -391,8 +471,8 @@ $(function() {
 												style="float:right;"
 												ng-click="updateUserMapping(selectedUser)">Save</a>
 									</div>
-									<!-- /.box-header -->
-									<!-- form start -->
+									/.box-header
+									form start
 
 									<div class="box-body"
 										style="display: block; max-height: 140px; overflow-y: scroll; width: 100%">
@@ -427,10 +507,10 @@ $(function() {
 								</div>
 							</div>
 						</div>
-					</div>
+					</div> -->
 
 					<!-- Supravat End -->
-						
+						</div>
 						</div>
 						
 								<div class="modal fade" id="createSPUserModal" data-keyboard="false" data-backdrop="static">
@@ -495,7 +575,7 @@ $(function() {
 														<div class="col-md-4 reqDiv required">
 															<label class="control-label">Select Role</label> <select
 																name="roleSelect" id="roleSelect" class="form-control"
-																onchange="validateSPUserDropdownValues'roleSelect')">
+																onchange="validateSPUserDropdownValues('roleSelect')">
 															</select> <input type="hidden" ng-model="user.role">
 
 														</div>
@@ -533,7 +613,7 @@ $(function() {
 												<!-- form start -->
 
 												<div class="box-body"
-													style="display: block; max-height: 250px; overflow-y: scroll; width: 100%">
+													style="display: block; height:200px; overflow-y: scroll; width: 100%">
 
 													<table
 														class="table table-bordered table-hover table-condensed">
@@ -541,7 +621,7 @@ $(function() {
 															<th class="th-sm"><label> <input
 																	type="checkbox" ng-model="IsAllCheckedUserAll"
 																	ng-change="CheckUncheckAllUserAll()"
-																	style="width: 20px; height: 20px;" />
+																	style="margin-left:4px;width: 20px; height: 20px;" />
 															</label></th>
 															<th class="th-sm">Customer Name</th>
 															<th class="th-sm">Country</th>
@@ -553,7 +633,12 @@ $(function() {
 																		type="checkbox" ng-model="mUserAll.selected"
 																		ng-change="CheckUncheckHeaderUserAll()"
 																		style="margin-top: 0px; width: 20px; height: 20px;" />
-																</label></td>
+																</label>
+																<input type="hidden" class="form-control"
+																	ng-model="mUserAll.customerId"
+																	id="customerId{{$index}}"> <input type="hidden"
+																	class="form-control" ng-model="mUserAll.customerCode"
+																	id="customerCode{{$index}}"></td>
 																<td>{{mUserAll.customerName}}</td>
 																<td>{{mUserAll.countryName}}</td>
 															</tr>
@@ -570,9 +655,9 @@ $(function() {
 
 
 								<div class="modal-footer">
-													<button type="button" class="btn btn-default pull-left"	id="newUserCloseBtn" data-dismiss="modal">Close</button>
-													<button type="submit" class="btn btn-primary">Save changes</button>
-													<button type="reset" id="resetAddSPUserForm" class="btn btn-primary">RESET</button>
+													<button type="button" class="btn btn-primary pull-left"	id="newUserCloseBtn" data-dismiss="modal" style="width:120px;">Close</button>
+													<button type="submit" class="btn btn-success" style="width:120px;">Save Changes</button>
+													<button type="reset" id="resetAddSPUserForm" class="btn btn-primary" style="width:120px;">Reset</button>
 												</div>
 											</form>
 										

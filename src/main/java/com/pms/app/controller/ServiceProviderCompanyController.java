@@ -51,15 +51,15 @@ public class ServiceProviderCompanyController extends BaseController {
 		return responseEntity;
 	}
 
-	@RequestMapping(value = "/updateuser", method = RequestMethod.POST, produces = "application/json")
-	public ResponseEntity<RestResponse> updateUser(@RequestBody final SPUserVo spUserVo, final HttpSession session) {
+	@RequestMapping(value = "/updatecustomers/{selectedspuserid}", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> updateUser(@RequestBody final List<CustomerVO> customerVOList,
+			@PathVariable(value="selectedspuserid") Long selectedSPUserId, final HttpSession session) {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		RestResponse response = new RestResponse();
 		LoginUser loginUser =  getCurrentLoggedinUser(session);
 		if (loginUser != null) {
 			try {
-				spUserVo.setModifiedBy(loginUser.getUsername());
-				String insertedRows = serviceProviderService.updateServiceProviderUser(spUserVo, loginUser);
+				String insertedRows = serviceProviderService.updateServiceProviderCustomers(customerVOList,selectedSPUserId, loginUser);
 				response.setStatusCode(200);
 				response.setObject(insertedRows);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);

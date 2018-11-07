@@ -26,7 +26,7 @@ public interface ServiceProviderService {
 	
 	public String createServiceProviderUser(SPUserVo sPUserVo, LoginUser user) throws Exception;
 
-	public String updateServiceProviderUser(SPUserVo sPUserVo, LoginUser user) throws Exception;
+	public String updateServiceProviderCustomers(List<CustomerVO> customerVOList, Long selectedSPUserId, LoginUser user) throws Exception;
 	
 	public List<UserVO> getAllUsersWithRole(LoginUser user) throws Exception;
 

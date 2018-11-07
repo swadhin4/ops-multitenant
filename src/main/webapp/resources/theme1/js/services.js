@@ -17,10 +17,25 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
 	            getUserRoleStatusMap:getUserRoleStatusMap,
 	            retrieveAllSPRoles:retrieveAllSPRoles,
 	            retrieveAllSPCustomers:retrieveAllSPCustomers,
-	            retrieveCustomersBySelectedSP:retrieveCustomersBySelectedSP
+	            retrieveCustomersBySelectedSP:retrieveCustomersBySelectedSP,
+	            updateSPUserCustomers:updateSPUserCustomers
 	        };
 	 	
 	 	return UserService;
+	 	 // implementation
+        function updateSPUserCustomers(selectedSPUserId, customerVOList) {
+            var def = $q.defer();
+            $http.post(hostLocation+"/serviceprovidercompany/updatecustomers/"+selectedSPUserId, customerVOList )
+                .success(function(data) {
+                	//console.log(data)
+                    def.resolve(data);
+                })
+                .error(function(data) {
+                	console.log(data)
+                    def.reject(data);
+                });
+            return def.promise;
+        }
 	 	
 	 	 // implementation
 	    function getUserRoleStatusMap() {
@@ -774,11 +789,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	function getRelatedTicketData(relatedInputData, mode) {
         var def = $q.defer();
         var url=""
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        	url=hostLocation+"/site/relatedtickets/"+relatedInputData.ticketId + "/"+relatedInputData.siteId;
+        /*if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/site/relatedtickets/"+relatedInputData.ticketId + "/"+relatedInputData.siteId;
         }else{
         	url=hostLocation+"/site/relatedtickets/"+relatedInputData.ticketId + "/"+relatedInputData.siteId;
-        }
+        }*/
         
         $http.get(url)
         .success(function(data) {
@@ -795,13 +811,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	function saveFinalcialsCostItems(financialCostDetails, mode) {
         var def = $q.defer();
         var url=""
-	        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        	url=hostLocation+"/incident/updateFinancial";
+	       /* if(mode!=undefined && mode.toUpperCase()=="SP"){
 	        	url=hostLocation+"/sp/financeupdate";
-	        	//url=hostLocation+"/sp/incident/financeupdate";
 	        }else{
 	        	url=hostLocation+"/incident/updateFinancial";
-	        	//url=hostLocation+"/incident/financeupdate";
-	        }
+	        }*/
         $http.post(url,financialCostDetails)
             .success(function(data) {
                 def.resolve(data);
@@ -815,11 +830,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	function deleteFinalcialsCostItems(financialCostDetails, mode) {
         var def = $q.defer();
         var url=""
-	        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        	url=hostLocation+"/incident/deleteFinancial";
+	        /*if(mode!=undefined && mode.toUpperCase()=="SP"){
 	        	url=hostLocation+"/sp/incident/deleteFinancial";
 	        }else{
 	        	url=hostLocation+"/incident/deleteFinancial";
-	        }
+	        }*/
         $http.post(url,financialCostDetails)
             .success(function(data) {
                 def.resolve(data);
@@ -835,11 +851,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  // implementation
     function removeImage(incidentImage, mode) {
         var def = $q.defer();
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+       var  url=hostLocation+"/incident/image/remove";
+      /*  if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/incident/image/remove";
         }else{
         	url=hostLocation+"/incident/image/remove";
-        }
+        }*/
         $http.post(url, incidentImage)
             .success(function(data) {
             	//console.log(data)
@@ -855,11 +872,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	 // implementation
     function addImage(incidentImage, mode) {
         var def = $q.defer();
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        url=hostLocation+"/incident/image/upload";
+       /* if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/image/upload";
         }else{
         	url=hostLocation+"/incident/image/upload";
-        }
+        }*/
         $http.post(url, incidentImage)
             .success(function(data) {
             	//console.log(data)
@@ -875,11 +893,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  // implementation
     function listAttachedFiles(attachment, mode) {
         var def = $q.defer();
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        url=hostLocation+"/incident/attachment/info";
+        /*if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/incident/comment/save";
         }else{
         	url=hostLocation+"/incident/attachment/info";
-        }
+        }*/
         $http.post(url, attachment)
             .success(function(data) {
             	//console.log(data)
@@ -926,11 +945,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
     // implementation
     function saveComment(ticket, mode) {
         var def = $q.defer();
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        url=hostLocation+"/incident/comment/save";
+       /* if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/incident/comment/save";
         }else{
         	url=hostLocation+"/incident/comment/save";
-        }
+        }*/
         $http.post(url, ticket)
             .success(function(data) {
             	//console.log(data)
@@ -961,11 +981,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	 // implementation
     function changeLinkedTicketStatus(linkTicket, mode) {
         var def = $q.defer();
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        url=hostLocation+"/incident/linkedticket/status/"+linkTicket.detail.id+"/"+linkTicket.status
+        /*if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/linkedticket/status/"+linkTicket.detail.id+"/"+linkTicket.status
         }else{
         	url=hostLocation+"/incident/linkedticket/status/"+linkTicket.detail.id+"/"+linkTicket.status
-        }
+        }*/
         $http.get(url)
             .success(function(data) {
             	//console.log(data)
@@ -981,11 +1002,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	 // implementation
     function deleteLinkedTicket(linkTicket,mode) {
         var def = $q.defer();
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        url=hostLocation+"/incident/linkedticket/delete/"+linkTicket.id
+       /* if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/linkedticket/delete/"+linkTicket.id
         }else{
         	url=hostLocation+"/incident/linkedticket/delete/"+linkTicket.id
-        }
+        }*/
         $http.get(url)
             .success(function(data) {
             	//console.log(data)
@@ -1000,11 +1022,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	 // implementation
     function getLinkedTickets(custTicket,mode) {
         var def = $q.defer();
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        url=hostLocation+"/incident/linkedticket/list/"+custTicket
+      /*  if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/linkedticket/list/"+custTicket
         }else{
         	url=hostLocation+"/incident/linkedticket/list/"+custTicket
-        }
+        }*/
         $http.get(url)
             .success(function(data) {
             	//console.log(data)
@@ -1020,11 +1043,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  // implementation
     function linkTicket(linkedTicket, mode) {
         var def = $q.defer();
-        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        url=hostLocation+"/incident/linkedticket/"+linkedTicket.parentTicketId+"/"+linkedTicket.parentTicketNo+"/"+linkedTicket.linkedTicketNo
+       /* if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/linkedticket/"+linkedTicket.parentTicketId+"/"+linkedTicket.parentTicketNo+"/"+linkedTicket.linkedTicketNo
         }else{
         	url=hostLocation+"/incident/linkedticket/"+linkedTicket.parentTicketId+"/"+linkedTicket.parentTicketNo+"/"+linkedTicket.linkedTicketNo
-        }
+        }*/
         $http.get(url)
             .success(function(data) {
             	//console.log(data)
@@ -1056,11 +1080,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
 	    function getSelectedTicketFromSession(mode) {
 	        var def = $q.defer();
 	        var url=""
-		        if(mode!=undefined && mode.toUpperCase()=="SP"){
+	        	url=hostLocation+"/incident/session/ticket/update";
+		       /* if(mode!=undefined && mode.toUpperCase()=="SP"){
 		        	url=hostLocation+"/sp/session/ticket/update";
 		        }else{
 		        	url=hostLocation+"/incident/session/ticket/update";
-		        }
+		        }*/
 	        $http.get(url)
 	            .success(function(data) {
 	            	//console.log(data)
@@ -1077,11 +1102,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
 	    function setIncidentSelected(selectedTicket,mode) {
 	        var def = $q.defer();
 	        var url=""
-	        if(mode!=undefined && mode.toUpperCase()=="SP"){
+	        	url=hostLocation+"/incident/selected/ticket";
+	        /*if(mode!=undefined && mode.toUpperCase()=="SP"){
 	        	url=hostLocation+"/sp/selected/ticket";
 	        }else{
 	        	url=hostLocation+"/incident/selected/ticket";
-	        }
+	        }*/
 	        $http.post(url, selectedTicket)
 	            .success(function(data) {
 	            	//console.log(data)

@@ -58,6 +58,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    };
 	    
 	    $scope.addNewSPUser=function(){
+	    	$scope.user.userType="SP";
 	    	 $scope.SPUserAllCustomers = [];
 	    	userService.retrieveAllSPCustomers()
 	    	.then(function(data){
@@ -111,7 +112,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    $scope.CheckUncheckHeaderUser = function () {
             $scope.IsAllCheckedUser = true;
             for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
-                if (!$scope.SPUserCustomers[i].Selected) {
+                if (!$scope.SPUserCustomers[i].selected) {
                     $scope.IsAllCheckedUser = false;
                     break;
                 }
@@ -121,7 +122,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 
         $scope.CheckUncheckAllUser = function () {
             for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
-                $scope.SPUserCustomers[i].Selected = $scope.IsAllCheckedUser;
+                $scope.SPUserCustomers[i].selected = $scope.IsAllCheckedUser;
             }
         };
         
@@ -144,30 +145,66 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
         };
         
         $scope.updateUserMapping=function(user){
-	    	console.log("updateUserMapping",user)
+	    	console.log("updateUserMapping user---->",user)
 	    	$scope.selectedUser = angular.copy(user);
 	    	$scope.SPUserCustomersData = [];
 	    	for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
-	    		if($scope.SPUserCustomers[i].selected){
-                	console.log("2222 Inside IF",$scope.SPUserCustomers[i].customerName);
-                	
+	    		var accessId = $scope.SPUserCustomers[i].accessId;
+	    		var isDelFlagEnabled = $scope.SPUserCustomers[i].isDelFlagEnabled
+	    		if($scope.SPUserCustomers[i].selected){                	
                 	$scope.SPUserCustomersData.push({
-            			"customerName":$scope.SPUserCustomers[i].customerName,
-            			"countryName": $scope.SPUserCustomers[i].countryName
-            		});
-            		
+                		"customerId":$scope.SPUserCustomers[i].customerId,
+                		"customerCode":$scope.SPUserCustomers[i].customerCode,
+                		"customerName":$scope.SPUserCustomers[i].customerName,
+            			"countryName": $scope.SPUserCustomers[i].countryName,
+            			"accessId" : accessId,
+            			"isDelFlagEnabled": isDelFlagEnabled
+            		});            		
                 }
 	    	}
-	    	console.log("SPUserCustomersData---->",$scope.SPUserCustomersData);
+	    	console.log("updateUserMapping SPUserCustomersData---->",$scope.SPUserCustomersData);
+	    	
+	    	
+	    	userService.updateSPUserCustomers($scope.selectedUser.userId,$scope.SPUserCustomersData)
+    		.then(function(data) {
+    			console.log("updateSPUserCustomers----->",data)
+    			if(data.statusCode == 200){
+    				$('#messageWindow').show();
+    				$scope.successMessage = data.message;
+    				$('#successMessageDiv').show();
+    				$('#successMessageDiv').alert();
+    				$scope.findAllSPUsers();
+    				$('#loadingDiv').hide();
+    			}
+            },
+            function(data) {
+                console.log('Unable to change the status of the user')
+                
+            });
 	    	
         }
 	    
 	    
 	    $scope.saveNewSPUser=function(){
 	    	//$scope.user.isEnabled = $('#enabledUser').val();
-	    	console.log($scope.user);
-	    	$scope.persistSPUser($scope.user);
+	    	console.log("saveNewSPUser---->",$scope.user);
+	    	$scope.SPUserAllCustomersData = [];
+	    	for (var i = 0; i < $scope.SPUserAllCustomers.length; i++) {
+	    		if($scope.SPUserAllCustomers[i].selected){                	
+                	$scope.SPUserAllCustomersData.push({
+                		"customerId":$scope.SPUserAllCustomers[i].customerId,
+                		"customerCode":$scope.SPUserAllCustomers[i].customerCode,
+                		"customerName":$scope.SPUserAllCustomers[i].customerName,
+            			"countryName": $scope.SPUserAllCustomers[i].countryName
+            		});            		
+                }
+	    	}
+	    	console.log("SPUserCustomersData---->",$scope.SPUserAllCustomersData);
+	    	$scope.newSPUserAction($scope.user,$scope.SPUserAllCustomersData);
+	    	
+	    	
 	    };
+	    
 	    $scope.getSPUserDetail=function(user){
 	    	console.log(user)
 	    	 $scope.SPUserCustomers=[];
@@ -193,6 +230,23 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 		    			$.each(data.object,function(key,val){
 		    				 $scope.SPUserCustomers.push(val);
 		    			});
+		    			
+		    			//For header check true
+		    			//
+		    			var isAllSelected = 0
+		    			for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
+		    	    		if($scope.SPUserCustomers[i].selected){
+		    	    			isAllSelected++;
+		    	    		}
+		    			}
+		    			console.log("isAllSelected---->",isAllSelected);
+		    			console.log("length",$scope.SPUserCustomers.length);
+		    			if(isAllSelected==$scope.SPUserCustomers.length) {
+		    				$scope.IsAllCheckedUser = true;
+		    			}
+		    			//
+		    			
+		    			
 		    		}
 		    	}
 		    	
@@ -246,12 +300,13 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    							description:val.roleName,
 	    							company:val.companyName,
 	    							isEnabled:val.enabled,
-	    							phone:val.phoneNo
+	    							phone:val.phoneNo,
 	    					}
 	    					$scope.appUsers.push(userData);
-	    					$scope.getSPUserDetail($scope.appUsers[0]);
-	    					$('#loadingDiv').hide();
+	    					
 	    				});
+	    				$('#loadingDiv').hide();
+	    				$scope.getSPUserDetail($scope.appUsers[0]);
 	    				console.log($scope.appUsers)
 	    			}
 	            },
@@ -351,13 +406,16 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 		    
 		   
 		    
-		    $scope.persistSPUser=function(persitedSPUser){
+		    $scope.newSPUserAction=function(persitedSPUser,SPUserAllCustomersData){
+		    	console.log("newSPUserAction persitedSPUser----->",persitedSPUser)
+		    	console.log("newSPUserAction SPUserAllCustomersData----->",SPUserAllCustomersData)
 		    	$('#loadingDiv').show();
 		    	//var registerObj=this;
 		    	//registerObj.registerUser=function(){
+		    	persitedSPUser.customerList = SPUserAllCustomersData;
 					registrationService.registerUser(persitedSPUser)
 		    		.then(function(data) {
-		    			console.log(data)
+		    			console.log("newSPUserAction----->",data)
 		    			if(data.statusCode == 200){
 		    				$('#newUserCloseBtn').click();
 		    				$('#messageWindow').show();

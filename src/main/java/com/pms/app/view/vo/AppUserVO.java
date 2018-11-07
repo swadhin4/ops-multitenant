@@ -1,6 +1,8 @@
 package com.pms.app.view.vo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.pms.jpa.entities.Company;
 import com.pms.jpa.entities.Role;
@@ -20,7 +22,8 @@ public class AppUserVO implements Serializable{
 	private Company company;
 	private String generatedPassword;
 	private String phoneNo;
-
+	private List<CustomerVO> customerList = new ArrayList<CustomerVO>();
+	private String userType;
 	public AppUserVO() {
 		super();
 	}
@@ -78,6 +81,18 @@ public class AppUserVO implements Serializable{
 	}
 	public void setPhoneNo(String phoneNo) {
 		this.phoneNo = phoneNo;
+	}
+	public List<CustomerVO> getCustomerList() {
+		return customerList;
+	}
+	public void setCustomerList(List<CustomerVO> customerList) {
+		this.customerList = customerList;
+	}
+	public String getUserType() {
+		return userType;
+	}
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 	@Override
 	public int hashCode() {

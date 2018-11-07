@@ -227,7 +227,7 @@ background:#deefe5
 					<div class="box">
 						<div class="box-header with-border">
 							<h3 class="box-title">
-								<a href="${contextPath}/incident/details/"
+								<a href="${contextPath}/user/extsp/incident/details/"
 									title="View All Incidents"> <i class="fa fa-th-list"
 									aria-hidden="true"></i></a> Update Incident -
 								{{ticketData.ticketNumber}}
@@ -236,7 +236,7 @@ background:#deefe5
 								<input type="hidden" id="mode" value="${mode}">
 								<div class-"row">
 						<div class="col-md-4">
-						<a  href="${contextPath}/incident/details/update" data-toggle="tooltip" data-original-title="Refresh"> 
+						<a  href="${contextPath}/sp/incident/details/update" data-toggle="tooltip" data-original-title="Refresh"> 
 						 <span  style="font-size:12px;" >
 						 <i class="fa fa-refresh fa-2x" style="margin-right: 17px;" aria-hidden="true"></i>
        					 </span>
@@ -260,7 +260,7 @@ background:#deefe5
 											<li><a href="#linkedticket" data-toggle="tab">External Service provider 
 													Ticket</a>
 										<span class="label label-warning" style="position: relative;
-        top: -33px; left: 211px">{{ticketData.linkedTickets.length || 0}}</span></a>			
+        top: -33px; left: 220px">{{ticketData.linkedTickets.length || 0}}</span></a>			
 													
 													</li>
 											<li><a href="#escalate" data-toggle="tab"
@@ -279,9 +279,9 @@ background:#deefe5
 											<li><a href="#tickethistory" data-toggle="tab"
 												onclick="getTicketHistory()">Ticket History</a></li>
 											<!--  Added by Supravat for adding Related Tickets Tab-->
-											<li><a href="#relatedTickets" onclick="getRelatedTicketDetails()" data-toggle="tab">Related Tickets</a>
+											<li><a href="#relatedTickets" ng-click="getRelatedTicketDetails()" data-toggle="tab">Related Tickets</a>
 											<span class="label label-warning" style="position: relative;
-    top: -33px;left: 110px;">{{relatedTicketData.length || 0}}</span>
+    top: -33px;left: 124px;">{{relatedTicketData.length || 0}}</span>
 											</li>
 											<!--  Ended by Supravat -->
 											
@@ -435,7 +435,7 @@ background:#deefe5
 																<div class="col-md-12 reqDiv required">
 																	<label class="control-label" for="title">Ticket
 																		Title</label> <input type="text" class="form-control"
-																		placeholder="Enter ticket title" name="title"
+																		placeholder="Enter ticket title" name="title" readonly
 																		maxlength="50" ng-model="ticketData.ticketTitle"
 																		required>
 
@@ -446,7 +446,7 @@ background:#deefe5
 																	<textarea class="form-control"
 																		style="width: 100%; height: 84px;" rows="3"
 																		placeholder="Enter ticket description" name="title"
-																		ng-model="ticketData.description"></textarea>
+																		ng-model="ticketData.description" readonly></textarea>
 																</div>
 																								
 																								
@@ -467,14 +467,14 @@ background:#deefe5
      												 		<div class="col-xs-6 reqDiv required">
      												 		 <div class="row">
 															<label class="control-label">Restoration confirmed by </label> 
-															<input type="text" class="form-control"
+															<input type="text" class="form-control" readonly
 																name="closedBy" id="closedBy" val="{{ticketData.closedBy}}"
 																ng-model="ticketData.closedBy" readonly="readonly" autofocus >
 															</div>
 															 <div class="row">
 															<!-- <div class="col-xs-4 reqDiv required"> -->
 															<label class="control-label">Has issue been
-																fixed permanently ?</label> <select name="closeCodeSelect"
+																fixed permanently ?</label> <select name="closeCodeSelect" readonly
 																id="closeCodeSelect" class="form-control">
 															</select>
 															</div>
@@ -487,7 +487,7 @@ background:#deefe5
 														<div class="col-md-6 reqDiv required">
 
 															<label class="control-label">Restoration notes</label>
-															<textarea class="form-control"
+															<textarea class="form-control" readonly
 																style="width: 100%; height: 92px;" rows="3"
 																placeholder="Enter ticket close note" name="closeNote"
 																id="closeNote" ng-model="ticketData.closeNote"></textarea>
@@ -616,14 +616,15 @@ background:#deefe5
 																<div class="row">
 																<div class="col-md-12  reqDiv required">
 																	<label class="control-label">SLA</label>
-																		<div class='input-group date' id='datetimepicker2'>
-																		<!-- Remove disabled properties from below input text by Supravat for allowing SLA Due Date to update on incident update screen.-->
-																			</span><input type='text' class="form-control" autocomplete="off"
-																				ng-model="ticketData.sla" id="sla"/> 
+																		<!-- <div class='input-group date' id='datetimepicker2'>
+																		Remove disabled properties from below input text by Supravat for allowing SLA Due Date to update on incident update screen.
+																			</span>
 																				<span
 																				class="input-group-addon"> <span
 																				class="glyphicon glyphicon-calendar"></span>
-																		</div>
+																		</div> -->
+																		<input type="text" class="form-control" autocomplete="off" readonly
+																				ng-model="ticketData.sla" id="sla" disabled="disabled"/> 
 														<dl class="dl-horizontal">
 															<div class="progress">
 																<div class="progress-bar"
@@ -648,20 +649,21 @@ background:#deefe5
 														<div class="row" >
 														<div class="col-md-12  reqDiv required">
 														 	 <label class="control-label">Issue Start Time</label> <span class="badge pull-right">{{ticketData.ticketStartTime}}</span><br>
-															<label class="control-label">Ticket Category</label> <select
+															<label class="control-label">Ticket Category</label> <!-- <select
 																name="ticketCategorySelect" id="ticketCategorySelect"
-																class="form-control"
+																class="form-control" readonly
 																onchange="getSelectedCategory('ticketCategorySelect')"
-																required>
-															</select> <input type="hidden"
-																ng-model="selectedCategory.selected.categoryName">
-																	<div class="box box-widget widget-user-2" ng-if="ticketData.priorityId!=null">
+																required> -->
+															</select> <input
+																	type="text" class="form-control" name="priority"
+																	ng-model="ticketData.categoryName" required readonly>
 				            <div class="box-footer no-padding">
 				              <ul class="nav nav-stacked">
 				                <li><a href="#"><b>Priority</b> <span class=" pull-right badge bg-blue">{{ticketData.priorityDescription}}</span></a></li>
 				              </ul>
 				            </div>
 				          </div>
+				          <div class="col-md-12  reqDiv required">
 				         								 <label class="control-label">Status <a
 																		href="#" class="pull-right" data-toggle="popover"
 																		data-trigger="hover" data-html="true"
@@ -677,6 +679,7 @@ background:#deefe5
 																		ng-model="selectedTicketStatus.selected">
 				          
 																</div>
+															</div>	
 															</div>
 															<div class="row">
 															<div class="col-md-12" style="margin-top:50px;">
@@ -690,7 +693,6 @@ background:#deefe5
 															</div>	
 															
 															</form>
-											</div>
 											</div>
 											<div class="tab-pane" id="escalate">
 											<div style="display: none" id="loadingDiv2">
@@ -712,11 +714,11 @@ background:#deefe5
 											            <div class="info-box-content">
 											              <span class="info-box-text">{{escalation.escTo}}</span>
 											              <span class="info-box-number ng-binding">{{escalation.escEmail}}</span>
-											              <span class="badge"  ng-if="escalation.escStatus!='Escalated'" >
+											             <!--  <span class="badge"  ng-if="escalation.escStatus!='Escalated'" >
 											               <input
 															type="checkbox" id="chkEscalation{{$index}}"
 															ng-change="getSelectedEscalation(escalation,$index)"
-															ng-model="escalation.selected" /> Check to escalate</span>
+															ng-model="escalation.selected" /> Check to escalate</span> -->
 															 <a style="color:red" ng-if="escalation.escStatus=='Escalated'">
 																<span class="fa fa-info-circle " aria-hidden="true">{{escalation.escStatus}} to Level {{escalation.escLevelDesc}}</span>
 															</a>
@@ -728,11 +730,11 @@ background:#deefe5
 									       		 <div class="box-footer">
 									       		 	<div class="row">
 									       		 		<div class="col-md-12">
-									       		 		<button class="btn btn-xs btn-danger pull-right"
+									       		 		<!-- <button class="btn btn-xs btn-danger pull-right"
 																	type="button" data-toggle="modal"
 																	ng-click="escalateTicketConfirmation()"
 																	data-title="Escalate Ticket"
-																	data-message="Are you sure you want to escalate this ticket ?">Escalate</button>
+																	data-message="Are you sure you want to escalate this ticket ?">Escalate</button> -->
 									       		 		</div>
 									       		 	</div>
 									       		 </div>
@@ -1035,7 +1037,7 @@ background:#deefe5
 												<div class="box">
 													<div class="box-header with-border">
 														<h3 class="box-title">Cost Details</h3>
-														<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+														<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_SP_EXTERNAL')">
 														<p class="text-info">Note: Cost Name, Cost, Charge Back and Billable are required cost item(s).</p>
 														</sec:authorize>
 													</div>
@@ -1044,7 +1046,7 @@ background:#deefe5
 															<div class="row">
 																<div class="col-md-12">
 																	<div class="form-group" style="margin-bottom:50px;">
-																		<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+																		<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_SP_EXTERNAL')">
 																		<button type="button" style="float: right; margin-right: 5px;"
 																		class="btn btn-success bg-red" ng-click="deleteCostFinancialItems()" ng-disabled="isCostDeleteButton">Delete
 																		Cost Items</button>
@@ -1063,7 +1065,7 @@ background:#deefe5
 																				<th style="width: 30%;"><b>Cost (&euro;)</b></th>
 																				<th style="width: 12%;"><b>Charge Back</b></th>
 																				<th style="width: 12%;"><b>Billable</b></th>
-																				<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+																				<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF','ROLE_SP_EXTERNAL')">
 																				<th style="width: 6%;" colspan="2"></th>
 																				</sec:authorize>
 																			</tr>
@@ -1103,7 +1105,7 @@ background:#deefe5
 																						<option value="1">Yes</option>
 																						<option value="2">No</option>
 																				</select></td>
-																				<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+																				<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF','ROLE_SP_EXTERNAL')">
 																				<td ng-show="row.costId.length != 0" style="valign:middle;">
 																					<button type="button" ng-show="row.costId.length != 0"
 																								ng-click="editCostDetails($index)">
@@ -1135,7 +1137,7 @@ background:#deefe5
 															<div class="row">
 
 																<div class="col-md-12">
-																	<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+																	<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF','ROLE_SP_EXTERNAL')">
 																	<button type="submit" style="float: right; margin-right: 5px;"
 																		class="btn btn-success" ng-disabled="isCostSaveButton">Save changes</button>
 																	</sec:authorize>

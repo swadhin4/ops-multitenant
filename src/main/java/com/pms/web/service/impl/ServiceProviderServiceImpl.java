@@ -70,18 +70,17 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		spuserVO.setRoleId(sPUserVo.getRoleId());
 		serviceProviderDAOImpl.createServiceProviderUserRole(spuserVO, user);
 		spuserVO.setCustomers(sPUserVo.getCustomers());
-		serviceProviderDAOImpl.createServiceProviderUserAccess(spuserVO, user);
+		//serviceProviderDAOImpl.createServiceProviderUserAccess(spuserVO, user);
 
 		return "success";
 	}
 
 	@Override
-	public String updateServiceProviderUser(SPUserVo sPUserVo, LoginUser user) throws Exception {
-		// TODO Auto-generated method stub
+	public String updateServiceProviderCustomers(List<CustomerVO> customerList, Long selectedSPUserId, LoginUser user) throws Exception {
 		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(user.getDbName());
-		serviceProviderDAOImpl.updatetServiceProviderUser(sPUserVo);
-		serviceProviderDAOImpl.updateServiceProviderUserRole(sPUserVo, user);
-		serviceProviderDAOImpl.updateServiceProviderUserAccess(sPUserVo, user);
+		//serviceProviderDAOImpl.updatetServiceProviderUser(sPUserVo);
+	//	serviceProviderDAOImpl.updateServiceProviderUserRole(sPUserVo, user);
+		serviceProviderDAOImpl.updateServiceProviderUserAccess(customerList, selectedSPUserId, user);
 
 		return "success";
 	}

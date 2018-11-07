@@ -878,7 +878,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	}
 	
 	$scope.getTicketHistory=function(){
-		var ticketId =  $scope.ticketData.ticketNumber;
+		var ticketId =  $scope.ticketData.ticketId;
 		ticketService.getTicketHistory(ticketId)
 		.then(function(data){
 			//console.log(data);

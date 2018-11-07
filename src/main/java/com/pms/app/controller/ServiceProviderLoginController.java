@@ -131,9 +131,9 @@ public class ServiceProviderLoginController extends BaseController {
 	@RequestMapping(value = "/incident/details/view", method = RequestMethod.GET)
 	public String incidentDetailsView(final ModelMap model,
 			final HttpServletRequest request, final HttpSession session) {
-		SPLoginVO savedLoginVO=(SPLoginVO)session.getAttribute("savedsp");
-		if (savedLoginVO.getSpId()!=null) {
-			model.put("savedsp", savedLoginVO);
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.put("savedsp", loginUser);
 				model.put("mode", "EDIT");
 				return "sp.incident.view";
 		} else {

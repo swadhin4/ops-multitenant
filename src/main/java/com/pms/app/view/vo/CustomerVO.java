@@ -14,7 +14,8 @@ public class CustomerVO {
 	private String customerName;
 	private String countryName;
 	private boolean selected;
-
+	private Long accessId;
+	private boolean isDelFlagEnabled;
 	public Long getCustomerId() {
 		return customerId;
 	}
@@ -79,4 +80,31 @@ public class CustomerVO {
 		this.selected = selected;
 	}
 
+	public Long getAccessId() {
+		return accessId;
+	}
+
+	public void setAccessId(Long accessId) {
+		this.accessId = accessId;
+	}
+
+	public boolean isDelFlagEnabled() {
+		return isDelFlagEnabled;
+	}
+
+	public void setDelFlagEnabled(boolean isDelFlagEnabled) {
+		this.isDelFlagEnabled = isDelFlagEnabled;
+	}
+
+	@Override
+	public String toString() {
+		return "CustomerVO [customerId=" + customerId + ", email=" + email + ", message=" + message + ", isRegistered="
+				+ isRegistered + ", customerCode=" + customerCode + ", customerName=" + customerName + ", countryName="
+				+ countryName + ", selected=" + selected + ", accessId=" + accessId + ", isDelFlagEnabled="
+				+ isDelFlagEnabled + "]";
+	}
+
+	
+	
+	
 }

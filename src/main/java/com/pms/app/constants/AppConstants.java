@@ -278,8 +278,10 @@ public class AppConstants {
 	
 	public static final String INSERT_NEW_USER_ROLE_QUERY = "INSERT into pm_user_role(user_id, role_id)  values(?,?)";
 	
+	public static final String INSERT_SP_NEW_USER_ROLE_QUERY = "INSERT into sp_user_role(user_id, role_id)  values(?,?)";
+	
 	public static final String INSERT_SERVICEPROVIDER_USER_QUERY = "insert into sp_users (sp_id,first_name,last_name,email_id,password,sys_password,phone,enabled,created_date,created_by) "
-			+ " values(?,?,?,?,?,?,?,?,?,?)";
+			+ " values(?,?,?,?,?,'NO',?,?,NOW(),?)";
 	public static final String SERVICEPROVIDER_USERBY_USERNAME_QUERY = "select user_id,sp_id,first_name,last_name,email_id,phone,enabled,created_by,created_date,modified_by,modified_date from sp_users where email_id=?";
 	
 	public static final String SERVICEPROVIDER_USERS_QUERY = "select user_id,sp_id,first_name,last_name,email_id,phone,enabled,created_by,created_date,modified_by,modified_date from sp_users";
@@ -288,7 +290,7 @@ public class AppConstants {
 	
 	/*public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select access_id,user_id,sp_cust_id,created_on,created_by from sp_user_access where user_id=? and del_flag=0";*/
 	
-	public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select sp_cust_id,customer_code,customer_name,country_name,del_flag from vw_user_cust_mapping where user_id=?";
+	public static final String SERVICEPROVIDER_USERS_CUSTOMERS_QUERY = "select sp_cust_id,customer_code,customer_name,country_name, access_id, del_flag from vw_user_cust_mapping where user_id=?";
 	
 	public static final String SP_ALL_CUSTOMERS_QUERY = "select sp.sp_cust_id, spc.sp_cname, spc.sp_code, sp.customer_code, sp.customer_name, sp.cust_country_id, "
 			+ " c.country_code, c.country_name from sp_customers sp left join sp_country c"
@@ -297,14 +299,16 @@ public class AppConstants {
 	
 	public static final String INSERT_SERVICEPROVIDER_USER_ROLE_QUERY = "insert into sp_user_role (user_id,role_id,created_date,created_by) "
 			+ " values(?,?,?,?)";
-	public static final String INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY = "insert into sp_user_access (user_id,sp_cust_id,created_on,created_by) "
-			+ " values(?,?,?,?)";
+	public static final String INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY = "insert into sp_user_access (user_id,sp_cust_id,del_flag,created_on,created_by) "
+			+ " values(?,?,0,NOW(),?)";
 	public static final String UPDATE_SERVICEPROVIDER_USER_QUERY = "update sp_users set sp_id=?, first_name=?, last_name=?, email_id=?, user_password=?, phone=?, enabled=?, modified_date=?, modified_by=? where user_id=? ";
 	
 	public static final String UPDATE_SERVICEPROVIDER_USER_ROLE_QUERY = "update sp_user_role set role_id=?, modified_by=?, modified_date=? where user_id=? ";
 	
 	public static final String DELETE_SERVICEPROVIDER_USER_ACCESS_QUERY = "update sp_user_access set del_flag=1 where sp_cust_id=? ";
 
+
+	
 	public static final String EXT_SP_USER_TENANT="select sp_username as username, sp_email as user_email, db_name from ext_user_sp_mapping where sp_username=?";
 	
 	public static final String EXT_SP_USER_DETAIL_QUERY = "select s.sp_id, s.sp_username, s.sp_email, s.sp_name,s.access_key, s.customer_id, pc.company_name, pc.company_code"

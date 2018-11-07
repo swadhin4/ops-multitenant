@@ -10,8 +10,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.pms.app.dao.impl.SPUserDAO;
+import com.pms.app.dao.impl.ServiceProviderDAOImpl;
 import com.pms.app.dao.impl.UserDAO;
 import com.pms.app.view.vo.AppUserVO;
+import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
 import com.pms.app.view.vo.UserVO;
@@ -35,7 +38,12 @@ public class UserServiceImpl implements UserService {
 	private UserDAO getUserDAO(String dbName) {
 		return new UserDAO(dbName);
 	}
-
+	private SPUserDAO getSPUserDAO(String dbName) {
+		return new SPUserDAO(dbName);
+	}
+	private ServiceProviderDAOImpl getServiceProviderDAOImpl(String dbName) {
+		return new ServiceProviderDAOImpl(dbName);
+	}
 	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	@Override
@@ -98,14 +106,36 @@ public class UserServiceImpl implements UserService {
 		String generatedRawPassword = RandomUtils.randomAlphanumeric(8);
 		String encryptedPassword = QuickPasswordEncodingGenerator.encodePassword(generatedRawPassword);
 		appUserVO.setGeneratedPassword(encryptedPassword);
-		UserVO savedUserVO	= getUserDAO(user.getDbName()).saveNewUser(appUserVO, user);
-		if(savedUserVO.getUserId()!=null){
-			savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
-			Long roleId = getUserDAO(user.getDbName()).saveUserRole(savedUserVO);
-			if(roleId>0){
-				LOGGER.info("User created with role");
-			}else{
-				LOGGER.info("User not created with role");
+		UserVO savedUserVO = null;
+		if(user.getUserType().equalsIgnoreCase("USER")){
+			savedUserVO	= getUserDAO(user.getDbName()).saveNewUser(appUserVO, user);
+			if(savedUserVO.getUserId()!=null){
+				savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
+				Long roleId = getUserDAO(user.getDbName()).saveUserRole(savedUserVO);
+				if(roleId>0){
+					LOGGER.info("User created with role");
+				}else{
+					LOGGER.info("User not created with role");
+				}
+			}
+		}else if(user.getUserType().equalsIgnoreCase("SP")){
+			savedUserVO	= getSPUserDAO(user.getDbName()).saveNewSPUser(appUserVO, user);
+			if(savedUserVO.getUserId()!=null){
+				savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
+				Long roleId = getSPUserDAO(user.getDbName()).saveUserRole(savedUserVO);
+				if(roleId>0){
+					LOGGER.info("SP User created with role");
+				}else{
+					LOGGER.info("SP User not created with role");
+				}
+				List<CustomerVO> customerList = appUserVO.getCustomerList();
+				
+				if(!customerList.isEmpty()){
+					Integer recordsMapped = getServiceProviderDAOImpl(user.getDbName()).createServiceProviderUserAccess(customerList, user);
+					if(recordsMapped > 0 ){
+						savedUserVO.setStatus(200);
+					}
+				}
 			}
 		}
 		return savedUserVO;

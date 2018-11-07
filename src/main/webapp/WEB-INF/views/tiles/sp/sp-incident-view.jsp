@@ -147,13 +147,13 @@ $(function() {
 		<div class="row">
 			<div class="box" >
 				<div class="box-header with-border">
-					<h3 class="box-title"><a href="${contextPath}/sp/incident/details/" title="View All Incidents"><i class="fa fa-th-list" aria-hidden="true"></i></a> Incident - {{ticketData.ticketNumber}}</h3>
+					<h3 class="box-title"><a href="${contextPath}/user/extsp/incident/details/" title="View All Incidents"><i class="fa fa-th-list" aria-hidden="true"></i></a> Incident - {{ticketData.ticketNumber}}</h3>
 					<div class="box-tools pull-right" style="margin-top: 0px;">
 						<input type="hidden" id="mode" value="${mode}">
-						<a  href ng-click="openChatBox();" >
-        	<img src="${contextPath}/resources/img/chatbot.png" style="width: 12%;" 
-        	class="pull-right" data-toggle="tooltip" data-original-title="Incident work notes">
-        </a>
+					<a  href ng-click="openChatBox();" >
+			        	<img src="${contextPath}/resources/img/chatbot.png" style="width: 12%;" 
+			        	class="pull-right" data-toggle="tooltip" data-original-title="Incident work notes">
+        			</a>
 					</div>
 				</div>
 				<div class="box-body">
@@ -169,7 +169,7 @@ $(function() {
 	             <div class="tab-content" style="background-color: #eee;">
 	              <div class="active tab-pane" id="primaryinfo">
 			        <div class="row">
-		        	 <div class="col-md-12 col-sm-12">
+		        	 <div class="col-md-8 col-sm-12">
 	                  	<div class="box">
 				        <div class="box-body">
 				        <img class="img-circle img-bordered-sm" src="${contextPath}/resources/img/incident.png" alt="user image" style="    width: 6%;">  
@@ -182,6 +182,20 @@ $(function() {
 				        </div>
 				        
 				      </div>
+	                  </div>
+	                  <div class="col-md-4 col-sm-12">
+	                  <div class="box">
+	                   <div class="box-body">
+			         SLA {{ticketData.slaPercent}} %
+					 <dl class="dl-horizontal">
+			             <div class="progress">
+			                 <div class="progress-bar" 
+			                 ng-class="{'progress-bar-danger': ticketData.slaPercent >=100, 'progress-bar-warning': ticketData.slaPercent>75 && ticketData.slaPercent<100, 'progress-bar-info': ticketData.slaPercent>0 && ticketData.slaPercent<75}" 
+			                 role="progressbar" ng-style="{width: ticketData.width+'%'}"></div>
+			             </div>                                           
+			    	 </dl>
+			    	 </div>
+			    	 </div>
 	                  </div>
 	                  </div>
 	                  <div class="row">
@@ -204,7 +218,7 @@ $(function() {
 				        </div>
 				        <!-- /.box-body -->
 				        <div class="box-footer">
-				          {{ticketData.raisedOn}}
+				          {{ticketData.createdOn}}
 				        </div>
 				      </div>
 				      </div>
@@ -274,14 +288,14 @@ $(function() {
 				        </div>
 				        <!-- /.box-body -->
 				        <div class="box-footer">
-			{{ticketData.raisedBy}}
+			{{ticketData.createdBy}}
 				        </div>
 				      </div>
 				      </div>
 				      <div class="col-md-4 col-sm-4">
                   		<div class="box">
 				        <div class="box-body">
-				        <a  class="link-black text-sm"><i class="glyphicon glyphicon-time"></i> <b>Service Restoration Date</b></a>
+				        <a  class="link-black text-sm"><i class="glyphicon glyphicon-time"></i> <b>Service Restoration Date </b></a>
 				        </div>
 				        <!-- /.box-body -->
 				        <div class="box-footer">
@@ -292,7 +306,7 @@ $(function() {
 				      <div class="col-md-4 col-sm-4">
                   		<div class="box">
 				        <div class="box-body">
-				        <a  class="link-black text-sm"><i class="glyphicon glyphicon-user"></i> <b>Has issue been fixed permanently?  </b></a>
+				        <a  class="link-black text-sm"><i class="glyphicon glyphicon-user"></i> <b>Has issue been fixed permanently? </b></a>
 				        </div>
 				        <div class="box-footer">
 						{{ ticketData.codeClosed}}
@@ -309,7 +323,7 @@ $(function() {
 				        
 				         <ul class="list-inline">
 	                    <li class="pull-right">
-	                      <a href ng-click="openChatBox();" class="link-black text-sm"><i class="fa fa-comments-o margin-r-5"></i> Comments
+	                      <a href  ng-click="openChatBox();" class="link-black text-sm"><i class="fa fa-comments-o margin-r-5"></i> Comments
 	                        ({{ticketComments.length}})</a></li>
 	                  </ul>
 				        </div>
@@ -322,23 +336,8 @@ $(function() {
 				      </div>
 	
 			        <div class="row">
-			        <div class="col-md-12 col-sm-12">
-                  		<div class="box">
-				        <div class="box-body">
-			         SLA {{ticketData.slaPercent}} %
-					 <dl class="dl-horizontal">
-			             <div class="progress">
-			                 <div class="progress-bar" 
-			                 ng-class="{'progress-bar-danger': ticketData.slaPercent >=100, 'progress-bar-warning': ticketData.slaPercent>75 && ticketData.slaPercent<100, 'progress-bar-info': ticketData.slaPercent>0 && ticketData.slaPercent<75}" 
-			                 role="progressbar" ng-style="{width: ticketData.width+'%'}"></div>
-			             </div>                                           
-			    	 </dl>
-			    	 </div>
-			    	 
-			    	 <!-- External Ticket providers -->
-			    	 
+			     	 <div class="col-md-6" >
 			    	 <div class="tab-pane table-responsive" id="linkedticket">
-					<div class="form-group" >
 						<div class="box box-success">
 							<div class="box-header with-border">
 								<h3 class="box-title">Linked ticket details</h3>
@@ -380,12 +379,62 @@ $(function() {
 								
 							<!-- /.box-body -->
 						</div>
-					</div>
+						</div>
+						</div>
+						<div class="col-md-6" >
+						<div class="box box-success">
+							<div class="box-header with-border">
+								<h3 class="box-title">Financial Details</h3>
+							</div>
+							
+							<div class="box-body" >
+			    	 <div class="tab-pane" id="escalate">
+						<table id="example2"
+							class="table table-hover table-condensed">
+							<thead>
+								<tr>
+									<th><b>Cost Name</b></th>
+									<th><b>Cost (&euro;)</b></th>
+									<th><b>Charge Back</b></th>
+									<th><b>Billable</b></th>
+
+								</tr>
+							</thead>
+							<tbody ng-if="financialCostDetails.length > 0">
+								<tr ng-repeat="financialRow in financialCostDetails">
+									<td>{{financialRow.costName}}</td>
+									<td>{{financialRow.cost}}</td>
+									<td>{{financialRow.chargeBack == 1 ? "Yes" : "No"}}</td>
+									<td>{{financialRow.billable == 1 ? "Yes" : "No"}}</td>
+
+								</tr>
+
+							</tbody>
+							<tbody ng-if="financialCostDetails.length == 0">
+								<tr >
+									<td>
+										There are no financial cost available.
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						</div>
+			    	 </div>
+			    	 </div>
+			    	 </div>
 					</div>
 			    	 
 			    	 <!-- Escalation -->
 			    	 
-			    	 <div class="tab-pane" id="escalate">
+			    	 <div class="row" id="escalationDetails">
+						<div class="col-md-6" >
+						<div class="box box-success">
+							<div class="box-header with-border">
+								<h3 class="box-title">Escalation Details</h3>
+							</div>
+							
+							<div class="box-body" >
+			    		 <div class="tab-pane" id="escalate">
 						<table id="example2"
 							class="table table-hover table-condensed">
 							<thead>
@@ -425,62 +474,10 @@ $(function() {
 							</tbody>
 						</table>
 						</div>
-						
-			    	 <!-- Financials -->
-			    	 
-			    	 
-			    	 <div class="tab-pane table-responsive" id="financialDetails">
-					<div class="form-group" >
-						<div class="box box-success">
-							<div class="box-header with-border">
-								<h3 class="box-title">Financial Details</h3>
-							</div>
-							
-							<div class="box-body" >
-			    	 
-			    	 
-			    	 
-			    	 <div class="tab-pane" id="escalate">
-						<table id="example2"
-							class="table table-hover table-condensed">
-							<thead>
-								<tr>
-									<th><b>Cost Name</b></th>
-									<th><b>Cost (&euro;)</b></th>
-									<th><b>Charge Back</b></th>
-									<th><b>Billable</b></th>
-
-								</tr>
-							</thead>
-							<tbody ng-if="financialCostDetails.length > 0">
-								<tr ng-repeat="financialRow in financialCostDetails">
-									<td>{{financialRow.costName}}</td>
-									<td>{{financialRow.cost}}</td>
-									<td>{{financialRow.chargeBack == 1 ? "Yes" : "No"}}</td>
-									<td>{{financialRow.billable == 1 ? "Yes" : "No"}}</td>
-
-								</tr>
-
-							</tbody>
-							<tbody ng-if="financialCostDetails.length == 0">
-								<tr >
-									<td>
-										There are no financial cost available.
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						</div>
 			    	 </div>
 			    	 </div>
 			    	 </div>
-			    	 </div>
-			    	 
-			    	 
-			    	 <!-- Attachments -->
-			    	 
-			    	 <div class="tab-pane table-responsive" id="attachmentticket">
-					<div class="form-group" >
+					<div class="col-md-6" >
 						<div class="box box-success">
 							<div class="box-header with-border">
 								<h3 class="box-title">Attachment Details</h3>
@@ -492,14 +489,17 @@ $(function() {
 									<thead>
 										<tr ng-if="ticketData.files.length > 0">
 											<th><b>FileName</b></th>
+											<th><b>Created On</b></th>
 											<th><b>Download</b></th>
-											<th><b></b></th>
+											
 										</tr>
 									</thead>
 								 <tbody ng-repeat="file in ticketData.files">
 					<tr>
 						<td>{{file.fileName}}</td>
-						<td><a href="${contextPath}/selected/file/download?keyname={{file.filePath}}" download><i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a></td>
+						<td>{{file.createdOn}}</td>
+						<td><a href="${contextPath}/selected/file/download?keyname={{file.filePath}}" download>
+						<i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a></td>
 						<td>  </td>
 					</tr>
 				</tbody>
@@ -519,24 +519,30 @@ $(function() {
 					</div>
 					</div>
 			    	 
+			    	 
+			    	 
 			    	 <!-- Ticket History -->
 			    	 
 			    	 
-			    	 
-			    	 
-			    	 
 	              	
-	        		
+	        		<div class="tab-pane table-responsive" id="tickethistory">
+					<div class="form-group" >
+						<div class="box box-success">
+							<div class="box-header with-border">
+								<h3 class="box-title">Ticket History</h3>
+							</div>
+							
+							<div class="box-body" >
 					
 					
 					
 					
-						<div class="tab-pane table-responsive" id="tickethistory">
+						<!-- <div class="tab-pane table-responsive" id="tickethistory">
 							<div class="box">
 								<div class="box-header with-border">
 									<h3 class="box-title">Ticket History</h3>
 								</div>
-								<div class="box-body">
+								<div class="box-body"> -->
 
 									<div class="table-responsive">
 										<div class="row">
@@ -579,6 +585,11 @@ $(function() {
 
 					</div>
 				</div>
+				
+				</div>
+				
+				
+				
 	              </div>
 	              </div>
 	              </div>
@@ -587,7 +598,7 @@ $(function() {
 				</div>
 				</div>
 				
-				<div class="col-md-6" id="chatWindow" style="display:none">
+					 <div class="col-md-6" id="chatWindow" style="display:none">
           <div class="box" >
           	<div style="width:30%;position:fixed;bottom:13px;right:0px;margin:0;background-color:#dbdcdc">
             <div class="box-header with-border">
@@ -625,7 +636,7 @@ $(function() {
             <div class="box-footer">
               <div class="row">
                 <div class="col-sm-12">
-                      <input type="text" name="ticketMessage" id="ticketMessage" ng-model="ticketComment.comment"
+                      <input type="text" name="ticketMessage" id="ticketMessage" ng-model="ticketComment.comment" style="height:50px"
                       placeholder="Type Message ..." class="form-control" ng-enter="addNewComment()">
                 </div>
               </div>
@@ -634,46 +645,10 @@ $(function() {
           </div>
           
         </div>
-				
-					<!-- <div class="col-md-3" style="background-color:#E2E0DF">
-					<div class="box box-warning direct-chat direct-chat-warning">
-                <div class="box-header with-border">
-                  <h3 class="box-title">Work Notes</h3>                  
-                </div>
-                /.box-header
-                <div class="box-body">
-                  Conversations are loaded here
-                  <div class="direct-chat-messages" style="height:475px" >
-                    Message. Default to the left
-                    <div class="direct-chat-msg" ng-repeat="ticket in ticketComments">
-                      <div class="direct-chat-info clearfix">
-                        <span class="direct-chat-name pull-left">{{ticket.createdBy}}</span>
-                        <span class="direct-chat-timestamp pull-right">{{ticket.createdDate}}</span>
-                      </div>
-                                          
-                      <div class="direct-chat-text">
-                        {{ticket.comment}}
-                      </div>
-                     
-                    </div>
-
-                  </div>
-                  
-                </div>
-                <div class="box-footer">
-                    <div class="input-group">
-                      <input type="text" name="ticketMessage" id="ticketMessage" ng-model="ticketComment.comment" placeholder="Enter Comment ..." class="form-control">
-                          <span class="input-group-btn">
-                            <button type="button" class="btn btn-success btn-flat" ng-click="addNewComment()">Post</button>
-                          </span>
-                    </div>
-                </div>
-              </div>
-				</div> -->
 			</div>
 			</div>
 			</div>	
-		</section>
+		</section>	
 							
 					
 	</div>

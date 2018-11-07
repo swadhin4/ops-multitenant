@@ -116,27 +116,26 @@ public class SPUserDAO {
 		    return userVO;   
 	}
 
-	public UserVO saveNewUser(AppUserVO appUserVO, LoginUser user) {
+	public UserVO saveNewSPUser(AppUserVO appUserVO, LoginUser user) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_NEW_USER_QUERY, 
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_SERVICEPROVIDER_USER_QUERY, 
 	            Statement.RETURN_GENERATED_KEYS);
-	    	ps.setString(1, appUserVO.getFirstName());
-            ps.setString(2, appUserVO.getLastName());
-            ps.setString(3, appUserVO.getEmail());
+	        ps.setLong(1, user.getCompany().getCompanyId());
+	    	ps.setString(2, appUserVO.getFirstName());
+            ps.setString(3, appUserVO.getLastName());
             ps.setString(4, appUserVO.getEmail());
-            ps.setLong(5,  Long.parseLong(appUserVO.getPhoneNo()));
-            ps.setString(6, appUserVO.getGeneratedPassword());
-            ps.setLong(7, user.getCompany().getCompanyId());
+            ps.setString(5, appUserVO.getGeneratedPassword());
+            ps.setLong(6,  Long.parseLong(appUserVO.getPhoneNo()));
             if(appUserVO.getIsEnabled().equalsIgnoreCase("true")){
-            	 ps.setInt(8, 1);
+            	 ps.setInt(7, 1);
 			}else{
-				 ps.setInt(8, 0);
+				 ps.setInt(7, 0);
 			}
-           
+            ps.setString(8, user.getEmail());
 	        return ps;
 	      }
 	    }, key);
@@ -156,7 +155,7 @@ public class SPUserDAO {
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_NEW_USER_ROLE_QUERY, 
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_SP_NEW_USER_ROLE_QUERY, 
 	            Statement.RETURN_GENERATED_KEYS);
 	    	ps.setLong(1, savedUserVO.getUserId());
             ps.setLong(2, savedUserVO.getRoleId());

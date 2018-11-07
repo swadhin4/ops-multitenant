@@ -18,11 +18,13 @@ public interface ServiceProviderDAO {
 
 	public String createServiceProviderUserRole(SPUserVo sPUserVo, LoginUser loginUser) throws Exception;
 
-	public String createServiceProviderUserAccess(SPUserVo useraccessvo, LoginUser loginUser) throws Exception;
+	public int createServiceProviderUserAccess(List<CustomerVO> customerList, LoginUser loginUser) throws Exception;
 
 	public String updateServiceProviderUserRole(SPUserVo sPUserVo, LoginUser loginUser) throws Exception;
 
 	public String updateServiceProviderUserAccess(SPUserVo useraccessvo, LoginUser loginUser) throws Exception;
+	
+	public int[] updateServiceProviderUserAccess(List<CustomerVO> customerList,Long selectedSPUserId, LoginUser loginUser) throws Exception;
 
 	//public List<SPUserVo> getAllUsers() throws Exception;
 	
@@ -33,5 +35,6 @@ public interface ServiceProviderDAO {
 	public List<CustomerVO> getCustomersBySPID(String userId, String spCode) throws Exception;
 
 	public List<CustomerVO> getCustomersBySelectedSPUser(String spId) throws Exception;
+
 
 }
