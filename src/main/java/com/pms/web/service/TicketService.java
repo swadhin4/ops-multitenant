@@ -67,6 +67,8 @@ public interface TicketService {
 	List<Financials> findFinanceByTicketId(Long ticketId, LoginUser user) throws Exception;
 
 	List<TicketVO> getAllSPTickets(LoginUser loginUser) throws Exception;
+
+	public boolean deleteFinanceCostById(Long costId, LoginUser user) throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 

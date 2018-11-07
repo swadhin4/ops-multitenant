@@ -659,7 +659,8 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 				 $scope.ticketData.closeCode =  parseInt($("#closeCodeSelect").val());
 			 }
 			 //console.log($scope.ticketData);
-			// $scope.ticketData.sla = $('#sla').val();
+			 $scope.ticketData.sla = $('#sla').val();
+			 $scope.ticketData.mode="UPDATE";
 			 $scope.persistTicket($scope.ticketData, "UPDATE");
 			 
 		 }

@@ -693,4 +693,14 @@ public class IncidentDAO {
 				});
 		return ticketList;
 	}
+	public boolean deleteFinanceCostById(Long costId, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updatedRow = jdbcTemplate.update(AppConstants.DELETE_TICKET_FINANCE_BY_ID,new Object[]{costId});
+		if(updatedRow>0){
+			return true;
+		}else{
+			return false;
+		}
+		
+	}
 }

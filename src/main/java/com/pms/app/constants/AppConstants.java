@@ -211,7 +211,7 @@ public class AppConstants {
 
 	public static final String TICKET_COMMENTS = "select * from pm_cust_ticket_comment where ticket_id=?";
 
-	public static final String TICKET_HISTORY = "select * from pm_ct_historic_activities where ticket_number=?";
+	public static final String TICKET_HISTORY = "select * from pm_ct_historic_activities where ticket_number=? order by ts desc";
 	
 	public static final String EXT_SP_LINKED_TICKETS = "select * from pm_cust_sp_ticketmapping where cust_ticket_id=? and del_flag=0";
 	
@@ -248,6 +248,7 @@ public class AppConstants {
 	public static final String TICKET_FINANCE_SELECT_QUERY= "select * from pm_cust_ticket_financials where ticket_id=?";
 	
 	public static final String TICKET_FINANCE_BY_ID= "select * from pm_cust_ticket_financials where cost_id=?";
+	public static final String DELETE_TICKET_FINANCE_BY_ID= "delete from pm_cust_ticket_financials where cost_id=?";
 	
 	public static final String TICKET_FINANCE_INSERT_QUERY= "INSERT into pm_cust_ticket_financials "
 			+ " (ticket_id, cost_name, cost, charge_back, billable, created_by) values(?, ?,?,?, ?,?)";

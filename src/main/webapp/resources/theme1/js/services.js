@@ -829,8 +829,7 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	
  	function deleteFinalcialsCostItems(financialCostDetails, mode) {
         var def = $q.defer();
-        var url=""
-        	url=hostLocation+"/incident/deleteFinancial";
+        var url=hostLocation+"/incident/deleteFinancial";
 	        /*if(mode!=undefined && mode.toUpperCase()=="SP"){
 	        	url=hostLocation+"/sp/incident/deleteFinancial";
 	        }else{
@@ -1140,12 +1139,12 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
     // implementation
     function saveTicket(customerTicket, mode) {
         var def = $q.defer();
-        var url=""
-	        if(mode!=undefined && mode.toUpperCase()=="SP"){
+        var url=hostLocation+"/incident/create";
+	        /*if(mode!=undefined && mode.toUpperCase()=="SP"){
 	        	url=hostLocation+"/sp/incident/update";
 	        }else{
 	        	url=hostLocation+"/incident/create";
-	        }
+	        }*/
         $http.post(url,customerTicket)
             .success(function(data) {
             	//console.log(data)

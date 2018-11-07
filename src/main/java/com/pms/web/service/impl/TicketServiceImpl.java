@@ -631,4 +631,9 @@ public class TicketServiceImpl implements TicketService {
 		return savedFinanceList == null ? Collections.EMPTY_LIST:savedFinanceList;
 	}
 
+	@Override
+	public boolean deleteFinanceCostById(Long costId, LoginUser user) throws Exception {
+		return getIncidentDAO(user.getDbName()).deleteFinanceCostById(costId,user);
+	}
+
 }
