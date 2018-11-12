@@ -5,11 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -21,11 +24,18 @@ import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.app.view.vo.AppUserVO;
+import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.SLADetailsVO;
+import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
+import com.pms.jpa.entities.TicketPriority;
+import com.pms.jpa.entities.TicketPriorityEnum;
 import com.pms.jpa.entities.UserModel;
+import com.pms.web.util.QuickPasswordEncodingGenerator;
+import com.pms.web.util.RandomUtils;
 
 
 @Repository
@@ -237,5 +247,312 @@ public class SPUserDAO {
 			}
 		});
 	}
+
+	public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO,LoginUser user ) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+		jdbcTemplate.update(new PreparedStatementCreator(){
+			 @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.EXT_SP_CREATE_QUERY, 
+		            Statement.RETURN_GENERATED_KEYS);
+				ps.setString(1, serviceProviderVO.getSpUserName());
+				ps.setString(2, serviceProviderVO.getName());
+				ps.setString(3,serviceProviderVO.getCode());
+				ps.setLong(4,serviceProviderVO.getCountry().getCountryId());
+				ps.setString(5,serviceProviderVO.getAdditionalDetails());
+				ps.setString(6, serviceProviderVO.getEmail());
+				ps.setLong(7, user.getCompany().getCompanyId());
+				ps.setString(8, user.getUsername());
+				if(StringUtils.isNotBlank(serviceProviderVO.getHelpDeskNumber())){
+					ps.setLong(9,Long.parseLong(serviceProviderVO.getHelpDeskNumber()));
+				}else{
+					ps.setString(9,serviceProviderVO.getHelpDeskNumber());
+				}
+				ps.setString(10, serviceProviderVO.getHelpDeskEmail());
+				ps.setString(11, QuickPasswordEncodingGenerator.encodePassword(serviceProviderVO.getAccessKey()));
+				ps.setString(12, serviceProviderVO.getSlaDescription());
+				return ps;		
+			}
+		}, key);
+		 	LOGGER.info("Saved SP {} with id {}.", serviceProviderVO.getName(), key.getKey());
+		 	serviceProviderVO.setServiceProviderId(key.getKey().longValue());
+		 	return serviceProviderVO;
+		}
+	
+	
+	public int updateServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.EXT_SP_UPDATE_QUERY);
+		        ps.setString(1, serviceProviderVO.getName());
+				ps.setString(2,serviceProviderVO.getCode());
+				ps.setLong(3,serviceProviderVO.getCountry().getCountryId());
+				ps.setString(4,serviceProviderVO.getAdditionalDetails());
+				ps.setString(5, serviceProviderVO.getEmail());
+				ps.setLong(6, user.getCompany().getCompanyId());
+				ps.setString(7,user.getUsername());
+				ps.setString(8,serviceProviderVO.getHelpDeskNumber());
+				ps.setString(9, serviceProviderVO.getHelpDeskEmail());
+				ps.setString(10, serviceProviderVO.getSlaDescription());
+				ps.setLong(11, serviceProviderVO.getServiceProviderId());
+	            return ps;
+		        }
+		      });
+		 	LOGGER.info("Update SP status with  {}.",  serviceProviderVO.getName());
+		 	return updated;
+	}
+	
+	
+
+	
+
+	
+	public int saveEscalalationLevels(ServiceProviderVO savedSP, List<EscalationLevelVO> escalationLevelList, LoginUser loginUser) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int[] updatedRows = jdbcTemplate.batchUpdate(AppConstants.INSERT_SP_ESCALATIONS_QUERY ,
+                new BatchPreparedStatementSetter() {
+
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    	EscalationLevelVO escalation = escalationLevelList.get(i);
+                        ps.setLong(1, savedSP.getServiceProviderId());
+                        ps.setLong(2, Long.parseLong(escalation.getEscalationLevel()));
+                        ps.setString(3, escalation.getEscalationPerson());
+                        ps.setString(4, escalation.getEscalationEmail());
+                        ps.setString(5, loginUser.getUsername());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return escalationLevelList.size();
+                    }
+                });
+        return updatedRows.length;
+		
+	}
+	public int updateEscalalationLevels(ServiceProviderVO savedSP, List<EscalationLevelVO> escalationLevelList,
+			LoginUser loginUser) {
+		List<EscalationLevelVO> escListWithIds = new ArrayList<EscalationLevelVO>();
+		List<EscalationLevelVO> escListWithOutIds = new ArrayList<EscalationLevelVO>();
+		 int insertedEscList = 0;
+		for(EscalationLevelVO escObj  : escalationLevelList){
+			if(escObj.getEscId()!=null){
+				escListWithIds.add(escObj);
+			}else{
+				escListWithOutIds.add(escObj);
+			}
+		}
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.UPDATE_SP_ESCALATIONS_QUERY ,
+                new BatchPreparedStatementSetter() {
+
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    	EscalationLevelVO escalation = escListWithIds.get(i);
+                        ps.setString(1, escalation.getEscalationPerson());
+                        ps.setString(2, escalation.getEscalationEmail());
+                        ps.setLong(3, escalation.getEscId());
+                        ps.setLong(4, savedSP.getServiceProviderId());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return escListWithIds.size();
+                    }
+                });
+          if(escListWithOutIds.size()>0){
+        	  insertedEscList = saveEscalalationLevels(savedSP, escListWithOutIds, loginUser);
+        	  if(insertedEscList>0){
+        		  insertedEscList = insertedEscList + insertedRows.length;
+        	  }
+          }
+          if(escListWithIds.size() > 0){
+        	  insertedEscList = insertedEscList + insertedRows.length;
+          }
+          
+        return insertedEscList;
+	}
+	public int saveSLADetails(ServiceProviderVO savedSP, List<SLADetailsVO> slaListVOList, LoginUser loginUser) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.INSERT_SP_SLA_QUERY,
+			       new BatchPreparedStatementSetter() {
+
+	                    @Override
+	                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+	                    	SLADetailsVO slaDetail = slaListVOList.get(i);
+	                        ps.setLong(1, savedSP.getServiceProviderId());
+	                        ps.setLong(2, slaDetail.getTicketPriority().getPriorityId());
+	                        ps.setInt(3, Integer.parseInt(slaDetail.getDuration()));
+	                        ps.setString(4, slaDetail.getUnit());
+	                        ps.setString(5, loginUser.getUsername());
+	                    }
+
+	                    @Override
+	                    public int getBatchSize() {
+	                        return slaListVOList.size();
+	                    }
+	                });
+	        return insertedRows.length;
+		
+	}
+	
+	public int updateSLADetails(ServiceProviderVO savedSP, List<SLADetailsVO> slaListVOList, LoginUser loginUser) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int[] updatedRows = jdbcTemplate.batchUpdate(AppConstants.UPDATE_SP_SLA_QUERY ,
+                new BatchPreparedStatementSetter() {
+
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    	SLADetailsVO slaDetail = slaListVOList.get(i);
+                        ps.setInt(1, Integer.parseInt(slaDetail.getDuration()));
+                        ps.setString(2, slaDetail.getUnit());
+                        ps.setLong(3, slaDetail.getSlaId());
+                        ps.setLong(4, savedSP.getServiceProviderId());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return slaListVOList.size();
+                    }
+                });
+        return updatedRows.length;
+	}
+	
+	public Long getLastSPCreated() {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		Long lastSPId = jdbcTemplate.query(AppConstants.LAST_SP_ID_QUERY, new ResultSetExtractor<Long>() {
+			
+			@Override
+			public Long extractData(ResultSet rs) throws SQLException, DataAccessException {
+				Long lastSP = 0l;
+				if(rs.next()){
+					lastSP = rs.getLong("sp_id");
+				}
+				return lastSP;
+			}
+		});
+		return lastSPId;
+	}
+
+	public List<ServiceProviderVO> findSPList() {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<ServiceProviderVO> spList = jdbcTemplate.query(AppConstants.EXT_SERVICE_PROVIDER_LIST,  new ResultSetExtractor<List<ServiceProviderVO>>(){
+			List<ServiceProviderVO> spList = new ArrayList<ServiceProviderVO>();
+			@Override
+			public List<ServiceProviderVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					ServiceProviderVO spProviderVO = new ServiceProviderVO();
+					spProviderVO.setServiceProviderId(rs.getLong("sp_id"));
+					spProviderVO.setName(rs.getString("sp_name"));
+					spProviderVO.setCode(rs.getString("sp_code"));
+					spProviderVO.setAdditionalDetails("sp_desc");
+					spProviderVO.setEmail(rs.getString("sp_email"));
+					spProviderVO.setHelpDeskNumber(rs.getString("help_desk_number"));
+					spProviderVO.setHelpDeskEmail(rs.getString("help_desk_email"));
+					spProviderVO.setSlaDescription(rs.getString("sla_description"));
+					spProviderVO.getCountry().setCountryId(rs.getLong("country_id"));
+					spProviderVO.getCountry().setCountryName(rs.getString("country_name"));
+					spProviderVO.getRegion().setRegionId(rs.getLong("region_id"));
+					spProviderVO.getRegion().setRegionName(rs.getString("region_name"));
+					spProviderVO.setCompanyCode(rs.getString("company_code"));
+					spProviderVO.setCountryName(rs.getString("country_name"));
+					spList.add(spProviderVO);
+				}
+				return spList;
+			}
+		});
+		return spList;
+	}
+
+	public ServiceProviderVO findSPDetails(Long spId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		ServiceProviderVO spProviderVO= new ServiceProviderVO();
+			jdbcTemplate.query(AppConstants.EXT_SERVICE_PROVIDER_INFO, new Object[]{ spId }, 
+				new ResultSetExtractor<ServiceProviderVO>(){
+			@Override
+			public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					
+					spProviderVO.setServiceProviderId(rs.getLong("sp_id"));
+					spProviderVO.setName(rs.getString("sp_name"));
+					spProviderVO.setCode(rs.getString("sp_code"));
+					spProviderVO.setAdditionalDetails(rs.getString("sp_desc"));
+					spProviderVO.setEmail(rs.getString("sp_email"));
+					spProviderVO.setHelpDeskNumber(rs.getString("help_desk_number"));
+					spProviderVO.setHelpDeskEmail(rs.getString("help_desk_email"));
+					spProviderVO.setSlaDescription(rs.getString("sla_description"));
+					spProviderVO.setCompanyCode(rs.getString("company_code"));
+					spProviderVO.setCompanyName(rs.getString("company_name"));
+					spProviderVO.getCountry().setCountryId(rs.getLong("country_id"));
+					spProviderVO.getCountry().setCountryName(rs.getString("country_name"));
+					spProviderVO.getRegion().setRegionId(rs.getLong("region_id"));
+					spProviderVO.getRegion().setRegionName(rs.getString("region_name"));
+					
+				}
+				return spProviderVO;
+			}
+		 });
+		return spProviderVO;
+	}
+
+	public List<EscalationLevelVO> getEscalationDetails(Long spId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<EscalationLevelVO> spEscList = jdbcTemplate.query(AppConstants.EXT_SP_ESCALATIONS, new Object[] {spId}, new ResultSetExtractor<List<EscalationLevelVO>>(){
+			List<EscalationLevelVO> spEscList = new ArrayList<EscalationLevelVO>();
+			@Override
+			public List<EscalationLevelVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					EscalationLevelVO  spEscalation = new EscalationLevelVO();
+					spEscalation.setEscId(rs.getLong("esc_id"));
+					spEscalation.setEscalationEmail(rs.getString("esc_email"));
+					spEscalation.setEscalationLevel(String.valueOf(rs.getLong("esc_level")));
+					spEscalation.setEscalationPerson(rs.getString("esc_person"));
+					spEscList.add(spEscalation);
+				}
+				return spEscList;
+			}
+		});
+		return spEscList==null?Collections.emptyList():spEscList;
+	}
+	
+	public List<SLADetailsVO> getSLADetails(Long spId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<SLADetailsVO> spSLAList = jdbcTemplate.query(AppConstants.EXT_SP_PRIORITY, new Object[] {spId}, new ResultSetExtractor<List<SLADetailsVO>>(){
+			List<SLADetailsVO> spSLAList = new ArrayList<SLADetailsVO>();
+			@Override
+			public List<SLADetailsVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					SLADetailsVO  spSLa = new SLADetailsVO();
+					spSLa.setSlaId(rs.getLong("sla_id"));
+					spSLa.setDuration(String.valueOf(rs.getInt("duration")));
+					spSLa.setUnit(rs.getString("unit"));
+					TicketPriority ticketPriority = new TicketPriority();
+					ticketPriority.setPriorityId(rs.getLong("priority_id"));
+					if(ticketPriority.getPriorityId()!=null){
+						if(ticketPriority.getPriorityId().intValue() == 1){
+							ticketPriority.setDescription(TicketPriorityEnum.CRITICAL.name());
+						}
+						else if(ticketPriority.getPriorityId().intValue() == 2){
+							ticketPriority.setDescription(TicketPriorityEnum.HIGH.name());
+						}
+						else if(ticketPriority.getPriorityId().intValue() == 3){
+							ticketPriority.setDescription(TicketPriorityEnum.MEDIUM.name());
+						}
+						else if(ticketPriority.getPriorityId().intValue() == 4){
+							ticketPriority.setDescription(TicketPriorityEnum.LOW.name());
+						}
+						spSLa.setTicketPriority(ticketPriority);
+					}
+					spSLAList.add(spSLa);
+				}
+				return spSLAList;
+			}
+		});
+		return spSLAList == null?Collections.emptyList():spSLAList;
+	}
+
 	
 }

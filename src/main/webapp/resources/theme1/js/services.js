@@ -547,21 +547,20 @@ chrisApp.factory("countryService", ['$http', '$q',function ($http, $q) {
     	 return userCountry;
     }
     
-    // implementation
-    function getCountryByRegion(region) {
-    	var countryList = 	[];
-    	 var def = $q.defer();
-    	$http.get(hostLocation+"/test/api/country/"+region.regionId)
-        .success(function(data) {
-        	//console.log(data)
-            def.resolve(data);
-        })
-        .error(function(data) {
-        	console.log(data)
-            def.reject(data);
-        });
-    	 return def.promise;
-    }
+ // implementation
+	    function getCountryByRegion(region) {
+	        var def = $q.defer();
+	        $http.get(hostLocation+"/serviceprovider/country/"+region.regionId)
+	            .success(function(data) {
+	            	//console.log(data)
+	                def.resolve(data);
+	            })
+	            .error(function(data) {
+	            	console.log(data)
+	                def.reject(data);
+	            });
+	        return def.promise;
+	    }
     
  // implementation
     function retrieveUserCountry() {

@@ -89,9 +89,9 @@
     }
    
     .alert{
-        width: 100%;
-    	margin-top: -33px;
-        padding: 7px;
+      /*   width: 100%;
+ */    	margin-top: -33px;
+        padding: 0px;
             margin-bottom: 0px;
             border: 0px solid transparent !important;
     }

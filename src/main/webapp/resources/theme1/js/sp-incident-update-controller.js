@@ -120,11 +120,12 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		$scope.getIncidentSelected=function(){
 			ticketService.getSelectedTicketFromSession("sp")
 			.then(function(data){
-				//console.log(data)
+				console.log(data)
 				if(data.statusCode == 200){
 					$scope.ticketData=angular.copy(data.object);
 					$scope.setSLAWidth($scope.ticketData);
 					$scope.getTicketCategory();
+					$scope.getAttachments($scope.ticketData.ticketId);
 					$scope.getLinkedTicketDetails($scope.ticketData.ticketId);
 					$scope.getEscalationLevel();
 					$scope.changeStatusDescription($scope.ticketData.statusDescription);
@@ -178,7 +179,26 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 				//console.log(data)
 			});
 		}
-		
+		$scope.getAttachments=function(ticketId){
+			ticketService.getTicketAttachment($scope.ticketData.ticketId)
+			.then(function(data){
+				if(data.statusCode==200){
+					$scope.ticketData.files=[];
+					$.each(data.object.attachments,function(key,val){
+						var  fileInfo={
+								fileId:val.attachmentId,
+								fileName: val.attachmentPath.substring(val.attachmentPath.lastIndexOf("/")+1),
+								createdOn: val.createdDate,
+								filePath: val.attachmentPath
+						}
+						$scope.ticketData.files.push(fileInfo);
+					});
+				}
+			},function(data){
+				console.log(data);
+			})
+			
+		}
 		$scope.setSLAWidth=function(ticketData){
             if(ticketData.slaPercent > 100){
                 $scope.ticketData.width = 100;                

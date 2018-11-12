@@ -39,7 +39,6 @@ import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
-import com.pms.app.view.vo.FinancialVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
 import com.pms.app.view.vo.TicketCommentVO;
@@ -111,7 +110,7 @@ public class IncidentDAO {
 		ticketVO.setAssignedSP(rs.getString("sp_name"));
 		ticketVO.setStatus(rs.getString("status"));
 		ticketVO.setStatusDescription(rs.getString("description"));
-		
+		ticketVO.setStatusId(rs.getLong("status_id"));
 		return ticketVO;
 	}
 	public TicketPrioritySLAVO getSPSLADetails(Long serviceProviderID, Long ticketCategoryId) {

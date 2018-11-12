@@ -11,15 +11,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pms.app.dao.impl.DistrictDAO;
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
 import com.pms.app.view.vo.CustomerVO;
+import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.SLADetailsVO;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.UserVO;
+import com.pms.jpa.entities.Country;
+import com.pms.jpa.entities.Region;
 import com.pms.web.service.AssetService;
 import com.pms.web.service.ServiceProviderService;
+import com.pms.web.util.RandomUtils;
 
 @Service("serviceProviderService")
 public class ServiceProviderServiceImpl implements ServiceProviderService {
@@ -35,6 +41,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return new ServiceProviderDAOImpl(dbName);
 	}
 	
+	private DistrictDAO getDistrictDAO(String dbName){
+		return new DistrictDAO(dbName);
+		
+	}
 	
 	@Override
 	@Transactional
@@ -43,7 +53,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		logger.info("Getting Service Provider List for logged in user : " + user.getFirstName() + " " + user.getLastName());
 		List<ServiceProviderVO> serviceProviderList = assetService.findSPByCompanyIdIn(user);
 		logger.info("Exit ServiceProviderServiceImpl -- findAllServiceProvider");
-		return serviceProviderList == null ? Collections.EMPTY_LIST : serviceProviderList;
+		return serviceProviderList == null ? Collections.emptyList() : serviceProviderList;
 	}
 
 	@Override
@@ -51,7 +61,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		logger.info("Inside ServiceProviderServiceImpl -- findAllServiceProvider");
 		List<ServiceProviderVO> serviceProviderVOList = new ArrayList<ServiceProviderVO>();
 		logger.info("Exit ServiceProviderServiceImpl -- findAllServiceProvider");
-		return serviceProviderVOList == null ? Collections.EMPTY_LIST : serviceProviderVOList;
+		return serviceProviderVOList == null ? Collections.emptyList() : serviceProviderVOList;
 	}
 
 	@Override
@@ -105,6 +115,74 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 	public List<CustomerVO> getAllCustomers(LoginUser loginUser) throws Exception {
 		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getDbName());
 		return serviceProviderDAOImpl.getCustomersBySPID(String.valueOf(loginUser.getUserId()), loginUser.getCompany().getCompanyCode());
+	}
+	@Override
+	@Transactional
+	public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser loginUser) {
+		final SPUserDAO spDAO = getSPUserDAO(loginUser.getDbName());
+		ServiceProviderVO savedSP = new ServiceProviderVO();
+		if(serviceProviderVO.getServiceProviderId()==null){
+			Long lastSPId = getSPUserDAO(loginUser.getDbName()).getLastSPCreated();
+			Long newSPId =null;
+			if(lastSPId == 0){
+				newSPId = 1l;
+			}else{
+				newSPId = lastSPId + 1;
+			}
+			newSPId = lastSPId + 1;
+			serviceProviderVO.setSpUserName("SP-00"+loginUser.getCompany().getCompanyId()+newSPId);
+			final String rawPassword = RandomUtils.randomAlphanumeric(6);
+			serviceProviderVO.setAccessKey(rawPassword);
+			savedSP = spDAO.saveServiceProvider(serviceProviderVO, loginUser);
+			if(savedSP.getServiceProviderId()!=null){
+				int escalationRecored = 	spDAO.saveEscalalationLevels( savedSP, serviceProviderVO.getEscalationLevelList(), loginUser);
+				int slaRecored =	spDAO.saveSLADetails( savedSP, serviceProviderVO.getSlaListVOList(), loginUser);
+				if(escalationRecored > 0  && slaRecored > 0){
+					savedSP.setStatus(200);
+					savedSP.setOption("CREATED");
+					savedSP.setAccessKey(rawPassword);
+				}
+			}
+		}else{
+			int updated = spDAO.updateServiceProvider(serviceProviderVO, loginUser);
+			if(updated > 0 ){
+				int updatedEscalationRecords = 	spDAO.updateEscalalationLevels( serviceProviderVO, serviceProviderVO.getEscalationLevelList(), loginUser);
+				int slaUpdatedRecored =	spDAO.updateSLADetails( serviceProviderVO, serviceProviderVO.getSlaListVOList(), loginUser);
+				if(updatedEscalationRecords > 0  && slaUpdatedRecored > 0){
+					savedSP.setStatus(200);
+				}
+			}
+		}
+		return savedSP;
+	}
+	@Override
+	public List<Region> findAllRegions(LoginUser loginUser) throws Exception {
+		final DistrictDAO districtDAO = getDistrictDAO(loginUser.getDbName());
+		List<Region> regionList = districtDAO.findRegionList();
+		return regionList == null ? Collections.emptyList():regionList;
+	}
+	@Override
+	public List<Country> findCountryByRegion(Long regionId, LoginUser loginUser) throws Exception {
+		final DistrictDAO districtDAO = getDistrictDAO(loginUser.getDbName());
+		List<Country> countryList = districtDAO.findCountryByRegion(regionId);
+		return countryList == null ? Collections.emptyList():countryList;
+	}
+	@Override
+	public List<ServiceProviderVO> findSPList(LoginUser user) throws Exception {
+		logger.info("Inside ServiceProviderServiceImpl -- findSPList");
+		final SPUserDAO spDAO = getSPUserDAO(user.getDbName());
+		List<ServiceProviderVO> serviceProviderList = spDAO.findSPList();
+		logger.info("Exit ServiceProviderServiceImpl -- findSPList");
+		return serviceProviderList == null ? Collections.emptyList() : serviceProviderList;
+	}
+	@Override
+	public ServiceProviderVO findServiceProviderInfo(Long spId, LoginUser loginUser) throws Exception {
+		ServiceProviderVO serviceProvider = getSPUserDAO(loginUser.getDbName()).findSPDetails(spId);
+		List<EscalationLevelVO> escalationLevelList =getSPUserDAO(loginUser.getDbName()).getEscalationDetails(spId);
+		List<SLADetailsVO> slaListVOList = getSPUserDAO(loginUser.getDbName()).getSLADetails(spId);
+		serviceProvider.setEscalationLevelList(escalationLevelList);
+		serviceProvider.setSlaListVOList(slaListVOList);
+		return serviceProvider;
 	}
 	
 

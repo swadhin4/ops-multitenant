@@ -83,7 +83,6 @@ public class SiteDAO {
 		CreateSiteVO siteVO =  jdbcTemplate.query(AppConstants.SITE_DETAILS_QUERY, new Object[]{siteId}, new ResultSetExtractor<CreateSiteVO>() {
 			@Override
 			public CreateSiteVO extractData(ResultSet rs) throws SQLException, DataAccessException {
-				List<CreateSiteVO> siteList = new ArrayList<CreateSiteVO>();
 				CreateSiteVO siteVO = new CreateSiteVO();
 				if (rs.next()) {
 					siteVO.setSiteId(rs.getLong("site_id"));

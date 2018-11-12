@@ -3,7 +3,6 @@
  */
 package com.pms.app.controller;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -13,16 +12,24 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
+import com.pms.jpa.entities.Country;
+import com.pms.jpa.entities.Region;
+import com.pms.web.service.EmailService;
 import com.pms.web.service.ServiceProviderService;
 import com.pms.web.util.RestResponse;
 
@@ -39,6 +46,9 @@ public class ServiceProviderController extends BaseController {
 
 	@Autowired
 	private ServiceProviderService serviceProviderService;
+	
+	@Autowired
+	private EmailService emailService;
 
 	@RequestMapping(value = "/details", method = RequestMethod.GET)
 	public String userDetails(final Locale locale, final ModelMap model,
@@ -90,15 +100,15 @@ public class ServiceProviderController extends BaseController {
 		return responseEntity;
 	}
 	
-/*	@RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
+	@RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<RestResponse> createNewServiceProvider(final Locale locale, final ModelMap model,
 			@RequestBody final ServiceProviderVO serviceProviderVO, final HttpSession session) {
 		logger.info("Inside ServiceProviderController .. createNewServiceProvider");
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		LoginUser loginUser = getCurrentLoggedinUser(session);
+		ServiceProviderVO savedServiceProvider =null;
 		if(loginUser!=null){
-			ServiceProviderVO savedServiceProvider =null;
 			try {
 
 				logger.info("Create New ServiceProvider : "+ serviceProviderVO);
@@ -119,12 +129,23 @@ public class ServiceProviderController extends BaseController {
 					response.setMessage("Error occured while saving service provider ");
 					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
 			}
+			
+
 			if(response.getStatusCode()==200 && savedServiceProvider.getOption().equalsIgnoreCase("CREATED")){
-				try {
-					emailService.successSaveSPEmail(savedServiceProvider, loginUser);
-				} catch (Exception e) {
-					logger.info("Exception while sending email for service provider upon "+ savedServiceProvider.getOption(), e);
-				}
+				final ServiceProviderVO savedSP = savedServiceProvider;
+				TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+				theExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						logger.info("Email thread started : " + Thread.currentThread().getName());
+						try {
+							emailService.successSaveSPEmail(savedSP, loginUser);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
 			}
 		}
 		else {
@@ -134,7 +155,7 @@ public class ServiceProviderController extends BaseController {
 		}
 		logger.info("Exit SiteController .. createNewServiceProvider");
 		return responseEntity;
-	}*/
+	}
 
 
 
@@ -147,12 +168,12 @@ public class ServiceProviderController extends BaseController {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if(loginUser!=null){
 			try {
-				serviceProviderVOs = serviceProviderService.findAllServiceProvider(loginUser);
+				serviceProviderVOs = serviceProviderService.findSPList(loginUser);
 				if (serviceProviderVOs.isEmpty()) {
 					response.setStatusCode(404);
 					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
 				}else{
-					Collections.sort(serviceProviderVOs, ServiceProviderVO.COMPARE_BY_SPNAME);
+					//Collections.sort(serviceProviderVOs, ServiceProviderVO.COMPARE_BY_SPNAME);
 					response.setStatusCode(200);
 					response.setObject(serviceProviderVOs);
 					responseEntity = new  ResponseEntity<RestResponse>(response, HttpStatus.OK);
@@ -168,29 +189,63 @@ public class ServiceProviderController extends BaseController {
 			response.setMessage("Your current session is expired. Please login again");
 			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
 		}
-		logger.info("Inside ServiceProviderController .. listAllServiceProvider");
+		logger.info("Exit ServiceProviderController .. listAllServiceProvider");
 		return responseEntity;
 	}
 
-	/*@RequestMapping(value = "/list/by/{customerId}", method = RequestMethod.GET,produces="application/json")
-	public ResponseEntity<RestResponse> serviceProviderByCompany(@PathVariable (value="customerId") Long customerId,final HttpSession session) {
-		logger.info("Inside ServiceProviderController .. serviceProviderByCompany");
-		List<ServiceProviderVO> serviceProviderVOs = null;
+	
+
+	@RequestMapping(value = "/regions", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<List<Region>> listAllRegions(final HttpSession session) {
+		List<Region> regions = null;
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if(loginUser!=null){
+				regions = serviceProviderService.findAllRegions(loginUser);
+				if (regions.isEmpty()) {
+					return new ResponseEntity(HttpStatus.NO_CONTENT);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Exception getting region list", e);
+		}
+
+		return new ResponseEntity<List<Region>>(regions, HttpStatus.OK);
+	}
+
+
+	@RequestMapping(value = "/country/{regionId}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<List<Country>> listAllCountries(final HttpSession session,@PathVariable (value="regionId") final Long regionId ) {
+		List<Country> countryList = null;
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if(loginUser!=null){
+			countryList = serviceProviderService.findCountryByRegion(regionId, loginUser);
+			if (countryList.isEmpty()) {
+				return new ResponseEntity(HttpStatus.NO_CONTENT);
+			}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("Exception getting region list", e);
+		}
+
+		return new ResponseEntity<List<Country>>(countryList, HttpStatus.OK);
+	}
+	@RequestMapping(value = "/info/{spId}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> serviceProviderInfo(@PathVariable (value="spId") Long spId,final HttpSession session) {
+		logger.info("Inside ServiceProviderController .. serviceProviderInfo");
+		
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if(loginUser!=null){
 			try {
-				serviceProviderVOs = serviceProviderService.findServiceProviderByCustomer(customerId);
-				if (serviceProviderVOs.isEmpty()) {
-					response.setStatusCode(404);
-					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
-				}else{
-					Collections.sort(serviceProviderVOs, ServiceProviderVO.COMPARE_BY_SPNAME);
+				ServiceProviderVO serviceProviderVO = serviceProviderService.findServiceProviderInfo(spId,loginUser);
 					response.setStatusCode(200);
-					response.setObject(serviceProviderVOs);
+					response.setObject(serviceProviderVO);
 					responseEntity = new  ResponseEntity<RestResponse>(response, HttpStatus.OK);
-				}
 			} catch (Exception e) {
 				logger.info("Exception in getting service provider list", e);
 				response.setMessage("Exception while getting service provider list");
@@ -202,7 +257,7 @@ public class ServiceProviderController extends BaseController {
 			response.setMessage("Your current session is expired. Please login again");
 			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
 		}
-		logger.info("Inside ServiceProviderController .. serviceProviderByCompany");
+		logger.info("Inside ServiceProviderController .. serviceProviderInfo");
 		return responseEntity;
-	}*/
+	}
 }

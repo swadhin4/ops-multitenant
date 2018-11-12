@@ -11,6 +11,7 @@ import com.pms.app.view.vo.DistrictVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.jpa.entities.Area;
 import com.pms.jpa.entities.Cluster;
+import com.pms.jpa.entities.Region;
 import com.pms.web.service.DistrictService;
 
 
@@ -44,6 +45,10 @@ public class DistrictServiceImpl implements DistrictService{
 		List<Cluster> clusterList = 	districtDAO.findClusterByAreaId(districtId, areaId);
 		return clusterList ==null?Collections.EMPTY_LIST:clusterList;
 	}
-
+	@Override
+	public List<Region> findAllRegions(LoginUser user) throws Exception {
+		List<Region> regionList = getDistrictDAO(user.getDbName()).findRegionList();
+		return  regionList== null? Collections.EMPTY_LIST:regionList;
+	}
 
 }

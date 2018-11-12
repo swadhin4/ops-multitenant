@@ -322,7 +322,7 @@ public class EmailServiceImpl implements EmailService {
 			messageContent.append("In the future you/your helpdesk may receive emails which will provide you with incident details if damage to an asset has been logged or a service has been interrupted on your customer´s site.");
 			messageContent.append("</td></tr>");
 			messageContent.append("<tr><td align='left'><br>You will be able to enter the application under: ");
-			messageContent.append("<br><br><b>Application link</b> : http://34.209.65.191:8080/login <br>");
+			messageContent.append("<br><br><b>Application link</b> : http://52.25.66.108:8585/login <br>");
 			messageContent.append("<br>Click on 'Login' on the top right corner and click on 'External User Login' tab.");
 			messageContent.append("<br>Please sign in using your username and access key.");
 			messageContent.append("<br><br><b>Username</b> : "+ serviceProviderVO.getSpUserName() +"<br>");
@@ -449,8 +449,8 @@ public class EmailServiceImpl implements EmailService {
 	        model.put("ticketName", savedticketVO.getTicketTitle()==null?"":savedticketVO.getTicketTitle());
 	        model.put("assetImpacted", savedticketVO.getAssetName()==null?"":savedticketVO.getAssetName());
 	        model.put("ticketDescription", savedticketVO.getDescription()==null?"":savedticketVO.getDescription());
-	        model.put("username", serviceProvider.getSpUsername());
-	        model.put("secretKey", serviceProvider.getAccessKey());
+	      //  model.put("username", serviceProvider.getSpUsername());
+	       // model.put("secretKey", serviceProvider.getAccessKey());
 			
 
 			MimeBodyPart mbp1 = new MimeBodyPart();
@@ -666,10 +666,10 @@ public class EmailServiceImpl implements EmailService {
 			messageContent.append("</ul>");
 			messageContent.append("</td></tr>");
 			messageContent.append("<tr><td align='left'>");
-			messageContent.append("<br><br><b>Username</b> : "+ serviceProvider.getSpUsername() +"<br>");
+			/*messageContent.append("<br><br><b>Username</b> : "+ serviceProvider.getSpUsername() +"<br>");
 			messageContent.append("<br><br><b>Access Key</b> : "+ serviceProvider.getAccessKey() +"<br>");
-			messageContent.append("<br><br><b>Application link</b> : http://34.209.65.191:8080/login <br>");
-			messageContent.append("<br>NOTE: Select 'External User Login' tab and sign in using your username and access key.");
+			*/messageContent.append("<br><br><b>Application link</b> : http://52.25.66.108:8585/login <br>");
+			messageContent.append("<br>NOTE: Select 'External User Login' tab and sign in using your username and password.");
 			messageContent.append("</td></tr></table>");
 			messageContent.append("</table>");
 

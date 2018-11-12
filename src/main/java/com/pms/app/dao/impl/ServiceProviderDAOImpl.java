@@ -4,11 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,9 +23,7 @@ import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderUserAccessVO;
 import com.pms.app.view.vo.ServiceProviderUserRoleVO;
-import com.pms.app.view.vo.SiteLicenceVO;
 import com.pms.app.view.vo.UserVO;
-import com.pms.web.util.ApplicationUtil;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
 
 public class ServiceProviderDAOImpl implements ServiceProviderDAO {

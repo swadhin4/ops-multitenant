@@ -489,7 +489,7 @@ $(function() {
               <div class="tab-pane" id="slaDetailsTab">
 			  <div class="row">
 					<div class="box-body">
-               	<div class="col-md-8">
+               	<div class="col-md-12">
 					<div class="form-group">
 						<table class="table table-responsive table-sm"  >
 							<thead>
@@ -567,7 +567,7 @@ $(function() {
          		<div class="tab-pane" id="escalationTab">
 			  <div class="row">
 					<div class="box-body">               						
-				<div class="col-md-8">
+				<div class="col-md-12">
 				
 					<div class="form-group">
 						<table class="table table-responsive table-sm"  border="0">

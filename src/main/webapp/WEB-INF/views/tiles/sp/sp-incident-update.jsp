@@ -260,7 +260,7 @@ background:#deefe5
 											<li><a href="#linkedticket" data-toggle="tab">External Service provider 
 													Ticket</a>
 										<span class="label label-warning" style="position: relative;
-        top: -33px; left: 220px">{{ticketData.linkedTickets.length || 0}}</span></a>			
+        top: -33px; left: 217px">{{ticketData.linkedTickets.length || 0}}</span></a>			
 													
 													</li>
 											<li><a href="#escalate" data-toggle="tab"

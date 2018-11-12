@@ -308,12 +308,59 @@ public class AppConstants {
 	
 	public static final String DELETE_SERVICEPROVIDER_USER_ACCESS_QUERY = "update sp_user_access set del_flag=1 where sp_cust_id=? ";
 
-
-	
 	public static final String EXT_SP_USER_TENANT="select sp_username as username, sp_email as user_email, db_name from ext_user_sp_mapping where sp_username=?";
 	
-	public static final String EXT_SP_USER_DETAIL_QUERY = "select s.sp_id, s.sp_username, s.sp_email, s.sp_name,s.access_key, s.customer_id, pc.company_name, pc.company_code"
+	public static final String EXT_SP_USER_DETAIL_QUERY = "	select s.sp_id, s.sp_username, s.sp_email, s.sp_name,s.access_key, s.customer_id, pc.company_name, pc.company_code"
 			+ " from pm_service_provider s left outer join pm_company pc on pc.company_id=s.customer_id"
 			+ " where s.sp_username= ?";
 
+	public static final String EXT_SP_CREATE_QUERY = "insert into pm_service_provider (sp_username, sp_name,sp_code, country_id, sp_desc, sp_email,customer_id,"
+			+ "created_date, created_by,help_desk_number, help_desk_email,access_key,sla_description) values (?,?,?,?,?,?,?,NOW(),?,?,?,?,?)";
+	
+	
+	public static final String INSERT_EXT_SP_TENANAT_MAP_QUERY= "insert into ext_user_sp_mapping(sp_username,sp_email,db_name) values(?,?,?)";
+
+	public static final String REGION_LIST_QUERY = "select * from pm_region";
+
+	public static final String COUNTRY_LIST_QUERY = "select * from pm_country where region_id=?";
+	
+	public static final String INSERT_SP_ESCALATIONS_QUERY  = "insert into pm_sp_escalation_levels(sp_id, esc_level, esc_person,esc_email,created_by,created_on)"
+			+ " values(?,?,?,?,?,NOW())";
+	
+	public static final String INSERT_SP_SLA_QUERY  = "insert into pm_sp_sla(sp_id, priority_id, duration,unit,created_by,created_on)"
+			+ " values(?,?,?,?,?,NOW())";
+	
+	public static final String LAST_SP_ID_QUERY="select sp_id from pm_service_provider order by sp_id desc limit 1";
+	
+	public static final String EXT_SP_DETAILS_QUERY ="select s.sp_id, s.sp_username, s.sp_email, s.sp_name,s.access_key, s.customer_id, pc.company_name, pc.company_code"
+			+ " from pm_service_provider s left outer join pm_company pc on pc.company_id=s.customer_id"
+			+ " where s.sp_id= ?";
+	
+	public static final String EXT_SP_UPDATE_QUERY = "update pm_service_provider set sp_name = ?,sp_code=?, country_id=?, sp_desc=?, sp_email=?,customer_id=?,"
+			+ "modified_date=NOW(), modified_by=?,help_desk_number=?, help_desk_email=?,sla_description=? where sp_id=?";
+
+	
+	public static final String UPDATE_SP_ESCALATIONS_QUERY  = "update pm_sp_escalation_levels set esc_person=?,esc_email=? where esc_id=? and sp_id=?";
+
+	
+	public static final String UPDATE_SP_SLA_QUERY  = "update pm_sp_sla set duration=?,unit=? where sla_id=? and sp_id=?" ;
+	
+	
+	public static final String EXT_SERVICE_PROVIDER_LIST = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
+			+ " ps.help_desk_number, ps.help_desk_email, ps.sla_description ,ps.country_id, pc.company_name, pc.company_code, po.country_name ,"
+			+ " pr.region_id, pr.region_name from pm_service_provider ps "
+			+ " left join pm_company pc on pc.company_id=ps.customer_id "
+			+ " left join pm_country po on po.country_id=ps.country_id "
+			+ " left join pm_region pr on po.region_id=pr.region_id order by sp_name";
+	
+	public static final String EXT_SERVICE_PROVIDER_INFO = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
+			+ " ps.help_desk_number, ps.help_desk_email, ps.sla_description, ps.country_id, pc.company_name, pc.company_code, po.country_name ,"
+			+ " pr.region_id, pr.region_name from pm_service_provider ps "
+			+ " left join pm_company pc on pc.company_id=ps.customer_id "
+			+ " left join pm_country po on po.country_id=ps.country_id "
+			+ " left join pm_region pr on po.region_id=pr.region_id where sp_id = ? ";
+	
+	public static final String EXT_SP_ESCALATIONS = "select esc_id, esc_level, esc_person, esc_email from pm_sp_escalation_levels where sp_id=?";
+	
+	public static final String EXT_SP_PRIORITY = "select sla_id, priority_id, duration, unit from pm_sp_sla where sp_id=?";
 }

@@ -15,10 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.IncidentImageVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPLoginVO;
@@ -213,8 +215,6 @@ public class ServiceProviderLoginController extends BaseController {
 		}
 		return responseEntity;
 	}
-	
-	
 
 
 }

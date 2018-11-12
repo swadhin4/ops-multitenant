@@ -8,9 +8,24 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
  			getAllServiceProviders:getAllServiceProviders,
  			getServiceProviderByCustomer:getServiceProviderByCustomer,
  			validateSPLogin:validateSPLogin,
- 			getLoggedInSPUser:getLoggedInSPUser
+ 			getLoggedInSPUser:getLoggedInSPUser,
+ 			getSelectedServiceProvider:getSelectedServiceProvider
         };
  		return ServiceProviderService;
+ 		
+ 		function getSelectedServiceProvider(spId){
+		     var def = $q.defer();
+	        $http.get(hostLocation+"/serviceprovider/info/"+spId)
+	            .success(function(data) {
+	            	//console.log(data)
+	                def.resolve(data);
+	            })
+	            .error(function(data) {
+	            	console.log(data)
+	                def.reject(data);
+	            });
+	        return def.promise;
+		}
  		
  		function getLoggedInSPUser(){
 		     var def = $q.defer();
@@ -119,12 +134,10 @@ chrisApp.factory('regionService',  ['$http', '$q',function ($http, $q) {
  			findAllRegions:findAllRegions,
         };
  		return RegionService;
-		
- 		
  	// implementation
  	    function findAllRegions() {
  	        var def = $q.defer();
- 	        $http.get(hostLocation+"/test/api/regions")
+ 	        $http.get(hostLocation+"/serviceprovider/regions")
  	            .success(function(data) {
  	            	//console.log(data)
  	                def.resolve(data);

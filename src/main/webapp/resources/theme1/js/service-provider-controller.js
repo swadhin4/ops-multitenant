@@ -62,9 +62,9 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
 				if(operation == 'ADD'){
 					$("#regionSelect option[value='0']").attr('selected','selected');
 				}else{
-					$("#regionSelect option[value='"+$scope.selectedServiceProvider.country.regionId+"']").attr('selected','selected');
+					$("#regionSelect option[value='"+$scope.selectedServiceProvider.region.regionId+"']").attr('selected','selected');
 					var region={
-							regionId:$scope.selectedServiceProvider.country.regionId
+							regionId:$scope.selectedServiceProvider.region.regionId
 					}
 					$scope.getRegionCountry(region);
 				}
@@ -253,10 +253,17 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
 		}
 		
 		$scope.getSelectedServiceProvider=function(serviceProviderObj){
-			
-			
-			$scope.selectedServiceProvider = angular.copy(serviceProviderObj.sp);
-			$scope.selectedServiceProvider.isSelected=true;
+			console.log(serviceProviderObj);
+			serviceProviderService.getSelectedServiceProvider(serviceProviderObj.sp.serviceProviderId)
+			.then(function(data) {
+				console.log(data)
+    			if(data.statusCode == 200){
+    				$scope.selectedServiceProvider = angular.copy(data.object);
+    				$scope.selectedServiceProvider.isSelected=true;
+    			}
+			}, function(data) {
+                console.log('Unable to get  Service Provider details')
+            });
 		}
 		$scope.editServiceProvider=function(){
 			if($scope.serviceProvider!=undefined){

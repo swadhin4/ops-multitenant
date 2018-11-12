@@ -7,12 +7,16 @@ import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.UserVO;
+import com.pms.jpa.entities.Country;
+import com.pms.jpa.entities.Region;
 
 public interface ServiceProviderService {
 
 	/*public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser loginUser) throws Exception;
 
 	public ServiceProviderVO findServiceProvider(Long serviceProviderId) throws Exception;*/
+	
+	public List<ServiceProviderVO> findSPList(LoginUser user) throws Exception;
 
 	public List<ServiceProviderVO> findAllServiceProvider(LoginUser user) throws Exception;
 
@@ -33,4 +37,12 @@ public interface ServiceProviderService {
 	public List<CustomerVO> getCustomerForSelectedUser(LoginUser loginUser, Long spuserid) throws Exception;
 
 	List<CustomerVO> getAllCustomers(LoginUser loginUser) throws Exception;
+
+	public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser loginUser);
+
+	public List<Region> findAllRegions(LoginUser loginUser) throws Exception;
+
+	public List<Country> findCountryByRegion(Long regionId, LoginUser loginUser) throws Exception;
+
+	public ServiceProviderVO findServiceProviderInfo(Long spId, LoginUser loginUser) throws Exception;
 }

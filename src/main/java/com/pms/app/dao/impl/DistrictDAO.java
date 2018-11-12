@@ -14,6 +14,8 @@ import com.pms.app.constants.AppConstants;
 import com.pms.app.view.vo.DistrictVO;
 import com.pms.jpa.entities.Area;
 import com.pms.jpa.entities.Cluster;
+import com.pms.jpa.entities.Country;
+import com.pms.jpa.entities.Region;
 
 public class DistrictDAO {
 
@@ -72,5 +74,44 @@ public class DistrictDAO {
 			}
 		});
 		return clusterList;
+	}
+
+	public List<Region> findRegionList() {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<Region> regionList =  jdbcTemplate.query(AppConstants.REGION_LIST_QUERY, new ResultSetExtractor<List<Region>>() {
+			@Override
+			public List<Region> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<Region> regionList = new ArrayList<Region>();
+				while(rs.next()){
+					Region region = new Region();
+					region.setRegionId(rs.getLong("region_id"));
+					region.setRegionCode(rs.getString("region_code"));
+					region.setRegionName(rs.getString("region_name"));
+					regionList.add(region);
+				}
+				return regionList;
+			}
+		});
+		return regionList;
+ 
+	}
+
+	public List<Country> findCountryByRegion(Long regionId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<Country> countryList =  jdbcTemplate.query(AppConstants.COUNTRY_LIST_QUERY, new Object [] {regionId}, new ResultSetExtractor<List<Country>>() {
+			@Override
+			public List<Country> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<Country> countryList = new ArrayList<Country>();
+				while(rs.next()){
+					Country country = new Country();
+					country.setCountryId(rs.getLong("country_id"));
+					country.setCountryCode(rs.getString("country_code"));
+					country.setCountryName(rs.getString("country_name"));
+					countryList.add(country);
+				}
+				return countryList;
+			}
+		});
+		return countryList;
 	}
 }

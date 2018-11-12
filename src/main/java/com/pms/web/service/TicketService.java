@@ -45,7 +45,7 @@ public interface TicketService {
 	
 	public List<TicketVO> getRelatedTickets(Long ticketId, Long siteId, LoginUser loginUser) throws Exception;
 
-	public int changeLinkedTicketStatus(Long linkedTicket, LoginUser loginUser) throws Exception;
+	public int changeLinkedTicketStatus(Long linkedTicket,  LoginUser loginUser) throws Exception;
 
 	public int deleteLinkedTicket(Long linkedTicket, LoginUser loginUser) throws Exception;
 
