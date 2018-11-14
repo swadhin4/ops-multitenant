@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.pms.app.dao.impl.DistrictDAO;
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
+import com.pms.app.dao.impl.TenantsDAO;
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
@@ -45,7 +46,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return new DistrictDAO(dbName);
 		
 	}
-	
+	private TenantsDAO getTenantsDAO(String dbName){
+		return new TenantsDAO(dbName);
+		
+	}
 	@Override
 	@Transactional
 	public List<ServiceProviderVO> findAllServiceProvider(LoginUser user) throws Exception {
@@ -141,6 +145,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 					savedSP.setStatus(200);
 					savedSP.setOption("CREATED");
 					savedSP.setAccessKey(rawPassword);
+					boolean isExtSPCreated = insertExternalSPTenants(serviceProviderVO, loginUser.getDbName());
+					if(isExtSPCreated){
+						savedSP.setTenantMapped(true);
+					}
 				}
 			}
 		}else{
@@ -154,6 +162,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 			}
 		}
 		return savedSP;
+	}
+	private boolean insertExternalSPTenants(ServiceProviderVO serviceProviderVO, String dbName) {
+		return getTenantsDAO("tenants").insertExtSPDetails(serviceProviderVO,dbName);
 	}
 	@Override
 	public List<Region> findAllRegions(LoginUser loginUser) throws Exception {

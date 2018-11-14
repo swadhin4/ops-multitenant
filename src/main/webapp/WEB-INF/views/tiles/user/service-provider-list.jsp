@@ -166,7 +166,7 @@ $(function() {
 							                          {{val.sp.email}}
 							                        </span>
 							                  </div>
-							                   <i class="fa fa-check-circle-o fa-2x pull-right" style="    margin-top: -39px;" aria-hidden="true" ng-if="val.sp.serviceProviderId == selectedServiceProvider.serviceProviderId"></i>
+							                   <i class="fa fa-check-circle-o fa-2x pull-right" style="margin-top: -39px;" aria-hidden="true" ng-if="val.sp.serviceProviderId == selectedServiceProvider.serviceProviderId"></i>
 							                </li>
 							             
 							              </ul>

@@ -31,7 +31,7 @@ public class ServiceProviderVO implements Serializable {
 	private int status;
 	private String message;
 	private String option;
-	private List<String> tabs=new ArrayList<String>();
+	private boolean isTenantMapped;
 	private int version;
 
 	public Long getServiceProviderId() {
@@ -167,11 +167,11 @@ public class ServiceProviderVO implements Serializable {
 	public void setCountryName(String countryName) {
 		this.countryName = countryName;
 	}
-	public List<String> getTabs() {
-		return tabs;
+	public boolean isTenantMapped() {
+		return isTenantMapped;
 	}
-	public void setTabs(List<String> tabs) {
-		this.tabs = tabs;
+	public void setTenantMapped(boolean isTenantMapped) {
+		this.isTenantMapped = isTenantMapped;
 	}
 	@Override
 	public int hashCode() {

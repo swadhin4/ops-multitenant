@@ -35,7 +35,6 @@ import com.pms.jpa.entities.TicketPriority;
 import com.pms.jpa.entities.TicketPriorityEnum;
 import com.pms.jpa.entities.UserModel;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
-import com.pms.web.util.RandomUtils;
 
 
 @Repository
@@ -365,15 +364,9 @@ public class SPUserDAO {
                 });
           if(escListWithOutIds.size()>0){
         	  insertedEscList = saveEscalalationLevels(savedSP, escListWithOutIds, loginUser);
-        	  if(insertedEscList>0){
-        		  insertedEscList = insertedEscList + insertedRows.length;
-        	  }
-          }
-          if(escListWithIds.size() > 0){
-        	  insertedEscList = insertedEscList + insertedRows.length;
           }
           
-        return insertedEscList;
+        return insertedEscList+insertedRows.length;
 	}
 	public int saveSLADetails(ServiceProviderVO savedSP, List<SLADetailsVO> slaListVOList, LoginUser loginUser) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());

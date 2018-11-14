@@ -301,9 +301,9 @@ public class EmailServiceImpl implements EmailService {
 
 		// Create a message with the specified information. 
 		final MimeMessage mimeMessage = new MimeMessage(session);
-		//String toMailIds =serviceProviderVO.getHelpDeskEmail(); // Send Email to Service Provider Helpdesk email in PROD
+		String toMailIds =serviceProviderVO.getHelpDeskEmail(); // Send Email to Service Provider Helpdesk email in PROD
 		mimeMessage.setFrom(new InternetAddress("c.gruen@novazure.com"));
-		mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse("swadhin4@gmail.com" ));
+		mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toMailIds ));
 		//mimeMessage.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccMailIds ));
 		mimeMessage.setSubject("You have been registered in OPS365 Application ","utf-8");
 
@@ -449,7 +449,7 @@ public class EmailServiceImpl implements EmailService {
 	        model.put("ticketName", savedticketVO.getTicketTitle()==null?"":savedticketVO.getTicketTitle());
 	        model.put("assetImpacted", savedticketVO.getAssetName()==null?"":savedticketVO.getAssetName());
 	        model.put("ticketDescription", savedticketVO.getDescription()==null?"":savedticketVO.getDescription());
-	      //  model.put("username", serviceProvider.getSpUsername());
+	        model.put("username", serviceProvider.getSpUsername());
 	       // model.put("secretKey", serviceProvider.getAccessKey());
 			
 

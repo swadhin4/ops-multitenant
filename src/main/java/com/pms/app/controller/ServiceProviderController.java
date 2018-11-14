@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
-import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Country;
 import com.pms.jpa.entities.Region;

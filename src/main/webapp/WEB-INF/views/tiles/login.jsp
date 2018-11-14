@@ -214,14 +214,14 @@ a, a:hover, a:active {
 						Select User Type
 						</span>
 							<select type="select" name="usertype" id="usertype" class="form-control">
-								<option value="0" selected>Select User type</option>
-								<option value="1">User</option>
+								<option value="0" selected>Select login type</option>
+								<option value="1">Customer</option>
 								<option value="2">Service Provider</option>
 							</select>
 						</div>
 						
 					<button type="submit" class="btn btn-lg btn-info" ng-disabled="loginForm.$invalid">Sign in</button>	&nbsp;&nbsp;&nbsp;
-					<label><a href="${contextPath}/forgot/password/page">Forgot Password ?</a></label>
+					<%-- <label><a href="${contextPath}/forgot/password/page">Forgot Password ?</a></label> --%>
 					</div>
 					</div>
 				</form> 
