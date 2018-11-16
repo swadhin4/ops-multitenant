@@ -221,7 +221,7 @@ a, a:hover, a:active {
 						</div>
 						
 					<button type="submit" class="btn btn-lg btn-info" ng-disabled="loginForm.$invalid">Sign in</button>	&nbsp;&nbsp;&nbsp;
-					<%-- <label><a href="${contextPath}/forgot/password/page">Forgot Password ?</a></label> --%>
+					<label><a href="${contextPath}/forgot/password/page">Forgot Password ?</a></label>
 					</div>
 					</div>
 				</form> 

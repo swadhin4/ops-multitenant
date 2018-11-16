@@ -8,14 +8,21 @@ import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
 
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.jpa.entities.Tenant;
 import com.pms.web.service.TenantService;
 
+@Service("tenantService")
 public class TenantServiceImpl implements TenantService {
 
+	public TenantServiceImpl() {
+		super();
+	}
+	
+	
 	@Override
 	public List<Tenant> getAllTenants() {
 		ConnectionManager connectionManager = new ConnectionManager();

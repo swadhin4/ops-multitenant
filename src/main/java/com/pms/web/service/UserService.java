@@ -51,15 +51,18 @@ public interface UserService {
 
 	int checkUserAvailibility(String email)  throws Exception ;
 
-	RestResponse resetNewPassword(String email, String newPassword) throws Exception ;
 
-	RestResponse resetForgotPassword(String email, String newPassword) throws Exception;
+	
 
-	RestResponse updateProfile(AppUserVO appUserVO) throws Exception;
+	RestResponse updateProfile(AppUserVO appUserVO, LoginUser user) throws Exception;
 
 	List<RoleStatus> getRoleStatus(LoginUser user) throws Exception;
 
 	List<RoleStatus> getRoleStatusByRoleId(Long roleId) throws Exception;
 
 	List<Role> findAllRoles(LoginUser user) throws Exception;
+
+	RestResponse resetNewPassword(String email, String type, String newPassword) throws Exception;
+	
+	RestResponse resetForgotPassword(String email, String type, String newPassword) throws Exception;
 }

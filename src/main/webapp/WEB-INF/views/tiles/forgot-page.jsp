@@ -196,6 +196,19 @@ $(function(){
 								<input type="email" ng-model="customer.email" 
 								name="email" placeholder="Enter email here.." class="form-control" required>
 							</div>
+							<div class="col-sm-12 form-group">
+							<label><i class="fa fa-unlock-alt" aria-hidden="true"></i> User Type</label>
+								<span ng-show="loginForm.j_password.$invalid && !loginForm.j_password.$pristine"	
+								class="errorMsg pull-right"> <i
+						class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+						Select User Type
+						</span>
+							<select type="select" name="usertype" id="usertype" ng-model="customer.usertype"  class="form-control">
+								<option value="0" selected>Select login type</option>
+								<option value="1">Customer</option>
+								<option value="2">Service Provider</option>
+							</select>
+						</div>
 						</div>
 						<div class="alert alert-success alert-dismissable"
 							id="successMessageDiv" 

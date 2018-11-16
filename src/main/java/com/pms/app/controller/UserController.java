@@ -25,8 +25,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.PasswordVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
+import com.pms.jpa.entities.UserModel;
 import com.pms.web.service.ServiceProviderService;
 import com.pms.web.service.UserService;
 import com.pms.web.util.RestResponse;
@@ -105,6 +107,7 @@ public class UserController extends BaseController {
 			appUserVO.setEmail(loginUser.getUsername());
 			appUserVO.setFirstName(loginUser.getFirstName());
 			appUserVO.setLastName(loginUser.getLastName());
+			appUserVO.setPhoneNo(loginUser.getPhoneNo());
 			// appUserVO.setPhoneNo(loginUser.getPhoneNo());
 			appUserVO.setRole(loginUser.getUserRoles().get(0).getRole());
 			// Country country =
@@ -306,5 +309,73 @@ public class UserController extends BaseController {
 		} else {
 			return "redirect:/";
 		}
+	}
+	
+	@RequestMapping(value = "/passwordchange", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody RestResponse updateUserPassword(@RequestBody final PasswordVO passwordVO, final HttpSession session) {
+		logger.info("Inside UserController - updateUserPassword" );
+		RestResponse response=new RestResponse();
+		LoginUser user=getCurrentLoggedinUser(session);
+		try{
+			if(user!=null){
+				response  = userService.changePassword(passwordVO, user);
+				if(response.getStatusCode()==200){
+					response.setStatusCode(200);
+					response.setMessage("Password changed successfully.");
+					session.invalidate();
+				}else{
+					response.setStatusCode(204);
+					response.setMessage(response.getMessage());
+				}
+			}else {
+				response.setStatusCode(404);
+				response.setMessage("Your current session is expired. Please login again");
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			response.setStatusCode(500);
+			response.setMessage("Exception while changing the password");
+		}
+		logger.info("Exit UserController - updateUserPassword" );
+		return response;
+	}
+
+	
+	@RequestMapping(value = "/profile/update", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> updateProfile(@RequestBody final AppUserVO appUserVO, final HttpSession session) {
+		logger.info("Inside UserController - updateProfile" );
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response=new RestResponse();
+		LoginUser user=getCurrentLoggedinUser(session);
+		try{
+			if(user!=null){
+				response  = userService.updateProfile(appUserVO, user);
+				if(response.getStatusCode()==200){
+					response.setStatusCode(200);
+					response.setMessage(response.getMessage());
+					UserModel updatedUser = (UserModel) response.getObject();
+					user.setFirstName(updatedUser.getFirstName());
+					user.setLastName(updatedUser.getLastName());
+					user.setPhoneNo(String.valueOf(updatedUser.getPhoneNo()));
+					session.setAttribute("loginUser", user);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}else{
+					response.setStatusCode(204);
+					response.setMessage(response.getMessage());
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			response.setStatusCode(500);
+			response.setMessage("Exception while updating user profile");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+		}
+		logger.info("Exit UserController - updateProfile" );
+		return responseEntity;
 	}
 }

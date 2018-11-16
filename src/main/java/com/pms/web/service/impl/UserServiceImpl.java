@@ -6,7 +6,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +22,10 @@ import com.pms.app.view.vo.PasswordVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
+import com.pms.jpa.entities.Tenant;
 import com.pms.jpa.entities.User;
+import com.pms.jpa.entities.UserModel;
+import com.pms.web.service.TenantService;
 import com.pms.web.service.UserService;
 import com.pms.web.service.security.AuthorizedUserDetails;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
@@ -30,6 +35,7 @@ import com.pms.web.util.RestResponse;
 @Service("userService")
 public class UserServiceImpl implements UserService {
 	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
 
 	public UserServiceImpl() {
 		super();
@@ -44,8 +50,10 @@ public class UserServiceImpl implements UserService {
 	private ServiceProviderDAOImpl getServiceProviderDAOImpl(String dbName) {
 		return new ServiceProviderDAOImpl(dbName);
 	}
-	private static final Logger LOGGER = LoggerFactory.getLogger(UserServiceImpl.class);
-
+	
+	@Autowired
+	private TenantService tenantService;
+	
 	@Override
 	public User save(User user) {
 		// TODO Auto-generated method stub
@@ -150,14 +158,41 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public AuthorizedUserDetails getAuthorizedUser(Authentication springAuthentication) throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public RestResponse changePassword(PasswordVO passwordVO, LoginUser user) {
-		// TODO Auto-generated method stub
-		return null;
+		LOGGER.info("Inside UserServiceImpl ... changePassword");
+		RestResponse response = new RestResponse();
+		if(user.getUserId()!=null){
+			UserModel loggedInUser = getUserDAO(user.getDbName()).getUserDetails(user.getUsername());
+			final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+			String existingPassword = passwordVO.getOldPassword();
+			String dbPassword       = loggedInUser.getPassword();
+
+			if (passwordEncoder.matches(existingPassword, dbPassword)) {
+				LOGGER.info("Old password match existing password.");
+				String newEncodedPassword = QuickPasswordEncodingGenerator.encodePassword(passwordVO.getConfirmPassword());
+				passwordVO.setNewPassword(newEncodedPassword);
+				int updated = getUserDAO(user.getDbName()).changePassword(passwordVO, user.getUsername());
+				if(updated>0){
+					LOGGER.info("New password saved successfully.");
+					response.setStatusCode(200);
+				}else{
+					response.setStatusCode(204);
+					response.setMessage("Your new password could not be validated");
+				}
+			} else {
+				response.setStatusCode(205);
+				LOGGER.info("Old password did not match.");
+				response.setMessage("Old password is not valid");
+
+			}
+
+		}
+		LOGGER.info("Exit UserServiceImpl ... changePassword");
+		return response;
 	}
 
 	@Override
@@ -189,21 +224,103 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public RestResponse resetNewPassword(String email, String newPassword) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public RestResponse resetNewPassword(String email, String type, String newPassword) throws Exception{
+		LOGGER.info("Inside UserServiceImpl ... resetNewPassword");
+		RestResponse response = new RestResponse();
+		try{
+			Tenant tenant = tenantService.getTenantDB(email, type);
+			UserModel user = getUserDAO(tenant.getDb_name()).getUserDetails(email);
+			if(user.getUserId()!=null){
+				LOGGER.info("Reseting new password for user :"+ user.getEmailId());
+				String newEncodedPassword = QuickPasswordEncodingGenerator.encodePassword(newPassword);
+				user.setPassword(newEncodedPassword);
+				PasswordVO passwordVO = new PasswordVO();
+				passwordVO.setNewPassword(newEncodedPassword);
+				UserModel userModel = getUserDAO(tenant.getDb_name()).getUserDetails(email);
+				int updated = getUserDAO(tenant.getDb_name()).changePassword(passwordVO, email);
+				if(updated>0 && userModel.getPassword().equalsIgnoreCase(newEncodedPassword))
+					LOGGER.info("New Password reset successfully.");
+					response.setStatusCode(200);
+				}else{
+					response.setStatusCode(204);
+					response.setMessage("Your new password could not be validated");
+				}
+		}catch(Exception e){
+			response.setStatusCode(500);
+			LOGGER.error("Exception while resetting new password", e);
+		}
+
+		LOGGER.info("Exit UserServiceImpl ... resetNewPassword");
+		return response;
+	}
+	
+	@Override
+	public RestResponse resetForgotPassword(String email, String type, String newPassword) throws Exception{
+		LOGGER.info("Inside UserServiceImpl ... resetForgotPassword");
+		RestResponse response = new RestResponse();
+		try{
+			UserModel user =null;
+			Tenant tenant =null;
+			if(type.equalsIgnoreCase("1")){
+			tenant = tenantService.getTenantDB(email, "USER");
+			user = getUserDAO(tenant.getDb_name()).getUserDetails(email);
+			}
+			else if(type.equalsIgnoreCase("2")){
+				 tenant = tenantService.getTenantDB(email, "SP");
+				 user = getUserDAO(tenant.getDb_name()).getUserDetails(email);
+				}
+			if(user.getUserId()!=null){
+				LOGGER.info("Reseting new password for user :"+ user.getEmailId());
+				String newEncodedPassword = QuickPasswordEncodingGenerator.encodePassword(newPassword);
+				int update = getUserDAO(tenant.getDb_name()).updatePassword(newEncodedPassword, email);
+				if(update > 0 )
+					LOGGER.info("New Password reset successfully.");
+					response.setStatusCode(200);
+					response.setMessage(newPassword);
+				}else{
+					response.setStatusCode(204);
+					response.setMessage("Your new password could not be validated");
+				}
+		}catch(Exception e){
+			response.setStatusCode(500);
+			LOGGER.error("Exception while resetting forgot password", e);
+		}
+
+		LOGGER.info("Exit UserServiceImpl ... resetForgotPassword");
+		return response;
 	}
 
 	@Override
-	public RestResponse resetForgotPassword(String email, String newPassword) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public RestResponse updateProfile(AppUserVO appUserVO) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+	public RestResponse updateProfile(AppUserVO appUserVO, LoginUser user) throws Exception {
+		UserModel siteUser = getUserDAO(user.getDbName()).getUserDetails(user.getUsername());
+		LOGGER.info("Inside UserServiceImpl ... updateProfile");
+		RestResponse response = new RestResponse();
+		List<UserModel> userModelList = getUserDAO(user.getDbName()).checkUniquePhoneForUser(Long.parseLong(appUserVO.getPhoneNo()));
+		LOGGER.info("Checking existing user with same phone number");
+		if(userModelList.isEmpty()){
+			LOGGER.info("No other user available with same number");
+			int updated = getUserDAO(user.getDbName()).updateUserProfile(appUserVO, user);
+				if(updated>0){
+					response.setStatusCode(200);
+					response.setObject(siteUser);
+					response.setMessage("Profile updated successfully");
+				}
+		}
+		else if(userModelList.size()>0){
+			for(UserModel phoneUsers : userModelList){
+				if(phoneUsers.getEmailId().equalsIgnoreCase(siteUser.getEmailId())){
+					int updated = getUserDAO(user.getDbName()).updateUserProfile(appUserVO, user);
+					if(updated>0){
+						response.setStatusCode(200);
+						response.setObject(siteUser);
+						response.setMessage("Profile updated successfully");
+					}
+				 break;
+				}
+			}
+		}
+		LOGGER.info("Exit UserServiceImpl ... updateProfile");
+		return response;
 	}
 
 
@@ -245,5 +362,6 @@ public class UserServiceImpl implements UserService {
 		 }
 		return roleList==null?Collections.emptyList():roleList;
 	}
+
 
 }

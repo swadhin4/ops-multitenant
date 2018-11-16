@@ -20,6 +20,7 @@ public class UserModel implements Serializable {
 	private String emailId;
 	private String password;
 	private String sysPassword;
+	private Long phoneNo;
 	private int enabled;
 	private Long roleId;
 	private List<String> roleNameList = new ArrayList<String>();
@@ -138,6 +139,12 @@ public class UserModel implements Serializable {
 	}
 	public void setSpUsername(String spUsername) {
 		this.spUsername = spUsername;
+	}
+	public Long getPhoneNo() {
+		return phoneNo;
+	}
+	public void setPhoneNo(Long phoneNo) {
+		this.phoneNo = phoneNo;
 	}
 	@Override
 	public int hashCode() {

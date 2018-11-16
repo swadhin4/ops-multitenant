@@ -23,13 +23,13 @@ public class AppConstants {
 			+ " LEFT JOIN pm_asset_subcategory1 asc1 ON asc1.subcategory1_id = a.subcategory1_id "
 			+ " WHERE a.category_id = ? AND a.subcategory1_id = ?  and a.asset_id=? ";
 	
-	public static final String USER_ROLE_QUERY ="select u.user_id, u.first_name, u.last_name, u.email_id, u.password,u.enabled, "
+	public static final String USER_ROLE_QUERY ="select u.user_id, u.first_name, u.last_name, u.email_id, u.phone, u.password,u.enabled, "
 			+ " r.role_id, r.role_name, r.role_desc, u.sys_password, pc.company_id,pc.company_code, pc.company_name "
 			+ " from pm_users u inner join pm_user_role ur  INNER join pm_role r on ur.role_id=r.role_id "
 			+ " inner  join pm_company pc where u.company_id=pc.company_id and u.user_id=ur.user_id and u.email_id = ?";
 	
 	public static final String SP_USER_ROLE_QUERY ="select u.user_id, u.first_name, u.last_name, u.email_id, u.password,u.enabled, "
-			+ " r.role_id, r.role_name, r.role_desc, u.sys_password, pc.sp_cid,pc.sp_code, pc.sp_cname "
+			+ " r.role_id, r.role_name, r.role_desc, u.sys_password,u.phone, pc.sp_cid,pc.sp_code, pc.sp_cname "
 			+ " from sp_users u inner join sp_user_role ur  INNER join sp_role r on ur.role_id=r.role_id "
 			+ " inner  join sp_company pc where u.sp_id=pc.sp_cid and u.user_id=ur.user_id and u.email_id =  ?";
 	
@@ -365,4 +365,12 @@ public class AppConstants {
 	public static final String EXT_SP_ESCALATIONS = "select esc_id, esc_level, esc_person, esc_email from pm_sp_escalation_levels where sp_id=?";
 	
 	public static final String EXT_SP_PRIORITY = "select sla_id, priority_id, duration, unit from pm_sp_sla where sp_id=?";
+
+	public static final String UPDATE_USER_PASSWORD = "update pm_users set password=?, sys_password='NO' where email_id=?";
+	
+	public static final String FORGOT_USER_PASSWORD = "update pm_users set password=?, sys_password='YES' where email_id=?";
+
+	public static final String UPDATE_USER_PROFILE = "update pm_users set first_name=?, last_name=?, phone=? where email_id=?";
+
+	public static final String CHECK_UNIQUE_USER_PHONE = "select email_id, phone from pm_users where phone=?";
 }

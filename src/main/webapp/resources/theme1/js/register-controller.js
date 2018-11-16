@@ -74,7 +74,7 @@ function  ($rootScope, $scope , $filter,userService,passwordService) {
 	  }
      
 	  $scope.sendPasswordResetLink=function(customer){
-		  passwordService.resetPassword(customer.email)
+		  passwordService.resetPassword(customer.email, customer.usertype)
 		  .then(function(data){
 			  console.log(data)
 			  if(data.statusCode == 200){

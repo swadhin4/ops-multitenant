@@ -22,6 +22,7 @@ import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.PasswordVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
@@ -50,6 +51,7 @@ public class UserDAO {
                 	savedUser.setEmailId(rs.getString("email_id"));
                 	savedUser.setPassword(rs.getString("password"));
                 	savedUser.setEnabled(rs.getInt("enabled"));
+                	savedUser.setPhoneNo(rs.getLong("phone"));
                 	savedUser.setRoleId(rs.getLong("role_id"));
                 	roleList.add(rs.getString("role_name"));
                 	savedUser.setSysPassword(rs.getString("sys_password"));
@@ -224,6 +226,72 @@ public class UserDAO {
 			}
 		});
 		return roleList;
+	}
+
+	public int changePassword(PasswordVO passwordVO, String loggedInUserName) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_USER_PASSWORD);
+	            ps.setString(1, passwordVO.getNewPassword());
+	            ps.setString(2, loggedInUserName);
+	            return ps;
+		      }
+		      });
+		 	return updated;
+	}
+
+	public int updateUserProfile(AppUserVO appUserVO, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_USER_PROFILE);
+	            ps.setString(1, appUserVO.getFirstName());
+	            ps.setString(2, appUserVO.getLastName());
+	            ps.setLong(3, Long.parseLong(appUserVO.getPhoneNo()));
+	            ps.setString(4,user.getUsername());
+	            return ps;
+		      }
+		      });
+		 	return updated;
+	}
+
+	public List<UserModel> checkUniquePhoneForUser(Long phoneNo) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<UserModel> userList = jdbcTemplate.query(AppConstants.CHECK_UNIQUE_USER_PHONE, new Object[] {phoneNo}, new ResultSetExtractor<List<UserModel>>(){
+			List<UserModel>  userList = new ArrayList<UserModel>();
+			@Override
+			public List<UserModel> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					UserModel  userModel = new UserModel();
+					userModel.setEmailId(rs.getString("email_id"));
+					userModel.setPhoneNo(rs.getLong("phone"));
+					userList.add(userModel);
+				}
+				return userList;
+			}
+		});
+		return userList;
+	}
+
+	public UserModel resetPassword(UserModel user) {
+		return null;
+	}
+
+	public int updatePassword(String newEncodedPassword, String email) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.FORGOT_USER_PASSWORD);
+	            ps.setString(1, newEncodedPassword);
+	            ps.setString(2, email);
+	            return ps;
+		      }
+		      });
+		 	return updated;
 	}
 	
 }

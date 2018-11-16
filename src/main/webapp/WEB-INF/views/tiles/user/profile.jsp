@@ -65,7 +65,7 @@
               <h3 class="profile-username text-center">{{loggedInUserDetail.firstName}} {{loggedInUserDetail.lastName}}</h3>
               
               <p class="text-muted text-center">{{loggedInUserDetail.company.companyName}}</p> 
-              <p class="text-muted text-center">{{loggedInUserDetail.role.description}}</p>           
+              <p class="text-muted text-center">{{loggedInUserDetail.role.roleName}}</p>           
 
               
             </div>
@@ -91,7 +91,7 @@
                     <label  class="col-sm-2 control-label">First Name</label>
 
                     <div class="col-sm-10">
-                      <input type="text" class="form-control" id="inputName" 
+                      <input type="text" class="form-control" id="firstName" 
                       ng-model="loggedInUserDetail.firstName" placeholder="Enter First Name" required>
                     </div>
                   </div>
@@ -99,7 +99,7 @@
                     <label for="inputName" class="col-sm-2 control-label">Last Name</label>
 
                     <div class="col-sm-10">
-                      <input type="text" class="form-control" id="inputName" 
+                      <input type="text" class="form-control" id="lastName" 
                       ng-model="loggedInUserDetail.lastName" placeholder="Enter Last Name" required>
                     </div>
                   </div>
@@ -108,14 +108,14 @@
 
                     <div class="col-sm-10">
                       <input type="text" class="form-control" ng-pattern="onlyNumbers" ng-keypress="filterValue($event)"  maxlength="11" 
-                      id="inputName" ng-model="loggedInUserDetail.phoneNo" placeholder="Enter Phone Number" required>
+                      id="phoneNo" ng-model="loggedInUserDetail.phoneNo" placeholder="Enter Phone Number" required>
                     </div>
                   </div>
                   <div class="form-group">
                     <label for="inputEmail" class="col-sm-2 control-label">Email</label>
 
                     <div class="col-sm-10">
-                      <input type="email" class="form-control" id="inputEmail" 
+                      <input type="email" class="form-control" id="email" 
                       ng-model="loggedInUserDetail.email" disabled="disabled">
                     </div>
                   </div>
@@ -126,7 +126,7 @@
 
                     <div class="col-sm-10">
                       <input type="text" class="form-control" id="inputrole" 
-                      ng-model="loggedInUserDetail.role.description" disabled="disabled">
+                      ng-model="loggedInUserDetail.role.roleName" disabled="disabled">
                     </div>
                   </div>
                   
