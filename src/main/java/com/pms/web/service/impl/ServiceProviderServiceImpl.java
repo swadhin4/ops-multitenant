@@ -21,6 +21,7 @@ import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SLADetailsVO;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderVO;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Country;
 import com.pms.jpa.entities.Region;
@@ -196,5 +197,23 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return serviceProvider;
 	}
 	
+
+	@Override
+	public List<CustomerVO> getCustomerCountryForloggedInUser(LoginUser loginUser, Long spuserid) throws Exception {
+		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getDbName());
+		return serviceProviderDAOImpl.getCustomerCountryForloggedInUser(spuserid);
+	}
+
+	public List<TicketVO> getCustomerTickets(LoginUser loginUser, String custcode) throws Exception {
+		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getDbName());
+		List<String> custdtls = serviceProviderDAOImpl.getCustomerDBServiceProviderCode(custcode);
+		List<TicketVO> tickets = null;
+		if (custdtls != null && custdtls.size() == 2) {
+			serviceProviderDAOImpl = getServiceProviderDAOImpl(custdtls.get(0));
+			tickets = serviceProviderDAOImpl.getCustomerTicketsByCustomercode(custdtls.get(1));
+		}
+
+		return tickets != null ? tickets : null;
+	}
 
 }

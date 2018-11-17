@@ -7,6 +7,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.dao.DataAccessException;
@@ -23,7 +24,9 @@ import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderUserAccessVO;
 import com.pms.app.view.vo.ServiceProviderUserRoleVO;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
+import com.pms.web.util.ApplicationUtil;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
 
 public class ServiceProviderDAOImpl implements ServiceProviderDAO {
@@ -382,6 +385,78 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 					}
 				});
 		return customerVOs == null?Collections.emptyList():customerVOs;
+	}
+	@Override
+	public List<CustomerVO> getCustomerCountryForloggedInUser(Long loggedUserId) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<CustomerVO> customerVOs = jdbcTemplate.query(AppConstants.LOGGEDUSER_CUSTOMER_COUNTRY_QUERY,
+				new Object[] { loggedUserId }, new ResultSetExtractor<List<CustomerVO>>() {
+					@Override
+					public List<CustomerVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<CustomerVO> customerVOList = new ArrayList<CustomerVO>();
+						while (rs.next()) {
+							CustomerVO customerVO = new CustomerVO();
+							customerVO.setUserId(loggedUserId);
+							customerVO.setCustomerId(rs.getLong("sp_cust_id"));
+							customerVO.setCustomerCode(rs.getString("customer_code"));
+							customerVO.setCustomerName(rs.getString("customer_name"));
+							customerVO.setCountryId(rs.getLong("cust_country_id"));
+							customerVO.setCountryName(rs.getString("country_name"));
+
+							customerVOList.add(customerVO);
+						}
+						return customerVOList;
+					}
+				});
+		return customerVOs == null ? Collections.emptyList() : customerVOs;
+	}
+
+	@Override
+	public List<TicketVO> getCustomerTicketsByCustomercode(String custcode) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketVO> ticketVOs = jdbcTemplate.query(AppConstants.CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY,
+				new Object[] { custcode }, new ResultSetExtractor<List<TicketVO>>() {
+					@Override
+					public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<TicketVO> ticketVOList = new ArrayList<TicketVO>();
+						while (rs.next()) {
+							TicketVO ticketVO = new TicketVO();
+							ticketVO.setTicketId(rs.getLong("id"));
+							ticketVO.setTicketNumber(rs.getString("ticket_number"));
+							ticketVO.setTicketTitle(rs.getString("ticket_title"));
+							ticketVO.setSiteId(rs.getLong("site_id"));
+							ticketVO.setSiteName(rs.getString("site_name"));
+							ticketVO.setAssetId(rs.getLong("asset_id"));
+							 ticketVO.setAssetName(rs.getString("asset_name"));
+							ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
+							String slaDueDate = ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate"));
+							ticketVO.setSla(slaDueDate);
+							ticketVO.setAssignedTo(rs.getLong("assigned_to"));
+							 ticketVO.setAssignedSP(rs.getString("sp_name"));
+							ticketVO.setStatus(rs.getString("status_id"));
+							ticketVO.setStatusDescription(rs.getString("description"));
+
+							ticketVOList.add(ticketVO);
+						}
+						return ticketVOList;
+					}
+				});
+		return ticketVOs == null ? Collections.emptyList() : ticketVOs;
+	}
+
+	@Override
+	public List<String> getCustomerDBServiceProviderCode(String custcode) throws Exception {
+		List<String> custdtls = new ArrayList<String>();
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<Map<String, Object>> rows = jdbcTemplate
+				.queryForList(AppConstants.SERVICEPROVIDER_CUSTOMERDB_BY_CUSTOMERCODE_QUERY, new Object[] { custcode });
+		if (rows != null && !rows.isEmpty()) {
+			for (Map row : rows) {
+				custdtls.add((String) row.get("cust_db_name"));
+				custdtls.add((String) row.get("sp_code"));
+			}
+		}
+		return custdtls;
 	}
 	
 }

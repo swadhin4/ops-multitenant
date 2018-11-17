@@ -6,6 +6,7 @@ import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderUserRoleVO;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
 
 public interface ServiceProviderDAO {
@@ -23,11 +24,12 @@ public interface ServiceProviderDAO {
 	public String updateServiceProviderUserRole(SPUserVo sPUserVo, LoginUser loginUser) throws Exception;
 
 	public String updateServiceProviderUserAccess(SPUserVo useraccessvo, LoginUser loginUser) throws Exception;
-	
-	public int[] updateServiceProviderUserAccess(List<CustomerVO> customerList,Long selectedSPUserId, LoginUser loginUser) throws Exception;
 
-	//public List<SPUserVo> getAllUsers() throws Exception;
-	
+	public int[] updateServiceProviderUserAccess(List<CustomerVO> customerList, Long selectedSPUserId,
+			LoginUser loginUser) throws Exception;
+
+	// public List<SPUserVo> getAllUsers() throws Exception;
+
 	public List<UserVO> getAllSPUsers(Long companyId) throws Exception;
 
 	public ServiceProviderUserRoleVO getUserRoleByUserID(String userId) throws Exception;
@@ -36,5 +38,10 @@ public interface ServiceProviderDAO {
 
 	public List<CustomerVO> getCustomersBySelectedSPUser(String spId) throws Exception;
 
+	public List<CustomerVO> getCustomerCountryForloggedInUser(Long spuserid) throws Exception;
+
+	public List<String> getCustomerDBServiceProviderCode(String custcode) throws Exception;
+
+	public List<TicketVO> getCustomerTicketsByCustomercode(String custcode) throws Exception;
 
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.web.service.ServiceProviderService;
 import com.pms.web.util.RestResponse;
@@ -116,6 +117,45 @@ public class ServiceProviderCompanyController extends BaseController {
 				List<CustomerVO> customerList = serviceProviderService.getCustomerForSelectedUser(loginUser, spuserid);
 				response.setStatusCode(200);
 				response.setObject(customerList);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/loggedincustomers", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getCustomerAndCountryForLOggedinUser(final HttpSession session) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+
+		if (loginUser != null) {
+			try {
+				List<CustomerVO> customerList = serviceProviderService.getCustomerCountryForloggedInUser(loginUser,	loginUser.getUserId());
+				response.setStatusCode(200);
+				response.setObject(customerList);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return responseEntity;
+	}
+
+	@RequestMapping(value = "/tickets/{custcode}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getCustomerTickets(final HttpSession session,
+			@PathVariable(value = "custcode") String custcode) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		
+		if (loginUser != null) {
+			try {
+				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(loginUser,custcode);
+				response.setStatusCode(200);
+				response.setObject(ticketList);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 			} catch (Exception e) {
 				e.printStackTrace();

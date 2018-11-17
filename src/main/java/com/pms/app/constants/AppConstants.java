@@ -373,4 +373,10 @@ public class AppConstants {
 	public static final String UPDATE_USER_PROFILE = "update pm_users set first_name=?, last_name=?, phone=? where email_id=?";
 
 	public static final String CHECK_UNIQUE_USER_PHONE = "select email_id, phone from pm_users where phone=?";
+	
+	public static final String LOGGEDUSER_CUSTOMER_COUNTRY_QUERY = "select su.user_id,su.sp_cust_id,sc.customer_code,sc.customer_name,sc.cust_country_id,sco.country_name from sp_user_access su left join sp_customers sc on su.sp_cust_id =sc.sp_cust_id left join sp_country sco on sc.cust_country_id=sco.country_id where su.user_id= ?";
+
+	public static final String SERVICEPROVIDER_CUSTOMERDB_BY_CUSTOMERCODE_QUERY = "select scu.cust_db_name, sco.sp_code from sp_customers scu left join sp_company sco on scu.sp_id=sco.sp_cid where scu.customer_code=?";
+
+	public static final String CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY = "select * from pm_cust_ticket pcu left join pm_service_provider pse on pcu.assigned_to=pse.sp_id where pse.sp_code=?";
 }

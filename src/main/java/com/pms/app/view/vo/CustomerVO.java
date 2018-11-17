@@ -16,6 +16,9 @@ public class CustomerVO {
 	private boolean selected;
 	private Long accessId;
 	private boolean isDelFlagEnabled;
+	
+	private Long userId;
+	private Long countryId;
 	public Long getCustomerId() {
 		return customerId;
 	}
@@ -94,6 +97,22 @@ public class CustomerVO {
 
 	public void setDelFlagEnabled(boolean isDelFlagEnabled) {
 		this.isDelFlagEnabled = isDelFlagEnabled;
+	}
+
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getCountryId() {
+		return countryId;
+	}
+
+	public void setCountryId(Long countryId) {
+		this.countryId = countryId;
 	}
 
 	@Override
