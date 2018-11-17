@@ -195,6 +195,9 @@ $(function () {
 		        case 'user':
 		            label = 'User';
 		            break;
+		        case 'customers':
+		            label = 'Customers';
+		            break;
 		        case 'site':
 		            label = 'Site';
 		            break;
@@ -389,6 +392,13 @@ function removeLoader(){
             <i class="fa fa-users" aria-hidden="true" data-toggle="tooltip" data-placement="right"  id="user" ></i> <span>User</span>
           </a>
         </li>
+        </sec:authorize>
+        <sec:authorize access="hasAnyRole('ROLE_SP_AGENT','ROLE_SP_OPS_MANAGER')">
+	         <li>
+	          <a href="${contextPath}/serviceprovidercompany/customers" ><i class="fa fa-users" aria-hidden="true" data-toggle="tooltip" data-placement="right"  id="customers"></i>
+	             <span>Customers</span>
+	          </a>
+	        </li>
         </sec:authorize>
         <sec:authorize access="hasAnyRole('ROLE_SITE_STAFF','ROLE_MAINTENANCE_STAFF','ROLE_OPS_MANAGER')">
         <li>

@@ -49,5 +49,5 @@ public interface ServiceProviderService {
 	
 	public List<CustomerVO> getCustomerCountryForloggedInUser(LoginUser loginUser, Long spuserid) throws Exception;
 	
-	public List<TicketVO> getCustomerTickets(LoginUser loginUser, String custcode) throws Exception;
+	public List<TicketVO> getCustomerTickets(String custcode,String custDBName) throws Exception;
 }

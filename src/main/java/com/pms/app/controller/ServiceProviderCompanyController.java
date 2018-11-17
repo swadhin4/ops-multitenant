@@ -1,7 +1,9 @@
 package com.pms.app.controller;
 
 import java.util.List;
+import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,7 +34,19 @@ public class ServiceProviderCompanyController extends BaseController {
 
 	@Autowired
 	private ServiceProviderService serviceProviderService;
-
+	
+	@RequestMapping(value = "/customers", method = RequestMethod.GET)
+	public String userDetails(final Locale locale, final ModelMap model, final HttpServletRequest request,
+			final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			model.put("user", loginUser);
+			return "serviceprovider.customers";
+		} else {
+			return "redirect:/login";
+		}
+	}
+	
 	@RequestMapping(value = "/newuser", method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<RestResponse> createUser(@RequestBody final SPUserVo spUserVo, final HttpSession session) {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
@@ -125,7 +140,7 @@ public class ServiceProviderCompanyController extends BaseController {
 		return responseEntity;
 	}
 	
-	@RequestMapping(value = "/loggedincustomers", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/mappedcustomers", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> getCustomerAndCountryForLOggedinUser(final HttpSession session) {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		RestResponse response = new RestResponse();
@@ -144,16 +159,17 @@ public class ServiceProviderCompanyController extends BaseController {
 		return responseEntity;
 	}
 
-	@RequestMapping(value = "/tickets/{custcode}", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/customers/tickets/{custcode}/{custDBName}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> getCustomerTickets(final HttpSession session,
-			@PathVariable(value = "custcode") String custcode) {
+			@PathVariable(value = "custcode") String custcode,
+			@PathVariable(value = "custDBName") String custDBName) {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		RestResponse response = new RestResponse();
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		
 		if (loginUser != null) {
 			try {
-				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(loginUser,custcode);
+				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(custcode,custDBName);
 				response.setStatusCode(200);
 				response.setObject(ticketList);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);

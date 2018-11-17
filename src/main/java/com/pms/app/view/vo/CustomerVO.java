@@ -13,12 +13,23 @@ public class CustomerVO {
 	private String customerCode;
 	private String customerName;
 	private String countryName;
+	private String custDBName;
+	
+	public String getCustDBName() {
+		return custDBName;
+	}
+
+	public void setCustDBName(String custDBName) {
+		this.custDBName = custDBName;
+	}
+
 	private boolean selected;
 	private Long accessId;
 	private boolean isDelFlagEnabled;
 	
 	private Long userId;
 	private Long countryId;
+	
 	public Long getCustomerId() {
 		return customerId;
 	}

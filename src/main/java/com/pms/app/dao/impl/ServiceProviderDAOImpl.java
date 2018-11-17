@@ -402,7 +402,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 							customerVO.setCustomerName(rs.getString("customer_name"));
 							customerVO.setCountryId(rs.getLong("cust_country_id"));
 							customerVO.setCountryName(rs.getString("country_name"));
-
+							customerVO.setCustDBName(rs.getString("cust_db_name"));
 							customerVOList.add(customerVO);
 						}
 						return customerVOList;

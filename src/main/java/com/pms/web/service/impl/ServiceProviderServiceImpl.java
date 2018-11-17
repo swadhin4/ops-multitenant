@@ -204,16 +204,17 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return serviceProviderDAOImpl.getCustomerCountryForloggedInUser(spuserid);
 	}
 
-	public List<TicketVO> getCustomerTickets(LoginUser loginUser, String custcode) throws Exception {
-		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getDbName());
+	public List<TicketVO> getCustomerTickets(String custcode,String custDBName) throws Exception {
+		/*//ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getDbName());
+		List<String> custdtls = serviceProviderDAOImpl.getCustomerDBServiceProviderCode(custcode);
 		List<String> custdtls = serviceProviderDAOImpl.getCustomerDBServiceProviderCode(custcode);
 		List<TicketVO> tickets = null;
 		if (custdtls != null && custdtls.size() == 2) {
 			serviceProviderDAOImpl = getServiceProviderDAOImpl(custdtls.get(0));
 			tickets = serviceProviderDAOImpl.getCustomerTicketsByCustomercode(custdtls.get(1));
-		}
+		}*/
 
-		return tickets != null ? tickets : null;
+		return null;
 	}
 
 }

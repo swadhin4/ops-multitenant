@@ -19,8 +19,9 @@
 		 <intercept-url pattern="/forgot/**" access="permitAll"/> 
 		<!--
 		<intercept-url pattern="/register" access="permitAll"/> -->
-		<intercept-url pattern="/appdashboard" access="hasAnyRole('ROLE_ADMIN','ROLE_SITE_STAFF','ROLE_OPS_MANAGER', 'ROLE_IT_ADMIN', 'ROLE_MAINTENANCE_STAFF','ROLE_SP_ADMIN', 'ROLE_SP_EXTERNAL')"/>
+		<intercept-url pattern="/appdashboard" access="hasAnyRole('ROLE_ADMIN','ROLE_SITE_STAFF','ROLE_OPS_MANAGER', 'ROLE_IT_ADMIN', 'ROLE_MAINTENANCE_STAFF','ROLE_SP_ADMIN', 'ROLE_SP_EXTERNAL', 'ROLE_SP_AGENT', 'ROLE_SP_OPS_MANAGER')"/>
 		<intercept-url pattern="/user/details" access="hasAnyRole('ROLE_ADMIN', 'ROLE_SP_ADMIN')"/>
+		<intercept-url pattern="/serviceprovidercompany/customers" access="hasAnyRole('ROLE_SP_AGENT', 'ROLE_SP_OPS_MANAGER')"/>
 		<intercept-url pattern="/site/details" access="hasAnyRole('ROLE_SITE_STAFF','ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')"/>
 		<intercept-url pattern="/incident/details" access="hasAnyRole('ROLE_SITE_STAFF','ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')"/>
 		<intercept-url pattern="/user/extsp/incident/details" access="hasAnyRole('ROLE_SP_EXTERNAL')"/>

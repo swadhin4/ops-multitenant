@@ -18,11 +18,46 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
 	            retrieveAllSPRoles:retrieveAllSPRoles,
 	            retrieveAllSPCustomers:retrieveAllSPCustomers,
 	            retrieveCustomersBySelectedSP:retrieveCustomersBySelectedSP,
-	            updateSPUserCustomers:updateSPUserCustomers
+	            updateSPUserCustomers:updateSPUserCustomers,
+	            getSPCustomerList:getSPCustomerList,
+	            getSPCustomerTicketList: getSPCustomerTicketList
 	        };
 	 	
 	 	return UserService;
 	 	 // implementation
+	 	
+	 	//
+	 	function getSPCustomerList() {
+            var def = $q.defer();
+            $http.get(hostLocation+"/serviceprovidercompany/mappedcustomers")
+                .success(function(data) {
+                	//console.log(data)
+                    def.resolve(data);
+                })
+                .error(function(data) {
+                	console.log(data)
+                    def.reject(data);
+                });
+            return def.promise;
+        }
+	 	
+	 	
+	 	function getSPCustomerTicketList(custCode,custDBName) {
+            var def = $q.defer();
+            $http.get(hostLocation+"/serviceprovidercompany/customers/tickets/"+custCode+"/"+custDBName)
+                .success(function(data) {
+                	//console.log(data)
+                    def.resolve(data);
+                })
+                .error(function(data) {
+                	console.log(data)
+                    def.reject(data);
+                });
+            return def.promise;
+        }
+	 	
+	 	
+	 	//
         function updateSPUserCustomers(selectedSPUserId, customerVOList) {
             var def = $q.defer();
             $http.post(hostLocation+"/serviceprovidercompany/updatecustomers/"+selectedSPUserId, customerVOList )
