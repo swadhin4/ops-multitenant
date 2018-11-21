@@ -50,6 +50,8 @@ import com.pms.web.service.EmailService;
 import com.pms.web.service.TicketService;
 import com.pms.web.util.RestResponse;
 
+import io.swagger.annotations.ApiOperation;
+
 /**
  * The Class UserController.
  *

@@ -28,7 +28,7 @@ public class UserVO implements Serializable{
 	private String companyName;
 	private String createdAt;
 	private boolean isExists;
-	private Role roleSelected;
+	private Role roleSelected = new Role();
 	private Company company = new Company();
 	private String passwordGenerated;
 	private int enabled;

@@ -43,6 +43,7 @@ public class AppConstants {
 			+ " inner join pm_user_access pua on pua.site_id=ps.site_id inner join pm_users pu on pu.user_id = pua.user_id "
 			+ " left join pm_company pcomp on pcomp.company_id = pu.company_id WHERE pu.email_id = ?";
 	
+	
 	public static final String USER_DISTRICT_QUERY = "SELECT dist.district_id,dist.district_name from pm_district dist "
 			+ " INNER JOIN pm_company com ON com.country_id = dist.country_id WHERE com.company_id=?";
 	
@@ -225,7 +226,17 @@ public class AppConstants {
 			+" LEFT JOIN pm_status sts ON ct.status_id = sts.status_id "
 			+" LEFT JOIN pm_asset ast ON ct.asset_id = ast.asset_id "
 			+" LEFT JOIN pm_service_provider sp ON ct.assigned_to = sp.sp_id "
-			+" where  ct.id <> ? and ct.site_id = ?";
+			+" where  ct.id <> ? and ct.site_id = ? ";
+	
+	public static final String SP_RELATED_TICKETS_QUERY = "select ct.id, ct.ticket_number, ct.ticket_title, ct.status_id, "
+			+ " sts.`status`, ct.site_id,st.site_name,ct.sla_duedate, "
+			+ " ct.asset_id,ast.asset_name, ct.created_on, ct.assigned_to, "
+			+ " sp.sp_name FROM pm_cust_ticket ct "
+			+" LEFT JOIN pm_site st ON ct.site_id = st.site_id "
+			+" LEFT JOIN pm_status sts ON ct.status_id = sts.status_id "
+			+" LEFT JOIN pm_asset ast ON ct.asset_id = ast.asset_id "
+			+" LEFT JOIN pm_service_provider sp ON ct.assigned_to = sp.sp_id "
+			+" where  ct.id <> ? and ct.site_id = ? and ct.assigned_to = ?";
 	
 	public static final String INSERT_TICKET_MAPPING_QUERY= "INSERT INTO pm_cust_sp_ticketmapping "
 			+ " (cust_ticket_id,customer_ticket_no,spticket_no,closed_flag,closed_time,created_by,"
@@ -379,4 +390,13 @@ public class AppConstants {
 	public static final String SERVICEPROVIDER_CUSTOMERDB_BY_CUSTOMERCODE_QUERY = "select scu.cust_db_name, sco.sp_code from sp_customers scu left join sp_company sco on scu.sp_id=sco.sp_cid where scu.customer_code=?";
 
 	public static final String CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY = "select * from pm_cust_ticket pcu left join pm_service_provider pse on pcu.assigned_to=pse.sp_id where pse.sp_code=?";
+
+	public static final String USER_LIST_FOR_SITE_NOACCESS_QUERY = "select pu.user_id,pu.first_name,pu.last_name,pu.email_id,pr.role_id,pr.role_name,pr.role_desc from pm_users pu "
+			+ "	left join pm_user_role pur on pur.user_id = pu.user_id 	left join pm_role pr on pr.role_id = pur.role_id"
+			+ " where pu.user_id not in (select user_id from pm_user_access where site_id=?)";
+
+	public static final String USER_LIST_FOR_SITE_ACCESS_QUERY = "select pua.user_id,pu.first_name,pu.last_name,pu.email_id,pr.role_id,pr.role_name,pr.role_desc"
+			+ " from pm_user_access pua	left join pm_users pu on pua.user_id = pu.user_id "
+			+ "	left join pm_user_role pur on pur.user_id = pu.user_id"
+			+ " left join pm_role pr on pr.role_id = pur.role_id where pua.site_id = ?";
 }

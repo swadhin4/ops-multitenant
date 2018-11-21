@@ -1572,16 +1572,15 @@ $(function() {
 				<div class="box">
 					<div class="row">
 						<div class="col-md-12">
-							<div class="col-md-6">
 							 	<div class="box box-primary">
 								<div class="box-header pull-center"
 									style="background-color: lightblue; height: 35px">
-									<span class="pull-center"> <b>Search New User to Assign</b>
+									<span class="pull-center"> <b>Search User to Assign or Revoke site access  </b>
 									</span>
 								</div>
 								 <div class="box-body no-padding">
-										<input type="text" class="form-control" placeholder="Search by Name or Email" ng-model="unassignedUser" required style="width:100%">
-									<table ng-if="unassignedUser!=null"
+										<input type="text" class="form-control" placeholder="Search by Name or Email" ng-model="userAccessVal" required style="width:100%">
+									<table ng-if="siteUserList.length>0"
 										class="table table-bordered table-hover table-condensed "
 										style="height: 50px;">
 										<thead>
@@ -1589,25 +1588,31 @@ $(function() {
 												<th><b>Name</b></th>
 												<th><b>Email</b></th>
 												<th><b>Role</b></th>
-												<th><b>Assign</b></th>
+												<th><b>Action</b></th>
 											</tr>
 										</thead>
 										<tbody>
-											<tr ng-repeat="val in siteUnAssignedUserList | searchFor : unassignedUser">
+											<tr ng-repeat="val in siteUserList | searchFor : userAccessVal">
 												<td>{{val.firstName}} {{val.lastName}}</td>
 												<td>{{val.email}}</td>
 												<th><b>{{val.role.description}}</b></th>
-												<td ng-if="val.role.roleName != 'ROLE_ADMIN'"><b>
+												<td ng-if="val.role.roleName != 'ROLE_ADMIN' && val.hasAccess==false"><b>
 												<a href ng-click="assignThisUserTo(val, selectedSite)"><span class="label label-danger">
-												<i class="fa fa-check-circle-o" arial-hidden="true"></i> Click to Assign
-												</span></a></b></td>
+												<i class="fa fa-check-circle-o" arial-hidden="true"></i> Assign
+												</span></a></b>
+												</td>
+												<td ng-if="val.role.roleName != 'ROLE_ADMIN' && val.hasAccess==true"><b>
+												<a href ng-click="revokeThisUserAccess(val, selectedSite)"><span class="label label-success">
+												<i class="fa fa-check-circle-o" arial-hidden="true"></i> Revoke
+												</span></a></b>
+												</td>
 											</tr>
 										</tbody>
 									</table>
 									</div>
 								</div>
 							</div>
-							<div class="col-md-6">
+						<!-- 	<div class="col-md-6">
 							<div class="box box-primary">
 								<div class="box-header pull-center"
 									style="background-color: lightblue; height: 35px">
@@ -1641,7 +1646,7 @@ $(function() {
 									</table>
 								  </div>
 								  </div>
-							</div>
+							</div> -->
 							
 							
 						</div>
@@ -1649,7 +1654,6 @@ $(function() {
 					
 				</div>
 			</div>
-		</div>
 		 <div class="modal-footer">
 					<a href class="btn btn-default pull-left"	id="siteModalCloseBtn" data-dismiss="modal">Close</a>
 					<a href class="btn btn-danger">Users Assigned<span class="badge">{{siteAssignedUserList.length}}</span></a>

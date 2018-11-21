@@ -471,7 +471,32 @@ public class IncidentDAO {
 		});
 		return ticketList;
 	}
-	
+	public List<TicketVO> findSPRelatedTickets(Long ticketId, Long siteId, Long spId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.SP_RELATED_TICKETS_QUERY,new Object[]{ticketId, siteId, spId}, new ResultSetExtractor<List<TicketVO>>(){
+			@Override
+			public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<TicketVO> relatedTickets = new ArrayList<TicketVO>();
+				while(rs.next()){
+					TicketVO tckt = new TicketVO();
+					tckt.setTicketId(rs.getLong("id"));
+					tckt.setTicketNumber(rs.getString("ticket_number"));
+					tckt.setSiteId(rs.getLong("site_id"));
+					tckt.setSiteName(rs.getString("site_name")); 
+					tckt.setAssetName(rs.getString("asset_name"));
+					tckt.setTicketTitle(rs.getString("ticket_title"));
+					tckt.setCreatedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
+					tckt.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
+					tckt.setStatus(rs.getString("status"));
+					tckt.setAssignedSP(rs.getString("sp_name"));
+					relatedTickets.add(tckt);
+				}
+				return relatedTickets;
+			}
+			
+		});
+		return ticketList;
+	}
 	public CustomerSPLinkedTicketVO saveLinkedTicket(CustomerSPLinkedTicketVO customerSPLinkedTicketVO, LoginUser user ){
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
@@ -702,4 +727,5 @@ public class IncidentDAO {
 		}
 		
 	}
+	
 }

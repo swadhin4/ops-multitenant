@@ -4,6 +4,7 @@
 package com.pms.app.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -26,9 +28,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
+import com.pms.app.view.vo.UserSiteAccessVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.UserModel;
+import com.pms.jpa.entities.UserSiteAccess;
 import com.pms.web.service.ServiceProviderService;
 import com.pms.web.service.UserService;
 import com.pms.web.util.RestResponse;
@@ -377,4 +381,102 @@ public class UserController extends BaseController {
 		logger.info("Exit UserController - updateProfile" );
 		return responseEntity;
 	}
+	
+	@RequestMapping(value = "/site/access/{siteId}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse>  getUserSiteAccess(final ModelMap model,final HttpSession session,
+			@PathVariable(value="siteId") Long siteId ) {
+		logger.info("Inside UserController - getUserSiteAccess" );
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+
+		if (loginUser!=null) {
+			try {
+				List<UserVO> userSiteAccessList = userService.getUserSiteAccess(siteId,loginUser);
+				List<UserVO> userSiteWithoutAccessList = userService.getUserSiteWithoudAccess(siteId,loginUser);
+				response.setStatusCode(200);
+				response.setObject(userSiteAccessList);
+				response.setObject2(userSiteWithoutAccessList);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			} catch (Exception e) {
+				response.setStatusCode(500);
+				response.setMessage("Exception while getting user site access list");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				e.printStackTrace();
+			}
+
+		} else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		logger.info("Exit UserController - getUserSiteAccess" );
+		return responseEntity;
+	}
+	/*@RequestMapping(value = "/assign/site/{userId}/{siteId}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse>  assignUserToSite(@PathVariable(value="userId") Long userId,
+			@PathVariable(value="siteId") Long siteId,final HttpSession session) {
+		logger.info("Inside UserController - assignUserToSite" );
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			try {
+				UserSiteAccessVO userSiteAccessVO = userService.assignUserToSite(userId, siteId);
+				response.setStatusCode(200);
+				response.setObject(userSiteAccessVO);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			} catch (Exception e) {
+				response.setStatusCode(500);
+				response.setMessage("Exception while assign user to site");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				e.printStackTrace();
+			}
+
+		} else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		logger.info("Exit UserController - assignUserToSite" );
+		return responseEntity;
+	}
+
+
+	@RequestMapping(value = "/revoke/site/{accessId}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse>  revokeAccessToSite(@PathVariable(value="accessId") Long accessId,
+			final HttpSession session) {
+		logger.info("Inside UserController - revokeAccessToSite" );
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			try {
+				boolean isAccessRevoked = userService.removeUserAccessFromSite(accessId);
+				if(isAccessRevoked){
+					logger.info("Access revoked from the user " );
+					response.setStatusCode(200);
+					response.setMessage("Site Access revoked from the User.");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}else{
+					logger.info("Unable to revoke user access for accessId : " + accessId  );
+					response.setStatusCode(204);
+					response.setMessage("Unable to revoke the user access");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				response.setStatusCode(500);
+				response.setMessage("Exception while revoking access from user.");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				e.printStackTrace();
+			}
+
+		} else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		logger.info("Exit UserController - revokeAccessToSite" );
+		return responseEntity;
+	}*/
 }

@@ -25,6 +25,7 @@ import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.Tenant;
 import com.pms.jpa.entities.User;
 import com.pms.jpa.entities.UserModel;
+import com.pms.jpa.entities.UserSiteAccess;
 import com.pms.web.service.TenantService;
 import com.pms.web.service.UserService;
 import com.pms.web.service.security.AuthorizedUserDetails;
@@ -363,5 +364,17 @@ public class UserServiceImpl implements UserService {
 		return roleList==null?Collections.emptyList():roleList;
 	}
 
+	@Override
+	public List<UserVO> getUserSiteAccess(Long siteId, LoginUser user) throws Exception {
+		List<UserVO> userList = getUserDAO(user.getDbName()).getUserWithSiteAccess(siteId);
+		return userList;
+		
+	}
+	@Override
+	public List<UserVO> getUserSiteWithoudAccess(Long siteId, LoginUser user) throws Exception {
+		List<UserVO> userList = getUserDAO(user.getDbName()).getUserWithoutSiteAccess(siteId);
+		return userList;
+		
+	}
 
 }

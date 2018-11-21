@@ -2139,49 +2139,47 @@ $scope.saveAssetEquipmentForm=function(){
 	}
 	
 	$scope.manageUserAccessForSite=function(selectedSite){
-		$('#assignUserModal').modal('show');
+		
 		userService.getUsersBySiteAccess(selectedSite.siteId)
 		.then(function(data) {
-			//console.log(data)
+			console.log(data)
 			if(data.statusCode == 200){
-				$scope.siteAssignedUserList=[];
-				$scope.siteUnAssignedUserList=[];
+				$scope.siteUserList=[];
 				
 				if(data.object.length>0){
 					$.each(data.object,function(key,val){
-						if(val.assignedUser!=null && val.accessId!=null){
-							var assignedUserSiteData={
-									accessId:val.accessId,
-									user:val.assignedUser,
-									company:val.assignedUser.company,
-									site:val.site,
-									firstName:val.assignedUser.firstName,
-									lastName:val.assignedUser.lastName,
-									email:val.assignedUser.email
+							var assignedUsers={
+									userId:val.userId,
+									firstName:val.firstName,
+									lastName:val.lastName,
+									email:val.emailId,
+									role:val.roleSelected,
+									hasAccess:true
 							}
-							$scope.siteAssignedUserList.push(assignedUserSiteData);
-						}
-							
-						if(val.unAssignedUser!=null && val.accessId==null){
-							if(val.unAssignedUser.userRoles.length>0){
-								var unAssginedUsers ={
-									user:val.unAssignedUser,
-									firstName:val.unAssignedUser.firstName,
-									lastName:val.unAssignedUser.lastName,
-									email:val.unAssignedUser.email,
-									role:val.unAssignedUser.userRoles[0].role
-								}
-							}
-							$scope.siteUnAssignedUserList.push(unAssginedUsers);
-						}
-						
+							$scope.siteUserList.push(assignedUsers);
 					});
 				}
+			
+				if(data.object2.length>0){
+					$.each(data.object2,function(key,val){
+						var unAssginedUsers ={
+								userId:val.userId,
+								firstName:val.firstName,
+								lastName:val.lastName,
+								email:val.emailId,
+								role:val.roleSelected,
+								hasAccess:false
+							}
+						$scope.siteUserList.push(unAssginedUsers);
+				   });
+					
+				}
+				$('#assignUserModal').modal('show');
 			}
 				
 	    },
 	    function(data) {
-	        //console.log(data)
+	        console.log(data)
 	    });
 	}
 	$scope.searchCriteria={};

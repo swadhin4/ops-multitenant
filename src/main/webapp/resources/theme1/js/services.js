@@ -230,7 +230,7 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
         
         function getUsersBySiteAccess(siteId){
         	var def = $q.defer();
-             $http.get(hostLocation+"/user/site/access/list/"+siteId)
+             $http.get(hostLocation+"/user/site/access/"+siteId)
                  .success(function(data) {
                  	//console.log(data)
                      def.resolve(data);

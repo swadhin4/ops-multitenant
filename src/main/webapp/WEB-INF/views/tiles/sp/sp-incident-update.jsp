@@ -1174,19 +1174,22 @@ background:#deefe5
 											
 											<!-- Added By Supravat for Related Tickets Requirements. -->
 											<div class="tab-pane" id="relatedTickets">
+											<div class="row">
+											<div class="col-md-12">
 												<div class="box">
 													<div class="box-header with-border">
 														<h3 class="box-title">Related Tickets</h3>
 													</div>
 													<div class="box-body">
-																	<table id="financialsTable"
+													
+																	<table id="relatedTicketsTable"
 																		class="table table-bordered table-hover table-condensed">
 																		<thead>
 																			<tr>
-																				<th style="width:30%;"><b>Ticket Number</b></th>
+																				<th style="width:20%;"><b>Ticket Number</b></th>
 																				<th style="width:40%;"><b>Title</b></th>
 																				<th style="width:20%;"><b>Asset</b></th>
-																				<th style="width:10%;"><b>Status</b></th>
+																				<th style="width:20%;"><b>Status</b></th>
 																			</tr>
 																		</thead>
 																		<tbody>
@@ -1200,7 +1203,7 @@ background:#deefe5
 
 																		</tbody>
 																	</table>
-
+														
 													</div>
 													<div class="box-footer">
 													<div class="row">
@@ -1212,6 +1215,8 @@ background:#deefe5
 															</div>
 														</div>
 													</div>
+												</div>
+												</div>
 												</div>
 												</div>
 											</div>

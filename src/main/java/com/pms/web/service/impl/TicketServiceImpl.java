@@ -376,42 +376,43 @@ public class TicketServiceImpl implements TicketService {
 	
 
 	private double getSLAPercent(TicketVO customerTicket) {
-		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-		double slaPercent=0.0;
-		try{
-		Date slaDueDate = simpleDateFormat.parse(customerTicket.getSla());
-		Date creationTime = simpleDateFormat.parse(customerTicket.getCreatedOn());
-		
-		if(customerTicket.getStatusId().intValue() != 15){
-			Date currentDateTime = new Date();
-			long numeratorDiff = currentDateTime.getTime() - creationTime.getTime(); 
-			long denominatorDiff = slaDueDate.getTime() - creationTime.getTime();
-		
-			
-			double numValue = TimeUnit.MINUTES.convert(numeratorDiff, TimeUnit.MILLISECONDS);
-			double deNumValue = TimeUnit.MINUTES.convert(denominatorDiff, TimeUnit.MILLISECONDS);
-			if (deNumValue != 0){
-				slaPercent = Math.round((numValue / deNumValue) * 100);
-			}	
-			return slaPercent;
-		}else{
-			if(customerTicket.getServiceRestorationTime()!=null){
-				Date restoredTime = simpleDateFormat.parse(customerTicket.getServiceRestorationTime());
-				long numeratorDiff = restoredTime.getTime() - creationTime.getTime(); 
-				long denominatorDiff = slaDueDate.getTime() - creationTime.getTime();
-				
-				double numValue = TimeUnit.MINUTES.convert(numeratorDiff, TimeUnit.MILLISECONDS);
-				double deNumValue = TimeUnit.MINUTES.convert(denominatorDiff, TimeUnit.MILLISECONDS);
-				if (deNumValue != 0){
-					slaPercent = Math.round((numValue / deNumValue) * 100);
+		synchronized (customerTicket) {
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+			double slaPercent = 0.0;
+			try {
+				Date slaDueDate = simpleDateFormat.parse(customerTicket.getSla());
+				Date creationTime = simpleDateFormat.parse(customerTicket.getCreatedOn());
+
+				if (customerTicket.getStatusId().intValue() != 15) {
+					Date currentDateTime = new Date();
+					long numeratorDiff = currentDateTime.getTime() - creationTime.getTime();
+					long denominatorDiff = slaDueDate.getTime() - creationTime.getTime();
+
+					double numValue = TimeUnit.MINUTES.convert(numeratorDiff, TimeUnit.MILLISECONDS);
+					double deNumValue = TimeUnit.MINUTES.convert(denominatorDiff, TimeUnit.MILLISECONDS);
+					if (deNumValue != 0) {
+						slaPercent = Math.round((numValue / deNumValue) * 100);
+					}
+					return slaPercent;
+				} else {
+					if (customerTicket.getServiceRestorationTime() != null) {
+						Date restoredTime = simpleDateFormat.parse(customerTicket.getServiceRestorationTime());
+						long numeratorDiff = restoredTime.getTime() - creationTime.getTime();
+						long denominatorDiff = slaDueDate.getTime() - creationTime.getTime();
+
+						double numValue = TimeUnit.MINUTES.convert(numeratorDiff, TimeUnit.MILLISECONDS);
+						double deNumValue = TimeUnit.MINUTES.convert(denominatorDiff, TimeUnit.MILLISECONDS);
+						if (deNumValue != 0) {
+							slaPercent = Math.round((numValue / deNumValue) * 100);
+						}
+					}
+					return slaPercent;
 				}
+			} catch (ParseException e) {
+				e.printStackTrace();
 			}
-			return slaPercent;
+			return 0;
 		}
-		}catch(ParseException e){
-			e.printStackTrace();
-		}
-		return 0;
 	}
 
 	
@@ -489,7 +490,13 @@ public class TicketServiceImpl implements TicketService {
 	
 	@Override
 	public List<TicketVO> getRelatedTickets(Long ticketId, Long siteId, LoginUser loginUser) throws Exception {
-		List<TicketVO> customerTicketList = getIncidentDAO(loginUser.getDbName()).findRelatedTickets(ticketId, siteId);
+		List<TicketVO> customerTicketList = null;
+		if(loginUser.getUserType().equalsIgnoreCase("USER")){
+			customerTicketList = getIncidentDAO(loginUser.getDbName()).findRelatedTickets(ticketId, siteId);
+		}
+		else if(loginUser.getUserType().equalsIgnoreCase("EXTSP")){
+			customerTicketList = getIncidentDAO(loginUser.getDbName()).findSPRelatedTickets(ticketId, siteId, loginUser.getSpId());
+		}
 		return customerTicketList == null?Collections.EMPTY_LIST:customerTicketList;
 	}
 

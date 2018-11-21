@@ -14,6 +14,7 @@ import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.User;
+import com.pms.jpa.entities.UserSiteAccess;
 import com.pms.web.service.security.AuthorizedUserDetails;
 import com.pms.web.util.RestResponse;
 
@@ -65,4 +66,8 @@ public interface UserService {
 	RestResponse resetNewPassword(String email, String type, String newPassword) throws Exception;
 	
 	RestResponse resetForgotPassword(String email, String type, String newPassword) throws Exception;
+
+	List<UserVO> getUserSiteAccess(Long userId, LoginUser user) throws Exception;
+
+	List<UserVO> getUserSiteWithoudAccess(Long siteId, LoginUser user) throws Exception;
 }

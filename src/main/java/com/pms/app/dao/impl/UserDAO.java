@@ -293,5 +293,51 @@ public class UserDAO {
 		      });
 		 	return updated;
 	}
+
+	public List<UserVO> getUserWithSiteAccess(Long siteId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<UserVO> userList = jdbcTemplate.query(AppConstants.USER_LIST_FOR_SITE_ACCESS_QUERY, new Object[] {siteId}, new ResultSetExtractor<List<UserVO>>(){
+			List<UserVO> userList = new ArrayList<UserVO>();
+			@Override
+			public List<UserVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					UserVO userVO = new UserVO();
+					userVO.setUserId(rs.getLong("user_id"));
+					userVO.setFirstName(rs.getString("first_name"));
+					userVO.setLastName(rs.getString("last_name"));
+					userVO.setEmailId(rs.getString("email_id"));
+					userVO.getRoleSelected().setRoleId(rs.getLong("role_id"));
+					userVO.getRoleSelected().setDescription(rs.getString("role_desc"));
+					userVO.getRoleSelected().setRoleName(rs.getString("role_name"));
+					userList.add(userVO);
+				}
+				return userList;
+			}
+		});
+		return userList;
+	}
+	
+	public List<UserVO> getUserWithoutSiteAccess(Long siteId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<UserVO> userList = jdbcTemplate.query(AppConstants.USER_LIST_FOR_SITE_NOACCESS_QUERY, new Object[] {siteId}, new ResultSetExtractor<List<UserVO>>(){
+			List<UserVO> userList = new ArrayList<UserVO>();
+			@Override
+			public List<UserVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					UserVO userVO = new UserVO();
+					userVO.setUserId(rs.getLong("user_id"));
+					userVO.setFirstName(rs.getString("first_name"));
+					userVO.setLastName(rs.getString("last_name"));
+					userVO.setEmailId(rs.getString("email_id"));
+					userVO.getRoleSelected().setRoleId(rs.getLong("role_id"));
+					userVO.getRoleSelected().setDescription(rs.getString("role_desc"));
+					userVO.getRoleSelected().setRoleName(rs.getString("role_name"));
+					userList.add(userVO);
+				}
+				return userList;
+			}
+		});
+		return userList;
+	}
 	
 }

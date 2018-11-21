@@ -18,8 +18,8 @@ public class RestResponse  {
 	private String mode;
 	
 	private int calculatedVal;
-
-
+	
+	private Object object2;
 
 
 	public RestResponse() {
@@ -112,6 +112,18 @@ public class RestResponse  {
 
 	public void setCalculatedVal(int calculatedVal) {
 		this.calculatedVal = calculatedVal;
+	}
+
+
+
+	public Object getObject2() {
+		return object2;
+	}
+
+
+
+	public void setObject2(Object object2) {
+		this.object2 = object2;
 	}
 
 
