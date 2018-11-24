@@ -142,7 +142,22 @@ public class UserDAO {
 		 	LOGGER.info("Update user {} with role id  {}.", userVO.getUserName(),  userVO.getRoleId());
 		    return userVO;   
 	}
-
+	
+	public UserVO updateSPRole(UserVO userVO) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		 jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.SP_UPDATE_USER_ROLE);
+	            ps.setLong(1, userVO.getRoleSelected().getRoleId());
+	            ps.setLong(2, userVO.getUserId());
+	            return ps;
+		      }
+		      });
+		 	LOGGER.info("Update SP user {} with role id  {}.", userVO.getUserName(),  userVO.getRoleId());
+		    return userVO;   
+	}
+	
 	public UserVO saveNewUser(AppUserVO appUserVO, LoginUser user) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
@@ -339,5 +354,7 @@ public class UserDAO {
 		});
 		return userList;
 	}
+
+	
 	
 }

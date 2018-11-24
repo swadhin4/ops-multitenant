@@ -92,5 +92,13 @@
 
 	<context:annotation-config />
 	<context:component-scan base-package="com.pms.app.controller" />
-	
+	<bean id="documentationController" class="org.jsondoc.springmvc.controller.JSONDocController">
+	<constructor-arg name="version" value="1.0" />
+	<constructor-arg name="basePath" value="http://localhost:8080" />
+	<constructor-arg name="packages">
+	  <list>
+		<value>com.pms.app.controller</value> <!-- packages in which you have your spring controllers -->
+	  </list>
+	</constructor-arg>
+</bean>
 </beans>

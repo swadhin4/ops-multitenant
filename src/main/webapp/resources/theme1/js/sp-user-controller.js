@@ -46,6 +46,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 			$('#messageWindow').hide();
 			$('#successMessageDiv').hide();
 			$('#errorMessageDiv').hide();
+			$scope.rowSPUserHighilited(0);
 		}
 		
 		//---------------------X----------------------
@@ -79,35 +80,6 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    	});
 	    	
 	    };
-	    
-	    
-	    
-	   /* $scope.SPUserCustomers = [
-            { CustomerCode: 1, CustomerName: "ABC", Country: "United States", Selected: true },
-            { CustomerCode: 2, CustomerName: "XYZ Ltd", Country: "India", Selected: false },
-            { CustomerCode: 3, CustomerName: "KBC Ltd", Country: "France", Selected: true },
-            { CustomerCode: 4, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 5, CustomerName: "PMS Ltd", Country: "Russia", Selected: true },
-            { CustomerCode: 6, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 7, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 8, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 9, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 10, CustomerName: "PMS Ltd", Country: "Russia", Selected: false }
-           ];*/
-	    
-	/*    $scope.SPUserAllCustomers = [
-            { CustomerCode: 1, CustomerName: "ABC", Country: "United States", Selected: false },
-            { CustomerCode: 2, CustomerName: "XYZ Ltd", Country: "India", Selected: false },
-            { CustomerCode: 3, CustomerName: "KBC Ltd", Country: "France", Selected: false },
-            { CustomerCode: 4, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 5, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 6, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 7, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 8, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 9, CustomerName: "PMS Ltd", Country: "Russia", Selected: false },
-            { CustomerCode: 10, CustomerName: "PMS Ltd", Country: "Russia", Selected: false }
-           ];
-	    */
 	    
 	    $scope.CheckUncheckHeaderUser = function () {
             $scope.IsAllCheckedUser = true;
@@ -145,26 +117,38 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
         };
         
         $scope.updateUserMapping=function(user){
-	    	console.log("updateUserMapping user---->",user)
+	    	console.log("updateUserMapping Map Customer Update---->",user)
 	    	$scope.selectedUser = angular.copy(user);
 	    	$scope.SPUserCustomersData = [];
 	    	for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
 	    		var accessId = $scope.SPUserCustomers[i].accessId;
-	    		var isDelFlagEnabled = $scope.SPUserCustomers[i].isDelFlagEnabled
-	    		if($scope.SPUserCustomers[i].selected){                	
-                	$scope.SPUserCustomersData.push({
-                		"customerId":$scope.SPUserCustomers[i].customerId,
-                		"customerCode":$scope.SPUserCustomers[i].customerCode,
-                		"customerName":$scope.SPUserCustomers[i].customerName,
-            			"countryName": $scope.SPUserCustomers[i].countryName,
-            			"accessId" : accessId,
-            			"isDelFlagEnabled": isDelFlagEnabled
-            		});            		
-                }
+	    		var isSelected = $scope.SPUserCustomers[i].selected;
+	    		var isDelFlagEnabled = $scope.SPUserCustomers[i].delFlagEnabled;
+	    		
+	    		
+	    		if(isSelected || accessId!=null) {
+	    			
+	    			if(isDelFlagEnabled==0) {
+	    				$scope.SPUserCustomersData.push({
+	                		"customerId":$scope.SPUserCustomers[i].customerId,
+	                		"customerCode":$scope.SPUserCustomers[i].customerCode,
+	                		"customerName":$scope.SPUserCustomers[i].customerName,
+	            			"countryName": $scope.SPUserCustomers[i].countryName,
+	            			"isDelFlagEnabled": 0
+	            		});
+	    			} else {
+	    				$scope.SPUserCustomersData.push({
+	                		"customerId":$scope.SPUserCustomers[i].customerId,
+	                		"customerCode":$scope.SPUserCustomers[i].customerCode,
+	                		"customerName":$scope.SPUserCustomers[i].customerName,
+	            			"countryName": $scope.SPUserCustomers[i].countryName,
+	            			"isDelFlagEnabled": 1
+	            		});
+	    			}
+	    		}	    			    		
 	    	}
-	    	console.log("updateUserMapping SPUserCustomersData---->",$scope.SPUserCustomersData);
-	    	
-	    	
+	    	console.log("Map Customer Update SPUserCustomersData---->",$scope.SPUserCustomersData);
+	    		    	
 	    	userService.updateSPUserCustomers($scope.selectedUser.userId,$scope.SPUserCustomersData)
     		.then(function(data) {
     			console.log("updateSPUserCustomers----->",data)
@@ -231,8 +215,8 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 		    				 $scope.SPUserCustomers.push(val);
 		    			});
 		    			
-		    			//For header check true
-		    			//
+		    			//For header check true while updating Customer
+		    			//Supravat
 		    			var isAllSelected = 0
 		    			for (var i = 0; i < $scope.SPUserCustomers.length; i++) {
 		    	    		if($scope.SPUserCustomers[i].selected){
@@ -243,8 +227,10 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 		    			console.log("length",$scope.SPUserCustomers.length);
 		    			if(isAllSelected==$scope.SPUserCustomers.length) {
 		    				$scope.IsAllCheckedUser = true;
+		    			} else {
+		    				$scope.IsAllCheckedUser = false;
 		    			}
-		    			//
+		    			//End
 		    			
 		    			
 		    		}

@@ -19,7 +19,7 @@ public interface ServiceProviderDAO {
 
 	public String createServiceProviderUserRole(SPUserVo sPUserVo, LoginUser loginUser) throws Exception;
 
-	public int createServiceProviderUserAccess(List<CustomerVO> customerList, LoginUser loginUser) throws Exception;
+	public int createServiceProviderUserAccess(List<CustomerVO> customerList, UserVO savedUserVO, LoginUser loginUser) throws Exception;
 
 	public String updateServiceProviderUserRole(SPUserVo sPUserVo, LoginUser loginUser) throws Exception;
 
@@ -42,6 +42,6 @@ public interface ServiceProviderDAO {
 
 	public List<String> getCustomerDBServiceProviderCode(String custcode) throws Exception;
 
-	public List<TicketVO> getCustomerTicketsByCustomercode(String custcode) throws Exception;
+	public List<TicketVO> getCustomerTicketsBySPcode(String spcode) throws Exception;
 
 }

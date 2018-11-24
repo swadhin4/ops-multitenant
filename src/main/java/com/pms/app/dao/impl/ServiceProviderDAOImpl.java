@@ -132,7 +132,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 	}
 
 	@Override
-	public int createServiceProviderUserAccess(List<CustomerVO> customerList , LoginUser loginUser) throws Exception {
+	public int createServiceProviderUserAccess(List<CustomerVO> customerList , UserVO savedUserVO, LoginUser loginUser) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY,
 				new BatchPreparedStatementSetter() {
@@ -140,7 +140,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 					@Override
 					public void setValues(PreparedStatement ps, int i) throws SQLException {
 						CustomerVO spUserAccessVO = customerList.get(i);
-						ps.setLong(1, loginUser.getUserId());
+						ps.setLong(1, savedUserVO.getUserId());
 						ps.setLong(2, spUserAccessVO.getCustomerId());
 						ps.setString(3, loginUser.getUsername());
 					}
@@ -411,38 +411,6 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 		return customerVOs == null ? Collections.emptyList() : customerVOs;
 	}
 
-	@Override
-	public List<TicketVO> getCustomerTicketsByCustomercode(String custcode) throws Exception {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<TicketVO> ticketVOs = jdbcTemplate.query(AppConstants.CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY,
-				new Object[] { custcode }, new ResultSetExtractor<List<TicketVO>>() {
-					@Override
-					public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
-						List<TicketVO> ticketVOList = new ArrayList<TicketVO>();
-						while (rs.next()) {
-							TicketVO ticketVO = new TicketVO();
-							ticketVO.setTicketId(rs.getLong("id"));
-							ticketVO.setTicketNumber(rs.getString("ticket_number"));
-							ticketVO.setTicketTitle(rs.getString("ticket_title"));
-							ticketVO.setSiteId(rs.getLong("site_id"));
-							ticketVO.setSiteName(rs.getString("site_name"));
-							ticketVO.setAssetId(rs.getLong("asset_id"));
-							 ticketVO.setAssetName(rs.getString("asset_name"));
-							ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
-							String slaDueDate = ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate"));
-							ticketVO.setSla(slaDueDate);
-							ticketVO.setAssignedTo(rs.getLong("assigned_to"));
-							 ticketVO.setAssignedSP(rs.getString("sp_name"));
-							ticketVO.setStatus(rs.getString("status_id"));
-							ticketVO.setStatusDescription(rs.getString("description"));
-
-							ticketVOList.add(ticketVO);
-						}
-						return ticketVOList;
-					}
-				});
-		return ticketVOs == null ? Collections.emptyList() : ticketVOs;
-	}
 
 	@Override
 	public List<String> getCustomerDBServiceProviderCode(String custcode) throws Exception {
@@ -458,5 +426,36 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 		}
 		return custdtls;
 	}
+
+
+	@Override
+	public List<TicketVO> getCustomerTicketsBySPcode(String spcode) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketVO> ticketVOs = jdbcTemplate.query(AppConstants.CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY,
+				new Object[] { spcode }, new ResultSetExtractor<List<TicketVO>>() {
+					@Override
+					public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<TicketVO> ticketVOList = new ArrayList<TicketVO>();
+						while (rs.next()) {
+							TicketVO ticketVO = new TicketVO();
+							ticketVO.setTicketNumber(rs.getString("ticket_number"));
+							ticketVO.setTicketTitle(rs.getString("ticket_title"));
+							ticketVO.setSiteId(rs.getLong("site_id"));
+							ticketVO.setSiteName(rs.getString("site_name"));
+							ticketVO.setAssetId(rs.getLong("asset_id"));
+							ticketVO.setAssetName(rs.getString("asset_name"));
+							ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
+							ticketVO.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
+							ticketVO.setAssignedSP(rs.getString("rsp_name"));
+							ticketVO.setStatus(rs.getString("status"));
+
+							ticketVOList.add(ticketVO);
+						}
+						return ticketVOList;
+					}
+				});
+		return ticketVOs == null ? Collections.emptyList() : ticketVOs;
+	}
+
 	
 }

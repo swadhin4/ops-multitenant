@@ -4,7 +4,6 @@
 package com.pms.app.controller;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,11 +27,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
-import com.pms.app.view.vo.UserSiteAccessVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.UserModel;
-import com.pms.jpa.entities.UserSiteAccess;
 import com.pms.web.service.ServiceProviderService;
 import com.pms.web.service.UserService;
 import com.pms.web.util.RestResponse;

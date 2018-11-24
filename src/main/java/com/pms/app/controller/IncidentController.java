@@ -50,7 +50,10 @@ import com.pms.web.service.EmailService;
 import com.pms.web.service.TicketService;
 import com.pms.web.util.RestResponse;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 
 /**
  * The Class UserController.
@@ -58,6 +61,7 @@ import io.swagger.annotations.ApiOperation;
  */
 @RequestMapping(value = "/incident")
 @Controller
+@Api(value="Incident Service")
 public class IncidentController extends BaseController {
 
 	private static final Logger logger = LoggerFactory.getLogger(IncidentController.class);
@@ -147,6 +151,8 @@ public class IncidentController extends BaseController {
 	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET, produces = "application/json")
+	 @ApiOperation(value="Display Incident list",notes="List of incidents",response=IncidentController.class)
+	 @ApiResponses(value = { @ApiResponse(code = 200, message = "Displaying incident list")})
 	public ResponseEntity<RestResponse> listAllTickets(HttpSession session) {
 		List<TicketVO> tickets = null;
 		RestResponse response = new RestResponse();
@@ -249,6 +255,8 @@ public class IncidentController extends BaseController {
 	}
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
+	 @ApiOperation(value="Create Incident",notes="Creation a new Incident",response=IncidentController.class)
+    @ApiResponses(value = {  @ApiResponse(code = 200, message = "Incident Created successfully") })
 	public ResponseEntity<RestResponse> createNewIncident(final Locale locale, final ModelMap model,
 			@RequestBody final TicketVO ticketVO, final HttpSession session) {
 		logger.info("Inside IncidentController .. createNewIncident");

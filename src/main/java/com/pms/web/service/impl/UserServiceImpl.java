@@ -25,7 +25,6 @@ import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.Tenant;
 import com.pms.jpa.entities.User;
 import com.pms.jpa.entities.UserModel;
-import com.pms.jpa.entities.UserSiteAccess;
 import com.pms.web.service.TenantService;
 import com.pms.web.service.UserService;
 import com.pms.web.service.security.AuthorizedUserDetails;
@@ -105,14 +104,20 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public UserVO updateRoles(UserVO userVO, LoginUser user) {
-		UserVO savedUserVO	= getUserDAO(user.getDbName()).updateRole(userVO);
+		UserVO savedUserVO = null;
+		if(user.getUserType().equalsIgnoreCase("USER")){
+			savedUserVO = getUserDAO(user.getDbName()).updateRole(userVO);
+		}
+		else if(user.getUserType().equalsIgnoreCase("SP")){
+			savedUserVO = getUserDAO(user.getDbName()).updateSPRole(userVO);
+		}
 		return savedUserVO;
 	}
 
 	@Override
 	@Transactional
 	public UserVO saveUser(AppUserVO appUserVO, LoginUser user) throws Exception {
-		String generatedRawPassword = RandomUtils.randomAlphanumeric(8);
+		String generatedRawPassword = "mkp006";//RandomUtils.randomAlphanumeric(8);
 		String encryptedPassword = QuickPasswordEncodingGenerator.encodePassword(generatedRawPassword);
 		appUserVO.setGeneratedPassword(encryptedPassword);
 		UserVO savedUserVO = null;
@@ -140,7 +145,7 @@ public class UserServiceImpl implements UserService {
 				List<CustomerVO> customerList = appUserVO.getCustomerList();
 				
 				if(!customerList.isEmpty()){
-					Integer recordsMapped = getServiceProviderDAOImpl(user.getDbName()).createServiceProviderUserAccess(customerList, user);
+					Integer recordsMapped = getServiceProviderDAOImpl(user.getDbName()).createServiceProviderUserAccess(customerList, savedUserVO, user);
 					if(recordsMapped > 0 ){
 						savedUserVO.setStatus(200);
 					}

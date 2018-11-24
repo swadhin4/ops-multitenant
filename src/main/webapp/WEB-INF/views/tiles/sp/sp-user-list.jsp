@@ -419,7 +419,17 @@ $(function() {
 																	ng-model="mUser.customerId"
 																	id="customerId{{$index}}"> <input type="hidden"
 																	class="form-control" ng-model="mUser.customerCode"
-																	id="customerCode{{$index}}"></td>
+																	id="customerCode{{$index}}">
+																	
+																	<input type="hidden"
+																	class="form-control" ng-model="mUser.accessId"
+																	id="accessId{{$index}}">
+																	
+																	<input type="hidden"
+																	class="form-control" ng-model="mUser.delFlagEnabled"
+																	id="delFlagEnabled{{$index}}">
+																	
+																	</td>
 													<td>{{mUser.customerName}}</td>
 													<td>{{mUser.countryName}}</td>
 												</tr>

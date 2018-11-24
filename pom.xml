@@ -447,17 +447,7 @@
     <artifactId>javamelody-core</artifactId>
     <version>1.69.0</version>
 </dependency>
- <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>2.5.0</version>
-        </dependency>
- 
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId> 
-            <version>2.5.0</version>
-        </dependency>
+
         
         <!-- https://mvnrepository.com/artifact/com.typesafe/config -->
 <dependency>
@@ -465,7 +455,31 @@
     <artifactId>config</artifactId>
     <version>1.2.1</version>
 </dependency>
-        
+         <!--swagger-->
+ <dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.6.1</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.6.1</version>
+			<scope>compile</scope>
+		</dependency>
+         <dependency>
+        <groupId>org.jsondoc</groupId>
+        <artifactId>jsondoc-springmvc</artifactId>
+        <version>1.2.19</version>
+        </dependency>
+        <dependency>
+        <groupId>org.jsondoc</groupId>
+        <artifactId>jsondoc-ui</artifactId>
+        <version>1.2.19</version>
+
+</dependency>
 	</dependencies>
 	<build>
 		<pluginManagement>
@@ -531,7 +545,58 @@
                     </execution>
                 </executions>
             </plugin>
+		   <plugin>
+    <groupId>com.garethevans.plugin</groupId>
+    <artifactId>swagger-codegen-maven-plugin</artifactId>
+    <version>2.0</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>generate</goal>
+            </goals>
+            <configuration>
+                <inputSpec>src/main/resources/api.json</inputSpec>
+                <language>java</language>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+			<plugin>
+				<groupId>com.github.kongchen</groupId>
+				<artifactId>swagger-maven-plugin</artifactId>
+				<!-- 3.1.0 supports Swagger Spec 2.0, support JAX-RS & SpingMVC. (ACTIVE!) 
+					3.0.1 supports Swagger Spec 2.0, support JAX-RS & SpingMVC. (ACTIVE!) 2.3.4 
+					supports Swagger Spec 1.2, support JAX-RS & SpringMVC. (Lazily maintained) -->
+				<version>3.1.0</version>
+				<configuration>
+					<apiSources>
+						<apiSource>
+						 <springmvc>true</springmvc>
+							<locations>com.pms.app.controller</locations>
+							<schemes>http,https</schemes>
+							<host>localhost:8080</host>
+							<basePath>/api-doc</basePath>
+							<info>
+								<title>OPS Swagger API</title>
+								<version>v1</version>
+								<description>OPS Swagger API</description>
+							</info>
 
+							<outputPath>${basedir}/target/swagger.json</outputPath>
+							 <swaggerDirectory>generated/swagger-ui</swaggerDirectory>
+
+						</apiSource>
+					</apiSources>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>compile</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
 					only. It has no influence on the Maven build itself. -->
 				<plugin>

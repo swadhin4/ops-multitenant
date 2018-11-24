@@ -285,6 +285,8 @@ public class AppConstants {
 	
 	public static final String UPDATE_USER_ROLE = "UPDATE pm_user_role set role_id=?  where user_id=?";
 	
+	public static final String SP_UPDATE_USER_ROLE = "UPDATE sp_user_role set role_id=?  where user_id=?";
+	
 	public static final String UPDATE_USER_STATUS = "UPDATE pm_users set enabled=?  where user_id=?";
 	
 	public static final String INSERT_NEW_USER_QUERY = "INSERT into pm_users(first_name, last_name, email_id, login_name, phone, password, company_id, enabled, created_date, sys_password, version) "
@@ -385,11 +387,18 @@ public class AppConstants {
 
 	public static final String CHECK_UNIQUE_USER_PHONE = "select email_id, phone from pm_users where phone=?";
 	
-	public static final String LOGGEDUSER_CUSTOMER_COUNTRY_QUERY = "select su.user_id,su.sp_cust_id,sc.customer_code,sc.customer_name,sc.cust_country_id,sc.cust_db_name,sco.country_name from sp_user_access su left join sp_customers sc on su.sp_cust_id =sc.sp_cust_id left join sp_country sco on sc.cust_country_id=sco.country_id where su.user_id= ?";
+	public static final String LOGGEDUSER_CUSTOMER_COUNTRY_QUERY = "select su.user_id,su.sp_cust_id,sc.customer_code,sc.customer_name,sc.cust_country_id,sc.cust_db_name, "
+			+ "sco.country_name from sp_user_access su left join sp_customers sc on su.sp_cust_id =sc.sp_cust_id "
+			+ " left join sp_country sco on sc.cust_country_id=sco.country_id where su.user_id= ?";
 
 	public static final String SERVICEPROVIDER_CUSTOMERDB_BY_CUSTOMERCODE_QUERY = "select scu.cust_db_name, sco.sp_code from sp_customers scu left join sp_company sco on scu.sp_id=sco.sp_cid where scu.customer_code=?";
 
-	public static final String CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY = "select * from pm_cust_ticket pcu left join pm_service_provider pse on pcu.assigned_to=pse.sp_id where pse.sp_code=?";
+	public static final String CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY = "select pct.ticket_number,pct.site_id,pct.asset_id,pct.ticket_title,pct.created_on,pct.sla_duedate, "
+			+ " pct.status_id,prs.rsp_name,ps.site_name,pa.asset_name,pst.status from pm_cust_ticket pct "
+			+ " left join pm_registered_sp prs on prs.rsp_id=pct.rassigned_to "
+			+ "  left join pm_site ps on pct.site_id=ps.site_id "
+			+ " left join pm_asset pa on pct.asset_id=pa.asset_id "
+			+ " left join pm_status pst on pct.status_id=pst.status_id where prs.rsp_company_code=?";
 
 	public static final String USER_LIST_FOR_SITE_NOACCESS_QUERY = "select pu.user_id,pu.first_name,pu.last_name,pu.email_id,pr.role_id,pr.role_name,pr.role_desc from pm_users pu "
 			+ "	left join pm_user_role pur on pur.user_id = pu.user_id 	left join pm_role pr on pr.role_id = pur.role_id"
