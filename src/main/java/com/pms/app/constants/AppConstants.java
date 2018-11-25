@@ -13,7 +13,7 @@ public class AppConstants {
 	
 	public static final String INSERT_EXTSP_TENANT="insert into ext_user_sp_mapping(sp_username,sp_email,db_name) values(?,?,?)";
 	
-	
+	public static final String INSERT_REGSP_TENANT="insert into sp_user_mapping(tenant_id,sp_user_email) values(?,?)";
 	public static final String ASSET_SUBREPAIRTYPE_QUERY = "select subcategory2_id, subcategory2_name from pm_asset_subcategory2 where "
 			+ " subcategory1_id = ? order by subcategory2_name";
 	

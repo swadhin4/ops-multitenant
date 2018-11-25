@@ -29,7 +29,7 @@ public class UserModel implements Serializable {
 	private String companyName;
 	private String companyCode;
 	private String userType;
-	
+	private int tenantId;
 	public Long getUserId() {
 		return userId;
 	}
@@ -145,6 +145,12 @@ public class UserModel implements Serializable {
 	}
 	public void setPhoneNo(Long phoneNo) {
 		this.phoneNo = phoneNo;
+	}
+	public int getTenantId() {
+		return tenantId;
+	}
+	public void setTenantId(int tenantId) {
+		this.tenantId = tenantId;
 	}
 	@Override
 	public int hashCode() {

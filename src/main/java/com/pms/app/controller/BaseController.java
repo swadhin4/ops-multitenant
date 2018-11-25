@@ -91,6 +91,7 @@ public class BaseController {
 								loginUser.setSysPassword(authUser.getUser().getSysPassword());
 								loginUser.setPhoneNo(String.valueOf(authUser.getUser().getPhoneNo()));
 								loginUser.setDbName(authUser.getUser().getDbName());
+								loginUser.setTenantId(authUser.getUser().getTenantId());
 								//loginUser.setDbName("probmng30");
 								List<String> roles = authUser.getUser().getRoleNameList();
 								Role role = new Role();

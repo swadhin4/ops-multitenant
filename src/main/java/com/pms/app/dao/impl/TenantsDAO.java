@@ -43,5 +43,24 @@ public class TenantsDAO {
 		 		return false;
 		 	}
 	}
-
+	public boolean insertRegisteredSPDetails(int spTenantId, String registerdSPEmail) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getTenantDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+		jdbcTemplate.update(new PreparedStatementCreator(){
+			 @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_REGSP_TENANT, 
+		            Statement.RETURN_GENERATED_KEYS);
+				ps.setInt(1, spTenantId);
+				ps.setString(2, registerdSPEmail);
+				return ps;		
+			}
+		}, key);
+		 	LOGGER.info("Saved Registered SP {} with id {}.", registerdSPEmail, key.getKey());
+		 	if(key.getKey().intValue()>0){
+		 		return true;
+		 	}else{
+		 		return false;
+		 	}
+	}
 }

@@ -109,6 +109,7 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 			appUser = extSPUser;
 		}
 		appUser.setDbName(tenant.getDb_name());
+		appUser.setTenantId(tenant.getTenant_id());
 		return appUser;
 	}
 

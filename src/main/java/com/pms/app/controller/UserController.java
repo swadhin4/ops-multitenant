@@ -245,10 +245,15 @@ public class UserController extends BaseController {
 						response.setStatusCode(204);
 						response.setMessage("User with \"" + appUserVO.getEmail() + "\" already exists.");
 					} else {
-						response.setStatusCode(200);
-						response.setMessage("User with \"" + appUserVO.getEmail() + "\" registered successfully.");
-						appUserVO.setGeneratedPassword(userVO.getPasswordGenerated());
-						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						if(userVO.getStatus()==204){
+							response.setMessage("Unable to map user to tenant ");
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}else{
+							response.setStatusCode(200);
+							response.setMessage("User with \"" + appUserVO.getEmail() + "\" registered successfully.");
+							appUserVO.setGeneratedPassword(userVO.getPasswordGenerated());
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}
 						//emailService.sendSuccessSaveEmail(userVO.getEmailId(), appUserVO);
 					}
 				} catch (Exception e) {

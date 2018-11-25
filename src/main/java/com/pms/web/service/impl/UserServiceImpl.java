@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
+import com.pms.app.dao.impl.TenantsDAO;
 import com.pms.app.dao.impl.UserDAO;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.CustomerVO;
@@ -29,7 +30,6 @@ import com.pms.web.service.TenantService;
 import com.pms.web.service.UserService;
 import com.pms.web.service.security.AuthorizedUserDetails;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
-import com.pms.web.util.RandomUtils;
 import com.pms.web.util.RestResponse;
 
 @Service("userService")
@@ -50,7 +50,10 @@ public class UserServiceImpl implements UserService {
 	private ServiceProviderDAOImpl getServiceProviderDAOImpl(String dbName) {
 		return new ServiceProviderDAOImpl(dbName);
 	}
-	
+	private TenantsDAO getTenantsDAO(String dbName){
+		return new TenantsDAO(dbName);
+		
+	}
 	@Autowired
 	private TenantService tenantService;
 	
@@ -139,19 +142,27 @@ public class UserServiceImpl implements UserService {
 				savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
 				Long roleId = getSPUserDAO(user.getDbName()).saveUserRole(savedUserVO);
 				if(roleId>0){
-					LOGGER.info("SP  {} created with role {}", savedUserVO.getFirstName(), roleId);
+					LOGGER.info("SP  {} created with role {}", savedUserVO.getEmailId(), roleId);
 					savedUserVO.setStatus(200);
+					boolean isSPUserCreated = getTenantsDAO("tenants").insertRegisteredSPDetails(user.getTenantId(), savedUserVO.getEmailId());
+					if(isSPUserCreated){
+						savedUserVO.setStatus(200);
+						LOGGER.info("SP {} tenant mapping created ", savedUserVO.getEmailId());
+						List<CustomerVO> customerList = appUserVO.getCustomerList();
+						if(!customerList.isEmpty()){
+							Integer recordsMapped = getServiceProviderDAOImpl(user.getDbName()).createServiceProviderUserAccess(customerList, savedUserVO, user);
+							if(recordsMapped > 0 ){
+								savedUserVO.setStatus(200);
+							}
+						}
+					}else{
+						LOGGER.info("Unable to map SP User. SP User can not login");
+						savedUserVO.setStatus(204);
+					}
 				}else{
 					LOGGER.info("SP User not created with role");
 				}
-				List<CustomerVO> customerList = appUserVO.getCustomerList();
 				
-				if(!customerList.isEmpty()){
-					Integer recordsMapped = getServiceProviderDAOImpl(user.getDbName()).createServiceProviderUserAccess(customerList, savedUserVO, user);
-					if(recordsMapped > 0 ){
-						savedUserVO.setStatus(200);
-					}
-				}
 			}
 		}
 		return savedUserVO;
