@@ -126,26 +126,30 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 	    		var isDelFlagEnabled = $scope.SPUserCustomers[i].delFlagEnabled;
 	    		
 	    		
-	    		if(isSelected || accessId!=null) {
+	    		if(isSelected) {
+	    			$scope.SPUserCustomersData.push({
+    					"accessId":accessId || null,
+    					"customerId":$scope.SPUserCustomers[i].customerId,
+                		"customerCode":$scope.SPUserCustomers[i].customerCode,
+                		"customerName":$scope.SPUserCustomers[i].customerName,
+            			"countryName": $scope.SPUserCustomers[i].countryName,
+            			"isDelFlagEnabled": isDelFlagEnabled,
+            			 operation:"UPDATE",
+            			 value: (isSelected==true ?"ZERO":"ONE")
+            		});
 	    			
-	    			if(isDelFlagEnabled==0) {
-	    				$scope.SPUserCustomersData.push({
-	                		"customerId":$scope.SPUserCustomers[i].customerId,
-	                		"customerCode":$scope.SPUserCustomers[i].customerCode,
-	                		"customerName":$scope.SPUserCustomers[i].customerName,
-	            			"countryName": $scope.SPUserCustomers[i].countryName,
-	            			"isDelFlagEnabled": 0
-	            		});
 	    			} else {
 	    				$scope.SPUserCustomersData.push({
-	                		"customerId":$scope.SPUserCustomers[i].customerId,
+	    					"accessId":accessId || null,
+	    					"customerId":$scope.SPUserCustomers[i].customerId,
 	                		"customerCode":$scope.SPUserCustomers[i].customerCode,
 	                		"customerName":$scope.SPUserCustomers[i].customerName,
 	            			"countryName": $scope.SPUserCustomers[i].countryName,
-	            			"isDelFlagEnabled": 1
-	            		});
-	    			}
-	    		}	    			    		
+	            			"isDelFlagEnabled": isDelFlagEnabled,
+	            			operation:"NEW",
+	            			 value: ( isSelected==false ?"ONE":"ZERO")
+	            			});
+	    			} 			    		
 	    	}
 	    	console.log("Map Customer Update SPUserCustomersData---->",$scope.SPUserCustomersData);
 	    		    	
@@ -467,6 +471,7 @@ chrisApp.controller('spUserController',  ['$rootScope', '$scope', '$filter', '$l
 		    
 		    $scope.updateSPUserRoleInfo=function(selectedUser){
 		    	$('#loadingDiv').show();
+		    	selectedUser.status=0;
 		    	roleService.updateRole(selectedUser)
 		    	.then(function(data) {
 	    			console.log(data)

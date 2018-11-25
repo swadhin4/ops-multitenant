@@ -76,11 +76,21 @@ public class ServiceProviderCompanyController extends BaseController {
 		if (loginUser != null) {
 			try {
 				String insertedRows = serviceProviderService.updateServiceProviderCustomers(customerVOList,selectedSPUserId, loginUser);
-				response.setStatusCode(200);
-				response.setObject(insertedRows);
-				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				if(insertedRows.equalsIgnoreCase("success")){
+					response.setStatusCode(200);
+					response.setMessage("Customer mapping updated successfully");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+				else if (insertedRows.equalsIgnoreCase("failure")){
+					response.setStatusCode(204);
+					response.setMessage("Unable to Map Customers for selected service provider");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.BAD_REQUEST);
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
+				response.setStatusCode(500);
+				response.setMessage("Exception while mapping customers");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 		return responseEntity;

@@ -355,6 +355,21 @@ public class UserDAO {
 		return userList;
 	}
 
+	public int updateSPUserStatus(AppUserVO appUserVO) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.SP_UPDATE_USER_STATUS);
+	            ps.setInt(1, Integer.parseInt(appUserVO.getIsEnabled()));
+	            ps.setLong(2, appUserVO.getUserId());
+	            return ps;
+		      }
+		      });
+		 	LOGGER.info("Update SP user status with  {}.", appUserVO.getIsEnabled());
+		 	return updated;
+	}
+
 	
 	
 }

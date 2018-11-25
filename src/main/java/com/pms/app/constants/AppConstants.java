@@ -289,6 +289,8 @@ public class AppConstants {
 	
 	public static final String UPDATE_USER_STATUS = "UPDATE pm_users set enabled=?  where user_id=?";
 	
+	public static final String SP_UPDATE_USER_STATUS = "UPDATE sp_users set enabled=?  where user_id=?";
+	
 	public static final String INSERT_NEW_USER_QUERY = "INSERT into pm_users(first_name, last_name, email_id, login_name, phone, password, company_id, enabled, created_date, sys_password, version) "
 			+ " values(?,?,?,?,?, ?,?,?,NOW(),'YES',0)";
 	
@@ -321,7 +323,7 @@ public class AppConstants {
 	
 	public static final String UPDATE_SERVICEPROVIDER_USER_ROLE_QUERY = "update sp_user_role set role_id=?, modified_by=?, modified_date=? where user_id=? ";
 	
-	public static final String DELETE_SERVICEPROVIDER_USER_ACCESS_QUERY = "update sp_user_access set del_flag=1 where sp_cust_id=? ";
+	public static final String UPDATE_SERVICEPROVIDER_USER_ACCESS_QUERY = "update sp_user_access set del_flag=? where sp_cust_id=? and access_id=?";
 
 	public static final String EXT_SP_USER_TENANT="select sp_username as username, sp_email as user_email, db_name from ext_user_sp_mapping where sp_username=?";
 	

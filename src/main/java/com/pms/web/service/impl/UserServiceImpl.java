@@ -127,7 +127,8 @@ public class UserServiceImpl implements UserService {
 				savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
 				Long roleId = getUserDAO(user.getDbName()).saveUserRole(savedUserVO);
 				if(roleId>0){
-					LOGGER.info("User created with role");
+					LOGGER.info("Customer  {} created with role {}", savedUserVO.getFirstName(), roleId);
+					savedUserVO.setStatus(200);
 				}else{
 					LOGGER.info("User not created with role");
 				}
@@ -138,7 +139,8 @@ public class UserServiceImpl implements UserService {
 				savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
 				Long roleId = getSPUserDAO(user.getDbName()).saveUserRole(savedUserVO);
 				if(roleId>0){
-					LOGGER.info("SP User created with role");
+					LOGGER.info("SP  {} created with role {}", savedUserVO.getFirstName(), roleId);
+					savedUserVO.setStatus(200);
 				}else{
 					LOGGER.info("SP User not created with role");
 				}
@@ -209,8 +211,15 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public RestResponse updateStatus(AppUserVO appUserVO, LoginUser user) throws Exception {
-		int updated = getUserDAO(user.getDbName()).updateUserStatus(appUserVO);
+		int updated=0;
 		RestResponse response = new RestResponse();
+		if(user.getUserType().equalsIgnoreCase("USER")){
+			updated =   getUserDAO(user.getDbName()).updateUserStatus(appUserVO);
+		}
+		else if(user.getUserType().equalsIgnoreCase("SP")){
+			updated =   getUserDAO(user.getDbName()).updateSPUserStatus(appUserVO);
+		}
+		
 		if(updated==1 && Integer.parseInt(appUserVO.getIsEnabled())==0){
 			response.setStatusCode(200);
 			response.setCalculatedVal(updated);

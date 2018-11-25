@@ -95,9 +95,12 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(user.getDbName());
 		//serviceProviderDAOImpl.updatetServiceProviderUser(sPUserVo);
 	//	serviceProviderDAOImpl.updateServiceProviderUserRole(sPUserVo, user);
-		serviceProviderDAOImpl.updateServiceProviderUserAccess(customerList, selectedSPUserId, user);
-
+		int affectedRows = serviceProviderDAOImpl.updateServiceProviderUserAccess(customerList, selectedSPUserId, user);
+		if(affectedRows>0){
 		return "success";
+		}else{
+			return "failure";
+		}
 	}
 
 	@Override

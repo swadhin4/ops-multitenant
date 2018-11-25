@@ -23,9 +23,9 @@ public interface ServiceProviderDAO {
 
 	public String updateServiceProviderUserRole(SPUserVo sPUserVo, LoginUser loginUser) throws Exception;
 
-	public String updateServiceProviderUserAccess(SPUserVo useraccessvo, LoginUser loginUser) throws Exception;
+	//public String updateServiceProviderUserAccess(SPUserVo useraccessvo, LoginUser loginUser) throws Exception;
 
-	public int[] updateServiceProviderUserAccess(List<CustomerVO> customerList, Long selectedSPUserId,
+	public int updateServiceProviderUserAccess(List<CustomerVO> customerList, Long selectedSPUserId,
 			LoginUser loginUser) throws Exception;
 
 	// public List<SPUserVo> getAllUsers() throws Exception;

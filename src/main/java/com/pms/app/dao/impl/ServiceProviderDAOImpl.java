@@ -171,7 +171,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 		return insertedRows.toString();
 	}
 
-	@Override
+	/*@Override
 	public String updateServiceProviderUserAccess(SPUserVo useraccessvo, LoginUser loginUser) throws Exception {
 		// TODO Auto-generated method stub
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
@@ -201,24 +201,28 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 			}
 		}
 		return "success";
-	}
+	}*/
 
 	@Override
-	public int[] updateServiceProviderUserAccess(List<CustomerVO> customerList, Long selectedSPUserId, LoginUser loginUser) throws Exception {
+	public int updateServiceProviderUserAccess(List<CustomerVO> customerList, Long selectedSPUserId, LoginUser loginUser) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updatedRows=0;
+		int insertedRows=0;
 		for (CustomerVO spUserAccessVO : customerList) {
-			if (spUserAccessVO.getAccessId()!=null && spUserAccessVO.isDelFlagEnabled()) {
-				jdbcTemplate.update(AppConstants.DELETE_SERVICEPROVIDER_USER_ACCESS_QUERY,
+			if (spUserAccessVO.getAccessId()!=null  ) {
+				updatedRows = jdbcTemplate.update(AppConstants.UPDATE_SERVICEPROVIDER_USER_ACCESS_QUERY,
 						new PreparedStatementSetter() {
 
 							@Override
 							public void setValues(PreparedStatement ps) throws SQLException {
-								ps.setLong(1, spUserAccessVO.getCustomerId());
+								ps.setLong(1, spUserAccessVO.getValue().equalsIgnoreCase("ONE")?1:0 );
+								ps.setLong(2, spUserAccessVO.getCustomerId());
+								ps.setLong(3, spUserAccessVO.getAccessId());
 							}
 						});
 
-			} else if (spUserAccessVO.getAccessId() == null) {
-				jdbcTemplate.update(AppConstants.INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY,
+			} else if (spUserAccessVO.getAccessId() == null ) {
+				insertedRows = jdbcTemplate.update(AppConstants.INSERT_SERVICEPROVIDER_USER_ACCESS_QUERY,
 						new PreparedStatementSetter() {
 
 							@Override
@@ -230,7 +234,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 						});
 			}
 		}
-		return null;
+		return updatedRows+insertedRows ;
 	
 	}
 /*	@Override
@@ -375,7 +379,11 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 								customerVO.setSelected(true);
 								customerVO.setAccessId(rs.getLong("access_id"));
 								customerVO.setDelFlagEnabled(true); 
-							}else{
+							}else if(StringUtils.isNotBlank(rs.getString("del_flag")) && rs.getInt("del_flag")==1){
+								customerVO.setAccessId(rs.getLong("access_id"));
+								customerVO.setSelected(false);
+								customerVO.setDelFlagEnabled(false); 
+							}else {
 								customerVO.setSelected(false);
 								customerVO.setDelFlagEnabled(false); 
 							}

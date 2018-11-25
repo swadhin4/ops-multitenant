@@ -15,18 +15,11 @@ public class CustomerVO {
 	private String countryName;
 	private String custDBName;
 	
-	public String getCustDBName() {
-		return custDBName;
-	}
-
-	public void setCustDBName(String custDBName) {
-		this.custDBName = custDBName;
-	}
-
 	private boolean selected;
 	private Long accessId;
 	private boolean isDelFlagEnabled;
-	
+	private String operation;
+	private String value;
 	private Long userId;
 	private Long countryId;
 	
@@ -124,6 +117,29 @@ public class CustomerVO {
 
 	public void setCountryId(Long countryId) {
 		this.countryId = countryId;
+	}
+	public String getCustDBName() {
+		return custDBName;
+	}
+
+	public void setCustDBName(String custDBName) {
+		this.custDBName = custDBName;
+	}
+
+	public String getOperation() {
+		return operation;
+	}
+
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
 	}
 
 	@Override
