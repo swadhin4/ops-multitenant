@@ -46,7 +46,7 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
             var def = $q.defer();
             $http.get(hostLocation+"/serviceprovidercompany/customers/tickets/"+custCode+"/"+custDBName)
                 .success(function(data) {
-                	//console.log(data)
+                	console.log("getSPCustomerTicketList",data)
                     def.resolve(data);
                 })
                 .error(function(data) {

@@ -328,6 +328,19 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
 			 $scope.successMessage="";
 			 $scope.modalErrorMessage="";
 		}
+		
+		$scope.resetPassword=function(){
+			serviceProviderService.resetServiceProviderPassword($scope.selectedServiceProvider)
+			.then(function(data) {
+				console.log(data)
+    			if(data.statusCode == 200){
+    				$scope.selectedServiceProvider = angular.copy(data.object);
+    				$scope.selectedServiceProvider.isSelected=true;
+    			}
+			}, function(data) {
+                console.log('Unable to get  Service Provider details')
+            });
+		}
 }]);    
 
 function validateDropdownValues(dropDownId){

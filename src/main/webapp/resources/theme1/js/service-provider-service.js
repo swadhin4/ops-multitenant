@@ -9,9 +9,24 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
  			getServiceProviderByCustomer:getServiceProviderByCustomer,
  			validateSPLogin:validateSPLogin,
  			getLoggedInSPUser:getLoggedInSPUser,
- 			getSelectedServiceProvider:getSelectedServiceProvider
+ 			getSelectedServiceProvider:getSelectedServiceProvider,
+ 			resetServiceProviderPassword:resetServiceProviderPassword
         };
  		return ServiceProviderService;
+ 		
+ 		function resetServiceProviderPassword(serviceProvider){
+		     var def = $q.defer();
+	        $http.get(hostLocation+"/serviceprovider/resetpassword/"+serviceProvider.serviceProviderId)
+	            .success(function(data) {
+	            	//console.log(data)
+	                def.resolve(data);
+	            })
+	            .error(function(data) {
+	            	console.log(data)
+	                def.reject(data);
+	            });
+	        return def.promise;
+		}
  		
  		function getSelectedServiceProvider(spId){
 		     var def = $q.defer();

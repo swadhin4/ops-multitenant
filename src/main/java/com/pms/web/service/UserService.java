@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
+import com.pms.app.view.vo.UserSiteAccessVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
@@ -70,4 +71,8 @@ public interface UserService {
 	List<UserVO> getUserSiteAccess(Long userId, LoginUser user) throws Exception;
 
 	List<UserVO> getUserSiteWithoudAccess(Long siteId, LoginUser user) throws Exception;
+
+	boolean assignUserToSite(Long userId, Long siteId, LoginUser loginUser);
+
+	void removeUserAccessFromSite(Long accessId, LoginUser loginUser);
 }

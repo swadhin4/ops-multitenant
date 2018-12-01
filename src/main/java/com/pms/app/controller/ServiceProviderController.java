@@ -64,7 +64,27 @@ public class ServiceProviderController extends BaseController {
 			return "redirect:/login";
 		}
 	}
-
+	
+	@RequestMapping(value = "/resetpassword/{spid}", method = RequestMethod.GET)
+	public ResponseEntity<RestResponse>  resetServiceProviderPassword(final HttpServletRequest request, @PathVariable(value="spid") Long spId,
+			final HttpSession session) {
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		if (loginUser!=null) {
+			try {
+				serviceProviderService.resetPassword(spId, loginUser);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			
+		}
+		return responseEntity;
+	}
+	
+	
 	@RequestMapping(value = "/user/list", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> userList(final HttpServletRequest request, final HttpSession session) {
 		logger.info("Inside UserController - userList" );

@@ -2145,10 +2145,11 @@ $scope.saveAssetEquipmentForm=function(){
 			console.log(data)
 			if(data.statusCode == 200){
 				$scope.siteUserList=[];
-				
+				$scope.siteAssignedUserList=[];
 				if(data.object.length>0){
 					$.each(data.object,function(key,val){
 							var assignedUsers={
+									siteAccessId:val.siteAccessId,
 									userId:val.userId,
 									firstName:val.firstName,
 									lastName:val.lastName,
@@ -2157,6 +2158,7 @@ $scope.saveAssetEquipmentForm=function(){
 									hasAccess:true
 							}
 							$scope.siteUserList.push(assignedUsers);
+							$scope.siteAssignedUserList.push(assignedUsers);
 					});
 				}
 			
@@ -2194,13 +2196,13 @@ $scope.saveAssetEquipmentForm=function(){
 	}
 
 	$scope.assignUserToSite=function(selectedUser,selectedSite){
-		siteService.assignSiteAccess(selectedUser.user.userId,selectedSite.siteId)
+		siteService.assignSiteAccess(selectedUser.userId,selectedSite.siteId)
 		.then(function(data) {
 			//console.log(data)
 			if(data.statusCode == 200){
 				$scope.manageUserAccessForSite($scope.selectedSite);
 				//Send notification after User is assigned - Start
-				var fullName = selectedUser.user.firstName +" "+ selectedUser.user.lastName;
+				var fullName = selectedUser.firstName +" "+ selectedUser.lastName;
 				var siteName = selectedSite.siteName;
 				sendNotification(fullName +" is assigned to Site "+ siteName);
 				
@@ -2218,13 +2220,13 @@ $scope.saveAssetEquipmentForm=function(){
 	}
 
 	$scope.revokeUserAccessFromSite=function(selectedUser){
-		siteService.removeSiteAccess(selectedUser.accessId)
+		siteService.removeSiteAccess(selectedUser.siteAccessId)
 		.then(function(data) {
 			//console.log(data)
 			if(data.statusCode == 200){
 				$scope.manageUserAccessForSite($scope.selectedSite);
 				//Send notification after User is assigned - Start
-				var fullName = selectedUser.user.firstName +" "+ selectedUser.user.lastName;
+				var fullName = selectedUser.firstName +" "+ selectedUser.lastName;
 				var siteName = $scope.selectedSite.siteName;
 				sendNotification(fullName +" is revoked from  Site "+ siteName);
 				

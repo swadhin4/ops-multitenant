@@ -1559,7 +1559,7 @@ $(function() {
 				aria-label="Close">
 				<span aria-hidden="true">&times;</span>
 			</button>
-			<h4 class="modal-title"><span id="siteModalLabel">Manage User</span>   <a class="btn btn-warning">Site <span class="badge">{{selectedSite.siteName}} - {{selectedSite.siteId}}</span></a></h4>
+			<h4 class="modal-title"><span id="siteModalLabel">Manage User Access </span>   <a class="btn btn-warning">Site <span class="badge">{{selectedSite.siteName}} - {{selectedSite.siteId}}</span></a></h4>
 			<div class="alert alert-danger alert-dismissable" id="modalMessageDiv"
 				style="display: none;  height: 34px;white-space: nowrap;">
 				<strong>Error! </strong> {{modalErrorMessage}} 
@@ -1580,6 +1580,7 @@ $(function() {
 								</div>
 								 <div class="box-body no-padding">
 										<input type="text" class="form-control" placeholder="Search by Name or Email" ng-model="userAccessVal" required style="width:100%">
+										<div style="overflow-y:auto;height:240px">
 									<table ng-if="siteUserList.length>0"
 										class="table table-bordered table-hover table-condensed "
 										style="height: 50px;">
@@ -1592,7 +1593,7 @@ $(function() {
 											</tr>
 										</thead>
 										<tbody>
-											<tr ng-repeat="val in siteUserList | searchFor : userAccessVal">
+											<tr ng-repeat="val in siteUserList | searchFor : userAccessVal" >
 												<td>{{val.firstName}} {{val.lastName}}</td>
 												<td>{{val.email}}</td>
 												<th><b>{{val.role.description}}</b></th>
@@ -1609,6 +1610,7 @@ $(function() {
 											</tr>
 										</tbody>
 									</table>
+									</div>
 									</div>
 								</div>
 							</div>
@@ -1656,14 +1658,33 @@ $(function() {
 			</div>
 		 <div class="modal-footer">
 					<a href class="btn btn-default pull-left"	id="siteModalCloseBtn" data-dismiss="modal">Close</a>
-					<a href class="btn btn-danger">Users Assigned<span class="badge">{{siteAssignedUserList.length}}</span></a>
+					<a href class="btn btn-danger">Users Assigned <span class="badge"> {{siteAssignedUserList.length}}</span></a>
 					<!-- <a href class="btn btn-warning">Users Not Assigned<span class="badge">{{siteUnAssignedUserList.length}}</span></a> -->
 				</div>
 		 </form>
 		 </div>
 		 </div>
 		 </div>
+					<div id="accessConfirmModal" class="modal fade accessConfirmModal" data-keyboard="false" data-backdrop="static">
+			<div class="modal-dialog" style="width: 30%">
+				<div class="modal-content">
+				<div class="box-header" style="background-color: rgba(0, 129, 239, 0.2);">
+				<h3 class="box-title" id="modaltitle">Password change confirmation</h3>
+					<a href="${webContextPath}/logout"  data-dismiss="modal" aria-hidden="true" class="close">X</a>
 					
+				</div>
+				<div class="modal-body">
+				<p>
+					You have successfully changed your password. Please relogin using the new password.
+				</p>
+				</div>
+				<div class="box-footer">
+					<a href="${webContextPath}/logout" class="btn btn-primary">RE LOGIN</a>
+				</div>
+				</div>
+			</div>
+			
+		</div>	
 		</div>
 		</section>
 		</div>

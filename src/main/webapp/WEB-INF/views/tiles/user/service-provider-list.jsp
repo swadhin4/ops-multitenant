@@ -219,13 +219,21 @@ $(function() {
 										<i class="fa fa-minus"></i>
 									</button> --%>
 									<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
-									<div class="btn-group">
-											<div class="btn-group pull-right">
-											<a href ng-click="editServiceProvider()" ng-if="allServiceProviders.length>0"
-										class="btn btn-success"	style="margin-right: 5px;" data-toggle="modal"><span class="fa fa-edit">
+										<div class="btn-group pull-right" >
+									<button type="button"
+										class="btn btn-success dropdown-toggle pull-right"
+										style="margin-right: 5px;" data-toggle="dropdown"><span class="fa fa-gear"></span>
+										Manage <span class="caret"></span>
+									</button>
+
+									<ul class="dropdown-menu" role="menu">
+										<li> <a href ng-click="editServiceProvider()" ng-if="allServiceProviders.length>0"
+										style="margin-right: 5px;" data-toggle="modal"><span class="fa fa-edit">
 										Edit </span>
-									</a>
-									</div>
+									</a></li>
+										<li> <a href ng-click="resetPassword()"> Reset Password</a></li>
+									
+									</ul>
 									</div>
 									</sec:authorize>
 									<%-- <button type="button" class="btn btn-box-tool"

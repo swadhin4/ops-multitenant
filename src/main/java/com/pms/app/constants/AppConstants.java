@@ -402,12 +402,16 @@ public class AppConstants {
 			+ " left join pm_asset pa on pct.asset_id=pa.asset_id "
 			+ " left join pm_status pst on pct.status_id=pst.status_id where prs.rsp_company_code=?";
 
-	public static final String USER_LIST_FOR_SITE_NOACCESS_QUERY = "select pu.user_id,pu.first_name,pu.last_name,pu.email_id,pr.role_id,pr.role_name,pr.role_desc from pm_users pu "
+	public static final String USER_LIST_WITHOUT_SITE_ACCESS_QUERY = "select pu.user_id,pu.first_name,pu.last_name,pu.email_id,pr.role_id,pr.role_name,pr.role_desc from pm_users pu "
 			+ "	left join pm_user_role pur on pur.user_id = pu.user_id 	left join pm_role pr on pr.role_id = pur.role_id"
 			+ " where pu.user_id not in (select user_id from pm_user_access where site_id=?)";
 
-	public static final String USER_LIST_FOR_SITE_ACCESS_QUERY = "select pua.user_id,pu.first_name,pu.last_name,pu.email_id,pr.role_id,pr.role_name,pr.role_desc"
+	public static final String USER_LIST_WITH_SITE_ACCESS_QUERY = "select pua.access_id, pua.user_id,pu.first_name,pu.last_name,pu.email_id,pr.role_id,pr.role_name,pr.role_desc"
 			+ " from pm_user_access pua	left join pm_users pu on pua.user_id = pu.user_id "
 			+ "	left join pm_user_role pur on pur.user_id = pu.user_id"
 			+ " left join pm_role pr on pr.role_id = pur.role_id where pua.site_id = ?";
+
+	public static final String REVOKE_SITE_ACCESS_QUERY = "delete from pm_user_access where access_id=?";
+
+	public static final String GRANT_SITE_ACCESS_TO_USERID = "insert into pm_user_access (user_id, site_id) values (?,?)";
 }

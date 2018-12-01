@@ -58,7 +58,7 @@
 }
 
 .table th {
-    background: none repeat scroll 0 0 #0077BF !important;
+	background: none repeat scroll 0 0 #0077BF !important;
 }
 
 .currentSelected {
@@ -148,24 +148,183 @@
 
 						<div class="box-header with-border">
 							<h3 class="box-title">Customer Details</h3>
+
+							<div class="row" style="margin-top: 10px;">
+								<div class="col-md-4">
+									<select name="spCustomerListSelect" id="spCustomerListSelect"
+										class="form-control"
+										onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
+										required>
+									</select>
+
+								</div>
+								<div class="col-md-2 text-right" style="margin-top: 8px;">
+									<label>Country Name:</label>
+
+								</div>
+
+								<div class="col-md-4">
+									<input id="countryName" type="text" class="form-control"
+										readonly>
+								</div>
+							</div>
+
 						</div>
 
 						<div class="box-body" style="height: 70%">
 							<div class="row">
 								<div class="col-md-12">
-									<div style="overflow-x: hidden; overflow-y: auto; height: 110%">
+									<div class="nav-tabs-custom">
+										<ul class="nav nav-tabs">
+											<li class="active"><a href="#ticketsTab"
+												onclick="getIncidents()" data-toggle="tab">Incidents</a> <span class="label label-warning"
+												style="position: relative; top: -33px; left: 110px;">{{spCustomerList.length
+													|| 0}}</span></li>
+													
+													<li><a href="#sitesTab"
+												onclick="getIncidents()" data-toggle="tab">Sites</a> <span class="label label-warning"
+												style="position: relative; top: -33px; left: 110px;">{{spCustomerList.length
+													|| 0}}</span></li>
+													
+													<li><a href="#assetsTab"
+												onclick="getIncidents()" data-toggle="tab">Assets</a> <span class="label label-warning"
+												style="position: relative; top: -33px; left: 110px;">{{spCustomerList.length
+													|| 0}}</span></li>
+
+										</ul>
+										
+
+										<div class="tab-content">
+
+											<div class="tab-pane active" id="ticketsTab">
+												<div class="box">
+													<div class="box-header with-border">
+														<h3 class="box-title">My Tickets</h3>
+													</div>
+													<div class="box-body">
+
+														<div class="row">
+															<div class="col-md-12">
+																<div
+																	style="overflow-x: hidden; overflow-y: auto; height: 110%">
+																	<div class="table-responsive">
+																		<table id="incidentDetails"
+																			class="table table-bordered table-striped"
+																			cellspacing="0">
+																		</table>
+																	</div>
+																</div>
+															</div>
+														</div>
+
+													</div>
+													<div class="box-footer">
+														<div class="row">
+															<div class="col-sm-4 col-xs-6">
+																<!-- <div class="description-block border-right">
+																	<a class="btn btn-danger pull-left">Total Tickets :
+																		<span class="badge">{{relatedTicketData.length}}</span>
+																	</a>
+																</div> -->
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											
+											
+											
+											<div class="tab-pane" id="sitesTab">
+												<div class="box">
+													<div class="box-header with-border">
+														<h3 class="box-title">Sites</h3>
+													</div>
+													<div class="box-body">
+
+														<div class="row">
+															<div class="col-md-12">
+																<div
+																	style="overflow-x: hidden; overflow-y: auto; height: 110%">
+																	<div class="table-responsive">
+																		<table id="incidentDetails"
+																			class="table table-bordered table-striped"
+																			cellspacing="0">
+																		</table>
+																	</div>
+																</div>
+															</div>
+														</div>
+
+													</div>
+													<div class="box-footer">
+														<div class="row">
+															<div class="col-sm-4 col-xs-6">
+																<!-- <div class="description-block border-right">
+																	<a class="btn btn-danger pull-left">Total Tickets :
+																		<span class="badge">{{relatedTicketData.length}}</span>
+																	</a>
+																</div> -->
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											
+											
+											<div class="tab-pane" id="assetsTab">
+												<div class="box">
+													<div class="box-header with-border">
+														<h3 class="box-title">Assets</h3>
+													</div>
+													<div class="box-body">
+
+														<div class="row">
+															<div class="col-md-12">
+																<div
+																	style="overflow-x: hidden; overflow-y: auto; height: 110%">
+																	<div class="table-responsive">
+																		<table id="incidentDetails"
+																			class="table table-bordered table-striped"
+																			cellspacing="0">
+																		</table>
+																	</div>
+																</div>
+															</div>
+														</div>
+
+													</div>
+													<div class="box-footer">
+														<div class="row">
+															<div class="col-sm-4 col-xs-6">
+																<!-- <div class="description-block border-right">
+																	<a class="btn btn-danger pull-left">Total Tickets :
+																		<span class="badge">{{relatedTicketData.length}}</span>
+																	</a>
+																</div> -->
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											
+											
+
+										</div>
+
+									</div>
+									<!-- <div style="overflow-x: hidden; overflow-y: auto; height: 110%">
 										<div>
 											<table id="customerDetails" style="width:100%"
 												class="table table-bordered table-striped">
 											</table>
 										</div>
-									</div>
+									</div> -->
 								</div>
 							</div>
 						</div>
 
 
-						<div class="box-footer">
+						 <div class="box-footer">
 							<div class="row">
 								<div class="col-sm-4 col-xs-6">
 									<div class="description-block border-right">
@@ -174,7 +333,7 @@
 									</div>
 								</div>
 							</div>
-						</div>
+						</div> 
 
 					</div>
 				</div>

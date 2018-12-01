@@ -311,12 +311,13 @@ public class UserDAO {
 
 	public List<UserVO> getUserWithSiteAccess(Long siteId) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<UserVO> userList = jdbcTemplate.query(AppConstants.USER_LIST_FOR_SITE_ACCESS_QUERY, new Object[] {siteId}, new ResultSetExtractor<List<UserVO>>(){
+		List<UserVO> userList = jdbcTemplate.query(AppConstants.USER_LIST_WITH_SITE_ACCESS_QUERY, new Object[] {siteId}, new ResultSetExtractor<List<UserVO>>(){
 			List<UserVO> userList = new ArrayList<UserVO>();
 			@Override
 			public List<UserVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
 				while(rs.next()){
 					UserVO userVO = new UserVO();
+					userVO.setSiteAccessId(rs.getLong("access_id"));
 					userVO.setUserId(rs.getLong("user_id"));
 					userVO.setFirstName(rs.getString("first_name"));
 					userVO.setLastName(rs.getString("last_name"));
@@ -334,7 +335,7 @@ public class UserDAO {
 	
 	public List<UserVO> getUserWithoutSiteAccess(Long siteId) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<UserVO> userList = jdbcTemplate.query(AppConstants.USER_LIST_FOR_SITE_NOACCESS_QUERY, new Object[] {siteId}, new ResultSetExtractor<List<UserVO>>(){
+		List<UserVO> userList = jdbcTemplate.query(AppConstants.USER_LIST_WITHOUT_SITE_ACCESS_QUERY, new Object[] {siteId}, new ResultSetExtractor<List<UserVO>>(){
 			List<UserVO> userList = new ArrayList<UserVO>();
 			@Override
 			public List<UserVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -370,6 +371,31 @@ public class UserDAO {
 		 	return updated;
 	}
 
-	
+	public int grantAccess(Long userId, Long siteId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.GRANT_SITE_ACCESS_TO_USERID);
+	            ps.setLong(1, userId);
+	            ps.setLong(2, siteId);
+	            return ps;
+		      }
+		      });
+		 	LOGGER.info("User site access provided {}, {}", userId, siteId);
+		 	return updated;
+	}
+
+	public void revokeAccess(Long accessId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		 jdbcTemplate.update(new PreparedStatementCreator() {
+			      @Override
+			      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+			        final PreparedStatement ps = connection.prepareStatement(AppConstants.REVOKE_SITE_ACCESS_QUERY);
+		            ps.setLong(1, accessId);
+		            return ps;
+			      }
+			      });
+	}
 	
 }

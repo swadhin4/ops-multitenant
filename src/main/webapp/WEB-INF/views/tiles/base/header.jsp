@@ -41,7 +41,7 @@
  <!-- <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script> -->
 
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery-2.1.4.min.js"></c:url>'></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+ <script src='<c:url value="/resources/theme1/js/jquery-ui.min.js"></c:url>'></script>
 <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script> -->
 <script type="text/javascript"  src='<c:url value="/resources/theme1/js/bootstrap-datepicker.js"></c:url>'></script>
 
@@ -49,7 +49,7 @@
 
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/tether.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap.min.js"></c:url>'></script>
-<script type="text/javascript" 	src='https://adminlte.io/themes/AdminLTE/bower_components/fastclick/lib/fastclick.js'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/fastclick.min.js"></c:url>'></script>
 <script type="text/javascript"  src='<c:url value="/resources/theme1/js/bootstrap-multiselect.js"></c:url>'></script>
 
 <script type="text/javascript" 	src='<c:url value="/resources/dist/js/adminlte.min.js"></c:url>'></script>
@@ -392,6 +392,7 @@ function removeLoader(){
             <i class="fa fa-users" aria-hidden="true" data-toggle="tooltip" data-placement="right"  id="user" ></i> <span>User</span>
           </a>
         </li>
+        
         </sec:authorize>
         <sec:authorize access="hasAnyRole('ROLE_SP_AGENT','ROLE_SP_OPS_MANAGER')">
 	         <li>

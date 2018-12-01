@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
+import com.pms.app.view.vo.UserSiteAccessVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.UserModel;
@@ -415,7 +416,7 @@ public class UserController extends BaseController {
 		logger.info("Exit UserController - getUserSiteAccess" );
 		return responseEntity;
 	}
-	/*@RequestMapping(value = "/assign/site/{userId}/{siteId}", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/assign/site/{userId}/{siteId}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse>  assignUserToSite(@PathVariable(value="userId") Long userId,
 			@PathVariable(value="siteId") Long siteId,final HttpSession session) {
 		logger.info("Inside UserController - assignUserToSite" );
@@ -424,10 +425,11 @@ public class UserController extends BaseController {
 		LoginUser loginUser=getCurrentLoggedinUser(session);
 		if (loginUser!=null) {
 			try {
-				UserSiteAccessVO userSiteAccessVO = userService.assignUserToSite(userId, siteId);
-				response.setStatusCode(200);
-				response.setObject(userSiteAccessVO);
-				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				boolean isUpdated= userService.assignUserToSite(userId, siteId, loginUser);
+				if(isUpdated){
+					response.setStatusCode(200);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
 			} catch (Exception e) {
 				response.setStatusCode(500);
 				response.setMessage("Exception while assign user to site");
@@ -454,18 +456,12 @@ public class UserController extends BaseController {
 		LoginUser loginUser=getCurrentLoggedinUser(session);
 		if (loginUser!=null) {
 			try {
-				boolean isAccessRevoked = userService.removeUserAccessFromSite(accessId);
-				if(isAccessRevoked){
-					logger.info("Access revoked from the user " );
-					response.setStatusCode(200);
-					response.setMessage("Site Access revoked from the User.");
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-				}else{
-					logger.info("Unable to revoke user access for accessId : " + accessId  );
-					response.setStatusCode(204);
-					response.setMessage("Unable to revoke the user access");
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
-				}
+				userService.removeUserAccessFromSite(accessId, loginUser);
+				logger.info("Access revoked from the user " );
+				response.setStatusCode(200);
+				response.setMessage("Site Access revoked from the User.");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				
 			} catch (Exception e) {
 				response.setStatusCode(500);
 				response.setMessage("Exception while revoking access from user.");
@@ -480,5 +476,5 @@ public class UserController extends BaseController {
 		}
 		logger.info("Exit UserController - revokeAccessToSite" );
 		return responseEntity;
-	}*/
+	}
 }

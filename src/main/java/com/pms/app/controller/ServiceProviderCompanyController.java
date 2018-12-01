@@ -179,7 +179,7 @@ public class ServiceProviderCompanyController extends BaseController {
 		
 		if (loginUser != null) {
 			try {
-				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(custcode,custDBName);
+				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(custcode,custDBName, loginUser);
 				response.setStatusCode(200);
 				response.setObject(ticketList);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);

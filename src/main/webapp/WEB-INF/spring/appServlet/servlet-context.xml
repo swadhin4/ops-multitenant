@@ -13,6 +13,7 @@
 	<!-- Enables the Spring MVC @Controller programming model -->
 	<mvc:annotation-driven />
 	<mvc:resources mapping="/resources/**" location="/resources/" />
+	
 	 <mvc:default-servlet-handler/> 
 	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
 
@@ -91,7 +92,12 @@
 	</bean>
 
 	<context:annotation-config />
-	<context:component-scan base-package="com.pms.app.controller" />
+	<context:component-scan base-package="com.pms.app.controller" use-default-filters="false">
+	<context:include-filter type="annotation"
+expression="org.springframework.stereotype.Controller" />
+<context:include-filter type="annotation"
+expression="org.springframework.web.bind.annotation.ControllerAdvice" />
+	</context:component-scan>
 	<bean id="documentationController" class="org.jsondoc.springmvc.controller.JSONDocController">
 	<constructor-arg name="version" value="1.0" />
 	<constructor-arg name="basePath" value="http://localhost:8080" />
@@ -101,4 +107,6 @@
 	  </list>
 	</constructor-arg>
 </bean>
+
+
 </beans>

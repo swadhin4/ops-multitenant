@@ -16,6 +16,7 @@ public class UserVO implements Serializable{
 	 */
 	private static final long serialVersionUID = -1177890956231725360L;
 	private Long userId;
+	private Long siteAccessId;
 	private String userName;
 	private String firstName;
 	private String lastName;
@@ -170,6 +171,12 @@ public class UserVO implements Serializable{
 	}
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	public Long getSiteAccessId() {
+		return siteAccessId;
+	}
+	public void setSiteAccessId(Long siteAccessId) {
+		this.siteAccessId = siteAccessId;
 	}
 	@Override
 	public int hashCode() {

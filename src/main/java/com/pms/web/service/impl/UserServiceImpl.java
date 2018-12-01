@@ -20,6 +20,7 @@ import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
+import com.pms.app.view.vo.UserSiteAccessVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
@@ -400,6 +401,17 @@ public class UserServiceImpl implements UserService {
 		List<UserVO> userList = getUserDAO(user.getDbName()).getUserWithoutSiteAccess(siteId);
 		return userList;
 		
+	}
+
+	@Override
+	public boolean assignUserToSite(Long userId, Long siteId, LoginUser user) {
+		int updated = getUserDAO(user.getDbName()).grantAccess(userId, siteId);
+		return updated>0?true:false;
+	}
+
+	@Override
+	public void removeUserAccessFromSite(Long accessId, LoginUser user) {
+		 getUserDAO(user.getDbName()).revokeAccess(accessId);
 	}
 
 }

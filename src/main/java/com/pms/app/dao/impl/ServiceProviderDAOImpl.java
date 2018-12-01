@@ -22,7 +22,6 @@ import com.pms.app.dao.ServiceProviderDAO;
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
-import com.pms.app.view.vo.ServiceProviderUserAccessVO;
 import com.pms.app.view.vo.ServiceProviderUserRoleVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
@@ -437,10 +436,10 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 
 
 	@Override
-	public List<TicketVO> getCustomerTicketsBySPcode(String spcode) throws Exception {
+	public List<TicketVO> getCustomerTicketsBySPcode(String spcode, Long spUserId) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		List<TicketVO> ticketVOs = jdbcTemplate.query(AppConstants.CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY,
-				new Object[] { spcode }, new ResultSetExtractor<List<TicketVO>>() {
+				new Object[] { spcode  }, new ResultSetExtractor<List<TicketVO>>() {
 					@Override
 					public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
 						List<TicketVO> ticketVOList = new ArrayList<TicketVO>();
@@ -463,6 +462,10 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 					}
 				});
 		return ticketVOs == null ? Collections.emptyList() : ticketVOs;
+	}
+
+	public void resetPassword(String encodePassword) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 	}
 
 	

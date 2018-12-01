@@ -25,8 +25,7 @@ public interface ServiceProviderDAO {
 
 	//public String updateServiceProviderUserAccess(SPUserVo useraccessvo, LoginUser loginUser) throws Exception;
 
-	public int updateServiceProviderUserAccess(List<CustomerVO> customerList, Long selectedSPUserId,
-			LoginUser loginUser) throws Exception;
+	public int updateServiceProviderUserAccess(List<CustomerVO> customerList, Long selectedSPUserId,	LoginUser loginUser) throws Exception;
 
 	// public List<SPUserVo> getAllUsers() throws Exception;
 
@@ -42,6 +41,6 @@ public interface ServiceProviderDAO {
 
 	public List<String> getCustomerDBServiceProviderCode(String custcode) throws Exception;
 
-	public List<TicketVO> getCustomerTicketsBySPcode(String spcode) throws Exception;
+	public List<TicketVO> getCustomerTicketsBySPcode(String spcode, Long spUserId) throws Exception;
 
 }

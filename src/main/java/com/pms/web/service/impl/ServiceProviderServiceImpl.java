@@ -27,6 +27,7 @@ import com.pms.jpa.entities.Country;
 import com.pms.jpa.entities.Region;
 import com.pms.web.service.AssetService;
 import com.pms.web.service.ServiceProviderService;
+import com.pms.web.util.QuickPasswordEncodingGenerator;
 import com.pms.web.util.RandomUtils;
 
 @Service("serviceProviderService")
@@ -208,10 +209,19 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 	}
 
 
-	public List<TicketVO> getCustomerTickets(String spcode, String custDBName) throws Exception {
+	public List<TicketVO> getCustomerTickets(String spcode, String custDBName, LoginUser user) throws Exception {
 		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(custDBName);
-		List<TicketVO> tickets = serviceProviderDAOImpl.getCustomerTicketsBySPcode(spcode);
+		List<TicketVO> tickets = serviceProviderDAOImpl.getCustomerTicketsBySPcode(spcode, user.getUserId());
 
 		return tickets;
+	}
+	@Override
+	public boolean resetPassword(Long spId, LoginUser user ) throws Exception {
+		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(user.getDbName());
+		synchronized (serviceProviderDAOImpl) {
+			serviceProviderDAOImpl
+					.resetPassword(QuickPasswordEncodingGenerator.encodePassword(RandomUtils.randomAlphanumeric(6)));
+		}
+		return false;
 	}
 }
