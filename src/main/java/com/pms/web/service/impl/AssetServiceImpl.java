@@ -157,8 +157,7 @@ public class AssetServiceImpl implements AssetService {
 			LOGGER.info("No sites selected for asset : " + assetVO.getAssetName());
 		} else {
 			if (assetVO.getAssetId() == null) {
-				assetList = getAssetDAO(user.getDbName()).findByAssetCodeAndSiteIdInAndDelFlag(assetVO.getAssetCode(),
-						assetVO.getSites(), 0);
+				assetList = getAssetDAO(user.getDbName()).findByAssetCodeAndSiteIdInAndDelFlag(assetVO.getAssetCode(),assetVO.getSites(), 0);
 				// assetList=
 				// assetRepo.findByAssetCodeAndSiteIdInAndDelFlag(assetVO.getAssetCode(),
 				// assetVO.getSites(), 0);
@@ -281,6 +280,7 @@ public class AssetServiceImpl implements AssetService {
 			}
 			asset.setCategoryId(assetVO.getCategoryId());
 			asset.setSubCategoryId1(assetVO.getSubCategoryId1());
+			asset.setSpType(assetVO.getSpType());
 			savedAssetList.add(asset);
 
 			/*
@@ -404,6 +404,7 @@ public class AssetServiceImpl implements AssetService {
 		asset.setCategoryId(assetVO.getCategoryId());
 		asset.setSubCategoryId1(assetVO.getSubCategoryId1());
 		assetVO.getSites().add(assetVO.getSiteId());
+		asset.setSpType(assetVO.getSpType());
 
 	/*	if (assetVO.getAssetType().equalsIgnoreCase("E")) {
 			if (!StringUtils.isEmpty(assetVO.getAssetImage().getBase64ImageString())) {

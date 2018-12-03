@@ -54,6 +54,8 @@ public class Asset implements Serializable {
 
 	@Column(name = "sp_id")
 	private Long serviceProviderId;
+	
+	private String spType;
 
 	@Column(name = "date_commissioned")
 	private Date dateCommissioned;
@@ -292,6 +294,14 @@ public class Asset implements Serializable {
 
 	public void setSubCategoryId1(Long subCategoryId1) {
 		this.subCategoryId1 = subCategoryId1;
+	}
+
+	public String getSpType() {
+		return spType;
+	}
+
+	public void setSpType(String spType) {
+		this.spType = spType;
 	}
 
 	public int getVersion() {

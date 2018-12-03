@@ -4,6 +4,7 @@ package com.pms.app.dao.impl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -164,6 +165,7 @@ public class AssetDAO {
 		assetVO.setSiteName(rs.getString("site_name"));
 		assetVO.setCategoryId(rs.getLong("category_id"));
 		assetVO.setAssetCategoryName(rs.getString("category_name"));
+		assetVO.setSpType(rs.getString("sp_type"));
 		assetVO.setLocationId(rs.getLong("location_id"));
 		assetVO.setLocationName(rs.getString("location_name"));
 		return assetVO;
@@ -189,9 +191,20 @@ public class AssetDAO {
 			assetVO.setContent(rs.getString("content"));
 			assetVO.setImagePath(rs.getString("image_path"));
 			assetVO.setDocumentPath(rs.getString("document_path"));
-			assetVO.setServiceProviderId(rs.getLong("sp_id"));
-			assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name"))==true?null:rs.getString("sp_name"));
-			assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
+			if(!StringUtils.isEmpty(rs.getString("sp_type")) && rs.getString("sp_type").equalsIgnoreCase("RSP")){
+				assetVO.setServiceProviderId(rs.getLong("rsp_id"));
+				assetVO.setSpType("RSP");
+				assetVO.setSpHelpDeskEmail(rs.getString("rsp_help_deskemail"));
+				assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("rsp_name"))==true?null:rs.getString("rsp_name"));
+			}
+			else if(!StringUtils.isEmpty(rs.getString("sp_type")) && rs.getString("sp_type").equalsIgnoreCase("EXT")){
+				assetVO.setServiceProviderId(rs.getLong("sp_id"));
+				assetVO.setSpType("EXT");
+				assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
+				assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name"))==true?null:rs.getString("sp_name"));
+			}
+			
+			
 			String commissionedDate = df.format(rs.getDate("date_commissioned"));
 			String deComissionedDate = null==rs.getDate("date_decomissioned")?null:df.format(rs.getDate("date_decomissioned"));
 			assetVO.setCommisionedDate(commissionedDate);
@@ -257,8 +270,8 @@ public class AssetDAO {
 
 	public int saveAssetInBatch(List<Asset> assetList,AssetVO assetVO, LoginUser user)
             throws Exception {
-		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getTenantDataSource());
-        int[] insertedRows = jdbcTemplate.batchUpdate("call tenants.uspAddAsset(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.ASSET_CREATE_QUERY, 
                 new BatchPreparedStatementSetter() {
 
                     @Override
@@ -270,19 +283,25 @@ public class AssetDAO {
                     		ps.setLong(4,  asset.getLocationId());
                     		ps.setLong(5, asset.getCategoryId());
                     		ps.setLong(6, asset.getSubCategoryId1());
-                    		ps.setLong(7, asset.getServiceProviderId());
-                    		ps.setString(8, StringUtils.isEmpty(asset.getImagePath())==true?null:asset.getImagePath());
-                    		ps.setString(9, StringUtils.isEmpty(asset.getDocumentPath())==true?null:asset.getDocumentPath());
-                    		ps.setDate(10,ApplicationUtil.getSqlDate(asset.getDateCommissioned()));
-                    		ps.setDate(11, null==asset.getDateDeComissioned()?null:ApplicationUtil.getSqlDate(asset.getDateDeComissioned()));
-                    		ps.setString(12, asset.getContent());
-                    		ps.setLong(13, asset.getSiteId());
-                    		ps.setString(14, asset.getIsAssetElectrical());
-                    		ps.setString(15, asset.getIsPWSensorAttached());
-                    		ps.setString(16,  asset.getPwSensorNumber());
-                    		ps.setString(17, asset.getAssetDescription());
-                    		ps.setInt(18,asset.getDelFlag());
-                    		ps.setString(19,user.getDbName());
+                    		
+                    		if(asset.getSpType().equalsIgnoreCase("RSP")){
+                    			ps.setNull(7, Types.NULL);
+                    			ps.setLong(8, asset.getServiceProviderId());
+                    		}else{
+                    			ps.setLong(7, asset.getServiceProviderId());
+                    			ps.setNull(8, Types.NULL);
+                    		}
+                    		ps.setString(9, asset.getSpType());
+                    		ps.setString(10, StringUtils.isEmpty(asset.getImagePath())==true?null:asset.getImagePath());
+                    		ps.setString(11, StringUtils.isEmpty(asset.getDocumentPath())==true?null:asset.getDocumentPath());
+                    		ps.setDate(12,ApplicationUtil.getSqlDate(asset.getDateCommissioned()));
+                    		ps.setDate(13, null==asset.getDateDeComissioned()?null:ApplicationUtil.getSqlDate(asset.getDateDeComissioned()));
+                    		ps.setString(14, asset.getContent());
+                    		ps.setLong(15, asset.getSiteId());
+                    		ps.setString(16, asset.getIsAssetElectrical());
+                    		ps.setString(17, asset.getIsPWSensorAttached());
+                    		ps.setString(18,  asset.getPwSensorNumber());
+                    		ps.setString(19, asset.getAssetDescription());
                     		ps.setString(20, user.getUsername());
                     		
                     }
@@ -312,16 +331,29 @@ public class AssetDAO {
             		ps.setLong(8,  asset.getLocationId());
             		ps.setString(9, StringUtils.isEmpty(asset.getImagePath())==true?null:asset.getImagePath());
             		ps.setString(10, StringUtils.isEmpty(asset.getDocumentPath())==true?null:asset.getDocumentPath());
-            		ps.setLong(11, asset.getServiceProviderId());
-            		ps.setDate(12,ApplicationUtil.getSqlDate(asset.getDateCommissioned()));
-            		ps.setDate(13, null==asset.getDateDeComissioned()?null:ApplicationUtil.getSqlDate(asset.getDateDeComissioned()));
-            		ps.setString(14, asset.getIsAssetElectrical());
-            		ps.setString(15, asset.getIsPWSensorAttached());
-            		ps.setString(16,  asset.getPwSensorNumber());
-            		ps.setLong(17, asset.getSubCategoryId1());
-            		ps.setDate(18, ApplicationUtil.getSqlDate(new Date()));
-            		ps.setString(19,user.getUsername());
-            		ps.setLong(20, asset.getAssetId());
+            		if(asset.getSpType().equalsIgnoreCase("RSP")){
+            			ps.setNull(11, Types.NULL);
+            			ps.setLong(12, asset.getServiceProviderId());
+            		}
+            		else if(asset.getSpType().equalsIgnoreCase("EXT")){
+            			ps.setLong(11, asset.getServiceProviderId());
+            			ps.setNull(12, Types.NULL);
+            		}
+            		ps.setString(13,asset.getSpType());
+            		ps.setDate(14,ApplicationUtil.getSqlDate(asset.getDateCommissioned()));
+            		ps.setDate(15, null==asset.getDateDeComissioned()?null:ApplicationUtil.getSqlDate(asset.getDateDeComissioned()));
+            		ps.setString(16, asset.getIsAssetElectrical());
+            		ps.setString(17, asset.getIsPWSensorAttached());
+            		if(StringUtils.isEmpty(asset.getPwSensorNumber())){
+            			ps.setNull(18,  Types.NULL);
+            		}
+            		else{
+            			ps.setString(18,  asset.getPwSensorNumber());
+            		}
+            		ps.setLong(19, asset.getSubCategoryId1());
+            		ps.setDate(20, ApplicationUtil.getSqlDate(new Date()));
+            		ps.setString(21,user.getUsername());
+            		ps.setLong(22, asset.getAssetId());
             }
 
         });
@@ -353,9 +385,18 @@ public class AssetDAO {
 					assetVO.setAssetName(rs.getString("asset_name"));
 					assetVO.setAssetCode(rs.getString("asset_code"));
 					assetVO.setAssetType(rs.getString("asset_type"));
-					assetVO.setServiceProviderId(rs.getLong("sp_id"));
-					assetVO.setServiceProviderName(rs.getString("sp_name"));
-					assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
+					if(!StringUtils.isEmpty(rs.getString("sp_type")) && rs.getString("sp_type").equalsIgnoreCase("RSP")){
+						assetVO.setServiceProviderId(rs.getLong("rsp_id"));
+						assetVO.setSpType("RSP");
+						assetVO.setSpHelpDeskEmail(rs.getString("rsp_help_deskemail"));
+						assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("rsp_name"))==true?null:rs.getString("rsp_name"));
+					}
+					else if(!StringUtils.isEmpty(rs.getString("sp_type")) && rs.getString("sp_type").equalsIgnoreCase("EXT")){
+						assetVO.setServiceProviderId(rs.getLong("sp_id"));
+						assetVO.setSpType("EXT");
+						assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
+						assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name"))==true?null:rs.getString("sp_name"));
+					}
 					assetVO.setCategoryId(rs.getLong("category_id"));
 					assetVO.setAssetCategoryName(rs.getString("category_name"));
 					assetVO.setSubCategoryId1(rs.getLong("subcategory1_id"));

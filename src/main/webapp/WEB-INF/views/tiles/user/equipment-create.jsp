@@ -243,7 +243,9 @@ $(document).ready(function()  {
 								<input type="hidden" ng-model="repairType.selected" >
 						</div>
 						<div class="col-xs-4">
-							<label class="control-label">Service Provider</label> <!-- <select
+							  <input name="sp_type" id="rsp" value="RSP" ng-model="spType" type="radio" ng-change="populateServiceProvider(spType)" /><b>Registered SP</b>&nbsp;&nbsp;&nbsp;
+				                <input name="sp_type" id="ext" value="EXT" ng-model="spType" type="radio" ng-change="populateServiceProvider(spType)" /><b>External SP</b>
+							<!-- <select
 							ng-options="val as val.name for val in serviceProvider.list"
 								class="form-control" ng-model="serviceProvider.selected" required>
 							</select> -->
@@ -439,6 +441,41 @@ $(document).ready(function()  {
               <!-- /.row -->
             </div>
           </div>
+          <div class="box box-widget widget-user" ng-if="equipmentData.assetId != null ">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-aqua-active">
+              <h3 class="widget-user-username">{{selectedAsset.serviceProviderName}}</h3>
+              <h5 class="widget-user-desc">SP Type : <span ng-if="selectedAsset.spType=='RSP'">REGISTERED</span>
+              <span ng-if="selectedAsset.spType=='EXT'">EXTERNAL</span></h5>
+            </div>
+           <!--  <div class="widget-user-image">
+              <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
+            </div> -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-6 border-right">
+                  <div class="description-block">
+                    <!-- <h5 class="description-header">Contact Name</h5>
+                    <span class="description-text">{{selectedSite.contactName}}</span> -->
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-6 border-right">
+                  <div class="description-block">
+                   <!--  <h5 class="description-header">Email</h5>
+                    <span class="description-text">{{selectedSite.email}}</span> -->
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+          </div>
+          
+          
 						</div>
 						</div>
 					</div>

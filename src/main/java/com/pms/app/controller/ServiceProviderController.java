@@ -9,6 +9,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,8 +179,8 @@ public class ServiceProviderController extends BaseController {
 
 
 
-	@RequestMapping(value = "/list", method = RequestMethod.GET,produces="application/json")
-	public ResponseEntity<RestResponse> listAllServiceProvider(final HttpSession session) {
+	@RequestMapping(value = "/list/{spType}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> listAllServiceProvider(final HttpSession session, @PathVariable(value="spType")  String spType) {
 		logger.info("Inside ServiceProviderController .. listAllServiceProvider");
 		List<ServiceProviderVO> serviceProviderVOs = null;
 		RestResponse response = new RestResponse();
@@ -187,16 +188,23 @@ public class ServiceProviderController extends BaseController {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if(loginUser!=null){
 			try {
-				serviceProviderVOs = serviceProviderService.findSPList(loginUser);
-				if (serviceProviderVOs.isEmpty()) {
-					response.setStatusCode(404);
-					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
-				}else{
-					//Collections.sort(serviceProviderVOs, ServiceProviderVO.COMPARE_BY_SPNAME);
-					response.setStatusCode(200);
-					response.setObject(serviceProviderVOs);
-					responseEntity = new  ResponseEntity<RestResponse>(response, HttpStatus.OK);
-				}
+					String spTypeSelected = null;
+					if(!StringUtils.isEmpty(spType) && spType.equalsIgnoreCase("RSP")){
+						serviceProviderVOs = serviceProviderService.findSPList(loginUser, spType);
+					}
+					else if(!StringUtils.isEmpty(spType) && spType.equalsIgnoreCase("EXT")){
+						serviceProviderVOs = serviceProviderService.findSPList(loginUser, spType);
+					}
+					
+					if (serviceProviderVOs.isEmpty()) {
+						response.setStatusCode(404);
+						responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
+					}else{
+						//Collections.sort(serviceProviderVOs, ServiceProviderVO.COMPARE_BY_SPNAME);
+						response.setStatusCode(200);
+						response.setObject(serviceProviderVOs);
+						responseEntity = new  ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
 			} catch (Exception e) {
 				logger.info("Exception in getting service provider list", e);
 				response.setMessage("Exception while getting service provider list");

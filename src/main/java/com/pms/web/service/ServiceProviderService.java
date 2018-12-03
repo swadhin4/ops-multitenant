@@ -17,7 +17,7 @@ public interface ServiceProviderService {
 
 	public ServiceProviderVO findServiceProvider(Long serviceProviderId) throws Exception;*/
 	
-	public List<ServiceProviderVO> findSPList(LoginUser user) throws Exception;
+	public List<ServiceProviderVO> findSPList(LoginUser user, final String spType) throws Exception;
 
 	public List<ServiceProviderVO> findAllServiceProvider(LoginUser user) throws Exception;
 

@@ -184,10 +184,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return countryList == null ? Collections.emptyList():countryList;
 	}
 	@Override
-	public List<ServiceProviderVO> findSPList(LoginUser user) throws Exception {
+	public List<ServiceProviderVO> findSPList(LoginUser user, final String spType) throws Exception {
 		logger.info("Inside ServiceProviderServiceImpl -- findSPList");
 		final SPUserDAO spDAO = getSPUserDAO(user.getDbName());
-		List<ServiceProviderVO> serviceProviderList = spDAO.findSPList();
+		List<ServiceProviderVO> serviceProviderList = spDAO.findSPList(spType);
 		logger.info("Exit ServiceProviderServiceImpl -- findSPList");
 		return serviceProviderList == null ? Collections.emptyList() : serviceProviderList;
 	}

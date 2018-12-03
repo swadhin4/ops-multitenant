@@ -288,7 +288,7 @@ chrisApp.controller('equipmentcreateController',
 			 
 			 $scope.getModalPopUpData=function(){
 				 var company = $scope.sessionUser.company;
-				 $scope.getServiceProviders(company);
+				 //$scope.getServiceProviders();
  				$scope.retrieveAssetCategories();
  				$scope.getAssetLocations();
  				//$scope.testSaveAssetObject();
@@ -427,7 +427,9 @@ chrisApp.controller('equipmentcreateController',
 					 $scope.HeaderName = "Update Equipment";
 						 //console.log($scope.selectedAsset);
 						 $scope.equipmentData=angular.copy($scope.selectedAsset);
+						 $scope.spType=$scope.selectedAsset.spType;
 						//console.log($scope.selectedAsset.categoryId);
+						 $scope.populateServiceProvider($scope.spType);
 						 if($scope.selectedAsset.categoryId!=null){
 							 $("#categorySelect").empty();							
 							 
@@ -603,12 +605,14 @@ chrisApp.controller('equipmentcreateController',
 		                console.log('Unable to get access list')
 		            });
 			 }
+			 $scope.populateServiceProvider=function(spType){
+				 $scope.getServiceProviders(spType.toUpperCase());
+			 }
 			 
-			 
-			 $scope.getServiceProviders=function(customer){
+			 $scope.getServiceProviders=function(spType){
 				 $('#loadingDiv').show();
 					//serviceProviderService.getServiceProviderByCustomer(customer)
-				 	serviceProviderService.getAllServiceProviders()
+				 	serviceProviderService.getAllServiceProviders(spType)
 					.then(function(data) {
 		    			
 		    			$scope.serviceProvider.list=[];
@@ -918,6 +922,7 @@ chrisApp.controller('equipmentcreateController',
 						 //$scope.equipmentData.siteId=$scope.accessSite.selected.siteId;
 						 if($scope.serviceProvider.selected!=null){
 							 $scope.equipmentData.serviceProviderId=$scope.serviceProvider.selected.serviceProviderId;
+							 $scope.equipmentData.spType=$scope.spType;
 						 }
 						 
 						 var assetImage={

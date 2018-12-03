@@ -111,9 +111,9 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
  	    }
  	    
  	// implementation
- 	    function getAllServiceProviders() {
+ 	    function getAllServiceProviders(spType) {
  	        var def = $q.defer();
- 	        $http.get(hostLocation+"/serviceprovider/list")
+ 	        $http.get(hostLocation+"/serviceprovider/list/"+spType)
  	            .success(function(data) {
  	            	//console.log(data)
  	                def.resolve(data);

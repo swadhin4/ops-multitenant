@@ -54,6 +54,8 @@ public class AssetVO {
 
 	private String serviceProviderName;
 	
+	private String spType;
+	
 	private String spHelpDeskEmail;
 
 	private String commisionedDate;
@@ -391,6 +393,14 @@ public class AssetVO {
 
 	public void setSpHelpDeskEmail(String spHelpDeskEmail) {
 		this.spHelpDeskEmail = spHelpDeskEmail;
+	}
+
+	public String getSpType() {
+		return spType;
+	}
+
+	public void setSpType(String spType) {
+		this.spType = spType;
 	}
 
 	@Override

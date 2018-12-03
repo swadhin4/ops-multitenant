@@ -187,10 +187,11 @@ $(document).ready(function()  {
 														<tr ng-repeat="asset in asset.list | filter: searchAsset | orderBy :'assetName'"
 															ng-class="{currentSelected:$index == selectedRow}" 
 															ng-click="getAssetDetails(asset);rowHighilited($index)" >
-															<td><a href > <i
-																	class="fa fa-cubes" aria-hidden="true"></i>
+															<td ng-if="asset.spType=='EXT'"><span class="badge" style="background-color:red">E</span>
 																	{{asset.assetName}}
-															</a></td>
+															</td><td ng-if="asset.spType=='RSP'"><span class="badge" style="background-color:green">R</span>
+																	{{asset.assetName}}
+															</td>
 															<td>
 																{{asset.assetCategoryName}}</td>
 															<td>
@@ -270,7 +271,11 @@ $(document).ready(function()  {
 											<tr><td>Category</td><td align="right">{{selectedAsset.assetCategoryName}}</td></tr>
 											<tr><td>Component Type</td><td align="right">{{selectedAsset.assetSubcategory1}}</td></tr>
 											<!-- <tr><td>SubComponent Type</td><td align="right">{{selectedAsset.assetSubcategory2}}</td></tr> -->
-											<tr><td>Service Provider</td><td align="right">{{selectedAsset.serviceProviderName}}</td></tr>
+											<tr><td>Service Provider</td><td align="right">
+											<span class="badge" style="background-color:red" ng-if="selectedAsset.spType=='EXT'">E</span> 
+											<span class="badge" style="background-color:green" ng-if="selectedAsset.spType=='RSP'">R</span> 
+											{{selectedAsset.serviceProviderName}}</td>
+											</tr>
 											<tr><td>Location</td><td align="right">{{selectedAsset.locationName}}</td></tr>
 											<tr><td>Date of Commission</td><td align="right">{{selectedAsset.commisionedDate}}</td></tr>
 											<tr><td>Date of DeCommission</td><td align="right">{{selectedAsset.deCommissionedDate}}</td></tr>
@@ -326,7 +331,11 @@ $(document).ready(function()  {
 											<tr><td>Component Type</td><td align="right">{{selectedAsset.assetSubcategory1}}</td></tr>
 											<!-- <tr><td>SubComponent Type</td><td align="right">{{selectedAsset.assetSubcategory2}}</td></tr> -->
 											<tr><td>Location</td><td align="right">{{selectedAsset.locationName}}</td></tr>
-											<tr><td>Service Provider</td><td align="right">{{selectedAsset.serviceProviderName}}</td></tr>
+											<tr><td>Service Provider</td><td align="right"> 
+											<span class="badge" style="background-color:red" ng-if="selectedAsset.spType=='EXT'">E</span> 
+											<span class="badge" style="background-color:green" ng-if="selectedAsset.spType=='RSP'">R</span> 
+											{{selectedAsset.serviceProviderName}}</td>
+											</tr>
 											<tr><td>Service contract start date</td><td align="right">{{selectedAsset.commisionedDate}}</td></tr>
 											<tr><td>Service contract end date</td><td align="right">{{selectedAsset.deCommissionedDate}}</td></tr>
 											<tr><td>Site</td><td align="right">{{selectedAsset.siteName}}</td></tr>

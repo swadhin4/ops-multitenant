@@ -806,7 +806,7 @@ chrisApp.controller('assetController',
 		                console.log('Unable to get access list')
 		            });
 			 }
-			 $scope.testSaveAssetObject=function(){
+			/* $scope.testSaveAssetObject=function(){
 				 $scope.equipmentData={
 							'assetId' : null,
 							'assetName' : 'TestAsset',
@@ -829,7 +829,7 @@ chrisApp.controller('assetController',
 							'siteId':"1"
 						}
 				 $scope.saveAssetInfo($scope.equipmentData);
-			 }
+			 }*/
 			 
 			 $scope.getServiceProviders=function(customer){
 				 $('#loadingDiv').show();

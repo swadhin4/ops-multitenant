@@ -430,9 +430,10 @@ public class SPUserDAO {
 		return lastSPId;
 	}
 
-	public List<ServiceProviderVO> findSPList() {
+	public List<ServiceProviderVO> findSPList(String spType) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<ServiceProviderVO> spList = jdbcTemplate.query(AppConstants.EXT_SERVICE_PROVIDER_LIST,  new ResultSetExtractor<List<ServiceProviderVO>>(){
+		String spQuery = spType.equalsIgnoreCase("EXT")?AppConstants.EXT_SERVICE_PROVIDER_LIST:AppConstants.RSP_SERVICE_PROVIDER_LIST;
+		List<ServiceProviderVO> spList = jdbcTemplate.query(spQuery,  new ResultSetExtractor<List<ServiceProviderVO>>(){
 			List<ServiceProviderVO> spList = new ArrayList<ServiceProviderVO>();
 			@Override
 			public List<ServiceProviderVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -450,7 +451,9 @@ public class SPUserDAO {
 					spProviderVO.getCountry().setCountryName(rs.getString("country_name"));
 					spProviderVO.getRegion().setRegionId(rs.getLong("region_id"));
 					spProviderVO.getRegion().setRegionName(rs.getString("region_name"));
-					spProviderVO.setCompanyCode(rs.getString("company_code"));
+					if(spType.equalsIgnoreCase("EXT")){
+						spProviderVO.setCompanyCode(rs.getString("company_code"));
+					}
 					spProviderVO.setCountryName(rs.getString("country_name"));
 					spList.add(spProviderVO);
 				}

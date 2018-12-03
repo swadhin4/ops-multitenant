@@ -94,7 +94,7 @@ public class AppConstants {
 	public static final String UPDATE_SUBMETER_SITE_QUERY="update pm_site_submeter set site_id=?, submeter_number =?,submeter_user=? "
 			+ " where submeter_id=?";
 	
-	public static final String ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, p.site_name, p.site_id, ps.model_number, "
+	public static final String ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, ps.sp_type, p.site_name, p.site_id, ps.model_number, "
 			+ " ps.category_id, pc.category_name, ps.location_id, pl.location_name from pm_asset ps "
 			+ " left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
 			+ " left OUTER join pm_asset_location pl on pl.location_id=ps.location_id "
@@ -103,14 +103,24 @@ public class AppConstants {
 
 	public static final String ASSET_DETAILS_QUERY = "SELECT pa.asset_id,pa.asset_name, "
 			+ " pa.asset_code, pa.model_number, pa.category_id,pac.category_name, pa.subcategory1_id,pas.asset_subcategory1, "
-			+ " pa.sp_id,psp.sp_name,psp.help_desk_email, pa.location_id,pal.location_name, pa.date_commissioned, pa.date_decomissioned, "
+			+ " pa.sp_id,psp.sp_name, pa.rsp_id, psrp.sp_name rsp_name, pa.sp_type, psp.help_desk_email, psrp.help_desk_email rsp_help_deskemail, pa.location_id,pal.location_name, pa.date_commissioned, pa.date_decomissioned, "
 			+ " pa.site_id,ps.site_name, pa.content, pa.is_asset_electrical, pa.is_pw_sensor_attached, pa.pw_sensor_number, "
 			+ " pa.image_path, pa.document_path, pa.asset_desc, pa.del_flag, pac.asset_type, ps.site_owner,ps.contact_name, ps.email "
 			+ " FROM pm_asset pa LEFT JOIN pm_asset_category pac ON pa.category_id=pac.category_id "
 			+ " LEFT JOIN pm_asset_subcategory1 pas ON pa.subcategory1_id=pas.subcategory1_id "
-			+ " LEFT JOIN pm_service_provider psp ON pa.sp_id=psp.sp_id LEFT JOIN pm_asset_location pal ON "
+			+ " LEFT JOIN pm_service_provider psp ON pa.sp_id=psp.sp_id "
+		 	+ " LEFT JOIN pm_sp_registered psrp on pa.rsp_id=psrp.sp_id "
+			+ " LEFT JOIN pm_asset_location pal ON "
 			+ " pa.location_id=pal.location_id LEFT JOIN pm_site ps ON pa.site_id=ps.site_id "
 			+ " WHERE pa.asset_id=?";
+	
+	public static final String SITE_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
+			+ " psp.sp_id, psp.sp_name, psp.help_desk_email, ps.sp_type, ps.rsp_id, psrp.sp_name rsp_name, psrp.help_desk_email rsp_help_deskemail, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
+			+ " from pm_asset ps left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
+			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
+			+ " left OUTER join pm_service_provider psp on psp.sp_id = ps.sp_id "
+		 	+ " LEFT JOIN pm_sp_registered psrp on ps.rsp_id=psrp.sp_id "
+			+ " where ps.site_id = ? ";
 	
 	public static final String ASSET_CATEGORY_LIST ="select category_id, category_name, asset_type from pm_asset_category";
 	
@@ -127,9 +137,16 @@ public class AppConstants {
 	
 	public static final String FIND_DUPLICATE_ASSET_QUERY = "select * from pm_asset where asset_code = :assetCode and site_id in (:siteIds ) and del_flag=0";
 	
+	public static final String ASSET_CREATE_QUERY = "INSERT INTO pm_asset "
+			+ " (asset_name,asset_code,model_number, location_id, category_id,subcategory1_id,sp_id, rsp_id,sp_type,"
+			+ " image_path, document_path,   date_commissioned, date_decomissioned, content, site_id,  "
+			+ " is_asset_electrical,  is_pw_sensor_attached, pw_sensor_number,   asset_desc,  "
+			+ "  created_by,  del_flag, version) "
+			+ " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 0, 0)";
+;
 	
 	public static final String ASSET_UPDATE_QUERY = "update pm_asset set asset_code=?, site_id=?, asset_name=?, asset_desc=?, "
-			+ " model_number=?, category_id=?, content=?, location_id=?, image_path=?,document_path=?, sp_id=?, "
+			+ " model_number=?, category_id=?, content=?, location_id=?, image_path=?,document_path=?, sp_id=?, rsp_id=?, sp_type=?, "
 			+ " date_commissioned=?, date_decomissioned=?, is_asset_electrical=?, is_pw_sensor_attached=?, "
 			+ " pw_sensor_number=?, subcategory1_id=?, modified_date=?,modified_by=? where asset_id=?";
 
@@ -148,12 +165,7 @@ public class AppConstants {
 			+ " left outer join pm_service_provider psp on psp.sp_id=pa.sp_id left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where pct.assigned_to = ? ";
 	
-	public static final String SITE_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
-			+ " psp.sp_id, psp.sp_name, psp.help_desk_email,pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 from pm_asset ps "
-			+ " left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
-			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
-			+ " left OUTER join pm_service_provider psp on psp.sp_id = ps.sp_id "
-			+ " where ps.site_id = ? ";
+	
 	public static final String TICKET_CATEGORY_QUERY ="select * from pm_ticket_category ";
 	
 	public static final String TICKETS_STATUS_QUERY ="select * from pm_status where category=?";
@@ -369,6 +381,13 @@ public class AppConstants {
 			+ " left join pm_company pc on pc.company_id=ps.customer_id "
 			+ " left join pm_country po on po.country_id=ps.country_id "
 			+ " left join pm_region pr on po.region_id=pr.region_id order by sp_name";
+	
+	public static final String RSP_SERVICE_PROVIDER_LIST = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
+			+ " ps.help_desk_number, ps.help_desk_email, ps.sla_description ,ps.country_id, po.country_name ,"
+			+ " pr.region_id, pr.region_name from pm_sp_registered ps "
+			+ " left join pm_country po on po.country_id=ps.country_id "
+			+ " left join pm_region pr on po.region_id=pr.region_id order by sp_name";
+	
 	
 	public static final String EXT_SERVICE_PROVIDER_INFO = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
 			+ " ps.help_desk_number, ps.help_desk_email, ps.sla_description, ps.country_id, pc.company_name, pc.company_code, po.country_name ,"
