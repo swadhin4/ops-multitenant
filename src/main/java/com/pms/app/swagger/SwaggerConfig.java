@@ -1,4 +1,4 @@
-package com.pms.app.swagger;
+/*package com.pms.app.swagger;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -37,11 +37,11 @@ public class SwaggerConfig {
     @Autowired
     private SpringSwaggerModelConfig springSwaggerModelConfig;
 
-    /**
+    *//**
      * Adds the jackson scala module to the MappingJackson2HttpMessageConverter registered with spring
      * Swagger core models are scala so we need to be able to convert to JSON
      * Also registers some custom serializers needed to transform swagger models to swagger-ui required json format
-     */
+     *//*
     @Bean
     public JacksonScalaSupport jacksonScalaSupport() {
         JacksonScalaSupport jacksonScalaSupport = new JacksonScalaSupport();
@@ -51,9 +51,9 @@ public class SwaggerConfig {
     }
 
 
-    /**
+    *//**
      * Global swagger settings
-     */
+     *//*
     @Bean
     public SwaggerGlobalSettings swaggerGlobalSettings() {
         SwaggerGlobalSettings swaggerGlobalSettings = new SwaggerGlobalSettings();
@@ -63,9 +63,9 @@ public class SwaggerConfig {
         return swaggerGlobalSettings;
     }
 
-    /**
+    *//**
      * API Info as it appears on the swagger-ui page
-     */
+     *//*
     private ApiInfo apiInfo() {
         ApiInfo apiInfo = new ApiInfo(
                 "News API",
@@ -78,12 +78,12 @@ public class SwaggerConfig {
         return apiInfo;
     }
 
-    /**
+    *//**
      * Configure a SwaggerApiResourceListing for each swagger instance within your app. e.g. 1. private  2. external apis
      * Required to be a spring bean as spring will call the postConstruct method to bootstrap swagger scanning.
      *
      * @return
-     */
+     *//*
     @Bean
     public SwaggerApiResourceListing swaggerApiResourceListing() {
         //The group name is important and should match the group set on ApiListingReferenceScanner
@@ -108,11 +108,11 @@ public class SwaggerConfig {
     }
 
     @Bean
-    /**
+    *//**
      * The ApiListingReferenceScanner does most of the work.
      * Scans the appropriate spring RequestMappingHandlerMappings
      * Applies the correct absolute paths to the generated swagger resources
-     */
+     *//*
     public ApiListingReferenceScanner apiListingReferenceScanner() {
         ApiListingReferenceScanner apiListingReferenceScanner = new ApiListingReferenceScanner();
 
@@ -137,9 +137,9 @@ public class SwaggerConfig {
         return apiListingReferenceScanner;
     }
 
-    /**
+    *//**
      * Example of a custom path provider
-     */
+     *//*
     @Bean
     public ApiPathProvider apiPathProvider() {
         ApiPathProvider apiPathProvider = new ApiPathProvider(docsLocation);
@@ -197,4 +197,4 @@ public class SwaggerConfig {
             return "/api-docs";
         }
     }
-}
+}*/

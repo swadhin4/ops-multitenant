@@ -1,4 +1,4 @@
-package com.pms.app.swagger;
+/*package com.pms.app.swagger;
 
 import javax.servlet.ServletContext;
 
@@ -48,4 +48,4 @@ public class ApiPathProvider implements SwaggerPathProvider {
     public void setDefaultSwaggerPathProvider(SwaggerPathProvider defaultSwaggerPathProvider) {
         this.defaultSwaggerPathProvider = defaultSwaggerPathProvider;
     }
-}
+}*/
