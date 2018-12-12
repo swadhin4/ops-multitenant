@@ -77,6 +77,29 @@ public class SiteDAO {
 		return siteList==null?Collections.EMPTY_LIST:siteList;
 	}
 	
+	public List<CreateSiteVO> getSPSiteList(String rspCode, LoginUser user){
+		LOGGER.info("SiteDAO -- getSiteList -- Getting Site List for User : "+ user.getUsername());
+		List<CreateSiteVO> siteList = new ArrayList<CreateSiteVO>();
+		if(rspCode.equalsIgnoreCase(user.getCompany().getCompanyCode())){
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+			 siteList =  jdbcTemplate.query(AppConstants.RSP_SITE_DETAILS_BY_CODE_QUERY, new Object[]{rspCode}, new ResultSetExtractor<List<CreateSiteVO>>() {
+				@Override
+				public List<CreateSiteVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+					List<CreateSiteVO> siteList = new ArrayList<CreateSiteVO>();
+					while (rs.next()) {
+						CreateSiteVO siteVO = new CreateSiteVO();
+						siteVO.setSiteId(rs.getLong("site_id"));
+						siteVO.setSiteName(rs.getString("site_name"));
+						siteList.add(siteVO);
+	                }
+					LOGGER.info("SiteDAO -- getSiteList -- Total Site List : "+ siteList.size());
+					return siteList;
+				}
+			});
+		}
+		return siteList==null?Collections.EMPTY_LIST:siteList;
+	}
+	
 	public CreateSiteVO getSiteDetails(Long siteId){
 		LOGGER.info("SiteDAO -- getSiteDetails -- Getting Site details for selcted site : "+ siteId);
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());

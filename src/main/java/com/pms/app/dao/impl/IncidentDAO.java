@@ -113,9 +113,16 @@ public class IncidentDAO {
 		ticketVO.setStatusId(rs.getLong("status_id"));
 		return ticketVO;
 	}
-	public TicketPrioritySLAVO getSPSLADetails(Long serviceProviderID, Long ticketCategoryId) {
+	public TicketPrioritySLAVO getSPSLADetails(Long serviceProviderID, Long ticketCategoryId, String spType) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		TicketPrioritySLAVO ticketPriority= jdbcTemplate.query(AppConstants.TICKET_PRIORITY_SP_SLA_QUERY, new Object[]{serviceProviderID, ticketCategoryId}, new ResultSetExtractor<TicketPrioritySLAVO>() {
+		String spTicketPriorityQuery=null;
+		if(spType.equalsIgnoreCase("SP")){
+			spTicketPriorityQuery = AppConstants.TICKET_PRIORITY_RSP_SLA_QUERY;
+		}
+			else {
+				spTicketPriorityQuery = AppConstants.TICKET_PRIORITY_SP_SLA_QUERY;
+			}
+		TicketPrioritySLAVO ticketPriority = jdbcTemplate.query(spTicketPriorityQuery, new Object[]{serviceProviderID, ticketCategoryId}, new ResultSetExtractor<TicketPrioritySLAVO>() {
 			@Override
 			public TicketPrioritySLAVO extractData(ResultSet rs) throws SQLException, DataAccessException {
 				TicketPrioritySLAVO  ticketPrioritySLAVO = new TicketPrioritySLAVO(); 
@@ -162,9 +169,16 @@ public class IncidentDAO {
 	  });
 		return ticketStatusList;
 	}
-	public Long getLastIncidentCreated() {
+	public Long getLastIncidentCreated(String criteriea) {
+		String lastIncidentQuery=null;
+		if(criteriea.equalsIgnoreCase("USER")){
+			lastIncidentQuery = AppConstants.LAST_INCIDENT_NUMBER_QUERY;
+		}
+		else if(criteriea.equalsIgnoreCase("SP")){
+			lastIncidentQuery = AppConstants.LAST_SP_INCIDENT_NUMBER_QUERY;
+		}
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		Long lastTicketId = jdbcTemplate.query(AppConstants.LAST_INCIDENT_NUMBER_QUERY, new ResultSetExtractor<Long>() {
+		Long lastTicketId = jdbcTemplate.query(lastIncidentQuery, new ResultSetExtractor<Long>() {
 			
 			@Override
 			public Long extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -179,10 +193,15 @@ public class IncidentDAO {
 	}
 	
 	public TicketVO saveOrUpdateIncident (final TicketVO ticketVO, LoginUser user){
-		LOGGER.info("IncidentDAO -- saveOrUpdateIncident -- Save Incident details using Procedure: ");
+		LOGGER.info("IncidentDAO -- saveOrUpdateIncident -- Save Incident details : ");
 		if(ticketVO.getTicketId()==null){
 			try {
-				TicketVO savedTicketVO = insertTicketData(ticketVO,user);
+				TicketVO savedTicketVO =null;
+				if(user.getUserType().equalsIgnoreCase("USER")){
+				savedTicketVO = insertTicketData(ticketVO,user);
+				}else if(user.getUserType().equalsIgnoreCase("SP")){
+					savedTicketVO = insertSPTicketData(ticketVO,user);
+				}
 				if(savedTicketVO.getTicketId()!=null ){
 					LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
 					savedTicketVO.setStatusCode(200);
@@ -217,12 +236,44 @@ public class IncidentDAO {
 
 	}
 	
+	private TicketVO insertSPTicketData(TicketVO ticketVO, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_SP_TICKET_QUERY, 
+	            Statement.RETURN_GENERATED_KEYS);
+	    	ps.setString(1, ticketVO.getTicketNumber());
+            ps.setString(2, ticketVO.getTicketTitle());
+            ps.setString(3, ticketVO.getDescription());
+            ps.setLong(4, ticketVO.getStatusId());
+            ps.setLong(5,  ticketVO.getCategoryId());
+            ps.setLong(6, ticketVO.getSiteId());
+            ps.setLong(7, ticketVO.getAssetId());
+            ps.setLong(8, ticketVO.getAssetCategoryId());
+            ps.setLong(9, ticketVO.getSubCategoryId1());
+            ps.setLong(10, ticketVO.getSubCategoryId2());
+            ps.setString(11, ticketVO.getPriorityDescription());
+            ps.setLong(12, ticketVO.getAssignedTo());
+            ps.setString(13, ticketVO.getRspAssignedAgent());
+            ps.setString(14, ticketVO.getTicketStartTime());
+            ps.setString(15,  user.getUsername());
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved customer ticket {} with id {}.", ticketVO.getTicketNumber(), key.getKey());
+	    ticketVO.setTicketId(key.getKey().longValue());
+	    String updateSLa = updateSlaDueDate(ticketVO.getTicketNumber(), ticketVO.getDuration(), ticketVO.getUnit(), "SP");
+	    ticketVO.setSla(updateSLa);
+	    return ticketVO;
+	}
 	private TicketVO updateTicketData(TicketVO ticketVO, LoginUser user) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		 jdbcTemplate.update(new PreparedStatementCreator() {
 		      @Override
 		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_TICKET_QUERY);
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_CUST_TICKET_QUERY);
 	            ps.setString(1, ticketVO.getTicketTitle());
 	            ps.setString(2, ticketVO.getDescription());
 	            ps.setString(3,  ApplicationUtil.makeSQLDateFromString(ticketVO.getSla()));
@@ -252,7 +303,7 @@ public class IncidentDAO {
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_TICKET_QUERY, 
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_CUST_TICKET_QUERY, 
 	            Statement.RETURN_GENERATED_KEYS);
 	    	ps.setString(1, ticketVO.getTicketNumber());
             ps.setString(2, ticketVO.getTicketTitle());
@@ -273,11 +324,11 @@ public class IncidentDAO {
 	    }, key);
 	    LOGGER.info("Saved customer ticket {} with id {}.", ticketVO.getTicketNumber(), key.getKey());
 	    ticketVO.setTicketId(key.getKey().longValue());
-	    String updateSLa = updateSlaDueDate(ticketVO.getTicketNumber(), ticketVO.getDuration(), ticketVO.getUnit());
+	    String updateSLa = updateSlaDueDate(ticketVO.getTicketNumber(), ticketVO.getDuration(), ticketVO.getUnit(), "CUST");
 	    ticketVO.setSla(updateSLa);
 	    return ticketVO;
 	}
-	public String updateSlaDueDate(String ticketNumber, Integer slaDuration, String slaUnit) {
+	public String updateSlaDueDate(String ticketNumber, Integer slaDuration, String slaUnit, String ticketType) {
 		
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("usp_update_sla_duedate");
@@ -285,7 +336,8 @@ public class IncidentDAO {
 				 .addValue("p_ticket_number", ticketNumber)
 				 .addValue("p_sla_duration", slaDuration)
 				 .addValue("p_sla_unit", slaUnit)
-		 			.addValue("out_sla_due_date", "@out_sla_due_date");
+				 .addValue("ticket_type", ticketType)
+		 		 .addValue("out_sla_due_date", "@out_sla_due_date");
 		 
 	      Map<String, Object> out = jdbcCall.execute(in);
 	      String slaDueDate = (String)out.get("out_sla_due_date");

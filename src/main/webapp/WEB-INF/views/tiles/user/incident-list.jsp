@@ -184,7 +184,12 @@ $(function() {
 				<div class="col-md-12">
 						<div class="box">
 							<div class="box-header with-border">
-								<h3 class="box-title">List of Tickets</h3>
+							<!-- 	<h3 class="box-title">List of Tickets</h3> -->
+									<select name="spCustomerListSelect" id="spCustomerListSelect"
+										class="form-control"
+										onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
+										required>
+									</select>
 								<div class="box-tools pull-right">
 								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER', 'ROLE_SITE_STAFF')">
 									<a 	class="btn btn-success dropdown-toggle pull-right"
@@ -192,7 +197,7 @@ $(function() {
 										Action<span class="caret"></span>
 									</a>
 									<ul class="dropdown-menu" role="menu">
-										<li><a href="${contextPath}/incident/details/create"  ng-click="" >
+										<li><a href="${contextPath}/incident/details/create"   >
 										<i class="fa fa-plus" arial-hidden="true"></i> Create Ticket</a></li>
 										<li><a href ng-click="viewUpdatePage()"  id="updateTicket"><span class="fa fa-edit"></span> Update Ticket </a></li>	
 										<li><a href ng-click="viewSelectedTicket()"  id="closedTicket"><span class="fa fa-eye"></span> View Ticket </a></li>

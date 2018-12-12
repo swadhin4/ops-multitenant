@@ -42,6 +42,15 @@ public class SiteServiceImpl implements SiteService{
 		return siteList;
 	}
 
+
+	@Override
+	public List<CreateSiteVO> getSPSiteList(String rspcode, String custDBName, LoginUser user) throws Exception {
+		SiteDAO siteDAO=getSiteDAO(custDBName);
+		List<CreateSiteVO> siteList = siteDAO.getSPSiteList(rspcode, user);
+		return siteList;
+		
+	}
+
 	@Override
 	@Transactional
 	public CreateSiteVO saveSite(CreateSiteVO siteVO, LoginUser user) throws Exception {
@@ -194,6 +203,5 @@ public class SiteServiceImpl implements SiteService{
 		return savedSiteVO;
 	}
 
-	
 
 }

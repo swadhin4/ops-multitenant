@@ -110,6 +110,9 @@ public class BaseController {
 								if(authUser.getUser().getUserType().equalsIgnoreCase("EXTSP")){
 									loginUser.setSpId(authUser.getUser().getSpId());
 								}
+								else if (authUser.getUser().getUserType().equalsIgnoreCase("SP")){
+									loginUser.setSpDbName(authUser.getUser().getDbName());
+								}
 								//loginUser.setCompany(authUser.getUser().getCompany());
 								//loginUser.setPhoneNo(String.valueOf(authUser.getUser().getPhone()));
 							//	UserRole loggedInUserRole = userRole;

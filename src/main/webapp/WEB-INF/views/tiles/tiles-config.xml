@@ -79,6 +79,11 @@
 		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-customer-list.jsp" />
 	</definition>
 	
+	<definition name="serviceprovider.incident.create" extends="sp.user.definition">
+		<put-attribute name="title" value="Profile" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-incident-create.jsp" />
+	</definition>
+	
 	<definition name="site.details" extends="user.definition">
 		<put-attribute name="title" value="Profile" />
 		<put-attribute name="body" value="/WEB-INF/views/tiles/user/site-list.jsp" />
@@ -182,8 +187,5 @@
   		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-incident-view.jsp" />
 	</definition>
 
-	<definition name="serviceprovider.incident.create" extends="sp.user.definition">
-		<put-attribute name="title" value="Profile" />
-		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-incident-create.jsp" />
-	</definition>
+	
 </tiles-definitions>

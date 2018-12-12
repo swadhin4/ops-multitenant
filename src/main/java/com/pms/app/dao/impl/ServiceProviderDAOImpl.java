@@ -394,7 +394,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 		return customerVOs == null?Collections.emptyList():customerVOs;
 	}
 	@Override
-	public List<CustomerVO> getCustomerCountryForloggedInUser(Long loggedUserId) throws Exception {
+	public List<CustomerVO> getCustomerCountryForloggedInUser(Long loggedUserId, String spCode) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		List<CustomerVO> customerVOs = jdbcTemplate.query(AppConstants.LOGGEDUSER_CUSTOMER_COUNTRY_QUERY,
 				new Object[] { loggedUserId }, new ResultSetExtractor<List<CustomerVO>>() {
@@ -410,6 +410,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 							customerVO.setCountryId(rs.getLong("cust_country_id"));
 							customerVO.setCountryName(rs.getString("country_name"));
 							customerVO.setCustDBName(rs.getString("cust_db_name"));
+							customerVO.setSpCode(spCode);
 							customerVOList.add(customerVO);
 						}
 						return customerVOList;
@@ -453,7 +454,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 							ticketVO.setAssetName(rs.getString("asset_name"));
 							ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
 							ticketVO.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
-							ticketVO.setAssignedSP(rs.getString("rsp_name"));
+							ticketVO.setAssignedSP(rs.getString("sp_name"));
 							ticketVO.setStatus(rs.getString("status"));
 
 							ticketVOList.add(ticketVO);

@@ -183,7 +183,6 @@ $(function() {
 								</div>
 							</div>
 							<div class="box-body" style="height:70%;margin-top:10px;" >
-							
 							 <div class="row">
 							 <div class="col-md-12">
 								<div style="overflow-x: hidden;overflow-y:auto; height: 110%">

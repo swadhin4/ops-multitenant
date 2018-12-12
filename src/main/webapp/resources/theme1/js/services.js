@@ -284,12 +284,13 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
  			site:{},
             siteList: [],
             retrieveAllSites:retrieveAllSites,
-           retrieveSiteDetails:retrieveSiteDetails,
+            retrieveSiteDetails:retrieveSiteDetails,
            // saveSite:saveSite,
             assignSiteAccess:assignSiteAccess,
             removeSiteAccess:removeSiteAccess,
             siteFileDownload:siteFileDownload,
-            deleteFileAttached:deleteFileAttached
+            deleteFileAttached:deleteFileAttached,
+            retrieveSPAllSites:retrieveSPAllSites
         };
 		
 	 	return SiteService;
@@ -354,7 +355,20 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
             return def.promise;
         }
         
-        
+        // implementation
+        function retrieveSPAllSites(customerLocation) {
+            var def = $q.defer();
+            $http.get(hostLocation+"/serviceprovider/rsp/site/list/"+customerLocation)
+                .success(function(data) {
+                	//console.log(data)
+                    def.resolve(data);
+                })
+                .error(function(data) {
+                	console.log(data)
+                    def.reject(data);
+                });
+            return def.promise;
+        }
         // implementation
         function assignSiteAccess(userId, siteId) {
             var def = $q.defer();
@@ -747,9 +761,9 @@ chrisApp.factory("statusService", ['$http', '$q',function ($http, $q) {
  	return StatusService;
  	
     // implementation
-    function retrieveAllStatus() {
+    function retrieveAllStatus(customerLocation) {
         var def = $q.defer();
-        $http.get(hostLocation+"/incident/status/CT")
+        $http.get(hostLocation+"/incident/status/CT/"+customerLocation)
             .success(function(data) {
             	//console.log(data)
                 def.resolve(data);

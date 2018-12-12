@@ -201,18 +201,21 @@ public class IncidentController extends BaseController {
 		return new ResponseEntity<List<TicketCategory>>(categories, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/status/{category}", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/status/{category}/{custdb}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<Status>> listAllOpenTickets(HttpSession session,
-			@PathVariable(value = "category") final String category) {
+			@PathVariable(value = "category") final String category, @PathVariable(value = "custdb") final String custdb) {
 		List<Status> statusList = null;
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				statusList = ticketSerice.getStatusByCategory(loginUser, category);
-				if (statusList.isEmpty()) {
-					return new ResponseEntity(HttpStatus.NO_CONTENT);
-					// You many decide to return HttpStatus.NOT_FOUND
+				if(!custdb.equalsIgnoreCase("NA")){
+					loginUser.setDbName(custdb);
 				}
+					statusList = ticketSerice.getStatusByCategory(loginUser, category);
+					if (statusList.isEmpty()) {
+						return new ResponseEntity(HttpStatus.NO_CONTENT);
+						// You many decide to return HttpStatus.NOT_FOUND
+					}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -268,26 +271,34 @@ public class IncidentController extends BaseController {
 		if (loginUser != null) {
 			try {
 				logger.info("TicektVO : " + ticketVO);
-				savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
-				if (ticketVO.getMode().equalsIgnoreCase("NEW")
-						&& savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
-					response.setStatusCode(200);
-					response.setObject(savedTicketVO);
-					response.setMessage("New Incident created successfully");
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-				} else if (ticketVO.getMode().equalsIgnoreCase("UPDATE")
-						&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
-					response.setStatusCode(200);
-					response.setObject(savedTicketVO);
-					response.setMessage("Incident updated successfully");
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-				} else if (ticketVO.getMode().equalsIgnoreCase("IMAGEUPLOAD")
-						&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
-					response.setStatusCode(200);
-					response.setObject(savedTicketVO);
-					response.setMessage("Incident images uploaded successfully");
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				String selectedCustLocation = (String) session.getAttribute("custLocation");
+				if(!StringUtils.isEmpty(selectedCustLocation)){
+					loginUser.setDbName(selectedCustLocation);
 				}
+				logger.info("Saving ticket to : "+ loginUser.getDbName() +" created by : "+loginUser.getUserType());
+					savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
+					if (ticketVO.getMode().equalsIgnoreCase("NEW")
+							&& savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+						response.setStatusCode(200);
+						response.setObject(savedTicketVO);
+						response.setMessage("New Incident created successfully");
+						String loginUserDB = (String) session.getAttribute("loggedInUserDB");
+						loginUser.setDbName(loginUserDB);
+						session.setAttribute("loginUser", loginUser);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					} else if (ticketVO.getMode().equalsIgnoreCase("UPDATE")
+							&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
+						response.setStatusCode(200);
+						response.setObject(savedTicketVO);
+						response.setMessage("Incident updated successfully");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					} else if (ticketVO.getMode().equalsIgnoreCase("IMAGEUPLOAD")
+							&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
+						response.setStatusCode(200);
+						response.setObject(savedTicketVO);
+						response.setMessage("Incident images uploaded successfully");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
 
 			} catch (Exception e) {
 				logger.info("Exception in getting response", e);
@@ -315,22 +326,7 @@ public class IncidentController extends BaseController {
 					}
 				});
 			}
-			/*
-			 * else if(response.getStatusCode()==200 &&
-			 * savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")){
-			 * 
-			 * } /*else if(response.getStatusCode()==200 &&
-			 * savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")){
-			 * 
-			 * 
-			 * } /*else if(response.getStatusCode()==200 &&
-			 * savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")){
-			 * 
-			 * try { emailResponse =
-			 * emailService.successTicketCreationSPEmail(savedTicketVO,
-			 * "UPDATED"); } catch (Exception e) { logger.info(
-			 * "Exception in sending incident update mail", e); } }
-			 */
+			
 		} else {
 			response.setStatusCode(401);
 			response.setMessage("Your current session is expired. Please login again");

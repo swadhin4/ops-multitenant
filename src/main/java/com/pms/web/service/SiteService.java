@@ -30,4 +30,7 @@ public interface SiteService {
 
 	public int updateSiteLicense(List<SiteLicenceVO> siteLicenseVOList, Long siteId, LoginUser user) throws Exception;
 
+
+	public List<CreateSiteVO> getSPSiteList(String rspcode, String custDBName, LoginUser user) throws Exception;
+
 }

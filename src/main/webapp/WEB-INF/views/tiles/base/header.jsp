@@ -64,7 +64,6 @@
 <script type="text/javascript" src='<c:url value="/resources/js/sockjs.min.js"></c:url>'></script>
  <script type="text/javascript" src='<c:url value="/resources/js/stomp.min.js"></c:url>'></script>
  <script type="text/javascript" src="<c:url value="/resources/theme1/pms/websocket.js"></c:url>"></script>
- 
 
 
 

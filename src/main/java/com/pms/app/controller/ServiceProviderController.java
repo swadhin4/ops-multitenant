@@ -3,6 +3,7 @@
  */
 package com.pms.app.controller;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -19,11 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.UserVO;
@@ -31,6 +35,7 @@ import com.pms.jpa.entities.Country;
 import com.pms.jpa.entities.Region;
 import com.pms.web.service.EmailService;
 import com.pms.web.service.ServiceProviderService;
+import com.pms.web.service.SiteService;
 import com.pms.web.util.RestResponse;
 
 /**
@@ -49,6 +54,9 @@ public class ServiceProviderController extends BaseController {
 	
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private SiteService siteService;
 
 	@RequestMapping(value = "/details", method = RequestMethod.GET)
 	public String userDetails(final Locale locale, final ModelMap model,
@@ -64,6 +72,42 @@ public class ServiceProviderController extends BaseController {
 		} else {
 			return "redirect:/login";
 		}
+	}
+	
+	@RequestMapping(value = "/rsp/incident/create", method = RequestMethod.GET)
+	public String rspIncidentPage(final Locale locale, final ModelMap model,
+			final HttpServletRequest request, final HttpSession session) {
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.addAttribute("mode","NEW");	
+			return "serviceprovider.incident.create";
+		} else {
+			return "redirect:/login";
+		}
+	}
+	
+	@RequestMapping(value = "/rsp/site/list/{custdb}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<List<CreateSiteVO>> listAllRSPSites(HttpSession session, @PathVariable (value="custdb") final String custDB) {
+		logger.info("Inside ServiceProviderController -- listAllRSPSites");
+		List<CreateSiteVO> sitesList = null;
+		try {
+			LoginUser user= getCurrentLoggedinUser(session);
+			if(user!=null){
+				if(StringUtils.isNotBlank(custDB)){
+				sitesList = siteService.getSPSiteList(user.getCompany().getCompanyCode(),custDB, user);
+				if (sitesList.isEmpty()) {
+					return new ResponseEntity(HttpStatus.NO_CONTENT);
+					// You many decide to return HttpStatus.NOT_FOUND
+				}else{
+					Collections.sort(sitesList, CreateSiteVO.COMPARE_BY_SITENAME);
+				}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		logger.info("Exit ServiceProviderController -- listAllRSPSites");
+		return new ResponseEntity<List<CreateSiteVO>>(sitesList, HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/resetpassword/{spid}", method = RequestMethod.GET)
@@ -85,6 +129,40 @@ public class ServiceProviderController extends BaseController {
 		return responseEntity;
 	}
 	
+	@RequestMapping(value = "/rsp/active/user/list/{custcode}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> activeUserList(final HttpServletRequest request, final HttpSession session, @PathVariable(value="custcode") String custcode) {
+		logger.info("Inside UserController - userList" );
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			try {
+					logger.info("Getting RSP  Agents from : " + loginUser.getSpDbName() +" for "+ loginUser.getUsername());
+					List<UserVO> userList = serviceProviderService.findALLActiveSPUsers(custcode, loginUser);
+					if(userList.size()>0){
+						response.setStatusCode(200);
+						response.setObject(userList);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}else{
+						response.setStatusCode(404);
+						response.setMessage("No user available ");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				response.setStatusCode(500);
+				response.setMessage("Exception while getting user list ");
+				logger.error("Exception while getting user list", e);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			}
+
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		logger.info("Exit UserController - userList" );
+		return responseEntity;
+	}
 	
 	@RequestMapping(value = "/user/list", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> userList(final HttpServletRequest request, final HttpSession session) {

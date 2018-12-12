@@ -72,7 +72,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
 	@Override
 	public List<UserVO> findALLSPUsers(Long companyId, LoginUser loginUser) throws Exception {
-		List<UserVO> userList =  getSPUserDAO(loginUser.getDbName()).getAllSPUsers(companyId);
+		List<UserVO> userList =  getSPUserDAO(loginUser.getSpDbName()).getAllSPUsers(companyId);
 		return userList==null?Collections.emptyList():userList;
 	}
 
@@ -204,8 +204,8 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
 	@Override
 	public List<CustomerVO> getCustomerCountryForloggedInUser(LoginUser loginUser, Long spuserid) throws Exception {
-		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getDbName());
-		return serviceProviderDAOImpl.getCustomerCountryForloggedInUser(spuserid);
+		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getSpDbName());
+		return serviceProviderDAOImpl.getCustomerCountryForloggedInUser(spuserid, loginUser.getCompany().getCompanyCode());
 	}
 
 
@@ -223,5 +223,10 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 					.resetPassword(QuickPasswordEncodingGenerator.encodePassword(RandomUtils.randomAlphanumeric(6)));
 		}
 		return false;
+	}
+	@Override
+	public List<UserVO> findALLActiveSPUsers(String customerCode, LoginUser loginUser) throws Exception {
+		List<UserVO> userList =  getSPUserDAO(loginUser.getSpDbName()).getAllActiveUsers(customerCode, loginUser.getUserRoles().get(0).getRole().getRoleId());
+		return userList==null?Collections.emptyList():userList;
 	}
 }

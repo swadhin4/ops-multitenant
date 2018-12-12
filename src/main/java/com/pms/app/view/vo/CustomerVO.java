@@ -3,18 +3,14 @@ package com.pms.app.view.vo;
 public class CustomerVO {
 
 	private Long customerId;
-
 	private String email;
-
 	private String message;
-
 	private boolean isRegistered = false;
-
 	private String customerCode;
+	private String spCode;
 	private String customerName;
 	private String countryName;
 	private String custDBName;
-	
 	private boolean selected;
 	private Long accessId;
 	private boolean isDelFlagEnabled;
@@ -22,7 +18,7 @@ public class CustomerVO {
 	private String value;
 	private Long userId;
 	private Long countryId;
-	
+
 	public Long getCustomerId() {
 		return customerId;
 	}
@@ -111,6 +107,14 @@ public class CustomerVO {
 		this.userId = userId;
 	}
 
+	public String getSpCode() {
+		return spCode;
+	}
+
+	public void setSpCode(String spCode) {
+		this.spCode = spCode;
+	}
+
 	public Long getCountryId() {
 		return countryId;
 	}
@@ -118,6 +122,7 @@ public class CustomerVO {
 	public void setCountryId(Long countryId) {
 		this.countryId = countryId;
 	}
+
 	public String getCustDBName() {
 		return custDBName;
 	}
@@ -150,7 +155,4 @@ public class CustomerVO {
 				+ isDelFlagEnabled + "]";
 	}
 
-	
-	
-	
 }

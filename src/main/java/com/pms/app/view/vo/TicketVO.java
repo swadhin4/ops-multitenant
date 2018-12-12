@@ -44,6 +44,7 @@ public class TicketVO implements Serializable{
 	private String statusDescription;
 	private String raisedOn;
 	private Long assignedTo;
+	private String rspAssignedAgent;
 	private String assignedSP;
 	private String assignedSPEmail;
 	private String raisedBy;
@@ -484,6 +485,12 @@ public class TicketVO implements Serializable{
 	}
 	public void setMode(String mode) {
 		this.mode = mode;
+	}
+	public String getRspAssignedAgent() {
+		return rspAssignedAgent;
+	}
+	public void setRspAssignedAgent(String rspAssignedAgent) {
+		this.rspAssignedAgent = rspAssignedAgent;
 	}
 	@Override
 	public String toString() {

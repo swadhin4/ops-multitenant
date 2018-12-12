@@ -6,6 +6,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -158,6 +159,7 @@ public class ServiceProviderCompanyController extends BaseController {
 
 		if (loginUser != null) {
 			try {
+					logger.info("Getting RSP  customers from : " + loginUser.getSpDbName() +" for "+ loginUser.getUsername());
 				List<CustomerVO> customerList = serviceProviderService.getCustomerCountryForloggedInUser(loginUser,	loginUser.getUserId());
 				response.setStatusCode(200);
 				response.setObject(customerList);
@@ -169,9 +171,9 @@ public class ServiceProviderCompanyController extends BaseController {
 		return responseEntity;
 	}
 
-	@RequestMapping(value = "/customers/tickets/{custcode}/{custDBName}", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/customers/tickets/{spcode}/{custDBName}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> getCustomerTickets(final HttpSession session,
-			@PathVariable(value = "custcode") String custcode,
+			@PathVariable(value = "spcode") String spcode,
 			@PathVariable(value = "custDBName") String custDBName) {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		RestResponse response = new RestResponse();
@@ -179,7 +181,8 @@ public class ServiceProviderCompanyController extends BaseController {
 		
 		if (loginUser != null) {
 			try {
-				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(custcode,custDBName, loginUser);
+				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(loginUser.getCompany().getCompanyCode(),custDBName, loginUser);
+				response.setResponseType(custDBName);
 				response.setStatusCode(200);
 				response.setObject(ticketList);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);

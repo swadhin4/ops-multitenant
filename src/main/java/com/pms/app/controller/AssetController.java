@@ -9,6 +9,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -401,7 +402,14 @@ public class AssetController extends BaseController {
 		try {
 			LoginUser loginUser=getCurrentLoggedinUser(session);
 			if (loginUser!=null) {
-				List<AssetVO> assets  = assetService.findAssetBySiteId(loginUser,siteId);
+				List<AssetVO> assets = null;
+				String custDbName = (String) session.getAttribute("customerLocation");
+				if(StringUtils.isNotBlank(custDbName)){
+					loginUser.setDbName(custDbName);
+					assets  = assetService.findAssetBySiteId(loginUser,siteId);
+				}else{
+					assets  = assetService.findAssetBySiteId(loginUser,siteId);
+				}
 				if (assets.isEmpty()) {
 					response.setStatusCode(404);
 					response.setMessage("No assets available");

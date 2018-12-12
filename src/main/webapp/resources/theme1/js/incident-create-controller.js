@@ -591,7 +591,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		
 		$scope.getStatus=function(){
 			if(viewMode.toUpperCase()=='NEW'){
-				statusService.retrieveAllStatus()
+				statusService.retrieveAllStatus("NA")
                 .then(function(data){
                 	console.log(data);
                 	$("#statusSelect").empty();
@@ -608,7 +608,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				
 			}else if(viewMode.toUpperCase()=='EDIT'){
 				$scope.ticketData.statusInfoList=[];
-				statusService.retrieveAllStatus()
+				statusService.retrieveAllStatus("NA")
                 .then(function(data){
                 	//console.log(data);
                 	$("#statusSelect").empty();
@@ -902,9 +902,9 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 }
 			
 		 }
-$scope.setTicketraisedOnDate=function(){
+		 $scope.setTicketraisedOnDate=function(){
 			 
-	 $scope.CurrentDate = new Date();
+			 $scope.CurrentDate = new Date();
 			 $scope.CurrentDate = $filter('date')(new Date(), 'dd-MM-yyyy');
 			 //$scope.ticketData.raisedOn = $scope.CurrentDate;
 		 }

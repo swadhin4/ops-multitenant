@@ -21,7 +21,8 @@ public class RestResponse  {
 	
 	private Object object2;
 
-
+	private String responseType;
+	
 	public RestResponse() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -124,6 +125,18 @@ public class RestResponse  {
 
 	public void setObject2(Object object2) {
 		this.object2 = object2;
+	}
+
+
+
+	public String getResponseType() {
+		return responseType;
+	}
+
+
+
+	public void setResponseType(String responseType) {
+		this.responseType = responseType;
 	}
 
 

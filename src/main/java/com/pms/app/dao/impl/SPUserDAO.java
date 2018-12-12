@@ -550,5 +550,26 @@ public class SPUserDAO {
 		return spSLAList == null?Collections.emptyList():spSLAList;
 	}
 
+	public List<UserVO> getAllActiveUsers(String customerCode, Long roleId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<UserVO> userList = jdbcTemplate.query(AppConstants.RSP_USER_LIST_QUERY, new Object[] {customerCode, roleId}, new ResultSetExtractor<List<UserVO>>(){
+			List<UserVO> userList = new ArrayList<UserVO>();
+			@Override
+			public List<UserVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					UserVO userVO = new UserVO();
+					userVO.setUserId(rs.getLong("user_id"));
+					userVO.setFirstName(rs.getString("first_name"));
+					userVO.setLastName(rs.getString("last_name"));
+					userVO.setEmailId(rs.getString("email_id"));
+					userVO.setUserType("SP");
+					userList.add(userVO);
+				}
+				return userList;
+			}
+		});
+		return userList;
+	}
+
 	
 }

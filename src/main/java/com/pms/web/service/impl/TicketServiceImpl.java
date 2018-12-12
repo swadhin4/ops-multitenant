@@ -112,7 +112,7 @@ public class TicketServiceImpl implements TicketService {
 
 	@Override
 	public TicketPrioritySLAVO getTicketPriority(Long serviceProviderID, Long ticketCategoryId, LoginUser loginUser) throws Exception {
-		TicketPrioritySLAVO  ticketPriority = getIncidentDAO(loginUser.getDbName()).getSPSLADetails(serviceProviderID, ticketCategoryId);
+		TicketPrioritySLAVO  ticketPriority = getIncidentDAO(loginUser.getDbName()).getSPSLADetails(serviceProviderID, ticketCategoryId, loginUser.getUserType());
 		return ticketPriority;
 	}
 
@@ -124,7 +124,7 @@ public class TicketServiceImpl implements TicketService {
 	
 	@Override
 	public String updateSlaDate(String ticketNumber, int duration, String unit, LoginUser loginUser) throws Exception {
-		return  getIncidentDAO(loginUser.getDbName()).updateSlaDueDate(ticketNumber, duration, unit);
+		return  getIncidentDAO(loginUser.getDbName()).updateSlaDueDate(ticketNumber, duration, unit, "");
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class TicketServiceImpl implements TicketService {
 		TicketVO incidentVO = null;;
 		if(customerTicket.getTicketId()==null && customerTicket.getMode().equalsIgnoreCase("NEW")){
 			incidentVO = customerTicket;
-			Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated();
+			Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated(loginUser.getUserType());
 			Long newIncidentNumber =null;
 			if(lastIncidentNumber == 0){
 				newIncidentNumber = 1l;
@@ -162,7 +162,9 @@ public class TicketServiceImpl implements TicketService {
 			}
 			
 			incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
-			incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
+			//Change the logic if the incident is created by Customer or Registered Service Provider
+				incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
+			
 		}
 		String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
 		if(StringUtils.isNotEmpty(folderLocation)){

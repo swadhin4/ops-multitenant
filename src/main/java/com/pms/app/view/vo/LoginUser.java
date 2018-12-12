@@ -32,6 +32,7 @@ public class LoginUser implements Serializable{
 	private String message;
 	private String phoneNo;
 	private String dbName;
+	private String spDbName;
 	private String userType;
 	private int tenantId;
 	public String getUsername() {
@@ -147,6 +148,12 @@ public class LoginUser implements Serializable{
 	}
 	public void setTenantId(int tenantId) {
 		this.tenantId = tenantId;
+	}
+	public String getSpDbName() {
+		return spDbName;
+	}
+	public void setSpDbName(String spDbName) {
+		this.spDbName = spDbName;
 	}
 	@Override
 	public String toString() {

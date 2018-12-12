@@ -37,7 +37,7 @@ public interface ServiceProviderDAO {
 
 	public List<CustomerVO> getCustomersBySelectedSPUser(String spId) throws Exception;
 
-	public List<CustomerVO> getCustomerCountryForloggedInUser(Long spuserid) throws Exception;
+	public List<CustomerVO> getCustomerCountryForloggedInUser(Long spuserid, String spCode) throws Exception;
 
 	public List<String> getCustomerDBServiceProviderCode(String custcode) throws Exception;
 
