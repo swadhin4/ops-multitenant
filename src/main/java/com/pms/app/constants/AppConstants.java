@@ -11,6 +11,8 @@ public class AppConstants {
 	
 	public static final String USER_TENANT="select * from tenants where user_email=?";
 	
+	public static final String INSERT_CUSTOMER_TENANT_MAPPING="insert into tenants(user_email,company_code, db_name) values(?,?,?)";
+	
 	public static final String INSERT_EXTSP_TENANT="insert into ext_user_sp_mapping(sp_username,sp_email,db_name) values(?,?,?)";
 	
 	public static final String INSERT_REGSP_TENANT="insert into sp_user_mapping(tenant_id,sp_user_email) values(?,?)";

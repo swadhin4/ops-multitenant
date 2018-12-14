@@ -131,8 +131,16 @@ public class UserServiceImpl implements UserService {
 				savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
 				Long roleId = getUserDAO(user.getDbName()).saveUserRole(savedUserVO);
 				if(roleId>0){
-					LOGGER.info("Customer  {} created with role {}", savedUserVO.getFirstName(), roleId);
+					LOGGER.info("Customer  {} created with role {}", appUserVO.getFirstName(), roleId);
 					savedUserVO.setStatus(200);
+					boolean isCustomerCreated = getTenantsDAO("tenants").insertCustomerDetails(user.getTenantId(),user.getCompany().getCompanyCode(), savedUserVO.getEmailId());
+					if(isCustomerCreated){
+						savedUserVO.setStatus(200);
+						LOGGER.info("Customer {} tenant mapping created ", savedUserVO.getFirstName());
+					}else{
+						LOGGER.info("Unable to map customer {} ", savedUserVO.getFirstName(),"Login Denied" );
+						savedUserVO.setStatus(204);
+					}
 				}else{
 					LOGGER.info("User not created with role");
 				}

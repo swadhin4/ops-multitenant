@@ -14,6 +14,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -27,10 +29,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.PasswordVO;
-import com.pms.app.view.vo.UserSiteAccessVO;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.UserModel;
+import com.pms.web.service.EmailService;
 import com.pms.web.service.ServiceProviderService;
 import com.pms.web.service.UserService;
 import com.pms.web.util.RestResponse;
@@ -50,6 +53,9 @@ public class UserController extends BaseController {
 
 	@Autowired
 	private ServiceProviderService serviceProviderService;
+	
+	@Autowired
+	private EmailService emailService;
 
 	@RequestMapping(value = "/home", method = RequestMethod.GET, produces = "application/json")
 	public String userHome(final Locale locale, final ModelMap model, final HttpServletRequest request,
@@ -254,8 +260,23 @@ public class UserController extends BaseController {
 							response.setMessage("User with \"" + appUserVO.getEmail() + "\" registered successfully.");
 							appUserVO.setGeneratedPassword(userVO.getPasswordGenerated());
 							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+							final AppUserVO savedUser = appUserVO;
+							TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+							theExecutor.execute(new Runnable() {
+								@Override
+								public void run() {
+									logger.info("Email thread started : " + Thread.currentThread().getName());
+									try {
+										emailService.sendSuccessSaveEmail(savedUser.getEmail(), appUserVO);
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							});
 						}
-						//emailService.sendSuccessSaveEmail(userVO.getEmailId(), appUserVO);
+						
+					
 					}
 				} catch (Exception e) {
 					response.setStatusCode(500);

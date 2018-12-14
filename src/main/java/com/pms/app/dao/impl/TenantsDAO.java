@@ -63,4 +63,27 @@ public class TenantsDAO {
 		 		return false;
 		 	}
 	}
+	
+	
+	public boolean insertCustomerDetails(int customerTenantId, String companyCode, String customerEmail) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getTenantDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+		jdbcTemplate.update(new PreparedStatementCreator(){
+			 @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_CUSTOMER_TENANT_MAPPING, 
+		            Statement.RETURN_GENERATED_KEYS);
+				ps.setInt(1, customerTenantId);
+				ps.setString(2, companyCode);
+				ps.setString(3, customerEmail);
+				return ps;		
+			}
+		}, key);
+		 	LOGGER.info("Saved Customer {} with id {}.", customerEmail, key.getKey());
+		 	if(key.getKey().intValue()>0){
+		 		return true;
+		 	}else{
+		 		return false;
+		 	}
+	}
 }
