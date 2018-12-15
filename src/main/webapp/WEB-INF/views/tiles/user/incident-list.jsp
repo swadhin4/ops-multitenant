@@ -184,12 +184,12 @@ $(function() {
 				<div class="col-md-12">
 						<div class="box">
 							<div class="box-header with-border">
-							<!-- 	<h3 class="box-title">List of Tickets</h3> -->
-									<select name="spCustomerListSelect" id="spCustomerListSelect"
+								<h3 class="box-title">List of Tickets</h3>
+								<!-- 	<select name="spCustomerListSelect" id="spCustomerListSelect"
 										class="form-control"
 										onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
 										required>
-									</select>
+									</select> -->
 								<div class="box-tools pull-right">
 								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER', 'ROLE_SITE_STAFF')">
 									<a 	class="btn btn-success dropdown-toggle pull-right"

@@ -128,6 +128,7 @@ public class SiteDAO {
 					siteVO.setSecondaryContact(rs.getString("alt_contact_number"));
 					siteVO.setLatitude(rs.getString("latitude"));
 					siteVO.setLongitude(rs.getString("longitude"));
+					siteVO.setSalesAreaSize(rs.getString("sales_area_size"));
 					if(rs.getLong("site_number1")>0){
 						siteVO.setSiteNumber1(String.valueOf(rs.getLong("site_number1")));
 					}

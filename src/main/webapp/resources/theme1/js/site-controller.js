@@ -1463,22 +1463,19 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 	    };
 		              			 
 		             //Submeter details
-		$scope.submeterDetails = [{
-	        'subMeterNumber': '',
-	        'subMeterUser':''
-	        
-	    }];
+		$scope.submeterDetails = [];
 		
 		$scope.defaultSalesOps = angular.copy($scope.salesoperationDetails);
  		$scope.defaultDeliveryOps = angular.copy($scope.deliveryoperationDetails);
- 		$scope.defaultsSubmeterDetails = angular.copy($scope.submeterDetails);
+ 		//$scope.defaultsSubmeterDetails = angular.copy($scope.submeterDetails);
  		
 		              			 
 		$scope.addNewSubmeter = function(submeterDetails){
-			 $scope.submeterDetails.push({ 
-			  'subMeterNumber': '', 
-			 'subMeterUser': ''				 
-			 });
+			 $scope.submeterDetails=[{
+			        'subMeterNumber': '',
+			        'subMeterUser':''
+			        
+			    }];
 			 $scope.SD = {};
 		 };
 		              				 
@@ -1955,7 +1952,7 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 					$scope.selectedSite.siteAddress2 = site.siteAddress2;
 					$scope.selectedSite.siteAddress3 = site.siteAddress3;
 					$scope.selectedSite.siteAddress4 = site.siteAddress4;
-					
+					$scope.selectedSite.siteAddress = site.siteAddress1 + ","+ site.siteAddress2 +","+site.siteAddress3+","+site.siteAddress4
 					$scope.selectedSite.district = site.district;
 					$scope.selectedSite.area=site.area;
 					$scope.selectedSite.cluster=site.cluster;

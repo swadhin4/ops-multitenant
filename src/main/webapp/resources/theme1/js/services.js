@@ -679,7 +679,7 @@ chrisApp.factory("districtService", ['$http', '$q',function ($http, $q) {
  // implementation
     function retrieveDistrictByCountry(loginUser) {
         var def = $q.defer();
-        $http.get(hostLocation+"/site/district/api/country/1")
+        $http.get(hostLocation+"/site/district/api/country/"+loginUser.company.companyId)
             .success(function(data) {
             	//console.log(data)
                 def.resolve(data);

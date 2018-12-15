@@ -372,39 +372,57 @@ public class AssetDAO {
 		  return updatedRow;
 	}
 
-	public List<AssetVO> findAssetBySiteId(Long siteId) {
+	public List<AssetVO> findAssetBySiteId(Long siteId, LoginUser user) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		List<AssetVO> assetList =  jdbcTemplate.query(AppConstants.SITE_ASSET_LIST_QUERY, new Object[] { siteId }, new ResultSetExtractor<List<AssetVO>>() {
 			@Override
 			public List<AssetVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<AssetVO> assetList = new ArrayList<AssetVO>();
-				while(rs.next()){
-					AssetVO assetVO = new AssetVO();
-					assetVO.setSiteId(siteId);
-					assetVO.setAssetId(rs.getLong("asset_id"));
-					assetVO.setAssetName(rs.getString("asset_name"));
-					assetVO.setAssetCode(rs.getString("asset_code"));
-					assetVO.setAssetType(rs.getString("asset_type"));
-					if(!StringUtils.isEmpty(rs.getString("sp_type")) && rs.getString("sp_type").equalsIgnoreCase("RSP")){
-						assetVO.setServiceProviderId(rs.getLong("rsp_id"));
-						assetVO.setSpType("RSP");
-						assetVO.setSpHelpDeskEmail(rs.getString("rsp_help_deskemail"));
-						assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("rsp_name"))==true?null:rs.getString("rsp_name"));
-					}
-					else if(!StringUtils.isEmpty(rs.getString("sp_type")) && rs.getString("sp_type").equalsIgnoreCase("EXT")){
-						assetVO.setServiceProviderId(rs.getLong("sp_id"));
-						assetVO.setSpType("EXT");
-						assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
-						assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name"))==true?null:rs.getString("sp_name"));
-					}
-					assetVO.setCategoryId(rs.getLong("category_id"));
-					assetVO.setAssetCategoryName(rs.getString("category_name"));
-					assetVO.setSubCategoryId1(rs.getLong("subcategory1_id"));
-					if(assetVO.getSubCategoryId1()!=null){
-						assetVO.setAssetSubcategory1(rs.getString("asset_subcategory1"));
-					}
-					assetList.add(assetVO);
-					}
+						while (rs.next()) {
+							if (user.getUserType().equalsIgnoreCase("SP")) {
+								if (!StringUtils.isEmpty(rs.getString("sp_type")) && rs.getString("sp_type").equalsIgnoreCase("RSP")) {
+									AssetVO assetVO = new AssetVO();
+									assetVO.setSiteId(siteId);
+									assetVO.setAssetId(rs.getLong("asset_id"));
+									assetVO.setAssetName(rs.getString("asset_name"));
+									assetVO.setAssetCode(rs.getString("asset_code"));
+									assetVO.setAssetType(rs.getString("asset_type"));
+									assetVO.setServiceProviderId(rs.getLong("rsp_id"));
+									assetVO.setSpType("RSP");
+									assetVO.setSpHelpDeskEmail(rs.getString("rsp_help_deskemail"));
+									assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("rsp_name")) == true
+											? null : rs.getString("rsp_name"));
+									assetVO.setCategoryId(rs.getLong("category_id"));
+									assetVO.setAssetCategoryName(rs.getString("category_name"));
+									assetVO.setSubCategoryId1(rs.getLong("subcategory1_id"));
+									if (assetVO.getSubCategoryId1() != null) {
+										assetVO.setAssetSubcategory1(rs.getString("asset_subcategory1"));
+									}
+									assetList.add(assetVO);
+								}
+								
+								
+							} else if (user.getUserType().equalsIgnoreCase("USER")) {
+							
+								if (!StringUtils.isEmpty(rs.getString("sp_type"))
+										&& rs.getString("sp_type").equalsIgnoreCase("EXT")) {
+									AssetVO assetVO = new AssetVO();
+									assetVO.setSiteId(siteId);
+									assetVO.setAssetId(rs.getLong("asset_id"));
+									assetVO.setAssetName(rs.getString("asset_name"));
+									assetVO.setAssetCode(rs.getString("asset_code"));
+									assetVO.setAssetType(rs.getString("asset_type"));
+									assetVO.setServiceProviderId(rs.getLong("sp_id"));
+									assetVO.setSpType("EXT");
+									assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
+									assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name")) == true
+											? null : rs.getString("sp_name"));
+									assetList.add(assetVO);
+								}
+								
+							}
+
+						}
 					return assetList;
 				}
 			});

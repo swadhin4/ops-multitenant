@@ -30,12 +30,6 @@ public class TenantServiceImpl implements TenantService {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 		List<Tenant> tenantList = jdbcTemplate.query("select * from tenants", new BeanPropertyRowMapper(Tenant.class));
 		System.out.println("Total Tenants : " + tenantList.size());
-		try {
-			connectionManager.getTenantConnection().close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		return tenantList == null ? Collections.EMPTY_LIST:tenantList;
 	}
 	
@@ -52,11 +46,6 @@ public class TenantServiceImpl implements TenantService {
 		}
 		else if(type.equalsIgnoreCase("EXTSP")){
 			 tenant = (Tenant) jdbcTemplate.queryForObject(AppConstants.EXT_SP_USER_TENANT,new Object[]{username}, new BeanPropertyRowMapper(Tenant.class));
-		}
-		try {
-			connectionManager.getTenantConnection().close();
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		return tenant;
 	}

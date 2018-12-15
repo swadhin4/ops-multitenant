@@ -1031,7 +1031,7 @@ $(function() {
 						<div class="col-md-3 col-sm-3">
 							<div class="col-md-12">
 							 <label for="country">Country</label>       
-								<a class="btn btn-info" style="width:100%"><span class="badge">{{siteData.country.countryName}}</span></a>
+								<a class="btn btn-info" style="width:100%"><span class="badge">{{sessionUser.company.countryName}}</span></a>
 								<!-- <a class="btn btn-warning" style="width:100%"><span class="badge">{{siteData.siteId}}</span></a> -->
 								<!-- <img id="countryImg" style="width: 100%;"> -->
 							</div>

@@ -26,9 +26,10 @@ public class AppConstants {
 			+ " WHERE a.category_id = ? AND a.subcategory1_id = ?  and a.asset_id=? ";
 	
 	public static final String USER_ROLE_QUERY ="select u.user_id, u.first_name, u.last_name, u.email_id, u.phone, u.password,u.enabled, "
-			+ " r.role_id, r.role_name, r.role_desc, u.sys_password, pc.company_id,pc.company_code, pc.company_name "
+			+ " r.role_id, r.role_name, r.role_desc, u.sys_password, pc.company_id,pc.company_code, pc.company_name, pcon.country_id, pcon.country_name "
 			+ " from pm_users u inner join pm_user_role ur  INNER join pm_role r on ur.role_id=r.role_id "
-			+ " inner  join pm_company pc where u.company_id=pc.company_id and u.user_id=ur.user_id and u.email_id = ?";
+			+ " inner  join pm_company pc left join pm_country pcon on pcon.country_id = pc.country_id "
+			+ " where u.company_id=pc.company_id  and u.user_id=ur.user_id and u.email_id =  ?";
 	
 	public static final String SP_USER_ROLE_QUERY ="select u.user_id, u.first_name, u.last_name, u.email_id, u.password,u.enabled, "
 			+ " r.role_id, r.role_name, r.role_desc, u.sys_password,u.phone, pc.sp_cid,pc.sp_code, pc.sp_cname "
@@ -67,7 +68,7 @@ public class AppConstants {
 	public static final String SITE_DETAILS_QUERY = "select s.site_id, s.site_name, s.site_code, s.site_owner,s.elec_id_no,"
 			+ " s.brand_id, s.brand_name, d.district_name, a.area_name, c.cluster_name,s.contact_name, s.email, "
 			+ " s.primary_contact_number, s.alt_contact_number, s.site_address1, s.site_address2, s.site_address3, s.site_address4, "
-			+ " s.latitude, s.longitude, s.site_number1, s.site_number2, s.attachment_path  from pm_site s "
+			+ " s.latitude, s.longitude, s.site_number1, s.site_number2, s.attachment_path, s.sales_area_size  from pm_site s "
 			+ " left JOIN pm_district d on s.district_id=d.district_id  left JOIN pm_area a on a.area_id=s.area_id "
 			+ " left JOIN pm_cluster c on s.cluster_id=c.cluster_id where s.site_id=?";
 
@@ -402,7 +403,7 @@ public class AppConstants {
 			+ " left join pm_country po on po.country_id=ps.country_id "
 			+ " left join pm_region pr on po.region_id=pr.region_id order by sp_name";
 	
-	public static final String RSP_SERVICE_PROVIDER_LIST = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
+	public static final String RSP_SERVICE_PROVIDER_LIST = "select distinct(ps.sp_id), ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
 			+ " ps.help_desk_number, ps.help_desk_email, ps.sla_description ,ps.country_id, po.country_name ,"
 			+ " pr.region_id, pr.region_name from pm_sp_registered ps "
 			+ " left join pm_country po on po.country_id=ps.country_id "

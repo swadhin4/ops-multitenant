@@ -83,11 +83,10 @@ chrisApp
 								$.each($scope.spCustomerList.list,function() {
 									options.append($("<option />").val(this.custCode).text(this.custName));
 								});
-								
-								$('#loadingDiv').hide();
 							}
+							
 						}
-
+						$('#loadingDiv').hide();
 					},
 					function(data) {
 						console.log(data);

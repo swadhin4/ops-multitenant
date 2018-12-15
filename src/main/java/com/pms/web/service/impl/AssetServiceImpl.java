@@ -84,7 +84,7 @@ public class AssetServiceImpl implements AssetService {
 	@Override
 	public List<AssetVO> findAssetBySiteId(LoginUser user,Long siteId) throws Exception {
 		LOGGER.info("Inside AssetServiceImpl .. findAssetsBySite");
-		List<AssetVO> assetList =  getAssetDAO(user.getDbName()).findAssetBySiteId(siteId);
+		List<AssetVO> assetList =  getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user);
 		LOGGER.info("Exit AssetServiceImpl .. findAssetsBySite");
 		return assetList == null?Collections.emptyList():assetList;
 	}

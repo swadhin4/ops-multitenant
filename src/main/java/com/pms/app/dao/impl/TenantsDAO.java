@@ -65,7 +65,7 @@ public class TenantsDAO {
 	}
 	
 	
-	public boolean insertCustomerDetails(int customerTenantId, String companyCode, String customerEmail) {
+	public boolean insertCustomerDetails(String customerEmail, String companyCode, String customerDb) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getTenantDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
 		jdbcTemplate.update(new PreparedStatementCreator(){
@@ -73,9 +73,9 @@ public class TenantsDAO {
 		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 		        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_CUSTOMER_TENANT_MAPPING, 
 		            Statement.RETURN_GENERATED_KEYS);
-				ps.setInt(1, customerTenantId);
+				ps.setString(1, customerEmail);
 				ps.setString(2, companyCode);
-				ps.setString(3, customerEmail);
+				ps.setString(3, customerDb);
 				return ps;		
 			}
 		}, key);

@@ -151,9 +151,7 @@ public class IncidentController extends BaseController {
 	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET, produces = "application/json")
-	 @ApiOperation(value="Display Incident list",notes="List of incidents",response=IncidentController.class)
-	 @ApiResponses(value = { @ApiResponse(code = 200, message = "Displaying incident list")})
-	public ResponseEntity<RestResponse> listAllTickets(HttpSession session) {
+	public ResponseEntity<RestResponse> listAllTickets(final HttpSession session) {
 		List<TicketVO> tickets = null;
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);

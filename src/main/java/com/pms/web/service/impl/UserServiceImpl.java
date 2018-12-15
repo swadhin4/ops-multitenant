@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
 				if(roleId>0){
 					LOGGER.info("Customer  {} created with role {}", appUserVO.getFirstName(), roleId);
 					savedUserVO.setStatus(200);
-					boolean isCustomerCreated = getTenantsDAO("tenants").insertCustomerDetails(user.getTenantId(),user.getCompany().getCompanyCode(), savedUserVO.getEmailId());
+					boolean isCustomerCreated = getTenantsDAO("tenants").insertCustomerDetails(savedUserVO.getEmailId(),user.getCompany().getCompanyCode(), user.getDbName());
 					if(isCustomerCreated){
 						savedUserVO.setStatus(200);
 						LOGGER.info("Customer {} tenant mapping created ", savedUserVO.getFirstName());

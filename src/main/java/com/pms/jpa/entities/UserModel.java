@@ -28,6 +28,8 @@ public class UserModel implements Serializable {
 	private Long companyId;
 	private String companyName;
 	private String companyCode;
+	private Long countryId;
+	private String countryName;
 	private String userType;
 	private int tenantId;
 	public Long getUserId() {
@@ -151,6 +153,18 @@ public class UserModel implements Serializable {
 	}
 	public void setTenantId(int tenantId) {
 		this.tenantId = tenantId;
+	}
+	public Long getCountryId() {
+		return countryId;
+	}
+	public void setCountryId(Long countryId) {
+		this.countryId = countryId;
+	}
+	public String getCountryName() {
+		return countryName;
+	}
+	public void setCountryName(String countryName) {
+		this.countryName = countryName;
 	}
 	@Override
 	public int hashCode() {

@@ -216,7 +216,7 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
 		
 		$scope.getServiceProviderList=function(){
 			$('#loadingDiv').show();
-			serviceProviderService.getAllServiceProviders()
+			serviceProviderService.getAllServiceProviders("EXT")
 			.then(function(data) {
     			
     			if(data.statusCode == 200){

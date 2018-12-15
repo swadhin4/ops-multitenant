@@ -105,7 +105,10 @@ public class BaseController {
 								loginUser.getCompany().setCompanyId(authUser.getUser().getCompanyId());
 								loginUser.getCompany().setCompanyName(authUser.getUser().getCompanyName());
 								loginUser.getCompany().setCompanyCode(authUser.getUser().getCompanyCode());
-								loginUser.getCompany().setCountryId(1l);
+								
+								loginUser.getCompany().setCountryId(authUser.getUser().getCountryId());
+								loginUser.getCompany().setCountryName(authUser.getUser().getCountryName());
+								
 								loginUser.setUserType(authUser.getUser().getUserType());
 								if(authUser.getUser().getUserType().equalsIgnoreCase("EXTSP")){
 									loginUser.setSpId(authUser.getUser().getSpId());
@@ -127,6 +130,7 @@ public class BaseController {
 									logger.error("Exception while getting user details ", e);
 								}*/
 								session.setAttribute("loginUser", loginUser);
+								session.setAttribute("loggedInUserDB", loginUser.getDbName());
 							}
 						}else{
 							AuthorizedUserDetails authUser2 = (AuthorizedUserDetails)springAuthentication.getPrincipal();

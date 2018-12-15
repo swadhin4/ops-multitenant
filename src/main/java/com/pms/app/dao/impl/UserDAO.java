@@ -58,6 +58,8 @@ public class UserDAO {
                 	savedUser.setCompanyId(rs.getLong("company_id"));
                 	savedUser.setCompanyCode(rs.getString("company_code"));
                 	savedUser.setCompanyName(rs.getString("company_name"));
+                	savedUser.setCountryId(rs.getLong("country_id"));
+                	savedUser.setCountryName(rs.getString("country_name"));
                 	savedUser.setRoleNameList(roleList);
                 }
                 return savedUser;

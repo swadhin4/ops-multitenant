@@ -49,7 +49,7 @@ public class Company implements Serializable{
 	@Column(name="country_id")
 	private Long countryId;
 	
-
+	private String countryName;
 
 	public Company() {
 	}
@@ -125,6 +125,16 @@ public class Company implements Serializable{
 
 	public void setCountryId(final Long countryId) {
 		this.countryId = countryId;
+	}
+
+
+	public String getCountryName() {
+		return countryName;
+	}
+
+
+	public void setCountryName(String countryName) {
+		this.countryName = countryName;
 	}
 
 

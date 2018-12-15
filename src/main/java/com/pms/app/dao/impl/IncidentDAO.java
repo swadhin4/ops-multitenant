@@ -5,6 +5,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLType;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -280,11 +282,28 @@ public class IncidentDAO {
 	            ps.setLong(4,  ticketVO.getCategoryId());
 	            ps.setLong(5, ticketVO.getStatusId());
 	            ps.setString(6, ticketVO.getPriorityDescription());
-	            ps.setLong(7, ticketVO.getStatusId().intValue()==15?ticketVO.getCloseCode():0l);
-	            ps.setString(8, StringUtils.isEmpty(ticketVO.getCloseNote())==true?null:ticketVO.getCloseNote());
-	            ps.setDate(9, ticketVO.getStatusId().intValue()==13?ApplicationUtil.getSqlDate(new Date()):null);
+	            if(ticketVO.getStatusId().intValue()==15){
+	            	 ps.setLong(7, ticketVO.getCloseCode());
+	            	  ps.setDate(11, ApplicationUtil.getSqlDate(new Date()));
+	            }
+	            else{
+	            	ps.setNull(7, Types.NULL);
+	            	 ps.setNull(11, Types.NULL);
+	            }
+	            
+	            if(StringUtils.isEmpty(ticketVO.getCloseNote())){
+	            	ps.setNull(8, Types.NULL);
+	            }
+	            else{
+	            	  ps.setString(8, ticketVO.getCloseNote());
+	            }
+	            if(ticketVO.getStatusId().intValue()==13){
+	            	 ps.setDate(9,ApplicationUtil.getSqlDate(new Date()));
+	            }
+	            else{
+	            	ps.setNull(9, Types.NULL);
+	            }
 	            ps.setInt(10, ticketVO.getIsRootcauseResolved());
-	            ps.setDate(11, ticketVO.getStatusId().intValue()==15?ApplicationUtil.getSqlDate(new Date()):null);
 	            ps.setString(12, ticketVO.getStatusId().intValue()==13?user.getUsername():ticketVO.getClosedBy()); //closed by if status is closed
 	            ps.setString(13,  user.getUsername());//Modified by username
 	            ps.setDate(14,  ApplicationUtil.getSqlDate(new Date()));//Modified date
