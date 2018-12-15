@@ -417,6 +417,12 @@ public class AssetDAO {
 									assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
 									assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name")) == true
 											? null : rs.getString("sp_name"));
+									assetVO.setCategoryId(rs.getLong("category_id"));
+									assetVO.setAssetCategoryName(rs.getString("category_name"));
+									assetVO.setSubCategoryId1(rs.getLong("subcategory1_id"));
+									if (assetVO.getSubCategoryId1() != null) {
+										assetVO.setAssetSubcategory1(rs.getString("asset_subcategory1"));
+									}
 									assetList.add(assetVO);
 								}
 								
