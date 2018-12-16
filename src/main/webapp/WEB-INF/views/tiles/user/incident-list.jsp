@@ -197,7 +197,7 @@ $(function() {
 										Action<span class="caret"></span>
 									</a>
 									<ul class="dropdown-menu" role="menu">
-										<li><a href="${contextPath}/incident/details/create"   >
+										<li><a href="${contextPath}/incident/create/page"   >
 										<i class="fa fa-plus" arial-hidden="true"></i> Create Ticket</a></li>
 										<li><a href ng-click="viewUpdatePage()"  id="updateTicket"><span class="fa fa-edit"></span> Update Ticket </a></li>	
 										<li><a href ng-click="viewSelectedTicket()"  id="closedTicket"><span class="fa fa-eye"></span> View Ticket </a></li>

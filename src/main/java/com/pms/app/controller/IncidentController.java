@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.FinUpdReqBodyVO;
@@ -109,12 +110,34 @@ public class IncidentController extends BaseController {
 			} else {
 				model.put("mode", "NEW");
 				session.setAttribute("imageList", null);
+				AssetVO selectedAssetVO = (AssetVO)session.getAttribute("assetVO");
+				model.put("assetVO", selectedAssetVO);
 				return "incident.create";
 			}
 		} else {
 			return "redirect:/login";
 		}
 	}
+	
+
+	@RequestMapping(value = "/create/page", method = RequestMethod.GET)
+	public String incidentCreatePage(final Locale locale, final ModelMap model, final HttpServletRequest request,
+			final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null) {
+			model.put("user", loginUser);
+			if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
+				return "redirect:/user/profile";
+			} else {
+				model.put("mode", "NEW");
+				model.put("assetVO", null);
+				session.setAttribute("imageList", null);
+				return "incident.create";
+			}
+		} else {
+			return "redirect:/login";
+		}
+	}	
 
 	@RequestMapping(value = "/details/update", method = RequestMethod.GET)
 	public String incidentDetailsUpdate(final ModelMap model, final HttpServletRequest request,

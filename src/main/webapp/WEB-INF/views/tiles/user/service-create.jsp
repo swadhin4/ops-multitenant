@@ -239,12 +239,25 @@ $(document).ready(function()  {
 								</select>
 								<input type="hidden" ng-model="assetLocation.selected">
 						</div>
-						<div class="col-xs-6">
-							<label class="control-label">Service Provider</label> <!-- <select
+					<!-- 	<div class="col-xs-6">
+							<label class="control-label">Service Provider</label> <select
+							ng-options="val as val.name for val in serviceProvider.list"
+								class="form-control" ng-model="serviceProvider.selected" required>
+							</select>
+							<select	name="spSelect" id="serviceSPSelect"	class="form-control" 
+							onchange="validateDropdownValues('serviceSPSelect','S')">
+							</select> 
+							<input type="hidden" ng-model="serviceProvider.selected">
+						</div> -->
+							
+							<div class="col-xs-6">
+							  <input name="sp_type" id="rsp" value="RSP" ng-model="spType" type="radio" ng-change="populateServiceProvider(spType)" /><b>Registered SP</b>&nbsp;&nbsp;&nbsp;
+				                <input name="sp_type" id="ext" value="EXT" ng-model="spType" type="radio" ng-change="populateServiceProvider(spType)" /><b>External SP</b>
+							<!-- <select
 							ng-options="val as val.name for val in serviceProvider.list"
 								class="form-control" ng-model="serviceProvider.selected" required>
 							</select> -->
-							<select	name="spSelect" id="serviceSPSelect"	class="form-control" 
+							<select	name="serviceSPSelect" id="serviceSPSelect"	class="form-control" 
 							onchange="validateDropdownValues('serviceSPSelect','S')">
 							</select> 
 							<input type="hidden" ng-model="serviceProvider.selected">
@@ -276,7 +289,7 @@ $(document).ready(function()  {
 						</div>
 					<div class="row"><br>
 						
-						 <div class="col-xs-12">
+						 <div class="col-xs-6">
 							<label for="exampleInputEmail1">Comments</label> 
 							<!-- <input type="text" maxlength="50" class="form-control"
 								placeholder="Enter comment" name="comment" ng-model="serviceData.assetDescription"> -->
@@ -285,7 +298,13 @@ $(document).ready(function()  {
    				 height: 70px;" rows="3" placeholder="Enter comment" name="comment" ng-model="serviceData.assetDescription"></textarea>
 						</div> 
 						
-						
+						   <div class="col-md-6">
+			<label for="exampleInputEmail1">Additional
+				document (Max Size 100KB)</label> <input type="file" class="form-control" 
+				id="inputServiceDocfilepath" accept=".doc, .docx,.pdf"
+				name="inputServiceDocfilepath" ng-model="serviceData.documentPath" 
+				onchange="angular.element(this).scope().getDocumentFile(this, event, 'serviceModalMessageDiv','fileerrorservice' )">								
+			</div>
 
 					</div>
 					<!-- <div class="row" ng-show="operation == 'EDIT'">
@@ -322,11 +341,11 @@ $(document).ready(function()  {
 						
 						</div>
 						<div  class="col-xs-12">
-								<div class="box box-widget widget-user" ng-if="serviceData.assetId != null || selectedSite.siteId!=null">
+						<div class="box box-widget widget-user" ng-if="serviceData.assetId != null || selectedSite.siteId!=null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
             <div class="widget-user-header bg-aqua-active">
-              <h3 class="widget-user-username">Site : {{selectedSite.siteName}}</h3>
-              <h5 class="widget-user-desc">Owner : {{selectedSite.siteOwner}}</h5>
+              <h3 class="widget-user-username">Site : {{selectedAsset.siteName}}</h3>
+              <h5 class="widget-user-desc">Owner : {{selectedAsset.siteOwner}}</h5>
             </div>
            <!--  <div class="widget-user-image">
               <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
@@ -336,7 +355,7 @@ $(document).ready(function()  {
                 <div class="col-sm-6 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Contact Name</h5>
-                    <span class="description-text">{{selectedSite.contactName}}</span>
+                    <span class="description-text">{{selectedAsset.contactName}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
@@ -344,32 +363,31 @@ $(document).ready(function()  {
                 <div class="col-sm-6 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Email</h5>
-                    <span class="description-text">{{selectedSite.email}}</span>
+                    <span class="description-text">{{selectedAsset.email}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
-                <!-- /.col -->
-                <!-- /.col -->
-              </div>
-              <!-- /.row -->
+                 </div>
             </div>
           </div>
-				</div>		</div>
-						<div class="row">
-						<div class="col-xs-12" >
-							<label for="exampleInputEmail1">Additional
-								document (Max Size 100KB)</label> <input type="file" class="form-control" 
-								id="inputServiceDocfilepath" accept=".doc, .docx,.pdf"
-								name="inputServiceDocfilepath" ng-model="serviceData.documentPath" 
-								onchange="angular.element(this).scope().getDocumentFile(this, event, 'serviceModalMessageDiv','fileerrorservice' )">								
-												
-						</div>	
-						</div>	
-						</div>
-						</div>
-						</div>
-						</div>
-					</div>					</div>
+            <div class="box box-widget widget-user" ng-if="serviceData.assetId != null ">
+            <div class="widget-user-header bg-aqua-active">
+              <h3 class="widget-user-username">{{selectedAsset.serviceProviderName}}</h3>
+              <h5 class="widget-user-desc">SP Type : <span ng-if="selectedAsset.spType=='RSP'">REGISTERED</span>
+              <span ng-if="selectedAsset.spType=='EXT'">EXTERNAL</span></h5>
+            </div>
+            <div class="box-footer">
+            </div>
+           
+          	</div>
+			</div>
+		 		
+			</div>
+				</div>
+				</div>
+				</div>
+				</div>
+			</div>
 				<div class="box-footer pull-right">
 					
 					<button type="submit" class="btn btn-success" >Save changes</button>

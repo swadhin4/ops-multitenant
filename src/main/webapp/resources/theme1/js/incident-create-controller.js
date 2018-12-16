@@ -110,11 +110,13 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			viewMode = $('#mode').val();
 			$scope.getLoggedInUserAccess();	
 			$scope.selectedTicket={};
+			$scope.assetType = null;
 			if(viewMode.toUpperCase() == 'EDIT'){
 				$scope.getIncidentSelected();
 				$scope.refreshing=false;
 			}
-			
+			$scope.originateFromPage = "Incident";
+			$.jStorage.set('originateFrom', $scope.originateFromPage);
 			$("#drpIsAsset").change(
 					function() {
 
@@ -414,7 +416,28 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
     					$.each($scope.accessSite.list,function() {
 							options.append($("<option />").val(	this.siteId).text(this.siteName));
 						});
-    					$('#loadingDiv').hide();
+    					var selectedSiteId = $('#siteSelectedId').val();
+    					if( $.jStorage.get('selectedSite')!=null && $.jStorage.get('selectedSite').siteId==selectedSiteId){
+	    					$scope.assetType = $('siteSelectedAssetType').val()=="E"?"EQUIPMENT":"SERVICE";
+	    					if(selectedSiteId!=null){
+	    						
+								 $("#siteSelect option").each(function() {
+									if ($(this).val() == selectedSiteId) {
+										$(this).attr('selected', 'selected');
+										 $scope.selectedSiteObject={
+												 siteId:selectedSiteId,
+												 siteName:$("#siteSelect option:selected").text(),
+												 
+										 }
+										
+										$scope.getAsset($scope.selectedSiteObject);
+										//$scope.serviceRepairType.selected.subCategoryId1=$scope.selectedAsset.subCategoryId1;
+										// $scope.getServiceSubRepairType($scope.serviceRepairType.selected);
+										return false;
+									}
+							 	});
+	    					}		 
+					    }
     					$('#loadingDiv').hide();
     				}else{
     					console.log("No sites assigned to the user.")
@@ -692,6 +715,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	    					$.each($scope.accessSite.list,function() {
 								options.append($("<option />").val(	this.siteId).text(this.siteName));
 							});
+	    					
 	    					$('#loadingDiv').hide();
 	    				}
 	    				
@@ -704,7 +728,12 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		
 		
 		$scope.getAsset=function(selectedSite){
-			//console.log(selectedSite);
+			if(selectedSite.siteId==""){
+				$scope.assetType=null;
+				selectedSite=null;
+			}else{
+			 $.jStorage.set('selectedSite',selectedSite);
+			 $scope.accessSite.selected.siteId = parseInt(selectedSite.siteId);
 			 $('#loadingDiv').show();
 			 assetService.getAssetBySite(selectedSite.siteId)
 				.then(function(data) {
@@ -739,7 +768,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
  					$("#ticketCategorySelect").empty();
  					 $("#assetSelect").empty();
 				});
-			
+			}
 		}
 		
 		 $scope.populateAssetType=function(type){
@@ -798,7 +827,24 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		    			$.each(serviceList,function() {
 		    					options.append($("<option />").val(	this.assetId).text(	this.assetName));
 		    			});
-			   }
+		    			
+			      }
+			 
+					if($scope.assetList.length>0){
+						 $("#assetSelect option").each(function() {
+							if ($(this).val() == siteSelectedAssetId) {
+								$(this).attr('selected', 'selected');
+								 $scope.selectedAssetObject={
+										 assetId:siteSelectedAssetId,
+										 assetName:$("#assetSelect option:selected").text(),
+										 
+								 }
+								//getSelectedAsset(selectedAssetObject);
+								 
+								return false;
+							}
+					 	});
+				    }
 			  }
 			 }
 		 }
@@ -2356,7 +2402,7 @@ function getSelectedAsset(dropDownId){
 		 scope.assetList.selected = asset;
 		 $.each(scope.assetList,function(key,val){
 			if(val.assetId == asset.assetId){
-				//console.log(val);
+				console.log(val);
 				$('#assignedTo').val(val.serviceProviderName);
 				$('#category').val(val.assetCategoryName);
 				$('#componentType').val(val.assetSubcategory1);
@@ -2370,6 +2416,7 @@ function getSelectedAsset(dropDownId){
 				scope.assetList.selected.spHelpDeskEmail=val.spHelpDeskEmail;
 				scope.assetList.selected.assetSubcategory1=val.assetSubcategory1;
 				scope.assetList.selected.assetCategoryId=val.categoryId;
+				scope.assetList.selected.spType=val.spType;
 				if(val.assetType=='E'){
 					scope.getRepairType(category);
 					if(val.subCategoryId1!=null){

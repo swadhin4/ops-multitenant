@@ -46,6 +46,7 @@ public class TenantServiceImpl implements TenantService {
 		}
 		else if(type.equalsIgnoreCase("EXTSP")){
 			 tenant = (Tenant) jdbcTemplate.queryForObject(AppConstants.EXT_SP_USER_TENANT,new Object[]{username}, new BeanPropertyRowMapper(Tenant.class));
+			 tenant.setSp_username(tenant.getUser_email());
 		}
 		return tenant;
 	}

@@ -12,10 +12,17 @@ import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,7 +44,7 @@ import com.pms.web.service.TenantService;
 @Service("userAuthorizationService")
 @Transactional(readOnly = true)
 public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
-
+	private final static Logger LOGGER = LoggerFactory.getLogger(AuthorizedUserDetailServiceImpl.class);
 	@Autowired
 	private TenantService tenantService;
 	
@@ -70,7 +77,7 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 					user.setUserType("USER");
 				} else if (userType.equals("2")) {
 					user.setUserType("SP");
-				} else if (userType.equals("EXTSP")) {
+				} else if (userType.equalsIgnoreCase("EXTSP")) {
 					user.setUserType("EXTSP");
 				}
 
@@ -87,7 +94,6 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 		}
 
 	}
-
 
 
 	private UserModel getUserDetails(String username, String type) {

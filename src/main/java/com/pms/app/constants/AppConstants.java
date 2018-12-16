@@ -117,8 +117,22 @@ public class AppConstants {
 			+ " pa.location_id=pal.location_id LEFT JOIN pm_site ps ON pa.site_id=ps.site_id "
 			+ " WHERE pa.asset_id=?";
 	
+/*	public static final String SITE_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
+			+ " psp.sp_id, psp.sp_name, psp.help_desk_email, ps.sp_type,  pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
+			+ " from pm_asset ps left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
+			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
+			+ " left OUTER join pm_service_provider psp on psp.sp_id = ps.sp_id "
+			+ " where ps.site_id = ? ";
+	
+	public static final String SITE_RSP_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
+			+ " ps.sp_type, ps.rsp_id, psrp.sp_name rsp_name, psrp.help_desk_email rsp_help_deskemail, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
+			+ " from pm_asset ps left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
+			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
+		 	+ " LEFT JOIN pm_sp_registered psrp on ps.rsp_id=psrp.sp_id "
+			+ " where ps.site_id = ? ";*/
+	
 	public static final String SITE_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
-			+ " psp.sp_id, psp.sp_name, psp.help_desk_email, ps.sp_type, ps.rsp_id, psrp.sp_name rsp_name, psrp.help_desk_email rsp_help_deskemail, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
+			+ " psp.sp_id, psp.sp_name, psp.help_desk_email sp_help_deskemail, ps.sp_type, ps.rsp_id, psrp.sp_name rsp_name, psrp.help_desk_email rsp_help_deskemail, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
 			+ " from pm_asset ps left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
 			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
 			+ " left OUTER join pm_service_provider psp on psp.sp_id = ps.sp_id "

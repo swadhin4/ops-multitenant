@@ -243,6 +243,9 @@ $(function() {
 							 </div>
 							 
 							   <div class="col-xs-6 reqDiv required">
+							   	<input type="hidden" id="siteSelectedId" value="${assetVO.siteId}">
+							   	  <input type="hidden" id="siteSelectedAssetType" value="${assetVO.assetType}">
+							   	   <input type="hidden" id="siteSelectedAssetId" value="${assetVO.assetId}">
 				                <label class="control-label">Site</label>				                 
 				                  <select name="siteSelect" id="siteSelect" class="form-control" 
 								  onchange="getSelectedSite('siteSelect')" required>
@@ -262,10 +265,16 @@ $(function() {
 				                <label class="control-label">Asset&nbsp;&nbsp;</label>
 				              <!--   <input name="asset_type" id="equipment" value="equipment" type="radio" ng-click="equipmentChecked()" />Equipment&nbsp;&nbsp;&nbsp;
 				                <input name="asset_type" id="service" value="service" type="radio" ng-click="serviceChecked()" />Service&nbsp;&nbsp;&nbsp;&nbsp; -->
-				                 <input name="asset_type" id="equipment" value="equipment" ng-model="assetType" type="radio" ng-change="populateAssetType(assetType)" />Equipment&nbsp;&nbsp;&nbsp;
-				                <input name="asset_type" id="service" value="service" ng-model="assetType" type="radio" ng-change="populateAssetType(assetType)" />Service
-				               <a href data-toggle="modal" class="pull-right" ng-click="openAssetModal()" title="Please click to add asset if not available in list">
-				               <i class="fa fa-info-circle" aria-hidden="true"></i> <b>Add Asset</b></a>
+				                 <input name="asset_type" id="equipment" value="EQUIPMENT" ng-model="assetType" type="radio"   ng-change="populateAssetType(assetType)" />Equipment&nbsp;&nbsp;&nbsp;
+				                <input name="asset_type" id="service" value="SERVICE" ng-model="assetType" type="radio" ng-change="populateAssetType(assetType)" />Service
+				              <!--  <a href data-toggle="modal" class="pull-right" ng-click="openAssetModal()" title="Please click to add asset if not available in list">
+				               <i class="fa fa-info-circle" aria-hidden="true"></i> <b>Add Asset</b></a> -->
+				               
+				                 <a href="${webContextPath}/asset/service/create" class="pull-right" ng-if="assetType=='SERVICE'"  title="Please click to add asset if not available in list">
+				               <i class="fa fa-info-circle" aria-hidden="true"></i> <b>Add Asset(S)</b></a>
+				                <a href="${webContextPath}/asset/equipment/create" class="pull-right" ng-if="assetType=='EQUIPMENT'"  title="Please click to add asset if not available in list">
+				               <i class="fa fa-info-circle" aria-hidden="true"></i> <b>Add Asset(E)</b></a>
+				               
 				                 <select name="assetSelect" id="assetSelect" class="form-control" onchange="getSelectedAsset('assetSelect')"
 								   required></select>
 								   	<input type="hidden" ng-model="selectedAsset.selected">
@@ -275,7 +284,7 @@ $(function() {
 			              <ul class="nav nav-stacked">
 			                <li><a href="#"><b>Category</b> <span class=" pull-right badge bg-blue">{{assetList.selected.assetCategoryName}}</span></a></li>
 			                <li><a href="#"><b>Component Type</b> <span class=" pull-right  badge bg-aqua">{{assetList.selected.assetSubcategory1}}</span></a></li>
-			                <li><a href="#"><b>Assigned SP <span class="badge">(E)</span></b><span class=" pull-right  badge bg-green">
+			                <li><a href="#"><b>Assigned SP <span class="badge">({{assetList.selected.spType}})</span></b><span class=" pull-right  badge bg-green">
 			                {{assetList.selected.assignedSp}} {{assetList.selected.spHelpDeskEmail}} </span></a></li>
 			              </ul>
 			            </div>

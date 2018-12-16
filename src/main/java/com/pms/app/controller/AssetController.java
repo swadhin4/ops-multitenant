@@ -209,6 +209,7 @@ public class AssetController extends BaseController {
 				AssetVO assetVO = assetService.findAssetById(loginUser,assetId);
 				if (assetVO.getAssetId()!=null) {
 					response.setStatusCode(200);
+					session.setAttribute("assetVO", assetVO);
 					response.setObject(assetVO);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 				}

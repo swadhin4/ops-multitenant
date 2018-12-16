@@ -128,6 +128,30 @@ chrisApp.controller('equipmentcreateController',
 						 if($scope.originateFrom == 'Site'){
 							 $scope.selectedSite = $.jStorage.get('selectedSite');
 						 }
+						 else if($scope.originateFrom == 'Incident'){
+							 $("#siteSelect").attr('required', false);
+							 $scope.selectedSite = $.jStorage.get('selectedSite');
+							if($scope.selectedSites.length>0){
+								$.each($scope.selectedSites,function(key,val){
+									if(val.siteId != $scope.selectedSite.siteId){
+										$scope.selectedSites.push($scope.selectedSite);
+										return false;
+									}
+								});
+							}
+							
+							 $scope.getSelectedSiteData($scope.selectedSite.siteId);
+							 $("#siteSelect option").each(function(){
+						 		if($(this).val() == $scope.selectedSite.siteId){
+						 			$(this).attr('selected', 'selected');
+						 			$scope.accessSite.selected.siteId = $scope.selectedSite.siteId;
+						 			$.jStorage.set('selectedSite',$scope.selectedSite);
+									return false;
+						 		}
+							 	});
+							 
+							 
+						 }
 						 else{
 							 $.jStorage.set('selectedSite', null);
 							 $scope.selectedSite = null;
@@ -145,6 +169,21 @@ chrisApp.controller('equipmentcreateController',
 					 }
 					
 			 });
+			 
+			 
+			 $scope.getSelectedSiteData=function(siteId){
+				 siteService.retrieveSiteDetails(siteId)
+		    		.then(function(data) {
+		    			console.log(data)
+		    			var site=angular.copy(data.object);
+						$scope.selectedSite=angular.copy(site);
+						$scope.selectedAsset= $scope.selectedSite;
+						//console.log($scope.selectedSite.siteAttachments);
+		    		},function(data){
+		    			console.log(data);
+		    			
+		    		})
+			 }
 			 
 			 $scope.closeMessageWindow=function(){
 				 $('#messageWindow').hide();
@@ -995,7 +1034,9 @@ chrisApp.controller('equipmentcreateController',
 		    				else if($scope.originateFrom == "Site" && $scope.operation=="NEW"){
 		    					window.location.href=hostLocation+"/site/details";
 		    				}
-		    				
+		    				else if($scope.originateFrom == "Incident" && $scope.operation=="NEW"){
+		    					window.location.href=hostLocation+"/incident/details/create";
+		    				}
 		    				$('#loadingDiv').hide();
 		    			}
 		            },

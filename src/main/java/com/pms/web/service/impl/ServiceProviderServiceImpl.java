@@ -163,6 +163,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 				int slaUpdatedRecored =	spDAO.updateSLADetails( serviceProviderVO, serviceProviderVO.getSlaListVOList(), loginUser);
 				if(updatedEscalationRecords > 0  && slaUpdatedRecored > 0){
 					savedSP.setStatus(200);
+					savedSP.setOption("UPDATED");
 				}
 			}
 		}

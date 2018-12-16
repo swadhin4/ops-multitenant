@@ -214,6 +214,22 @@ public class ServiceProviderController extends BaseController {
 					response.setObject(savedServiceProvider);
 					response.setMessage(savedServiceProvider.getMessage());
 					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+					if(response.getStatusCode()==200 && savedServiceProvider.getOption().equalsIgnoreCase("CREATED")){
+						final ServiceProviderVO savedSP = savedServiceProvider;
+						TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+						theExecutor.execute(new Runnable() {
+							@Override
+							public void run() {
+								logger.info("Email thread started : " + Thread.currentThread().getName());
+								try {
+									emailService.successSaveSPEmail(savedSP, loginUser);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						});
+					}
 				}else{
 					response.setStatusCode(204);
 					response.setMessage(savedServiceProvider.getMessage());
@@ -227,22 +243,7 @@ public class ServiceProviderController extends BaseController {
 			}
 			
 
-			if(response.getStatusCode()==200 && savedServiceProvider.getOption().equalsIgnoreCase("CREATED")){
-				final ServiceProviderVO savedSP = savedServiceProvider;
-				TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
-				theExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						logger.info("Email thread started : " + Thread.currentThread().getName());
-						try {
-							emailService.successSaveSPEmail(savedSP, loginUser);
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				});
-			}
+			
 		}
 		else {
 			response.setStatusCode(401);

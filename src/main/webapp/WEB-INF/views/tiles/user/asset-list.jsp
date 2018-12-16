@@ -244,10 +244,17 @@ $(document).ready(function()  {
 									<div class="box-tools pull-right">
 									<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER','ROLE_SITE_STAFF')">
 									<div class="btn-group pull-right">
-											<a href ng-click="openAssetPage()" ng-if="asset.list.length>0"
-										class="btn btn-success"	style="margin-right: 5px;" data-toggle="modal"><span class="fa fa-edit"></span>
-										Edit 
-									</a>
+										<button type="button"
+										class="btn btn-success dropdown-toggle pull-right"
+										style="margin-right: 5px;" data-toggle="dropdown"><span class="fa fa-gear"></span>
+										Action <span class="caret"></span>
+										</button>
+										
+										<ul class="dropdown-menu" role="menu">
+										<li> <a href ng-click="openAssetPage()"  ng-if="asset.list.length>0">  <span class="fa fa-edit" aria-hidden="true"></span>Edit</a></li>
+										<li> <a href="${contextPath}/incident/details/create"> <span  class="fa fa-plus" aria-hidden="true"></span>Create Incident</a></li>
+										
+									</ul>
 									</div>
 									</sec:authorize>
 									</div>

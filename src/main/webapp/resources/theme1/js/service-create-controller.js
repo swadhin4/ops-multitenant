@@ -76,6 +76,29 @@ chrisApp.controller('servicecreateController',
 							 $("#serviceSiteSelect").attr('required', false);
 							 $scope.selectedSite = $.jStorage.get('selectedSite');
 						 }
+						 if($scope.originateFrom == 'Incident'){
+							 $("#serviceSiteSelect").attr('required', false);
+							 $scope.selectedSite = $.jStorage.get('selectedSite');
+							if($scope.selectedSites.length>0){
+								$.each($scope.selectedSites,function(key,val){
+									if(val.siteId != $scope.selectedSite.siteId){
+										$scope.selectedSites.push($scope.selectedSite);
+										return false;
+									}
+								});
+							}
+							
+							 $scope.getSelectedSiteData($scope.selectedSite.siteId);
+							 $("#serviceSiteSelect option").each(function(){
+						 		if($(this).val() == $scope.selectedSite.siteId){
+						 			$(this).attr('selected', 'selected');
+						 			$scope.accessSite.selected.siteId = $scope.selectedSite.siteId;
+									return false;
+						 		}
+							 	});
+							 
+							 
+						 }
 						 else{
 							 $.jStorage.set('selectedSite', null);
 							 $scope.selectedSite = null;
@@ -86,11 +109,24 @@ chrisApp.controller('servicecreateController',
 						 $scope.HeaderName = "Update service";
 						 $scope.refreshing=false;
 						 $scope.selectedAsset = $.jStorage.get('selectedAsset');						 
-						 
 						 editAsset();
 					 }
 					
 			 });
+			 
+			 $scope.getSelectedSiteData=function(siteId){
+				 siteService.retrieveSiteDetails(siteId)
+		    		.then(function(data) {
+		    			console.log(data)
+		    			var site=angular.copy(data.object);
+						$scope.selectedSite=angular.copy(site);
+						$scope.selectedAsset= $scope.selectedSite;
+						//console.log($scope.selectedSite.siteAttachments);
+		    		},function(data){
+		    			console.log(data);
+		    			
+		    		})
+			 }
 			 
 			 $scope.closeMessageWindow=function(){
 				 $('#messageWindow').hide();
@@ -236,7 +272,7 @@ chrisApp.controller('servicecreateController',
 			 
 			 $scope.getModalPopUpData=function(){
 				 var company = $scope.sessionUser.company;
-				 $scope.getServiceProviders(company);
+				// $scope.getServiceProviders(company);
  				$scope.retrieveAssetCategories();
  				$scope.getAssetLocations();
  				//$scope.testSaveAssetObject();
@@ -350,6 +386,9 @@ chrisApp.controller('servicecreateController',
 					 $('#inputServiceDocfilepath').val('');
 						 //console.log($scope.selectedAsset);
 						 $scope.serviceData=angular.copy($scope.selectedAsset);
+						 $scope.spType=$scope.selectedAsset.spType;
+						 $scope.serviceData.spType=$scope.spType;
+							 $scope.populateServiceProvider($scope.spType);
 						 if($scope.selectedAsset.categoryId!=null){
 							 $("#serviceCategorySelect").empty();
 							 var options = $("#serviceCategorySelect");
@@ -491,9 +530,14 @@ chrisApp.controller('servicecreateController',
 			 }
 			
 			 
-			 $scope.getServiceProviders=function(customer){
+			 $scope.populateServiceProvider=function(spType){
+				 $scope.getServiceProviders(spType.toUpperCase());
+				 $scope.serviceData.spType=spType.toUpperCase();
+			 }
+			 
+			 $scope.getServiceProviders=function(spType){
 				 $('#loadingDiv').show();
-				 serviceProviderService.getAllServiceProviders()
+				 serviceProviderService.getAllServiceProviders(spType)
 					.then(function(data) {
 		    			
 		    			$scope.serviceProvider.list=[];
@@ -865,7 +909,11 @@ chrisApp.controller('servicecreateController',
 		    				}
 		    				else if($scope.originateFrom == "Site" && $scope.operation == 'NEW'){
 		    					window.location.href=hostLocation+"/site/details";
-		    				}		    				
+		    				}	
+		    				
+		    				else if($scope.originateFrom == "Incident" && $scope.operation == 'NEW'){
+		    					window.location.href=hostLocation+"/incident/details/create";
+		    				}	
 		    				
 		    				$('#loadingDiv').hide();
 		    			}
@@ -975,7 +1023,7 @@ function validateDropdownValues(dropDownId, assetType){
 				 var sites = $('#serviceSiteSelect option:selected');
 				 
 				 var selectedSitesId = $('#serviceSiteSelect').val();					 
-				scope.selectedSites = [];
+				  scope.selectedSites = [];
 				 for (var i = 0; i < selectedSitesId.length; i++) {
 					 if(selectedSitesId[i] != ""){
 						 var Id = parseInt(selectedSitesId[i]);

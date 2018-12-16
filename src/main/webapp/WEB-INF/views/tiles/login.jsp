@@ -217,6 +217,7 @@ a, a:hover, a:active {
 								<option value="0" selected>Select login type</option>
 								<option value="1">Customer</option>
 								<option value="2">Service Provider</option>
+								
 							</select>
 						</div>
 						
@@ -251,7 +252,7 @@ a, a:hover, a:active {
 						Please enter the access code
 					</span>
 								<input type="password" ng-model="sp.accesscode" name="j_password" placeholder="Enter access code.." class="form-control" required>
-								<input type="hidden" name="usertype" value="extsp" class="form-control">
+								<input type="hidden" name="usertype" id="usertype" value="extsp" class="form-control">
 						</div>	
 						</div>
 					<button type="submit" class="btn btn-lg btn-info" ng-disabled="extloginForm.$invalid">Sign in</button>	
