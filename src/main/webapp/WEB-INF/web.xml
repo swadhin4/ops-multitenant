@@ -27,7 +27,7 @@
 		/WEB-INF/spring/root-context.xml,
 		classpath:applicationContext-property-initializer.xml,
 		classpath:applicationContext-service.xml,
-		classpath:spring-quartz-config.xml,
+		<!-- classpath:spring-quartz-config.xml, -->
 		classpath:WebSocketConfig.xml,
 		/WEB-INF/spring/spring-security.xml
 		</param-value>

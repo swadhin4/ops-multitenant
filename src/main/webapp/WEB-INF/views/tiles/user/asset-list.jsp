@@ -18,7 +18,7 @@
 
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/moment.min.js"></c:url>'></script>
-
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery.knob.js"></c:url>'></script>
 
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/asset-controller.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/service-provider-service.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
@@ -96,21 +96,72 @@ color:#fff
 
 
 $(document).ready(function()  {
-	
 	$('input').attr('autocomplete', 'off');
-	
 	 $('.toggle-on').removeAttr('style');
 	 $('.toggle-off').removeAttr('style');
-	 
-	 
 	 $(".dt1").datepicker({
          format:"dd-mm-yyyy"
      })
-     
 	$('siteSelect').multiselect();
 	 $('serviceSiteSelect').multiselect(); 	 
 	
-  })
+	 
+	 $(".knob").knob({
+	      /*change : function (value) {
+	       //console.log("change : " + value);
+	       },
+	       release : function (value) {
+	       console.log("release : " + value);
+	       },
+	       cancel : function () {
+	       console.log("cancel : " + this.value);
+	       },*/
+	      draw: function () {
+
+	        // "tron" case
+	        if (this.$.data('skin') == 'tron') {
+
+	          var a = this.angle(this.cv)  // Angle
+	              , sa = this.startAngle          // Previous start angle
+	              , sat = this.startAngle         // Start angle
+	              , ea                            // Previous end angle
+	              , eat = sat + a                 // End angle
+	              , r = true;
+
+	          this.g.lineWidth = this.lineWidth;
+
+	          this.o.cursor
+	          && (sat = eat - 0.3)
+	          && (eat = eat + 0.3);
+
+	          if (this.o.displayPrevious) {
+	            ea = this.startAngle + this.angle(this.value);
+	            this.o.cursor
+	            && (sa = ea - 0.3)
+	            && (ea = ea + 0.3);
+	            this.g.beginPath();
+	            this.g.strokeStyle = this.previousColor;
+	            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sa, ea, false);
+	            this.g.stroke();
+	          }
+
+	          this.g.beginPath();
+	          this.g.strokeStyle = r ? this.o.fgColor : this.fgColor;
+	          this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sat, eat, false);
+	          this.g.stroke();
+
+	          this.g.lineWidth = 2;
+	          this.g.beginPath();
+	          this.g.strokeStyle = this.o.fgColor;
+	          this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false);
+	          this.g.stroke();
+
+	          return false;
+	        }
+	      }
+  		})
+  		
+});
   
 </script>
 </head>
@@ -209,20 +260,40 @@ $(document).ready(function()  {
                             
 							<div class="box-footer">
 								<div class="row">
-									<div class="col-sm-3 col-xs-6">
+									<div class="col-sm-4 col-xs-6">
 										<div class="description-block border-right">
 										<a  class="btn btn-danger">Total Assets :  <span class="badge">{{asset.list.length}}</span></a>
 										</div>
 									</div>
 									<!-- /.col -->
-									<div class="col-sm-3 col-xs-6">
+									<div class="col-sm-4 col-xs-6">
+										 <div class="knob-label" ><b>Assigned to Registered SP</b></div>
 										<div class="description-block border-right">
+                  <div style="display:inline;width:60px;height:60px;"><canvas width="60" height="60" id="rspcavas" ></canvas>
+                 <input type="text" class="knob" data-readonly="true" value="20" data-width="60" 
+                 data-height="60" data-fgcolor="green" readonly="readonly" 
+                 style="width: 34px; height: 20px; position: absolute; vertical-align: middle; 
+                 margin-top: 20px; margin-left: -47px; border: 0px; background: none; 
+                 font: bold 12px Arial; text-align: center; color: green; 
+                 padding: 0px; -webkit-appearance: none;">
+                  </div>
+											
 										</div>
 									</div>
 									<!-- /.col -->
-									<div class="col-sm-3 col-xs-6">
+									<div class="col-sm-4 col-xs-6">
+									<div class="knob-label"><b>Assigned to External SP</b></div>
 										<div class="description-block border-right">
-											
+											    <div style="display:inline;width:60px;height:60px;"><canvas width="60" height="60"></canvas>
+                   <input type="text" class="knob" data-readonly="true" value="20" data-width="60" 
+                 data-height="60" data-fgcolor="red" readonly="readonly" 
+                 style="width: 34px; height: 20px; position: absolute; vertical-align: middle; 
+                 margin-top: 20px; margin-left: -47px; border: 0px; background: none; 
+                 font: bold 12px Arial; text-align: center; color: red; 
+                 padding: 0px; -webkit-appearance: none;">
+                  </div>
+
+                  
 										</div>
 									</div>
 									<!-- /.col -->
@@ -259,7 +330,7 @@ $(document).ready(function()  {
 									</sec:authorize>
 									</div>
 								</div>
-							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;height:58%">
+							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;height:70%">
 								<div class="row">
 								<div class="col-md-12">
 									 <div class="table-responsive">
@@ -397,8 +468,7 @@ $(document).ready(function()  {
 									<div class="col-sm-4 col-xs-6">
 										<div class="description-block">
 										
-														<span class="pull-right" >
-														
+										<span class="pull-right" >
 									Mark for deletion <input id="toggledelete" type="checkbox" class="toggleYesNo form-control" 
 										data-width="70" 
 										data-toggle="toggle" data-size="small"

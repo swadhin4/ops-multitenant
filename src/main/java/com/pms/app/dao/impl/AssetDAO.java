@@ -389,7 +389,7 @@ public class AssetDAO {
 									assetVO.setAssetType(rs.getString("asset_type"));
 									if(!StringUtils.isEmpty(rs.getString("rsp_id"))){
 										assetVO.setServiceProviderId(rs.getLong("rsp_id"));
-										assetVO.setSpHelpDeskEmail(rs.getString("rsp_help_deskemail"));
+										assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
 										assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("rsp_name")) == true? null : rs.getString("rsp_name"));
 									}
 									/*else if(!StringUtils.isEmpty(rs.getString("sp_id"))){
@@ -416,12 +416,12 @@ public class AssetDAO {
 									assetVO.setAssetType(rs.getString("asset_type"));
 									if(!StringUtils.isEmpty(rs.getString("rsp_id"))){
 										assetVO.setServiceProviderId(rs.getLong("rsp_id"));
-										assetVO.setSpHelpDeskEmail(rs.getString("rsp_help_deskemail"));
+										assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
 										assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("rsp_name")) == true? null : rs.getString("rsp_name"));
 									}
 									else if(!StringUtils.isEmpty(rs.getString("sp_id"))){
 										assetVO.setServiceProviderId(rs.getLong("sp_id"));
-										assetVO.setSpHelpDeskEmail(rs.getString("sp_help_deskemail"));
+										assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
 										assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name")) == true? null : rs.getString("sp_name"));
 									}
 									assetVO.setSpType(rs.getString("sp_type"));

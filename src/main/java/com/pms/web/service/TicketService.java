@@ -24,7 +24,7 @@ public interface TicketService {
 	
 	public List<TicketCategory> getTicketCategories(LoginUser loginUser) throws Exception;
 	
-	public TicketPrioritySLAVO getTicketPriority(Long serviceProviderID, Long ticketCategoryId, LoginUser loginUser) throws Exception;
+	public TicketPrioritySLAVO getTicketPriority(Long serviceProviderID, Long ticketCategoryId, String assetType, LoginUser loginUser) throws Exception;
 
 	public List<Status> getStatusByCategory(LoginUser loginUser, String category) throws Exception;
 	public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser use) throws Exception;
@@ -69,6 +69,8 @@ public interface TicketService {
 	List<TicketVO> getAllSPTickets(LoginUser loginUser) throws Exception;
 
 	public boolean deleteFinanceCostById(Long costId, LoginUser user) throws Exception;
+
+	public List<TicketVO> getTicketsForSP(LoginUser loginUser, String ticketCreatedBy, String custDBName) throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 

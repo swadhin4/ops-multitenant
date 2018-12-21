@@ -174,14 +174,14 @@ public class IncidentController extends BaseController {
 	}
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<RestResponse> listAllTickets(final HttpSession session) {
+	public ResponseEntity<RestResponse> listAllTickets(final HttpSession session ) {
 		List<TicketVO> tickets = null;
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				tickets = ticketSerice.getAllCustomerTickets(loginUser);
+					tickets = ticketSerice.getAllCustomerTickets(loginUser);
 				if (tickets.isEmpty()) {
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NO_CONTENT);
 					return responseEntity;
@@ -245,15 +245,15 @@ public class IncidentController extends BaseController {
 		return new ResponseEntity<List<Status>>(statusList, HttpStatus.OK);
 	}
 
-	@RequestMapping(value = "/priority/sla/{spId}/{categoryId}", method = RequestMethod.GET, produces = "application/json")
+	@RequestMapping(value = "/priority/sla/{spId}/{categoryId}/{sptype}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> getPriorityAndSLA(@PathVariable(value = "spId") Long spId,
-			@PathVariable(value = "categoryId") Long categoryId, final HttpSession session) {
+			@PathVariable(value = "categoryId") Long categoryId,@PathVariable(value = "sptype") String sptype, final HttpSession session) {
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if (loginUser != null) {
 			try {
-				TicketPrioritySLAVO ticketPrioritySLAVO = ticketSerice.getTicketPriority(spId, categoryId, loginUser);
+				TicketPrioritySLAVO ticketPrioritySLAVO = ticketSerice.getTicketPriority(spId, categoryId, sptype, loginUser);
 				if (ticketPrioritySLAVO.getPriorityId() != null) {
 					response.setStatusCode(200);
 					response.setObject(ticketPrioritySLAVO);
@@ -298,8 +298,7 @@ public class IncidentController extends BaseController {
 				}
 				logger.info("Saving ticket to : "+ loginUser.getDbName() +" created by : "+loginUser.getUserType());
 					savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
-					if (ticketVO.getMode().equalsIgnoreCase("NEW")
-							&& savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+					if (ticketVO.getMode().equalsIgnoreCase("NEW")	&& savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
 						response.setStatusCode(200);
 						response.setObject(savedTicketVO);
 						response.setMessage("New Incident created successfully");

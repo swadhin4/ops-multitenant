@@ -97,7 +97,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		$scope.selectedEscalation={};
 		
 		$scope.categoryList=[];
-		
+		$scope.assetList=[];
 		
 		$scope.siteAssignedUserList=[];
 		$scope.siteUnAssignedUserList=[];
@@ -416,28 +416,33 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
     					$.each($scope.accessSite.list,function() {
 							options.append($("<option />").val(	this.siteId).text(this.siteName));
 						});
-    					var selectedSiteId = $('#siteSelectedId').val();
-    					if( $.jStorage.get('selectedSite')!=null && $.jStorage.get('selectedSite').siteId==selectedSiteId){
-	    					$scope.assetType = $('siteSelectedAssetType').val()=="E"?"EQUIPMENT":"SERVICE";
+    					var selectedSiteId = $('#siteSelectedId').val(); // From Asset Screen if Asset is selected
+    					var siteSelected = $.jStorage.get('selectedSite');	//  After asset is created and returned back to incident
+    					if(selectedSiteId=="" && siteSelected==null){
+    					  $.jStorage.set('selectedAsset',null);
+    					  $.jStorage.set('selectedSite', null);	
+    					}else{
+    					selectedSiteId = siteSelected.siteId;
+    					var fromAssetSelected = $.jStorage.get('selectedAsset');
+    					if(fromAssetSelected!=null ){
+		    				$scope.assetType = $.jStorage.get('selectedAsset').assetType=="E"?"EQUIPMENT":"SERVICE";
 	    					if(selectedSiteId!=null){
-	    						
 								 $("#siteSelect option").each(function() {
 									if ($(this).val() == selectedSiteId) {
 										$(this).attr('selected', 'selected');
 										 $scope.selectedSiteObject={
-												 siteId:selectedSiteId,
+												 siteId:parseInt(selectedSiteId),
 												 siteName:$("#siteSelect option:selected").text(),
-												 
 										 }
-										
 										$scope.getAsset($scope.selectedSiteObject);
 										//$scope.serviceRepairType.selected.subCategoryId1=$scope.selectedAsset.subCategoryId1;
 										// $scope.getServiceSubRepairType($scope.serviceRepairType.selected);
 										return false;
 									}
 							 	});
-	    					}		 
-					    }
+	    					}
+					      }
+    					}
     					$('#loadingDiv').hide();
     				}else{
     					console.log("No sites assigned to the user.")
@@ -775,11 +780,11 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 
 			 var selectedSite = $('#siteSelect').val();
 			 if(selectedSite == ""){
-				 //alert ("No Site Selected");
+				 $.jStorage.set('selectedAsset', null);
 				 
 			 }else{
 				 if($scope.assetList==null){
-					  $('#messageWindow').show();
+					  	$('#messageWindow').show();
 						$('#successMessageDiv').hide();
 						$('#errorMessageDiv').show();
 						$('#errorMessageDiv').alert();
@@ -804,13 +809,23 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 							equipmentList.push(val);
 						}
 					});
-				 $("#assetSelect").empty();
-				 var options = $("#assetSelect");
-	    			options.append($("<option />").val("").text(
-	    			"Select asset"));
-	    			$.each(equipmentList,function() {
-	    					options.append($("<option />").val(	this.assetId).text(	this.assetName));
-	    			});
+					
+					if(equipmentList.length==0){
+						$('#messageWindow').show();
+						$('#errorMessageDiv').show();
+						$('#errorMessageDiv').alert();
+						$scope.errorMessage="No assets available for Equipments for "+ $('#siteSelect option:selected').text();
+					}else{
+						$('#messageWindow').hide();
+					}
+						 $("#assetSelect").empty();
+						 var options = $("#assetSelect");
+			    			options.append($("<option />").val("").text(
+			    			"Select asset"));
+			    			$.each(equipmentList,function() {
+			    					options.append($("<option />").val(	this.assetId).text(	this.assetName));
+			    			});
+					
 			 }else if(type.toUpperCase()=='SERVICE'){
 				 $scope.assetTypechecked = 'S';
 					//console.log($scope.assetTypechecked);
@@ -820,30 +835,44 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 							serviceList.push(val);
 						}
 					});
-					 $("#assetSelect").empty();
-					 var options = $("#assetSelect");
-		    			options.append($("<option />").val("").text(
-		    			"Select asset"));
-		    			$.each(serviceList,function() {
-		    					options.append($("<option />").val(	this.assetId).text(	this.assetName));
-		    			});
+					
+					if(serviceList.length==0){
+						$('#messageWindow').show();
+						$('#errorMessageDiv').show();
+						$('#errorMessageDiv').alert();
+						$scope.errorMessage="No assets available for Service for "+ $('#siteSelect option:selected').text();
+					}else{
+						$('#messageWindow').hide();
+					}
+						$("#assetSelect").empty();
+						 var options = $("#assetSelect");
+			    			options.append($("<option />").val("").text(
+			    			"Select asset"));
+			    			$.each(serviceList,function() {
+			    					options.append($("<option />").val(	this.assetId).text(	this.assetName));
+			    			});
+					
 		    			
 			      }
 			 
 					if($scope.assetList.length>0){
+						var selectedAsset = $.jStorage.get('selectedAsset');
+						if(selectedAsset!=null){
 						 $("#assetSelect option").each(function() {
-							if ($(this).val() == siteSelectedAssetId) {
-								$(this).attr('selected', 'selected');
-								 $scope.selectedAssetObject={
-										 assetId:siteSelectedAssetId,
-										 assetName:$("#assetSelect option:selected").text(),
-										 
-								 }
-								//getSelectedAsset(selectedAssetObject);
-								 
-								return false;
-							}
-					 	});
+								if ($(this).val() == selectedAsset.assetId) {
+									$(this).attr('selected', 'selected');
+									 $scope.selectedAssetObject={
+											 assetId:selectedAsset.assetId,
+											 assetName:$("#assetSelect option:selected").text(),
+											 assetSP:selectedAsset.spHelpDeskEmail
+									 }
+									getSelectedAsset("ASSETSELECT");
+									 
+									return false;
+								}
+						 	});
+						}
+						
 				    }
 			  }
 			 }
@@ -904,11 +933,13 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		 
 		 $scope.setTicketServiceProvider=function(asset){
 			 $scope.ticketData.sp=asset.serviceProviderId;
+			 $scope.ticketData.spType=asset.spType;
 		 }
 		 
 		 $scope.setTicketPriorityAndSLA=function(ticketCategory){
 			 //console.log($scope.ticketData);
 			 var spId = $scope.ticketData.sp;
+			 var spType=$scope.ticketData.spType;
 			 if(viewMode.toUpperCase()=='EDIT'){
 				 spId=parseInt($scope.ticketData.assignedTo);
 		      }
@@ -917,7 +948,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				 return false;
 			 }else{
 				 $('#loadingDiv').show();
-			 ticketService.getTicketPriorityAndSLA(spId,ticketCategory.categoryId)
+			 ticketService.getTicketPriorityAndSLA(spId,ticketCategory.categoryId,spType)
 			 .then(function(data){
 				 //console.log(data);
 				 if(data.statusCode == 200){
@@ -965,6 +996,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 $scope.ticketData.assetId=$scope.assetList.selected.assetId;
 			 $scope.ticketData.assetName=$scope.assetList.selected.assetName;
 			 $scope.ticketData.assetCategoryId=$scope.assetList.selected.assetCategoryId;
+			 $scope.ticketData.asstSpType = $scope.assetList.selected.spType;
 			 $scope.ticketData.assignedTo = $scope.assetList.selected.assignedTo;
 			 $scope.ticketData.categoryName=$scope.categoryList.selected.categoryName;
 			 $scope.ticketData.subCategoryId1=$scope.assetList.selected.subCategoryId1;
@@ -1015,6 +1047,8 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 .then(function(data){
 				 //console.log(data);
 				 if(data.statusCode == 200){
+					  $.jStorage.set('selectedAsset',null);
+					  $.jStorage.set('selectedSite', null);	
 					 	$scope.successMessage = data.message;
 					 	$('#messageWindow').show();
 	    				$('#successMessageDiv').show();
@@ -2414,6 +2448,7 @@ function getSelectedAsset(dropDownId){
 				scope.assetList.selected.assignedSp=val.serviceProviderName;
 				scope.assetList.selected.assignedTo=val.serviceProviderId;
 				scope.assetList.selected.spHelpDeskEmail=val.spHelpDeskEmail;
+				//scope.selectedAssetObject.assetSP=val.spHealDeskEmail;
 				scope.assetList.selected.assetSubcategory1=val.assetSubcategory1;
 				scope.assetList.selected.assetCategoryId=val.categoryId;
 				scope.assetList.selected.spType=val.spType;

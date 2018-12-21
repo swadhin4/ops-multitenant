@@ -25,6 +25,7 @@ import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.web.service.ServiceProviderService;
+import com.pms.web.service.TicketService;
 import com.pms.web.util.RestResponse;
 
 @RequestMapping(value = "/serviceprovidercompany")
@@ -35,6 +36,10 @@ public class ServiceProviderCompanyController extends BaseController {
 
 	@Autowired
 	private ServiceProviderService serviceProviderService;
+	
+	
+	@Autowired
+	private TicketService ticketSerice;
 	
 	@RequestMapping(value = "/customers", method = RequestMethod.GET)
 	public String userDetails(final Locale locale, final ModelMap model, final HttpServletRequest request,
@@ -182,10 +187,44 @@ public class ServiceProviderCompanyController extends BaseController {
 		if (loginUser != null) {
 			try {
 				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(loginUser.getCompany().getCompanyCode(),custDBName, loginUser);
-				response.setResponseType(custDBName);
-				response.setStatusCode(200);
-				response.setObject(ticketList);
-				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				if(!ticketList.isEmpty()){
+					response.setResponseType(custDBName);
+					response.setStatusCode(200);
+					response.setObject(ticketList);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+				else{
+					response.setStatusCode(404);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/list/tickets/{custDBName}/{ticketsBy}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getRSPCreatedTickets(final HttpSession session,	
+			@PathVariable(value = "custDBName") String custDBName, @PathVariable(value = "ticketsBy") String ticketsBy) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		
+		if (loginUser != null) {
+			try {
+				List<TicketVO> ticketList = ticketSerice.getTicketsForSP(loginUser, ticketsBy, custDBName);
+				if(!ticketList.isEmpty()){
+					response.setResponseType(custDBName);
+					response.setStatusCode(200);
+					response.setObject(ticketList);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+				else{
+					response.setStatusCode(404);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

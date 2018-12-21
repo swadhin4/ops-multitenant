@@ -85,11 +85,33 @@ public class AssetServiceImpl implements AssetService {
 	public List<AssetVO> findAssetBySiteId(LoginUser user,Long siteId) throws Exception {
 		LOGGER.info("Inside AssetServiceImpl .. findAssetsBySite");
 		List<AssetVO> assetList = null;
+		List<AssetVO> rspAssignedAssetList = new ArrayList<AssetVO>();
+		List<AssetVO> customerAssetList = new ArrayList<AssetVO>();
 		synchronized (siteId) {
-				assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user);
+			assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user);
+			for(AssetVO asset: assetList){
+				if(asset.getSpType().equalsIgnoreCase("RSP")){
+					rspAssignedAssetList.add(asset);
+				}else{
+					customerAssetList.add(asset);
+				}
+			}
+			
 		}
-		LOGGER.info("Exit AssetServiceImpl .. findAssetsBySite");
-		return assetList == null?Collections.emptyList():assetList;
+		if(user.getUserType().equalsIgnoreCase("USER")){
+			LOGGER.info("Listing Assets for Customer of both EXTERNAL and REGISTERED for Site id : "+ siteId);
+			LOGGER.info("Asset assigned to registered SP : "+ rspAssignedAssetList.size());
+			LOGGER.info("Asset assigned to Externa SP : "+ customerAssetList.size());
+			for(AssetVO asset: rspAssignedAssetList){
+				customerAssetList.add(asset);
+			}
+			LOGGER.info("Total Assets for Customer : "+ customerAssetList.size());
+			return customerAssetList == null?Collections.emptyList():customerAssetList;
+		}else{
+			LOGGER.info("Asset assigned to registered SP : "+ rspAssignedAssetList.size());
+			return rspAssignedAssetList == null?Collections.emptyList():rspAssignedAssetList;
+		}
+		
 	}
 
 	@Override

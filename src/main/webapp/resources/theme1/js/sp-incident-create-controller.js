@@ -622,6 +622,7 @@ chrisApp
 							
 							 $scope.setTicketServiceProvider=function(asset){
 								 $scope.ticketData.sp=asset.serviceProviderId;
+								 $scope.ticketData.spType=asset.spType;
 							 }
 							 
 							 $scope.validateDropdownValues=function(dropDownId, assetType){
@@ -1047,6 +1048,7 @@ chrisApp
 						    $scope.setTicketPriorityAndSLA=function(ticketCategory){
 								 //console.log($scope.ticketData);
 								 var spId = $scope.ticketData.sp;
+								 var spType=$scope.ticketData.spType;
 								 if(viewMode.toUpperCase()=='EDIT'){
 									 spId=parseInt($scope.ticketData.assignedTo);
 							      }
@@ -1055,7 +1057,7 @@ chrisApp
 									 return false;
 								 }else{
 									 $('#loadingDiv').show();
-								 ticketService.getTicketPriorityAndSLA(spId,ticketCategory.categoryId)
+								 ticketService.getTicketPriorityAndSLA(spId,ticketCategory.categoryId, spType)
 								 .then(function(data){
 									 //console.log(data);
 									 if(data.statusCode == 200){

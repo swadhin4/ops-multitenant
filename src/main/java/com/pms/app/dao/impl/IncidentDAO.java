@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLType;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -43,6 +42,8 @@ import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
+import com.pms.app.view.vo.ServiceProviderUserRoleVO;
+import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.TicketCommentVO;
 import com.pms.app.view.vo.TicketEscalationVO;
 import com.pms.app.view.vo.TicketHistoryVO;
@@ -115,15 +116,18 @@ public class IncidentDAO {
 		ticketVO.setStatusId(rs.getLong("status_id"));
 		return ticketVO;
 	}
-	public TicketPrioritySLAVO getSPSLADetails(Long serviceProviderID, Long ticketCategoryId, String spType) {
+	public TicketPrioritySLAVO getSPSLADetails(Long serviceProviderID, Long ticketCategoryId, String spType, String userType) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		String spTicketPriorityQuery=null;
-		if(spType.equalsIgnoreCase("SP")){
+		if(userType.equalsIgnoreCase("SP")){
 			spTicketPriorityQuery = AppConstants.TICKET_PRIORITY_RSP_SLA_QUERY;
 		}
-			else {
-				spTicketPriorityQuery = AppConstants.TICKET_PRIORITY_SP_SLA_QUERY;
-			}
+		else if(userType.equalsIgnoreCase("USER") && spType.equalsIgnoreCase("RSP")){
+			spTicketPriorityQuery = AppConstants.TICKET_PRIORITY_RSP_SLA_QUERY;
+		}
+		else {
+			spTicketPriorityQuery = AppConstants.TICKET_PRIORITY_SP_SLA_QUERY;
+		}
 		TicketPrioritySLAVO ticketPriority = jdbcTemplate.query(spTicketPriorityQuery, new Object[]{serviceProviderID, ticketCategoryId}, new ResultSetExtractor<TicketPrioritySLAVO>() {
 			@Override
 			public TicketPrioritySLAVO extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -197,11 +201,14 @@ public class IncidentDAO {
 	public TicketVO saveOrUpdateIncident (final TicketVO ticketVO, LoginUser user){
 		LOGGER.info("IncidentDAO -- saveOrUpdateIncident -- Save Incident details : ");
 		if(ticketVO.getTicketId()==null){
+			TicketVO savedTicketVO =null;
 			try {
-				TicketVO savedTicketVO =null;
 				if(user.getUserType().equalsIgnoreCase("USER")){
 				savedTicketVO = insertTicketData(ticketVO,user);
 				}else if(user.getUserType().equalsIgnoreCase("SP")){
+					// Verify the Ticket Creator of SP company or SP Agent Id for rassignedto Column
+					ServiceProviderVO spCompany = getRegisteredSPDetails(user.getCompany().getCompanyCode());
+					ticketVO.setAssignedTo(spCompany.getServiceProviderId());
 					savedTicketVO = insertSPTicketData(ticketVO,user);
 				}
 				if(savedTicketVO.getTicketId()!=null ){
@@ -212,28 +219,36 @@ public class IncidentDAO {
 					LOGGER.info("Unable to create incident for "+  user.getUsername() + "in name of "+ ticketVO.getTicketTitle());
 				}
 			} catch (Exception e) {
+				LOGGER.error("Exception caused in ticket creation - saveOrUpdateIncident()" );
 				e.printStackTrace();
+				savedTicketVO.setStatusCode(500);
+				savedTicketVO.setMessage("Error in ticket creation");
 			}
 		
 		}else if(ticketVO.getTicketId()!=null){
+			TicketVO savedTicketVO = null;
 			try {
-				TicketVO savedTicketVO = updateTicketData(ticketVO,user);
+				savedTicketVO = updateTicketData(ticketVO,user);
 				if(savedTicketVO.getTicketId()!=null ){
 					LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
 					LOGGER.info("Status of the incident updated to : " +  ticketVO.getStatus());
 					LOGGER.info("Incident Modified by : " +  ticketVO.getModifiedBy());
 					savedTicketVO.setStatusCode(200);
 					savedTicketVO.setMessage("Updated");
+					LOGGER.info("Incident updated for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
 				}else{
 					LOGGER.info("Unable to update incident for "+  user.getUsername() + "in name of "+ ticketVO.getTicketTitle());
 				}
 			} catch (Exception e) {
+				LOGGER.error("Exception caused in ticket updation - saveOrUpdateIncident()" );
+				savedTicketVO.setStatusCode(500);
+				savedTicketVO.setMessage("Unable to update ticket");
 				e.printStackTrace();
 			}
-			LOGGER.info("Incident updated for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
+			
 		}
 		
-		LOGGER.info("Exit -- IncidentDAO -- saveOrUpdateIncident-- Save Incident details using Procedure: ");
+		LOGGER.info("Exit -- IncidentDAO -- saveOrUpdateIncident-- Save Incident details : ");
 		return ticketVO;
 
 	}
@@ -317,12 +332,18 @@ public class IncidentDAO {
 		    return ticketVO;
 	}
 	private TicketVO insertTicketData(TicketVO ticketVO, LoginUser user) {
+		LOGGER.info("Tickey creating for :"+ user.getUsername() + " for asset SP type : "+ ticketVO.getAsstSpType());
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_CUST_TICKET_QUERY, 
+	    	  String ticketQuery = AppConstants.INSERT_CUST_TICKET_QUERY;
+	    	  if(ticketVO.getAsstSpType().equalsIgnoreCase("RSP")){
+	    		  ticketQuery = AppConstants.INSERT_CUST_TICKET_RSP_ASSIGNED_QUERY;
+	    	  }
+	    	 
+	        final PreparedStatement ps = connection.prepareStatement(ticketQuery, 
 	            Statement.RETURN_GENERATED_KEYS);
 	    	ps.setString(1, ticketVO.getTicketNumber());
             ps.setString(2, ticketVO.getTicketTitle());
@@ -777,7 +798,7 @@ public class IncidentDAO {
                 });
         return updatedRows>0?financeVO:null;
     }
-	public List<TicketVO> findTicketsAssignedToSP(Long spId) {
+	public List<TicketVO> findTicketsAssignedToExternalSP(Long spId) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.EXTSP_TICKET_LIST_QUERY, new Object[]{spId} ,
 				new RowMapper<TicketVO>() {
@@ -798,5 +819,64 @@ public class IncidentDAO {
 		}
 		
 	}
+	public List<TicketVO> findTicketsCreatedBy(String spCode) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketVO> ticketVOs = jdbcTemplate.query(AppConstants.RSP_TICKET_CREATED_LIST_QUERY,
+				new Object[] { spCode  }, new ResultSetExtractor<List<TicketVO>>() {
+					@Override
+					public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<TicketVO> ticketVOList = new ArrayList<TicketVO>();
+						while (rs.next()) {
+							TicketVO ticketVO = new TicketVO();
+							ticketVO.setTicketNumber(rs.getString("ticket_number"));
+							ticketVO.setTicketTitle(rs.getString("ticket_title"));
+							ticketVO.setSiteId(rs.getLong("site_id"));
+							ticketVO.setSiteName(rs.getString("site_name"));
+							ticketVO.setAssetId(rs.getLong("asset_id"));
+							ticketVO.setAssetName(rs.getString("asset_name"));
+							ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
+							ticketVO.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
+							ticketVO.setAssignedSP(rs.getString("sp_name"));
+							ticketVO.setStatus(rs.getString("status"));
+
+							ticketVOList.add(ticketVO);
+						}
+						return ticketVOList;
+					}
+				});
+		return ticketVOs == null ? Collections.emptyList() : ticketVOs;
+	}
 	
+	
+	public List<TicketVO> findTicketsAssignedToRSP(Long spId) {
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("spId", spId);
+		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.RSP_CUST_TICKET_LIST_QUERY, parameters,
+				new RowMapper<TicketVO>() {
+					@Override
+					public TicketVO mapRow(ResultSet rs, int arg1) throws SQLException {
+						return toTicketList(rs);
+					}
+				});
+		return ticketList;
+	}
+	public ServiceProviderVO getRegisteredSPDetails(String spCode) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		ServiceProviderVO serviceProviderVO = jdbcTemplate.query(AppConstants.RSP_DETAIL_QUERY,
+				new Object[] { spCode }, new ResultSetExtractor<ServiceProviderVO>() {
+					@Override
+					public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+						ServiceProviderVO serviceProviderVO = new ServiceProviderVO();
+						while (rs.next()) {
+							serviceProviderVO.setServiceProviderId(rs.getLong("sp_id"));
+							serviceProviderVO.setCompanyCode(rs.getString("sp_code"));
+							serviceProviderVO.setName(rs.getString("sp_name"));
+						}
+						return serviceProviderVO;
+					}
+				});
+		return serviceProviderVO;
+		
+	}	
 }

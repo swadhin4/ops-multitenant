@@ -1,6 +1,4 @@
-chrisApp
-	.controller(
-		'spCustomerController',
+chrisApp.controller('spCustomerController',
 			[
 				'$rootScope',
 				'$scope',
@@ -9,9 +7,11 @@ chrisApp
 				'userService',
 				'companyService',
 				'registrationService',
+				'authService',
+				'siteService',
 				function($rootScope, $scope, $filter, $location,
-						userService, authService, companyService,
-						registrationService, roleService, siteService) {
+						userService,  companyService,
+						registrationService, authService, siteService) {
 
 				$scope.spCustomerList = {
 					selected : {},
@@ -54,9 +54,51 @@ chrisApp
 				//
 
 				angular.element(document).ready(function() {
-					$scope.getSpCustomerList();
+					 $scope.sessionTicket=null;
+					$scope.getLoggedInUserAccess();	
+					$scope.ticketCreatedOrAssigned="CUSTOMER";
 				});
-
+				 $scope.getLoggedInUserAccess =function(){
+					authService.loggedinUserAccess()
+		    		.then(function(data) {
+		    			//console.log(data)
+		    			if(data.statusCode == 200){
+		    				$scope.sessionUser=data;
+		    				$scope.getLoggedInUser($scope.sessionUser);
+		    			}
+		            },
+		            function(data) {
+		                console.log('Unauthorized Access.')
+		            }); 
+						
+				    }
+				 
+				 $scope.getLoggedInUser=function(loginUser){
+						//console.log(loginUser)
+						userService.getLoggedInUser(loginUser)
+			    		.then(function(data) {
+			    			//console.log(data)
+			    			if(data.statusCode == 200){
+			    				$scope.siteData ={};
+			    				$scope.sessionUser=angular.copy(data.object);
+			    				$scope.siteData.company=$scope.sessionUser.company;
+			    				$scope.getSpCustomerList();
+			    			}
+			            },
+			            function(data) {
+			                console.log('No User available')
+			            });
+					}
+				
+				$scope.checkTicketsAssignedOrCreated=function(ticketType){
+					console.log(ticketType);
+					$scope.ticketCreatedOrAssigned=ticketType;
+					if($scope.ticketCreatedOrAssigned=="RSP"){
+						$scope.findTicketsCreated();
+					}else{
+						$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
+					}
+				}
 				$scope.getSpCustomerList=function(){
 					$('#loadingDiv').show();
 					userService.getSPCustomerList().then(function(data) {
@@ -84,7 +126,6 @@ chrisApp
 									options.append($("<option />").val(this.custCode).text(this.custName));
 								});
 							}
-							
 						}
 						$('#loadingDiv').hide();
 					},
@@ -97,35 +138,19 @@ chrisApp
 				$scope.getCustomerIncident = function(cCode, e,spCustomerListSelect) {
 				// this array will store selected customer list
 				// details.
-				$scope.selectedCustList = [];
-				
-				//$("#countryName").html("");
-				
-				if ($.fn.DataTable.isDataTable("#incidentDetails")) {
-					  $('#incidentDetails').DataTable().clear().destroy();
-				}
-				
-				
-				for (var i = 0; i < $scope.spCustomerList.list.length; i++) {
-				
-					if ($scope.spCustomerList.list[i].custCode === cCode.value) {
-						$scope.selectedCustList.push($scope.spCustomerList.list[i]);
-						//$scope.spCustomerList.selected = $scope.spCustomerList.list[i];
+					$scope.selectedCustList = [];
+					if ($.fn.DataTable.isDataTable("#incidentDetails")) {
+						  $('#incidentDetails').DataTable().clear().destroy();
 					}
-				}
-				
-				/*$.each ($scope.spCustomerList.list,function(key,val) {
+					for (var i = 0; i < $scope.spCustomerList.list.length; i++) {
+						if ($scope.spCustomerList.list[i].custCode === cCode.value) {
+							$scope.selectedCustList.push($scope.spCustomerList.list[i]);
+							//$scope.spCustomerList.selected = $scope.spCustomerList.list[i];
+						}
+					}
+	
+					console.log("------------------->",$scope.selectedCustList[0]);
 					
-					if (val.custCode === cCode.value){
-						$scope.spCustomerList.selected = val;
-						//return false;
-					} 
-				});*/
-
-				console.log("------------------->",$scope.selectedCustList[0]);
-				
-				
-				
 				// countryName
 				console.log("cCode.value",cCode.value);
 				if (cCode.value.length > 0) {
@@ -136,43 +161,12 @@ chrisApp
 					$scope.spCustomerList.selected = encodedString ;
 					$.jStorage.set("selectedCustomer", $scope.spCustomerList.selected);
 					$.jStorage.set("selectedCustomerCode", $scope.selectedCustList[0].custCode);
-					userService.getSPCustomerTicketList($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName)
-					.then(function(data) {
-					/*userService.getSPCustomerTicketList($scope.spCustomerList.selected.custCode,
-							$scope.spCustomerList.selected.custDBName)
-					.then(function(data) {*/
-						
-						console.log("getSPCustomerTicketList----->",data)
-						
-						if (data.statusCode == 200) {
-
-							$scope.spCustomerIncidentList.list = [];
-							
-							if (data.object.length > 0) {
-								$.each(data.object,function(key,val) {
-									$scope.spCustomerIncidentList.list.push(val);
-								});
-								
-							}
-							
-							$('#loadingDiv').hide();
-							$("#countryName").text($scope.selectedCustList[0].countryName);
-							populateSPIncidentDataTable($scope.spCustomerIncidentList.list,'incidentDetails');					
-							
-												
-						
-						}
-					},function(data) {
-						console.log('Unable to change the status of the user');
-					});
-
+					$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
 				} else {
-					
 					$scope.selectedCustList = [];
 					console.log("ELseeeeeeeeeeeeeeee111111--->",$scope.selectedCustList.length);
 					console.log("ELseeeeeeeeeeeeeeee",$scope.selectedCustList);
 					$("#countryName").text(" ");
-					
 					if ($.fn.DataTable.isDataTable("#incidentDetails")) {
 						  $('#incidentDetails').DataTable().clear().destroy();
 					}
@@ -180,6 +174,52 @@ chrisApp
 				}
 				
 			}
+				$scope.getSPCustomerIncidents=function(spCode,dbName){
+				userService.getSPCustomerTicketList(spCode,dbName)
+				.then(function(data) {
+					console.log("getSPCustomerTicketList----->",data)
+					if (data.statusCode == 200) {
+						$scope.spCustomerIncidentList.list = [];
+						if (data.object.length > 0) {
+							if ($.fn.DataTable.isDataTable("#incidentDetails")) {
+								  $('#incidentDetails').DataTable().clear().destroy();
+							}
+							$.each(data.object,function(key,val) {
+								$scope.spCustomerIncidentList.list.push(val);
+							});
+						}
+						$('#loadingDiv').hide();
+						$("#countryName").text($scope.selectedCustList[0].countryName);
+						populateSPIncidentDataTable($scope.spCustomerIncidentList.list,'incidentDetails');					
+					}
+				},function(data) {
+					console.log('Unable to change the status of the user');
+				});
+				}
+				$scope.findTicketsCreated=function(){
+					$('#loadingDiv').show();
+					userService.getSPIncidentCreatedList($scope.selectedCustList[0].custDBName,$scope.ticketCreatedOrAssigned )
+					.then(function(data){
+						console.log(data);
+						if(data.statusCode == 200){
+							if ($.fn.DataTable.isDataTable("#incidentDetails")) {
+								  $('#incidentDetails').DataTable().clear().destroy();
+							}
+							$scope.spCustomerIncidentList.list=[];
+							$.each(data.object,function(key,val){
+								$scope.spCustomerIncidentList.list.push(val);
+				    			})
+				    		$('#loadingDiv').hide();	
+						populateSPIncidentDataTable($scope.spCustomerIncidentList.list,'incidentDetails');
+						}
+					},function(data){
+						console.log(data);
+						$('#messageWindow').hide();
+						$('#infoMessageDiv').hide();
+						$('#loadingDiv').hide();
+					});
+					
+				}
 				
 				
 				//Sites Requiremnet
@@ -349,30 +389,8 @@ chrisApp
 		            }); 
 					
 			    }
-			 $scope.getLoggedInUser=function(loginUser){
-					userService.getLoggedInUser(loginUser)
-		    		.then(function(data) {
-		    			
-		    			if(data.statusCode == 200){
-		    				$scope.sessionUser=angular.copy(data.object);
-		    				$scope.equipmentData.company=$scope.sessionUser.company;
-		    				var siteId = $('#siteId').val();
-		    				if(siteId==""){
-		    					$scope.getAllAsset();
-		    				}else{
-		    					
-		    					$scope.getSelectedSiteAssets(siteId);
-		    				}
-		    				//$scope.getModalPopUpData();
-		    			}
-		            },
-		            function(data) {
-		                console.log('No User available')
-		            });
-				}
 			 
-			 
-				$scope.getSelectedSiteAssets=function(selectedSite){
+	/*			$scope.getSelectedSiteAssets=function(selectedSite){
 					 $('#loadingDiv').show();
 					 assetService.getAssetBySite(selectedSite)
 							.then(function(data) {
@@ -464,7 +482,7 @@ chrisApp
 					 });
 				
 				
-				}
+				}*/
 				
 			//End
 				
@@ -475,13 +493,13 @@ chrisApp
 
 function getAssetData(){
 	var scope = angular.element("#spAssetData").scope();
-	scope.getAssetData();
+	//scope.getAssetData();
 }
 
 
 function getSiteData(){
 	var scope = angular.element("#spSiteData").scope();
-	scope.getSiteData();
+	//scope.getSiteData();
 }
 
 

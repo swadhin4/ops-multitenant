@@ -52,7 +52,7 @@ background-color: rgba(60, 141, 188, 0.58) !important;
 }
 #errorMessageDiv, #successMessageDiv, #infoMessageDiv{
     top: 0%;
-    left: 50%;
+    left: 38%;
    /*  width: 45em; */
     height: 3em;
     margin-top: 4em;
@@ -285,7 +285,7 @@ $(function() {
 			                <li><a href="#"><b>Category</b> <span class=" pull-right badge bg-blue">{{assetList.selected.assetCategoryName}}</span></a></li>
 			                <li><a href="#"><b>Component Type</b> <span class=" pull-right  badge bg-aqua">{{assetList.selected.assetSubcategory1}}</span></a></li>
 			                <li><a href="#"><b>Assigned SP <span class="badge">({{assetList.selected.spType}})</span></b><span class=" pull-right  badge bg-green">
-			                {{assetList.selected.assignedSp}} {{assetList.selected.spHelpDeskEmail}} </span></a></li>
+			                {{assetList.selected.assignedSp}} {{selectedAssetObject.assetSP}} </span></a></li>
 			              </ul>
 			            </div>
 			          </div>

@@ -320,6 +320,9 @@ chrisApp.controller('assetController',
 					    				$('#messageWindow').hide();
 					    				$('#infoMessageDiv').hide();
 					    			});
+					    			$('#rspknob').val(parseInt($scope.asset.list.length));
+					    			$('#rspknob').click();
+					    			$('#rspcavas').click();
 					    				$scope.getAssetDetails($scope.asset.list[0]);
 					    				 $scope.equipmentData.isDelete = 0;
 										 $scope.serviceData.isDelete = 0;
@@ -395,7 +398,7 @@ chrisApp.controller('assetController',
 						//$scope.send(asset.assetId);
 					} 
 				 },function(data){
-					 
+					 console.log(data);
 				 });
 			
 			

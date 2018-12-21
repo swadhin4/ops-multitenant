@@ -1035,6 +1035,7 @@ chrisApp.controller('equipmentcreateController',
 		    					window.location.href=hostLocation+"/site/details";
 		    				}
 		    				else if($scope.originateFrom == "Incident" && $scope.operation=="NEW"){
+		    					$.jStorage.set('selectedSite',$scope.selectedSite);
 		    					window.location.href=hostLocation+"/incident/details/create";
 		    				}
 		    				$('#loadingDiv').hide();

@@ -25,7 +25,7 @@
 <link rel="stylesheet"
 	href='<c:url value="/resources/theme1/css/responsive.bootstrap.min.css"></c:url>' />
 
-
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/optionbtn.css"></c:url>' />
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/jquery.dataTables.min.js"></c:url>'></script>
 <script type="text/javascript"
@@ -168,13 +168,11 @@ background:#deefe5
 		<section class="content">
 			<div class="row">
 				<div class="col-md-12">
-
-					<div class="box">
-
+					<div class="box" style="height: 70%">
 						<div class="box-header with-border">
-							<h3 class="box-title">Customer Details</h3>
+							<h3 class="box-title">Registered Service Provider Activities</h3>
 
-							<div class="row" style="margin-top: 10px">
+			<!-- 				<div class="row" style="margin-top: 10px">
 								<div class="col-md-4">
 									<select name="spCustomerListSelect" id="spCustomerListSelect"
 										class="form-control" style=" height:90px;"
@@ -183,17 +181,16 @@ background:#deefe5
 									</select>
 
 								</div>
-								<!-- <div class="col-md-2 text-right" style="margin-top: 8px;">
+								<div class="col-md-2 text-right" style="margin-top: 8px;">
 									<label>Country Name:</label>
 
-								</div> -->
+								</div>
 
 
 
 
 
 								<div class="col-md-4">
-
 
 									<div class="info-box info-box-sm dropdown">
 									  <div class="info-box-icon bg-aqua">
@@ -206,32 +203,16 @@ background:#deefe5
 									  </div>
 									
 									  <div class="info-box-dropdown">
-									    <!-- Right side button for dropdown -->
+									    Right side button for dropdown
 									  </div>
 									</div>
-								
-								
-								
-								
-								
-									<!-- <div class="col-md-3 col-sm-6 col-xs-12"> -->
-									<!-- 	<div class="info-box container">
-											<span class="info-box-icon" style="height:45px;"> --><!-- <i
-												class="fa fa-flag"></i> --><!-- </span>
-
-											<div class="info-box-content" style="padding: 5px 5px;margin-left: 20px;width:100px;">
-														<span class="info-box-text" style="color:blue; font-size:18px; line-height:35px;width:100px;">Country: </span> <span
-														class="info-box-number" id="countryName" style="color:green; font-size:18px; line-height:35px;width:100px;"></span>
-											</div>
-										</div>
-									</div> -->
 
 								</div>
 							</div>
-
+ -->
 						</div>
 
-						<div class="box-body" style="height: 70%">
+						<div class="box-body" style="height: 50%">
 							<div class="row">
 								<div class="col-md-12">
 									<div class="nav-tabs-custom">
@@ -252,16 +233,39 @@ background:#deefe5
 
 
 										<div class="tab-content">
-
 											<div class="tab-pane active" id="ticketsTab">
-												<div class="box">
-													<div class="box-header with-border">
-														<h3 class="box-title">My Tickets</h3>
-														{{spCustomerList}}
-														<a href="${webContextPath}/serviceprovider/rsp/incident/create" class="btn btn-primary pull-right " >Create Ticket </a></li>	
+													<div class="row">
+													<div class="col-md-3">
+															<select name="spCustomerListSelect" id="spCustomerListSelect"
+																class="form-control" onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
+																required>
+															</select>
+						
+														</div>
+														<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio3" ng-model="ticketCreatedOrAssigned" value="CUSTOMER" 
+																ng-change="checkTicketsAssignedOrCreated(ticketCreatedOrAssigned)"/> <label
+																	for="radio3"   >
+																	Tickets Created by Customer
+																	</label>
+															</div>
+														</div>
 													</div>
-													<div class="box-body">
-
+													<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio2" ng-model="ticketCreatedOrAssigned" value="RSP" 
+																ng-change="checkTicketsAssignedOrCreated(ticketCreatedOrAssigned)"/> <label
+																	for="radio2" >Tickets Created by Company</label>
+															</div>
+														</div>
+													</div>
+													
+													
+														<a href="${webContextPath}/serviceprovider/rsp/incident/create" class="btn btn-primary pull-right " >Create Ticket </a></li>
+													</div>	
 														<div class="row">
 															<div class="col-md-12">
 																<div style="overflow-x: hidden; overflow-y: auto; height: 110%">
@@ -274,23 +278,7 @@ background:#deefe5
 																</div>
 															</div>
 														</div>
-
-													</div>
-													<div class="box-footer">
-														<div class="row">
-															<div class="col-sm-4 col-xs-6">
-																<!-- <div class="description-block border-right">
-																	<a class="btn btn-danger pull-left">Total Tickets :
-																		<span class="badge">{{relatedTicketData.length}}</span>
-																	</a>
-																</div> -->
-															</div>
-														</div>
-													</div>
 												</div>
-											</div>
-
-
 
 											<div class="tab-pane" id="sitesTab">
 												

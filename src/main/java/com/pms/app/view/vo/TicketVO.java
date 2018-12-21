@@ -33,6 +33,7 @@ public class TicketVO implements Serializable{
 	private String assetModel;
 	private Long assetCategoryId;
 	private String assetCategoryName;
+	private String asstSpType;
 	private Long subCategoryId1;
 	private String assetSubCategory1;
 	private Long subCategoryId2;
@@ -491,6 +492,13 @@ public class TicketVO implements Serializable{
 	}
 	public void setRspAssignedAgent(String rspAssignedAgent) {
 		this.rspAssignedAgent = rspAssignedAgent;
+	}
+	
+	public String getAsstSpType() {
+		return asstSpType;
+	}
+	public void setAsstSpType(String asstSpType) {
+		this.asstSpType = asstSpType;
 	}
 	@Override
 	public String toString() {

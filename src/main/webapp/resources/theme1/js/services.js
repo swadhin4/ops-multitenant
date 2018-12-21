@@ -20,11 +20,26 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
 	            retrieveCustomersBySelectedSP:retrieveCustomersBySelectedSP,
 	            updateSPUserCustomers:updateSPUserCustomers,
 	            getSPCustomerList:getSPCustomerList,
-	            getSPCustomerTicketList: getSPCustomerTicketList
+	            getSPCustomerTicketList: getSPCustomerTicketList,
+	            getSPIncidentCreatedList:getSPIncidentCreatedList
 	        };
 	 	
 	 	return UserService;
-	 	 // implementation
+	 	
+	 	function getSPIncidentCreatedList(custDB, ticketsBy) {
+ 	        var def = $q.defer();
+ 	        var url = hostLocation+"/serviceprovidercompany/list/tickets/"+custDB+"/"+ticketsBy;
+ 	        $http.get(url)
+            .success(function(data) {
+                def.resolve(data);
+            })
+            .error(function(data) {
+            	console.log(data)
+                def.reject(data);
+            });
+ 	        return def.promise;
+        }
+	 	
 	 	
 	 	//
 	 	function getSPCustomerList() {
@@ -1169,9 +1184,9 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  	
     
  	 // implementation
- 	    function getTicketPriorityAndSLA(spId, categoryId) {
+ 	    function getTicketPriorityAndSLA(spId, categoryId, spType) {
  	        var def = $q.defer();
- 	        $http.get(hostLocation+"/incident/priority/sla/"+spId+"/"+categoryId)
+ 	        $http.get(hostLocation+"/incident/priority/sla/"+spId+"/"+categoryId+"/"+spType)
  	            .success(function(data) {
  	            	//console.log(data)
  	                def.resolve(data);

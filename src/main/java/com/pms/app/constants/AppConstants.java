@@ -132,7 +132,7 @@ public class AppConstants {
 			+ " where ps.site_id = ? ";*/
 	
 	public static final String SITE_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
-			+ " psp.sp_id, psp.sp_name, psp.help_desk_email sp_help_deskemail, ps.sp_type, ps.rsp_id, psrp.sp_name rsp_name, psrp.help_desk_email rsp_help_deskemail, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
+			+ " psp.sp_id, psp.sp_name, psp.help_desk_email, ps.sp_type, ps.rsp_id, psrp.sp_name rsp_name, psrp.help_desk_email, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
 			+ " from pm_asset ps left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
 			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
 			+ " left OUTER join pm_service_provider psp on psp.sp_id = ps.sp_id "
@@ -182,6 +182,17 @@ public class AppConstants {
 			+ " left outer join pm_service_provider psp on psp.sp_id=pa.sp_id left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where pct.assigned_to = ? ";
 	
+	public static final String RSP_CUST_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+			+ " pct.sla_duedate, pct.rassigned_to as sp_id, psp.sp_name, pct.status_id, pst.status, pst.description from pm_cust_ticket pct "
+			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
+			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
+			+ " on pst.status_id=pct.status_id where pct.rassigned_to = :spId ";
+	
+	public static final String RSP_TICKET_CREATED_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+			+ " pct.sla_duedate, pct.rassigned_to as sp_id, psp.sp_name, pct.status_id, pst.status, pst.description from pm_sp_tickets pct "
+			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
+			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
+			+ " on pst.status_id=pct.status_id where psp.sp_code = ? ";
 	
 	public static final String TICKET_CATEGORY_QUERY ="select * from pm_ticket_category ";
 	
@@ -201,14 +212,20 @@ public class AppConstants {
 			+ " left outer join pm_registered_sp_sla pss on pss.priority_id=ps.priority_id "
 			+ " left outer join pm_sp_registered psp on psp.sp_id=pss.sp_id where pss.sp_id=? and ptc.id=?";
 	
-	public static final String INSERT_CUST_TICKET_QUERY = "insert into pm_cust_ticket(ticket_number, ticket_title,ticket_desc, status_id,ticket_category,"
-			+ " site_id,asset_id,asset_category_id,asset_subcategory1_id,asset_subcategory2_id,priority,assigned_to, "
-			+ " ticket_starttime, created_by, created_on) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())";
+	
 	
 	public static final String UPDATE_CUST_TICKET_QUERY = "update pm_cust_ticket set ticket_title=?, ticket_desc=?, "
 			+ " sla_duedate = ?, ticket_category=?, status_id=?,priority=?,close_code=?,close_note=?,closed_on=?,"
 			+ "  is_rootcause_resolved=?,service_restoration_ts=?, closed_by=?,"
 			+ " modified_by=?, modified_on=? where id=?";
+	
+	public static final String INSERT_CUST_TICKET_RSP_ASSIGNED_QUERY = "insert into pm_cust_ticket(ticket_number, ticket_title,ticket_desc, status_id,ticket_category,"
+			+ " site_id,asset_id,asset_category_id,asset_subcategory1_id,asset_subcategory2_id,priority,rassigned_to, "
+			+ " ticket_starttime, created_by, created_on) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())";
+	
+	public static final String INSERT_CUST_TICKET_QUERY = "insert into pm_cust_ticket(ticket_number, ticket_title,ticket_desc, status_id,ticket_category,"
+			+ " site_id,asset_id,asset_category_id,asset_subcategory1_id,asset_subcategory2_id,priority,assigned_to, "
+			+ " ticket_starttime, created_by, created_on) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())";
 	
 	public static final String INSERT_SP_TICKET_QUERY = "insert into pm_sp_tickets(ticket_number, ticket_title,ticket_desc, status_id,ticket_category,"
 			+ " site_id,asset_id,asset_category_id,asset_subcategory1_id,asset_subcategory2_id,priority,rassigned_to, assigned_agent, "
@@ -486,4 +503,6 @@ public class AppConstants {
 			+ " inner join sp_user_role sur on su.user_id = sur.user_id"
 			+ " inner join sp_customers sc on suc.sp_cust_id = sc.sp_cust_id"
 			+ " where sc.customer_code = ? and sur.role_id = ? and suc.del_flag=0";
+
+	public static final String RSP_DETAIL_QUERY = "select ps.sp_id, ps.sp_name, ps.sp_code from pm_sp_registered ps where ps.sp_code=?";
 }
