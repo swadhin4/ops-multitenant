@@ -395,6 +395,7 @@ chrisApp
 											}else if(val.assetType=='S'){
 												$scope.getServiceRepairType(category);
 												if(val.subCategoryId1!=null){
+													$scope.assetList.selected.subCategoryId1=val.subCategoryId1
 													$scope.getServiceSubRepairType(val);
 												}else{
 													$scope.subRepairType.list=[];
