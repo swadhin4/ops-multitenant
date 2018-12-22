@@ -417,12 +417,12 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 							options.append($("<option />").val(	this.siteId).text(this.siteName));
 						});
     					var selectedSiteId = $('#siteSelectedId').val(); // From Asset Screen if Asset is selected
-    					var siteSelected = $.jStorage.get('selectedSite');	//  After asset is created and returned back to incident
+    					//var siteSelected = $.jStorage.get('selectedSite');	//  After asset is created and returned back to incident
     					if(selectedSiteId=="" && siteSelected==null){
     					  $.jStorage.set('selectedAsset',null);
     					  $.jStorage.set('selectedSite', null);	
     					}else{
-    					selectedSiteId = siteSelected.siteId;
+    					//selectedSiteId = siteSelected.siteId;
     					var fromAssetSelected = $.jStorage.get('selectedAsset');
     					if(fromAssetSelected!=null ){
 		    				$scope.assetType = $.jStorage.get('selectedAsset').assetType=="E"?"EQUIPMENT":"SERVICE";
