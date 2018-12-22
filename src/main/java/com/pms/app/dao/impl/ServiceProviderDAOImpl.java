@@ -23,10 +23,12 @@ import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.ServiceProviderUserRoleVO;
+import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
 import com.pms.web.util.ApplicationUtil;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
+import com.pms.web.util.RestResponse;
 
 public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 	public ServiceProviderDAOImpl(String userConfig) {
@@ -465,8 +467,39 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 		return ticketVOs == null ? Collections.emptyList() : ticketVOs;
 	}
 
-	public void resetPassword(String encodePassword) {
+	public int resetPassword(String encodePassword, Long extSPId) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		RestResponse response = new RestResponse();
+		int updatedRows = jdbcTemplate.update(AppConstants.EXT_SP_PASSWORD_RESET_QUERY,
+				new PreparedStatementSetter() {
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setString(1, encodePassword);
+						ps.setLong(2, extSPId);
+					}
+				});
+		return  updatedRows;
+	}
+
+	public ServiceProviderVO findSPPasswordDetails(Long spId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		ServiceProviderVO spProviderVO= new ServiceProviderVO();
+		jdbcTemplate.query(AppConstants.EXT_SERVICE_PROVIDER_INFO, new Object[]{ spId }, 
+			new ResultSetExtractor<ServiceProviderVO>(){
+		@Override
+		public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+			if(rs.next()){
+				spProviderVO.setServiceProviderId(rs.getLong("sp_id"));
+				spProviderVO.setName(rs.getString("sp_name"));
+				spProviderVO.setCode(rs.getString("sp_code"));
+				spProviderVO.setEmail(rs.getString("sp_email"));
+				spProviderVO.setHelpDeskEmail(rs.getString("help_desk_email"));
+				spProviderVO.setAccessKey(rs.getString("accessKey"));
+			}
+			return spProviderVO;
+		}
+	 });
+	return spProviderVO;
 	}
 
 	

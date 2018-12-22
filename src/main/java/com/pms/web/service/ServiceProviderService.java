@@ -51,7 +51,8 @@ public interface ServiceProviderService {
 	
 	public List<TicketVO> getCustomerTickets(String custcode,String custDBName, LoginUser loginUser) throws Exception;
 
-	public boolean resetPassword(Long spId, LoginUser loginUser) throws Exception;
+	public ServiceProviderVO resetPassword(Long spId, LoginUser loginUser) throws Exception;
 
 	public List<UserVO> findALLActiveSPUsers(String customerCode, LoginUser loginUser) throws Exception;
+
 }

@@ -109,17 +109,46 @@ public class ServiceProviderController extends BaseController {
 	}
 	
 	@RequestMapping(value = "/resetpassword/{spid}", method = RequestMethod.GET)
-	public ResponseEntity<RestResponse>  resetServiceProviderPassword(final HttpServletRequest request, @PathVariable(value="spid") Long spId,
+	public ResponseEntity<RestResponse>  resetServiceProviderPassword(final HttpServletRequest request,
+			@PathVariable(value="spid") Long spId,
 			final HttpSession session) {
 		LoginUser loginUser=getCurrentLoggedinUser(session);
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		if (loginUser!=null) {
 			try {
-				serviceProviderService.resetPassword(spId, loginUser);
+				if(loginUser.getUserType().equalsIgnoreCase("USER")){
+				ServiceProviderVO updatedServiceProvider= serviceProviderService.resetPassword(spId, loginUser);
+					if(updatedServiceProvider.getOption().equalsIgnoreCase("PWDUPDATED")){
+						response.setStatusCode(200);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}else{
+						response.setStatusCode(401);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.BAD_REQUEST);
+					}
+					
+					if(response.getStatusCode()==200 ){
+						logger.info("Sending Password reset Email to "+ updatedServiceProvider.getHelpDeskEmail());
+						final ServiceProviderVO updatedSP = updatedServiceProvider;
+						TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+						theExecutor.execute(new Runnable() {
+							@Override
+							public void run() {
+								logger.info("Email thread started : " + Thread.currentThread().getName());
+								try {
+									emailService.successExtSPPasswordReset(updatedSP, loginUser);
+								} catch (Exception e) {
+									logger.info("Exception while sending email for Password reset for EXTSP");
+									e.printStackTrace();
+								}
+							}
+						});
+					}
+				}
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		} else {
 			

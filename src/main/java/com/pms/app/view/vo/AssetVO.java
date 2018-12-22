@@ -54,6 +54,8 @@ public class AssetVO {
 
 	private String serviceProviderName;
 	
+	private String spCode;
+	
 	private String spType;
 	
 	private String spHelpDeskEmail;
@@ -401,6 +403,14 @@ public class AssetVO {
 
 	public void setSpType(String spType) {
 		this.spType = spType;
+	}
+
+	public String getSpCode() {
+		return spCode;
+	}
+
+	public void setSpCode(String spCode) {
+		this.spCode = spCode;
 	}
 
 	@Override

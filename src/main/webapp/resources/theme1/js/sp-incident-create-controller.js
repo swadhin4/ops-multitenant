@@ -641,6 +641,17 @@ chrisApp
 												 }	 
 							 
 										 }
+										 else if(assetType == 'S'){
+											 if(dropDownId.toUpperCase() == "SUBCOMPONENTTYPESELECT"){
+												 var subrepairtype={
+														 subCategoryId2:parseInt($("#subcomponentTypeSelect").val()),
+														 assetSubcategory2:$("#subcomponentTypeSelect option:selected").text()
+												 }
+												 $scope.subRepairType.selected = subrepairtype;
+												 
+											 }	 
+						 
+									 }
 									 }
 									 
 							 }

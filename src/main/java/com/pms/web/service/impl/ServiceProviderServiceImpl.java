@@ -202,7 +202,6 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return serviceProvider;
 	}
 	
-
 	@Override
 	public List<CustomerVO> getCustomerCountryForloggedInUser(LoginUser loginUser, Long spuserid) throws Exception {
 		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(loginUser.getSpDbName());
@@ -211,19 +210,29 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 
 
 	public List<TicketVO> getCustomerTickets(String spcode, String custDBName, LoginUser user) throws Exception {
-		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(custDBName);
+		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(custDBName);
 		List<TicketVO> tickets = serviceProviderDAOImpl.getCustomerTicketsBySPcode(spcode, user.getUserId());
 
 		return tickets;
 	}
 	@Override
-	public boolean resetPassword(Long spId, LoginUser user ) throws Exception {
-		ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(user.getDbName());
+	public ServiceProviderVO resetPassword(Long spId, LoginUser user ) throws Exception {
+		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(user.getDbName());
+		boolean isUpdated=false;
+		ServiceProviderVO  serviceProviderVO = null;
 		synchronized (serviceProviderDAOImpl) {
-			serviceProviderDAOImpl
-					.resetPassword(QuickPasswordEncodingGenerator.encodePassword(RandomUtils.randomAlphanumeric(6)));
+			serviceProviderVO  = serviceProviderDAOImpl.findSPPasswordDetails(spId);
+			logger.info("Resetting Password for "+ serviceProviderVO.getName());
+			String defaultPassword = "mkp006";
+			int updatedRows = serviceProviderDAOImpl.resetPassword(QuickPasswordEncodingGenerator.encodePassword(defaultPassword), spId);
+			if(updatedRows>0){
+				isUpdated=true;
+				logger.info("Password updated successfully");
+				serviceProviderVO.setAccessKey(defaultPassword);
+				serviceProviderVO.setOption("PWDUPDATED");
+			}
 		}
-		return false;
+		return serviceProviderVO;
 	}
 	@Override
 	public List<UserVO> findALLActiveSPUsers(String customerCode, LoginUser loginUser) throws Exception {

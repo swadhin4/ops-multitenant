@@ -388,6 +388,7 @@ public class AssetDAO {
 									assetVO.setAssetCode(rs.getString("asset_code"));
 									assetVO.setAssetType(rs.getString("asset_type"));
 									if(!StringUtils.isEmpty(rs.getString("rsp_id"))){
+										assetVO.setSpCode(rs.getString("sp_code"));
 										assetVO.setServiceProviderId(rs.getLong("rsp_id"));
 										assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
 										assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("rsp_name")) == true? null : rs.getString("rsp_name"));
@@ -415,6 +416,7 @@ public class AssetDAO {
 									assetVO.setAssetCode(rs.getString("asset_code"));
 									assetVO.setAssetType(rs.getString("asset_type"));
 									if(!StringUtils.isEmpty(rs.getString("rsp_id"))){
+										assetVO.setSpCode(rs.getString("sp_code"));
 										assetVO.setServiceProviderId(rs.getLong("rsp_id"));
 										assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
 										assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("rsp_name")) == true? null : rs.getString("rsp_name"));

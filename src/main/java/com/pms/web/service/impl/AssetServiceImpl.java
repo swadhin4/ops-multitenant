@@ -90,13 +90,13 @@ public class AssetServiceImpl implements AssetService {
 		synchronized (siteId) {
 			assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user);
 			for(AssetVO asset: assetList){
-				if(asset.getSpType().equalsIgnoreCase("RSP")){
+				if(asset.getSpType().equalsIgnoreCase("RSP") && 
+						user.getCompany().getCompanyCode().equalsIgnoreCase(asset.getSpCode())){
 					rspAssignedAssetList.add(asset);
 				}else{
 					customerAssetList.add(asset);
 				}
 			}
-			
 		}
 		if(user.getUserType().equalsIgnoreCase("USER")){
 			LOGGER.info("Listing Assets for Customer of both EXTERNAL and REGISTERED for Site id : "+ siteId);

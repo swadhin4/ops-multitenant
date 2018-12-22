@@ -35,6 +35,7 @@ import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.web.service.EmailService;
+import com.pms.web.service.ServiceProviderService;
 import com.pms.web.util.RestResponse;
 
 import freemarker.template.Configuration;
@@ -43,6 +44,10 @@ import freemarker.template.Configuration;
 public class EmailServiceImpl implements EmailService {
 
 	private static Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
+	
+	
+	@Autowired
+	private ServiceProviderService serviceProviderService;
 
 	/*@Autowired
 	private ServiceProviderRepo serviceProviderRepo;
@@ -609,6 +614,114 @@ public class EmailServiceImpl implements EmailService {
 		}
 		return response;
 	}
+	
+	
+	@Override
+	public RestResponse successExtSPPasswordReset(ServiceProviderVO updatedSPUpdate, LoginUser loginUser) throws Exception {
+		// Create a Properties object to contain connection configuration information.
+		final RestResponse response = new RestResponse();
+		if(StringUtils.isNotBlank(updatedSPUpdate.getEmail())){
+		
+		Properties props = System.getProperties();
+		props.put("mail.transport.protocol", "smtps");
+		props.put("mail.smtp.port", 25); 
+
+		// Set properties indicating that we want to use STARTTLS to encrypt the connection.
+		// The SMTP session will begin on an unencrypted connection, and then the client
+		// will issue a STARTTLS command to upgrade to an encrypted connection.
+		props.put("mail.smtp.auth", "true");
+		props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.starttls.required", "true");
+
+		// Create a Session object to represent a mail session with the specified properties. 
+		Session session = Session.getDefaultInstance(props);
+
+
+		// Create a message with the specified information. 
+		final MimeMessage mimeMessage = new MimeMessage(session);
+		String toMailIds = updatedSPUpdate.getEmail(); // Send Email to Service Provider Helpdesk email in PROD
+		String ccMailIds = updatedSPUpdate.getHelpDeskEmail(); 
+		mimeMessage.setFrom(new InternetAddress("c.gruen@novazure.com"));
+		//mimeMessage.setFrom(new InternetAddress("swadhin4@gmail.com"));
+		mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toMailIds ));
+		mimeMessage.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccMailIds));
+		mimeMessage.setSubject("Your password for OPS365 application is reset ","utf-8");
+
+		// Create a transport.        
+		Transport transport = session.getTransport();
+
+		// Send the message.
+		try
+		{
+			System.out.println("Attempting to send an email through the Amazon SES SMTP interface...");
+			StringBuilder messageContent = new StringBuilder();
+			messageContent.append("<table width='90%' border='0' cellspacing='0' cellpadding='0'>");
+			messageContent.append("<tr><td align='left'>");
+			messageContent.append("Dear "+updatedSPUpdate.getName()+",<br><br>");
+			messageContent.append("Your password reset has been initiated and is reset by "+ loginUser.getFirstName() +" " +loginUser.getLastName() );
+			messageContent.append("<tr><td align='left'>");
+			messageContent.append("Please use the new password provided below to login to the application. <br>");
+			messageContent.append("<br> New Password : <b>"+ updatedSPUpdate.getAccessKey() +"</b>");
+			messageContent.append("<td></tr></table>");
+
+			MimeBodyPart mbp1 = new MimeBodyPart();
+			/*try {
+				mbp1.setDataHandler(new DataHandler(
+						new ByteArrayDataSource(message.toString(), "text/html")));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}*/
+			mbp1.setHeader("Content-Type","text/plain; charset=\"utf-8\""); 
+			mbp1.setContent( messageContent.toString(), "text/html; charset=utf-8" ); 
+			mbp1.setHeader("Content-Transfer-Encoding", "quoted-printable");
+
+			// create the second message part
+			/*MimeBodyPart mbp2 = new MimeBodyPart();
+
+			// attach the file to the message
+			try {
+			mbp2.attachFile(fileName);
+			    } catch (IOException e) {
+			   e.printStackTrace();
+			}*/
+
+			Multipart mp = new MimeMultipart();
+			mp.addBodyPart(mbp1);
+			//mp.addBodyPart(mbp2);
+			mimeMessage.setContent(mp, "text/html");
+
+			// Connect to Amazon SES using the SMTP username and password you specified above.
+			if (!transport.isConnected()){//make sure the connection is alive
+				transport.connect(HOST, SMTP_USERNAME, SMTP_PASSWORD);
+			}
+
+			// Send the email.O
+			mimeMessage.setSentDate(new Date());
+			// Send the email.
+			transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
+			System.out.println("Email sent!");
+			response.setStatusCode(202);
+		}
+		catch (Exception ex) {
+			response.setStatusCode(500);
+			logger.error("The email was not sent.", ex);
+		}
+		finally
+		{
+			// Close and terminate the connection.
+			if(response.getStatusCode()==0){
+				response.setStatusCode(500);
+				response.setMessage("Email cannot be sent");
+			}else if(response.getStatusCode()==200){
+				response.setMessage("Password Reset email sent successfully");
+			}
+			transport.close();        	
+		}
+		}
+		return response;
+	}
+	
+	
 	
 	@Override
 	@Async

@@ -132,7 +132,7 @@ public class AppConstants {
 			+ " where ps.site_id = ? ";*/
 	
 	public static final String SITE_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
-			+ " psp.sp_id, psp.sp_name, psp.help_desk_email, ps.sp_type, ps.rsp_id, psrp.sp_name rsp_name, psrp.help_desk_email, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
+			+ " psp.sp_id, psp.sp_name, psp.help_desk_email, ps.sp_type, ps.rsp_id, psrp.sp_name rsp_name, psrp.sp_code, psrp.help_desk_email, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
 			+ " from pm_asset ps left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
 			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
 			+ " left OUTER join pm_service_provider psp on psp.sp_id = ps.sp_id "
@@ -420,7 +420,8 @@ public class AppConstants {
 	public static final String EXT_SP_UPDATE_QUERY = "update pm_service_provider set sp_name = ?,sp_code=?, country_id=?, sp_desc=?, sp_email=?,customer_id=?,"
 			+ "modified_date=NOW(), modified_by=?,help_desk_number=?, help_desk_email=?,sla_description=? where sp_id=?";
 
-	
+	public static final String EXT_SP_PASSWORD_RESET_QUERY = "update pm_service_provider set access_key=? where sp_id=?";
+
 	public static final String UPDATE_SP_ESCALATIONS_QUERY  = "update pm_sp_escalation_levels set esc_person=?,esc_email=? where esc_id=? and sp_id=?";
 
 	

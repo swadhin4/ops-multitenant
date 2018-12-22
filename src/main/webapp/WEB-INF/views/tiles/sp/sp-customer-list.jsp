@@ -171,6 +171,12 @@ background:#deefe5
 					<div class="box" style="height: 70%">
 						<div class="box-header with-border">
 							<h3 class="box-title">Registered Service Provider Activities</h3>
+							<div class="col-md-3">
+									<select name="spCustomerListSelect" id="spCustomerListSelect"
+										class="form-control" onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
+										required>
+									</select>
+							</div>
 
 			<!-- 				<div class="row" style="margin-top: 10px">
 								<div class="col-md-4">
@@ -235,13 +241,6 @@ background:#deefe5
 										<div class="tab-content">
 											<div class="tab-pane active" id="ticketsTab">
 													<div class="row">
-													<div class="col-md-3">
-															<select name="spCustomerListSelect" id="spCustomerListSelect"
-																class="form-control" onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
-																required>
-															</select>
-						
-														</div>
 														<div class="col-md-3">
 														<div class="funkyradio">
 															<div class="funkyradio-primary">

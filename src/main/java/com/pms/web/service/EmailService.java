@@ -20,4 +20,5 @@ public interface EmailService {
 	public void successTicketCreationSPEmail(TicketVO ticketVO, String creationStatus, String company) throws Exception;
 	public RestResponse sendForgotPasswordEmail(String email, String passwordResetLink) throws Exception;
 	RestResponse successEscalationLevel(TicketVO ticketVO, SPEscalationLevels spEscalationLevel, String ccLevelEmail, String level) throws Exception;
+	RestResponse successExtSPPasswordReset(ServiceProviderVO serviceProviderVO, LoginUser loginUser) throws Exception;
 }
