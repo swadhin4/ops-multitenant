@@ -84,6 +84,18 @@ public class ServiceProviderController extends BaseController {
 		}
 	}
 	
+	@RequestMapping(value = "/rsp/incident/update", method = RequestMethod.GET)
+	public String rspIncidentUpdatePage(final Locale locale, final ModelMap model,
+			final HttpServletRequest request, final HttpSession session) {
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.addAttribute("mode","EDIT");	
+			return "serviceprovider.incident.update";
+		} else {
+			return "redirect:/login";
+		}
+	}
+	
 	@RequestMapping(value = "/rsp/site/list/{custdb}", method = RequestMethod.GET,produces="application/json")
 	public ResponseEntity<List<CreateSiteVO>> listAllRSPSites(HttpSession session, @PathVariable (value="custdb") final String custDB) {
 		logger.info("Inside ServiceProviderController -- listAllRSPSites");
@@ -301,7 +313,9 @@ public class ServiceProviderController extends BaseController {
 					else if(!StringUtils.isEmpty(spType) && spType.equalsIgnoreCase("EXT")){
 						serviceProviderVOs = serviceProviderService.findSPList(loginUser, spType);
 					}
-					
+					else if(!StringUtils.isEmpty(spType) && spType.equalsIgnoreCase("ALL")){
+						serviceProviderVOs = serviceProviderService.findAllSPList(loginUser);
+					}
 					if (serviceProviderVOs.isEmpty()) {
 						response.setStatusCode(404);
 						responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
@@ -366,8 +380,9 @@ public class ServiceProviderController extends BaseController {
 
 		return new ResponseEntity<List<Country>>(countryList, HttpStatus.OK);
 	}
-	@RequestMapping(value = "/info/{spId}", method = RequestMethod.GET,produces="application/json")
-	public ResponseEntity<RestResponse> serviceProviderInfo(@PathVariable (value="spId") Long spId,final HttpSession session) {
+	@RequestMapping(value = "/info/{spId}/{spViewType}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> serviceProviderInfo(@PathVariable (value="spId") Long spId,
+			@PathVariable (value="spViewType") String spViewType,final HttpSession session) {
 		logger.info("Inside ServiceProviderController .. serviceProviderInfo");
 		
 		RestResponse response = new RestResponse();
@@ -375,10 +390,16 @@ public class ServiceProviderController extends BaseController {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if(loginUser!=null){
 			try {
-				ServiceProviderVO serviceProviderVO = serviceProviderService.findServiceProviderInfo(spId,loginUser);
+				ServiceProviderVO serviceProviderVO = serviceProviderService.findServiceProviderInfo(spId,loginUser, spViewType);
+				 if(serviceProviderVO.getServiceProviderId()!=null){
 					response.setStatusCode(200);
 					response.setObject(serviceProviderVO);
 					responseEntity = new  ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				 }else{
+					response.setStatusCode(404);
+					response.setMessage("Service Provider Details not available");
+					responseEntity = new  ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND); 
+				 }
 			} catch (Exception e) {
 				logger.info("Exception in getting service provider list", e);
 				response.setMessage("Exception while getting service provider list");

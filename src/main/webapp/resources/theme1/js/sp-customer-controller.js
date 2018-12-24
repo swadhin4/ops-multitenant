@@ -9,9 +9,10 @@ chrisApp.controller('spCustomerController',
 				'registrationService',
 				'authService',
 				'siteService',
+				'ticketService',
 				function($rootScope, $scope, $filter, $location,
 						userService,  companyService,
-						registrationService, authService, siteService) {
+						registrationService, authService, siteService,ticketService) {
 
 				$scope.spCustomerList = {
 					selected : {},
@@ -57,7 +58,48 @@ chrisApp.controller('spCustomerController',
 					 $scope.sessionTicket=null;
 					$scope.getLoggedInUserAccess();	
 					$scope.ticketCreatedOrAssigned="CUSTOMER";
+					$('#incidentDetails').on('click', 'tbody tr',function(){
+						 $('#incidentDetails tbody > tr').removeClass('currentSelected');
+						  $(this).addClass('currentSelected');
+						  var rowIndex =  $(this).find('td:eq(1)').text();
+					            var currentTicket={
+						        		ticketNumber:rowIndex
+						        }
+					            var selectedTicket={};
+					            $.each($scope.spCustomerIncidentList.list,function(key,val){
+						        	if(val.ticketNumber == currentTicket.ticketNumber){						        	
+						        		 $scope.ticketSelected=val;
+						        		 if(val.ticketId!=null){
+						        				$scope.setTicketinSession(val);						        				
+						        			}else{
+						        				console.log("Ticket not selected")
+						        			}
+						        		 return false;
+						        	}
+						        });
+					});
+					
 				});
+				
+				$scope.getCurrentTicket=function(){
+					//Row Selection
+					
+				}
+				
+				$scope.setTicketinSession=function(ticket){
+					 //$('#loadingDiv').show();
+					 ticketService.setIncidentSelected(ticket)
+						.then(function(data){
+							//console.log(data);
+							if(data.statusCode==200){
+								console.log("Ticket logged in session");
+								$scope.sessionTicket = data.object;
+							}
+						},function(data){
+							console.log(data);
+						});
+				 }
+				
 				 $scope.getLoggedInUserAccess =function(){
 					authService.loggedinUserAccess()
 		    		.then(function(data) {
@@ -72,7 +114,28 @@ chrisApp.controller('spCustomerController',
 		            }); 
 						
 				    }
-				 
+					$scope.viewRSPUpdatePage=function(){
+						console.log($scope.sessionTicket);
+						if($scope.sessionTicket!=null){
+							if($scope.sessionTicket.statusId==15){
+								$('#messageWindow').show();
+								$('#infoMessageDiv').show();
+								$('#infoMessageDiv').alert();
+								$scope.InfoMessage="This ticket cannot be updated because the service is already restored."
+				       		 }else{
+				       			//${webContextPath}/serviceprovider/rsp/incident/create
+								//Need to call rsp-incident-update.jsp
+								window.location.href=hostLocation+"/serviceprovider/rsp/incident/update"
+								$('#messageWindow').hide();
+								$('#errorMessageDiv').hide();
+				       		 }
+						}else{
+							$('#messageWindow').show();
+							$('#infoMessageDiv').show();
+							$('#infoMessageDiv').alert();
+							$scope.InfoMessage="Please select a ticket to update."
+						}
+					}
 				 $scope.getLoggedInUser=function(loginUser){
 						//console.log(loginUser)
 						userService.getLoggedInUser(loginUser)
@@ -510,7 +573,12 @@ function getSiteData(){
 			"aaData" : data,
 			"bAutoWidth" : false,
 			"order" : [ [ 0, "ticketNumber" ] ],
-			"aoColumns" : [ {
+			"aoColumns" : [{
+				"sTitle" : "Ticket ID",
+				"mData" : "ticketId",
+				"sClass": "hidden"
+				
+			}, {
 				"sTitle" : "Ticket Number",
 				"mData" : "ticketNumber"
 			}, {

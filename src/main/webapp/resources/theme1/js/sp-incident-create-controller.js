@@ -127,6 +127,95 @@ chrisApp
 								
 							});
 							
+							$scope.getIncidentSelected=function(){
+								ticketService.getSelectedTicketFromSession()
+								.then(function(data){
+									//console.log("Ticket DetailsXXXX")
+									//console.log(data)
+									if(data.statusCode == 200){
+										$scope.ticketData=angular.copy(data.object);
+										//$scope.ticketData.createdBy=$scope.sessionUser.username;
+										//$scope.getAttachments($scope.ticketData.ticketId);
+										/*if(viewMode.toUpperCase()=="EDIT"){
+						    				$scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+					    				}*/
+										$scope.setSLAWidth($scope.ticketData);
+										$scope.getUserRoleStatusMap();
+										$scope.getTicketCategory();
+										$scope.getEscalationLevel();
+										$scope.changeStatusDescription($scope.ticketData.statusDescription);
+										//$('#statusDesc').text("Description: "+ $scope.ticketData.statusDescription);
+										//Added By Supravat for Financials Requirements.
+															
+										$scope.getFinancialCosts();
+										//Ended By Supravat.
+										$scope.getTicketHistory();
+										if($scope.ticketData.statusId == 15){
+											$scope.getCloseCode();
+											$('#closeNote').prop("disabled", true);
+											$.each($scope.closeCodeList,function(key,val){
+												if(val.code == $scope.ticketData.closeCode){
+													$scope.ticketData.codeClosed=val.code;								
+													$('#closeCode').prop("disabled", true);
+													return false;
+												}
+											});
+											
+											$('#closeCode').prop("disabled",true);
+										}
+										if(data.object.ticketComments.length>0){
+											 $scope.ticketData.comments = data.object.ticketComments;
+											 $scope.ticketComments=[];
+											 $.each(data.object.ticketComments,function(key,val){
+												  $scope.ticketComments.push(val);
+											 })
+											 
+										}
+										
+										if($scope.ticketData.attachments.length>0){
+											$scope.ticketData.files=[];
+											$.each($scope.ticketData.attachments,function(key,val){
+												var  fileInfo={
+														fileId:val.attachmentId,
+														fileName: val.attachmentPath.substring(val.attachmentPath.lastIndexOf("/")+1),
+														createdOn: val.createdDate,
+														filePath: val.attachmentPath
+												}
+												$scope.ticketData.files.push(fileInfo);
+											});
+										}
+										$scope.getStatus();
+									}
+									
+								},function(data){
+									console.log(data)
+								});
+							}
+							
+							$scope.setSLAWidth=function(ticketData){
+					            if(ticketData.slaPercent > 100){
+					                $scope.ticketData.width = 100;                
+					            }
+					            else{
+					                $scope.ticketData.width = ticketData.slaPercent;
+					            }                
+					        }
+							 $scope.getUserRoleStatusMap=function(){
+								 userService.getUserRoleStatusMap()
+								 .then(function(data){
+									 //console.log(data);
+									 $scope.assignedPMStatusIDs=[];
+									 if(data.statusCode==200){
+										 if(data.object.length>0){
+											 $.each(data.object,function(key,val){
+												 $scope.assignedPMStatusIDs.push(val);
+											 });
+										 }
+									 }
+								 },function(data){
+									console.log(data) 
+								 });
+							 }
 							
 							$scope.initalizeCloseDiv=function(){
 								$('#ticketCloseDiv').hide();
@@ -839,7 +928,71 @@ chrisApp
 					            });
 								
 							}
+							$scope.changeStatusDescription=function(description){
+								$scope.ticketData.statusDescription=description;
+								$('#statusDesc').text("Description: "+ description);
+							}
 							
+
+							//Added By Supravat for Financials Requirements.
+							$scope.getFinancialCosts=function(){
+								$scope.isCostSaveButton= true;
+								$scope.isCostDeleteButton= true;
+								$scope.costNewRowCount= 0;
+								
+								$scope.financialCostDetails=[];
+									$.each($scope.ticketData.financialList,function(key,val){						
+										var fincancialCostData={
+												ticketID:val.ticketId,
+												costId:val.id,
+												costName:val.costName,
+												cost:val.cost,
+												chargeBack:val.chargeBack,
+												billable:val.billable,
+												isDeleteCheck:false,
+												isEdited:false,
+										};
+										$scope.financialCostDetails.push(fincancialCostData);
+									});
+							}
+							//Ended By Supravat.
+							
+							$scope.getTicketHistory=function(){
+								var ticketId =  $scope.ticketData.ticketNumber;
+								ticketService.getTicketHistory(ticketId)
+								.then(function(data){
+									//console.log(data);
+									if(data.statusCode == 200){
+										var ticketHistory={};
+										ticketHistory.ticketId=$scope.ticketData.ticketNumber;
+										ticketHistory.ticketStartDate=$scope.ticketData.raisedOn;
+										ticketHistory.ticketCloseDate=$scope.ticketData.serviceRestorationTime;
+										if(data.object.length>0){
+											var	history=[];
+											$.each(data.object,function(key,val){
+												var ticketHistory={
+														name:val.who,
+														date:val.timeStamp,
+														description:val.message	
+												};
+												history.push(ticketHistory)
+											});
+											ticketHistory.history=history;
+											
+										}else{
+											
+										}
+										$scope.ticketHistoryDetail=angular.copy(ticketHistory);
+										
+										
+									}
+								},function(data){
+									//console.log(data)
+								});
+								
+
+								
+							}
 							$scope.openFileAttachModal=function(){
 								$scope.incidentImageList=[{
 									id:0,

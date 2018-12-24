@@ -215,9 +215,33 @@ $(document).ready(function()  {
 							</div>
 							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;height:58%"  >
 									<div class="row">
-	 								<div class="col-md-12">
+	 								<div class="col-md-10">
 										<input type="text" class="form-control"	placeholder="Search Asset" ng-model="searchAsset">
 										<input type="hidden" class="form-control" id="siteId" value="${siteId}">
+									 </div>
+									 					 <div class="col-md-2">
+											<div class="box-tools pull-right">
+										<div class="btn-group pull-right" >
+									<a href class="dropdown-toggle pull-right"
+										style="margin-right: 5px;" data-toggle="dropdown">
+										<span class="badge">Filter By <span class="fa fa-filter"></span></span>
+									</a>
+
+									<ul class="dropdown-menu" role="menu">
+									<li> <a href ng-click="getAllAsset('ALL')" ng-if="asset.list.length>0"
+										style="margin-right: 5px;" >
+										<span class="badge" style="color:#fff;background-color:gray">A</span> View All Assets
+									</a></li>
+										<li> <a href ng-click="getAllAsset('RSP')" ng-if="asset.list.length>0"
+										style="margin-right: 5px;" >
+										<span class="badge" style="color:#fff;background-color:green">R</span> Assigned to RSP
+									</a></li>
+										<li> <a href ng-click="getAllAsset('EXT')" ng-if="asset.list.length>0"
+										style="margin-right: 5px;" > <span class="badge" style="color:#fff;background-color:red">E</span> Assigned to EXT</a></li>
+									
+									</ul>
+									</div>
+								</div>
 									 </div>
 									 </div>
 									 <div class="row">

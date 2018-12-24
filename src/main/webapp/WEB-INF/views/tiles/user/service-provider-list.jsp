@@ -146,8 +146,32 @@ $(function() {
 							</div>
 							<div class="box-body" style="height:70%" >
 								<div class="row">
-	 								<div class="col-md-12">
+	 								<div class="col-md-10">
 										<input type="text" class="form-control"		placeholder="Search Service Provider" ng-model="searchSp">
+									 </div>
+									 <div class="col-md-2">
+											<div class="box-tools pull-right">
+										<div class="btn-group pull-right" >
+									<a href class="dropdown-toggle pull-right"
+										style="margin-right: 5px;" data-toggle="dropdown">
+										<span class="badge">Filter By <span class="fa fa-filter"></span></span>
+									</a>
+
+									<ul class="dropdown-menu" role="menu">
+									<li> <a href ng-click="getServiceProviderList('ALL')" ng-if="allServiceProviders.length>0"
+										style="margin-right: 5px;" >
+										<span class="badge" style="color:#fff;background-color:gray">A</span> View All SP
+									</a></li>
+										<li> <a href ng-click="getServiceProviderList('RSP')" ng-if="allServiceProviders.length>0"
+										style="margin-right: 5px;" >
+										<span class="badge" style="color:#fff;background-color:green">R</span> Registered SP 
+									</a></li>
+										<li> <a href ng-click="getServiceProviderList('EXT')" ng-if="allServiceProviders.length>0"
+										style="margin-right: 5px;" > <span class="badge" style="color:#fff;background-color:red">E</span> External SP</a></li>
+									
+									</ul>
+									</div>
+								</div>
 									 </div>
 										<div class="col-md-12">
 											<div class="row">
@@ -160,13 +184,29 @@ $(function() {
 							                        
 							                  </div>
 							                  <div class="product-info">
-							                    <a href ng-click="getSelectedServiceProvider(val)" class="product-title">{{val.sp.name}}
-							                      </a>
-							                    	<span class="product-description">
+							                  <div class="col-md-8">
+							                    <a href ng-click="getSelectedServiceProvider(val,val.sp.accessGranted)" class="product-title">{{val.sp.name}}
+							                      </a> 
+							                      <span class="product-description">
 							                          {{val.sp.email}}
 							                        </span>
+							                      </div>
+							                      <div class="col-md-2">
+							                       <span class="badge " ng-if="val.sp.accessGranted == 'N'" style="background-color:#fff;color:red">
+							                       <i class="fa fa-ban" aria-hidden="true"></i> Denied</span>
+							                       
+							                        <span class="badge " ng-if="val.sp.accessGranted == 'Y'" style="background-color:#fff;color:#3c8dbc">
+							                       <i class="fa fa-check-circle" aria-hidden="true"></i> Granted</span>
+							                      
+							                      </div>
+							                       <div class="col-md-2 ">
+							                      <span class="badge pull-right" ng-if="val.sp.accessGranted != null" style="background-color: green;color:#fff">
+							                        RSP</span>
+							                      
+							                      <span class="badge pull-right" ng-if="val.sp.accessGranted == null" style="background-color:red;color:#fff">EXT</span>
+							                      </div>
 							                  </div>
-							                   <i class="fa fa-check-circle-o fa-2x pull-right" style="margin-top: -39px;" aria-hidden="true" ng-if="val.sp.serviceProviderId == selectedServiceProvider.serviceProviderId"></i>
+							                     
 							                </li>
 							             
 							              </ul>

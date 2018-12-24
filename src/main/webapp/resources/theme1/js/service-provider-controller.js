@@ -18,7 +18,7 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
     		.then(function(data) {
     			
     			if(data.statusCode == 200){
-    				$scope.getServiceProviderList();
+    				$scope.getServiceProviderList("ALL");
     			}
             },
             function(data) {
@@ -193,7 +193,7 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
     				$('#successMessageDiv').show();
     				$('#successMessageDiv').alert();
     				$('#spModalCloseBtn').click();
-    				$scope.getServiceProviderList();
+    				$scope.getServiceProviderList("ALL");
     				$('#infoMessageDiv').hide();
     				$('#loadingDiv').hide();
     			}else{
@@ -214,9 +214,9 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
             });
 		}
 		
-		$scope.getServiceProviderList=function(){
+		$scope.getServiceProviderList=function(viewType){
 			$('#loadingDiv').show();
-			serviceProviderService.getAllServiceProviders("EXT")
+			serviceProviderService.getAllServiceProviders(viewType)
 			.then(function(data) {
     			
     			if(data.statusCode == 200){
@@ -229,7 +229,7 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
     					}
     					$scope.allServiceProviders.push(spData);
     				});
-    				$scope.getSelectedServiceProvider($scope.allServiceProviders[0]);
+    				$scope.getSelectedServiceProvider($scope.allServiceProviders[0], $scope.allServiceProviders[0].sp.accessGranted);
     					
 	    				$('#messageWindow').hide();
 	    				$('#infoMessageDiv').hide();
@@ -252,14 +252,22 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
             });
 		}
 		
-		$scope.getSelectedServiceProvider=function(serviceProviderObj){
+		$scope.getSelectedServiceProvider=function(serviceProviderObj, spAccess){
 			console.log(serviceProviderObj);
-			serviceProviderService.getSelectedServiceProvider(serviceProviderObj.sp.serviceProviderId)
+			var spTypeView=null;
+			if(spAccess==null){
+				spTypeView = "EXT"
+			}
+			else if(spAccess!=null){
+				spTypeView = "RSP"
+			}
+			serviceProviderService.getSelectedServiceProvider(serviceProviderObj.sp.serviceProviderId, spTypeView)
 			.then(function(data) {
 				console.log(data)
     			if(data.statusCode == 200){
     				$scope.selectedServiceProvider = angular.copy(data.object);
     				$scope.selectedServiceProvider.isSelected=true;
+    				$scope.selectedServiceProvider.spTypeView=spTypeView;
     			}
 			}, function(data) {
                 console.log('Unable to get  Service Provider details')

@@ -285,7 +285,7 @@ chrisApp.controller('assetController',
 		    				$scope.equipmentData.company=$scope.sessionUser.company;
 		    				var siteId = $('#siteId').val();
 		    				if(siteId==""){
-		    					$scope.getAllAsset();
+		    					$scope.getAllAsset('ALL');
 		    				}else{
 		    					
 		    					$scope.getSelectedSiteAssets(siteId);
@@ -307,7 +307,7 @@ chrisApp.controller('assetController',
  				$scope.getUserSiteAccess();
 			 }
 			 
-			 $scope.getAllAsset=function(){
+			 $scope.getAllAsset=function(viewType){
 				 $('#loadingDiv').show();
 				 assetService.findAllAssets()
 						.then(function(data) {
@@ -1308,7 +1308,7 @@ chrisApp.controller('assetController',
 							 $scope.serviceData.isDelete = data.object.delFlag;
 							 $('#confirmDelete').appendTo("body").modal('hide');
 						 }
-						 $scope.getAllAsset();
+						 $scope.getAllAsset("ALL");
 					 }
 					
 				 },function(data){
@@ -1351,7 +1351,7 @@ chrisApp.controller('assetController',
 		    				else if(assetData.assetType == 'S'){
 		    					$('#serviceModalCloseBtn').click();
 		    				}
-		    				$scope.getAllAsset();
+		    				$scope.getAllAsset("ALL");
 		    				$('#loadingDiv').hide();
 		    			}
 		            },
@@ -1397,7 +1397,7 @@ chrisApp.controller('assetController',
 						.then(function(data){
 							 
 							if(data.statusCode==200){
-									 $scope.getAllAsset();
+									 $scope.getAllAsset("ALL");
 							}
 							$('#loadingDiv').hide();
 						},function(data){

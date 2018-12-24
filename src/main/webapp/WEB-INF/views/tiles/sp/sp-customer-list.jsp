@@ -170,9 +170,9 @@ background:#deefe5
 				<div class="col-md-12">
 					<div class="box" style="height: 70%">
 						<div class="box-header with-border">
-							<h3 class="box-title">Registered Service Provider Activities</h3>
+							
 							<div class="col-md-3">
-									<select name="spCustomerListSelect" id="spCustomerListSelect"
+							<h3 class="box-title">Select Customer</h3>		<select name="spCustomerListSelect" id="spCustomerListSelect"
 										class="form-control" onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
 										required>
 									</select>
@@ -261,9 +261,25 @@ background:#deefe5
 															</div>
 														</div>
 													</div>
+														<div class="col-md-6 box-tools dropdown pull-right">
+														<a class="btn btn-success dropdown-toggle pull-right"
+															style="margin-right: 5px;" data-toggle="dropdown"><span
+															class="fa fa-hand-o-down"></span> Action<span
+															class="caret"></span> </a>
+														<ul class="dropdown-menu" role="menu">
+															<li><a
+																href="${webContextPath}/serviceprovider/rsp/incident/create">
+																	<i class="fa fa-plus" arial-hidden="true"></i> Create
+																	Ticket
+															</a></li>
+															<li><a href ng-click="viewRSPUpdatePage()"
+																id="updateTicket"><span class="fa fa-edit"></span>
+																	Update Ticket </a></li>
+														</ul>
+													</li>
+													</div>
 													
-													
-														<a href="${webContextPath}/serviceprovider/rsp/incident/create" class="btn btn-primary pull-right " >Create Ticket </a></li>
+														<%-- <a href="${webContextPath}/serviceprovider/rsp/incident/create" class="btn btn-primary pull-right " >Create Ticket </a></li> --%>
 													</div>	
 														<div class="row">
 															<div class="col-md-12">

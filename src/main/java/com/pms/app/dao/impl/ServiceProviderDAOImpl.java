@@ -448,6 +448,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 						List<TicketVO> ticketVOList = new ArrayList<TicketVO>();
 						while (rs.next()) {
 							TicketVO ticketVO = new TicketVO();
+							ticketVO.setTicketId(rs.getLong("id"));
 							ticketVO.setTicketNumber(rs.getString("ticket_number"));
 							ticketVO.setTicketTitle(rs.getString("ticket_title"));
 							ticketVO.setSiteId(rs.getLong("site_id"));
@@ -484,7 +485,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 	public ServiceProviderVO findSPPasswordDetails(Long spId) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		ServiceProviderVO spProviderVO= new ServiceProviderVO();
-		jdbcTemplate.query(AppConstants.EXT_SERVICE_PROVIDER_INFO, new Object[]{ spId }, 
+		jdbcTemplate.query(AppConstants.EXT_SERVICE_PROVIDER_GENERAL_INFO, new Object[]{ spId }, 
 			new ResultSetExtractor<ServiceProviderVO>(){
 		@Override
 		public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -494,7 +495,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 				spProviderVO.setCode(rs.getString("sp_code"));
 				spProviderVO.setEmail(rs.getString("sp_email"));
 				spProviderVO.setHelpDeskEmail(rs.getString("help_desk_email"));
-				spProviderVO.setAccessKey(rs.getString("accessKey"));
+				spProviderVO.setAccessKey(rs.getString("access_key"));
 			}
 			return spProviderVO;
 		}

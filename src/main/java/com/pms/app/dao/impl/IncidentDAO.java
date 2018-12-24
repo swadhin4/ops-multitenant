@@ -828,6 +828,7 @@ public class IncidentDAO {
 						List<TicketVO> ticketVOList = new ArrayList<TicketVO>();
 						while (rs.next()) {
 							TicketVO ticketVO = new TicketVO();
+							ticketVO.setTicketId(rs.getLong("id"));
 							ticketVO.setTicketNumber(rs.getString("ticket_number"));
 							ticketVO.setTicketTitle(rs.getString("ticket_title"));
 							ticketVO.setSiteId(rs.getLong("site_id"));

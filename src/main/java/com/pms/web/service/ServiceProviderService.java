@@ -45,7 +45,7 @@ public interface ServiceProviderService {
 
 	public List<Country> findCountryByRegion(Long regionId, LoginUser loginUser) throws Exception;
 
-	public ServiceProviderVO findServiceProviderInfo(Long spId, LoginUser loginUser) throws Exception;
+	public ServiceProviderVO findServiceProviderInfo(Long spId, LoginUser loginUser, String spViewType) throws Exception;
 	
 	public List<CustomerVO> getCustomerCountryForloggedInUser(LoginUser loginUser, Long spuserid) throws Exception;
 	
@@ -54,5 +54,7 @@ public interface ServiceProviderService {
 	public ServiceProviderVO resetPassword(Long spId, LoginUser loginUser) throws Exception;
 
 	public List<UserVO> findALLActiveSPUsers(String customerCode, LoginUser loginUser) throws Exception;
+
+	public List<ServiceProviderVO> findAllSPList(LoginUser user) throws Exception;
 
 }

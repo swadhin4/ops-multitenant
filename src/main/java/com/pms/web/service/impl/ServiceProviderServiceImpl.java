@@ -6,11 +6,13 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pms.app.constants.AppConstants;
 import com.pms.app.dao.impl.DistrictDAO;
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
@@ -144,8 +146,8 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 			serviceProviderVO.setAccessKey(rawPassword);
 			savedSP = spDAO.saveServiceProvider(serviceProviderVO, loginUser);
 			if(savedSP.getServiceProviderId()!=null){
-				int escalationRecored = 	spDAO.saveEscalalationLevels( savedSP, serviceProviderVO.getEscalationLevelList(), loginUser);
-				int slaRecored =	spDAO.saveSLADetails( savedSP, serviceProviderVO.getSlaListVOList(), loginUser);
+				int escalationRecored = 	spDAO.saveEscalalationLevels( savedSP, serviceProviderVO.getEscalationLevelList(), loginUser, AppConstants.INSERT_SP_ESCALATIONS_QUERY);
+				int slaRecored =	spDAO.saveSLADetails( savedSP, serviceProviderVO.getSlaListVOList(), loginUser, AppConstants.INSERT_SP_SLA_QUERY);
 				if(escalationRecored > 0  && slaRecored > 0){
 					savedSP.setStatus(200);
 					savedSP.setOption("CREATED");
@@ -157,13 +159,29 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 				}
 			}
 		}else{
-			int updated = spDAO.updateServiceProvider(serviceProviderVO, loginUser);
-			if(updated > 0 ){
-				int updatedEscalationRecords = 	spDAO.updateEscalalationLevels( serviceProviderVO, serviceProviderVO.getEscalationLevelList(), loginUser);
-				int slaUpdatedRecored =	spDAO.updateSLADetails( serviceProviderVO, serviceProviderVO.getSlaListVOList(), loginUser);
-				if(updatedEscalationRecords > 0  && slaUpdatedRecored > 0){
-					savedSP.setStatus(200);
-					savedSP.setOption("UPDATED");
+			if(StringUtils.isNotEmpty(serviceProviderVO.getSpDbName()) && StringUtils.isNotEmpty(serviceProviderVO.getAccessGranted())){
+				logger.info("Updating Registered Service Provider Details");
+				int updated = spDAO.updateRegisteredServiceProvider(serviceProviderVO, loginUser);
+				if(updated > 0 ){
+					logger.info("Updating Registered Service provider Escalation and SLA details");
+					int updatedEscalationRecords = 	spDAO.updateEscalalationLevels( serviceProviderVO, serviceProviderVO.getEscalationLevelList(), loginUser, AppConstants.UPDATE_RSP_ESCALATIONS_QUERY);
+					int slaUpdatedRecored =	spDAO.updateSLADetails( serviceProviderVO, serviceProviderVO.getSlaListVOList(), loginUser, AppConstants.UPDATE_RSP_SLA_QUERY);
+					if(updatedEscalationRecords > 0  && slaUpdatedRecored > 0){
+						savedSP.setStatus(200);
+						savedSP.setOption("UPDATED");
+					}
+				}
+			}else {
+				logger.info("Updating External Service Provider Details");
+				int updated = spDAO.updateServiceProvider(serviceProviderVO, loginUser);
+				if(updated > 0 ){
+					logger.info("Updating Externa Service provider Escalation and SLA details");
+					int updatedEscalationRecords = 	spDAO.updateEscalalationLevels( serviceProviderVO, serviceProviderVO.getEscalationLevelList(), loginUser, AppConstants.UPDATE_SP_ESCALATIONS_QUERY);
+					int slaUpdatedRecored =	spDAO.updateSLADetails( serviceProviderVO, serviceProviderVO.getSlaListVOList(), loginUser, AppConstants.UPDATE_SP_SLA_QUERY);
+					if(updatedEscalationRecords > 0  && slaUpdatedRecored > 0){
+						savedSP.setStatus(200);
+						savedSP.setOption("UPDATED");
+					}
 				}
 			}
 		}
@@ -188,17 +206,47 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 	public List<ServiceProviderVO> findSPList(LoginUser user, final String spType) throws Exception {
 		logger.info("Inside ServiceProviderServiceImpl -- findSPList");
 		final SPUserDAO spDAO = getSPUserDAO(user.getDbName());
-		List<ServiceProviderVO> serviceProviderList = spDAO.findSPList(spType);
+		List<ServiceProviderVO> selectedOptionSPList = spType.equalsIgnoreCase("EXT")?spDAO.findSPList():spDAO.findRSPList();
 		logger.info("Exit ServiceProviderServiceImpl -- findSPList");
-		return serviceProviderList == null ? Collections.emptyList() : serviceProviderList;
+		return selectedOptionSPList == null ? Collections.emptyList() : selectedOptionSPList;
 	}
+	
 	@Override
-	public ServiceProviderVO findServiceProviderInfo(Long spId, LoginUser loginUser) throws Exception {
-		ServiceProviderVO serviceProvider = getSPUserDAO(loginUser.getDbName()).findSPDetails(spId);
-		List<EscalationLevelVO> escalationLevelList =getSPUserDAO(loginUser.getDbName()).getEscalationDetails(spId);
-		List<SLADetailsVO> slaListVOList = getSPUserDAO(loginUser.getDbName()).getSLADetails(spId);
-		serviceProvider.setEscalationLevelList(escalationLevelList);
-		serviceProvider.setSlaListVOList(slaListVOList);
+	public List<ServiceProviderVO> findAllSPList(LoginUser user) throws Exception {
+		logger.info("Inside ServiceProviderServiceImpl -- findSPList");
+		final SPUserDAO spDAO = getSPUserDAO(user.getDbName());
+		List<ServiceProviderVO> allSPList = new ArrayList<ServiceProviderVO>();
+		List<ServiceProviderVO> externalSPList = spDAO.findSPList();
+		List<ServiceProviderVO> registeredSPList = spDAO.findRSPList();
+		for(ServiceProviderVO extSP:externalSPList){
+			allSPList.add(extSP);
+		}
+		for(ServiceProviderVO rspSP:registeredSPList){
+			allSPList.add(rspSP);
+		}
+		
+		logger.info("Exit ServiceProviderServiceImpl -- findSPList");
+		return allSPList == null ? Collections.emptyList() : allSPList;
+	}
+	
+	@Override
+	public ServiceProviderVO findServiceProviderInfo(Long spId, LoginUser loginUser, String spViewType) throws Exception {
+		
+		ServiceProviderVO serviceProvider = null;
+		if(!StringUtils.isEmpty(spViewType) && spViewType.equalsIgnoreCase("EXT")){
+			 serviceProvider = getSPUserDAO(loginUser.getDbName()).findSPDetails(spId, spViewType);
+			List<EscalationLevelVO> escalationLevelList =getSPUserDAO(loginUser.getDbName()).getEscalationDetails(spId, spViewType);
+			List<SLADetailsVO> slaListVOList = getSPUserDAO(loginUser.getDbName()).getSLADetails(spId, spViewType);
+			serviceProvider.setEscalationLevelList(escalationLevelList);
+			serviceProvider.setSlaListVOList(slaListVOList);
+		}
+		else if(!StringUtils.isEmpty(spViewType) && spViewType.equalsIgnoreCase("RSP")){
+			serviceProvider = getSPUserDAO(loginUser.getDbName()).findSPDetails(spId, spViewType);
+			List<EscalationLevelVO> escalationLevelList =getSPUserDAO(loginUser.getDbName()).getEscalationDetails(spId, spViewType);
+			List<SLADetailsVO> slaListVOList = getSPUserDAO(loginUser.getDbName()).getSLADetails(spId, spViewType);
+			serviceProvider.setEscalationLevelList(escalationLevelList);
+			serviceProvider.setSlaListVOList(slaListVOList);
+		}
 		return serviceProvider;
 	}
 	

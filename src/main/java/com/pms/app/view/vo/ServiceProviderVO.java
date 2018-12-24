@@ -32,6 +32,8 @@ public class ServiceProviderVO implements Serializable {
 	private String message;
 	private String option;
 	private boolean isTenantMapped;
+	private String spDbName;
+	private String accessGranted;
 	private int version;
 
 	public Long getServiceProviderId() {
@@ -172,6 +174,18 @@ public class ServiceProviderVO implements Serializable {
 	}
 	public void setTenantMapped(boolean isTenantMapped) {
 		this.isTenantMapped = isTenantMapped;
+	}
+	public String getSpDbName() {
+		return spDbName;
+	}
+	public void setSpDbName(String spDbName) {
+		this.spDbName = spDbName;
+	}
+	public String getAccessGranted() {
+		return accessGranted;
+	}
+	public void setAccessGranted(String accessGranted) {
+		this.accessGranted = accessGranted;
 	}
 	@Override
 	public int hashCode() {

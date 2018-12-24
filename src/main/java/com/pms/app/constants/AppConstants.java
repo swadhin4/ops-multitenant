@@ -408,7 +408,13 @@ public class AppConstants {
 	public static final String INSERT_SP_ESCALATIONS_QUERY  = "insert into pm_sp_escalation_levels(sp_id, esc_level, esc_person,esc_email,created_by,created_on)"
 			+ " values(?,?,?,?,?,NOW())";
 	
+	public static final String INSERT_RSP_ESCALATIONS_QUERY  = "insert into pm_rsp_escalation_levels(sp_id, esc_level, esc_person,esc_email,created_by,created_on)"
+			+ " values(?,?,?,?,?,NOW())";
+	
 	public static final String INSERT_SP_SLA_QUERY  = "insert into pm_sp_sla(sp_id, priority_id, duration,unit,created_by,created_on)"
+			+ " values(?,?,?,?,?,NOW())";
+	
+	public static final String INSERT_RSP_SLA_QUERY  = "insert into pm_registered_sp_sla(sp_id, priority_id, duration,unit,created_by,created_on)"
 			+ " values(?,?,?,?,?,NOW())";
 	
 	public static final String LAST_SP_ID_QUERY="select sp_id from pm_service_provider order by sp_id desc limit 1";
@@ -419,13 +425,19 @@ public class AppConstants {
 	
 	public static final String EXT_SP_UPDATE_QUERY = "update pm_service_provider set sp_name = ?,sp_code=?, country_id=?, sp_desc=?, sp_email=?,customer_id=?,"
 			+ "modified_date=NOW(), modified_by=?,help_desk_number=?, help_desk_email=?,sla_description=? where sp_id=?";
+	
+	public static final String RSP_UPDATE_QUERY = "update pm_sp_registered set sp_desc=?, modified_date=NOW(), modified_by=?,help_desk_number=?, help_desk_email=?,sla_description=? where sp_id=?";
 
 	public static final String EXT_SP_PASSWORD_RESET_QUERY = "update pm_service_provider set access_key=? where sp_id=?";
 
 	public static final String UPDATE_SP_ESCALATIONS_QUERY  = "update pm_sp_escalation_levels set esc_person=?,esc_email=? where esc_id=? and sp_id=?";
+	
+	public static final String UPDATE_RSP_ESCALATIONS_QUERY  = "update pm_rsp_escalation_levels set esc_person=?,esc_email=? where esc_id=? and sp_id=?";
 
 	
 	public static final String UPDATE_SP_SLA_QUERY  = "update pm_sp_sla set duration=?,unit=? where sla_id=? and sp_id=?" ;
+	
+	public static final String UPDATE_RSP_SLA_QUERY  = "update pm_registered_sp_sla set duration=?,unit=? where sla_id=? and sp_id=?" ;
 	
 	
 	public static final String EXT_SERVICE_PROVIDER_LIST = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
@@ -435,9 +447,9 @@ public class AppConstants {
 			+ " left join pm_country po on po.country_id=ps.country_id "
 			+ " left join pm_region pr on po.region_id=pr.region_id order by sp_name";
 	
-	public static final String RSP_SERVICE_PROVIDER_LIST = "select distinct(ps.sp_id), ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
+	public static final String RSP_SERVICE_PROVIDER_LIST = "select distinct(ps.sp_id) as sp_id, ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
 			+ " ps.help_desk_number, ps.help_desk_email, ps.sla_description ,ps.country_id, po.country_name ,"
-			+ " pr.region_id, pr.region_name from pm_sp_registered ps "
+			+ " pr.region_id, pr.region_name, ps.access_granted, ps.sp_db_name from pm_sp_registered ps "
 			+ " left join pm_country po on po.country_id=ps.country_id "
 			+ " left join pm_region pr on po.region_id=pr.region_id order by sp_name";
 	
@@ -449,9 +461,21 @@ public class AppConstants {
 			+ " left join pm_country po on po.country_id=ps.country_id "
 			+ " left join pm_region pr on po.region_id=pr.region_id where sp_id = ? ";
 	
+	public static final String RSP_SERVICE_PROVIDER_INFO = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email,ps.sp_desc, "
+			+ " ps.help_desk_number, ps.help_desk_email, ps.sla_description, ps.country_id, po.country_name,"
+			+ " pr.region_id, pr.region_name, ps.access_granted, ps.sp_db_name from pm_sp_registered ps "
+			+ " left join pm_country po on po.country_id=ps.country_id "
+			+ " left join pm_region pr on po.region_id=pr.region_id where sp_id = ? ";
+	
+	
+	public static final String EXT_SERVICE_PROVIDER_GENERAL_INFO = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email, ps.help_desk_email, ps.access_key "
+			+ " from pm_service_provider ps where ps.sp_id = ? ";
+	
 	public static final String EXT_SP_ESCALATIONS = "select esc_id, esc_level, esc_person, esc_email from pm_sp_escalation_levels where sp_id=?";
 	
-	public static final String EXT_SP_PRIORITY = "select sla_id, priority_id, duration, unit from pm_sp_sla where sp_id=?";
+	public static final String RSP_ESCALATIONS_QUERY = "select esc_id, esc_level, esc_person, esc_email from pm_rsp_escalation_levels where sp_id=?";
+	
+	
 
 	public static final String UPDATE_USER_PASSWORD = "update pm_users set password=?, sys_password='NO' where email_id=?";
 	
@@ -467,7 +491,7 @@ public class AppConstants {
 
 	public static final String SERVICEPROVIDER_CUSTOMERDB_BY_CUSTOMERCODE_QUERY = "select scu.cust_db_name, sco.sp_code from sp_customers scu left join sp_company sco on scu.sp_id=sco.sp_cid where scu.customer_code=?";
 
-	public static final String CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY = "select pct.ticket_number,pct.site_id,pct.asset_id,pct.ticket_title,pct.created_on,pct.sla_duedate, "
+	public static final String CUSTOMER_TICKETS_BY_SERVICEPROVIDERCODE_QUERY = "select pct.id, pct.ticket_number,pct.site_id,pct.asset_id,pct.ticket_title,pct.created_on,pct.sla_duedate, "
 			+ " pct.status_id,prs.sp_name,ps.site_name,pa.asset_name,pst.status from pm_cust_ticket pct "
 			+ " left join pm_sp_registered prs on prs.sp_id=pct.rassigned_to "
 			+ "  left join pm_site ps on pct.site_id=ps.site_id "
@@ -506,4 +530,8 @@ public class AppConstants {
 			+ " where sc.customer_code = ? and sur.role_id = ? and suc.del_flag=0";
 
 	public static final String RSP_DETAIL_QUERY = "select ps.sp_id, ps.sp_name, ps.sp_code from pm_sp_registered ps where ps.sp_code=?";
+	
+	public static final String EXT_SPSLA_PRIORITY = "select sla_id, priority_id, duration, unit from pm_sp_sla where sp_id=?";
+
+	public static final String RSP_SLA_PRIORITY = "select sla_id, priority_id, duration, unit from pm_registered_sp_sla where sp_id=?";
 }

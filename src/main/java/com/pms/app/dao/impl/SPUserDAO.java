@@ -23,6 +23,7 @@ import org.springframework.stereotype.Repository;
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.TicketPriorityEnum;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
@@ -32,7 +33,6 @@ import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.TicketPriority;
-import com.pms.jpa.entities.TicketPriorityEnum;
 import com.pms.jpa.entities.UserModel;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
 
@@ -283,6 +283,7 @@ public class SPUserDAO {
 	public int updateServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser user) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+			
 		      @Override
 		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 		        final PreparedStatement ps = connection.prepareStatement(AppConstants.EXT_SP_UPDATE_QUERY);
@@ -300,18 +301,36 @@ public class SPUserDAO {
 	            return ps;
 		        }
 		      });
-		 	LOGGER.info("Update SP status with  {}.",  serviceProviderVO.getName());
+		 	LOGGER.info("Update External SP status with  {}.",  serviceProviderVO.getName());
 		 	return updated;
 	}
 	
-	
-
-	
-
-	
-	public int saveEscalalationLevels(ServiceProviderVO savedSP, List<EscalationLevelVO> escalationLevelList, LoginUser loginUser) {
+	public int updateRegisteredServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser user) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        int[] updatedRows = jdbcTemplate.batchUpdate(AppConstants.INSERT_SP_ESCALATIONS_QUERY ,
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+			
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.RSP_UPDATE_QUERY);
+				ps.setString(1,serviceProviderVO.getAdditionalDetails());
+				ps.setString(2,user.getUsername());
+				ps.setString(3,serviceProviderVO.getHelpDeskNumber());
+				ps.setString(4, serviceProviderVO.getHelpDeskEmail());
+				ps.setString(5, serviceProviderVO.getSlaDescription());
+				ps.setLong(6, serviceProviderVO.getServiceProviderId());
+	            return ps;
+		        }
+		      });
+		 	LOGGER.info("Update Registered SP status with  {}.",  serviceProviderVO.getName());
+		 	return updated;
+	}
+
+	
+
+	
+	public int saveEscalalationLevels(ServiceProviderVO savedSP, List<EscalationLevelVO> escalationLevelList, LoginUser loginUser, final String spEscalationInsertQuery) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int[] updatedRows = jdbcTemplate.batchUpdate(spEscalationInsertQuery,
                 new BatchPreparedStatementSetter() {
 
                     @Override
@@ -333,7 +352,7 @@ public class SPUserDAO {
 		
 	}
 	public int updateEscalalationLevels(ServiceProviderVO savedSP, List<EscalationLevelVO> escalationLevelList,
-			LoginUser loginUser) {
+			LoginUser loginUser, final String spEscalationQuery) {
 		List<EscalationLevelVO> escListWithIds = new ArrayList<EscalationLevelVO>();
 		List<EscalationLevelVO> escListWithOutIds = new ArrayList<EscalationLevelVO>();
 		 int insertedEscList = 0;
@@ -345,7 +364,7 @@ public class SPUserDAO {
 			}
 		}
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.UPDATE_SP_ESCALATIONS_QUERY ,
+        int[] insertedRows = jdbcTemplate.batchUpdate(spEscalationQuery ,
                 new BatchPreparedStatementSetter() {
 
                     @Override
@@ -362,15 +381,17 @@ public class SPUserDAO {
                         return escListWithIds.size();
                     }
                 });
-          if(escListWithOutIds.size()>0){
-        	  insertedEscList = saveEscalalationLevels(savedSP, escListWithOutIds, loginUser);
+          if(escListWithOutIds.size()>0 && StringUtils.isEmpty(savedSP.getSpDbName())){
+        	  insertedEscList = saveEscalalationLevels(savedSP, escListWithOutIds, loginUser, AppConstants.INSERT_SP_ESCALATIONS_QUERY);
           }
-          
+          else{
+        	  insertedEscList = saveEscalalationLevels(savedSP, escListWithOutIds, loginUser, AppConstants.INSERT_RSP_ESCALATIONS_QUERY);
+          }
         return insertedEscList+insertedRows.length;
 	}
-	public int saveSLADetails(ServiceProviderVO savedSP, List<SLADetailsVO> slaListVOList, LoginUser loginUser) {
+	public int saveSLADetails(ServiceProviderVO savedSP, List<SLADetailsVO> slaListVOList, LoginUser loginUser, final String spSLAInsertQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.INSERT_SP_SLA_QUERY,
+		int[] insertedRows = jdbcTemplate.batchUpdate(spSLAInsertQuery,
 			       new BatchPreparedStatementSetter() {
 
 	                    @Override
@@ -392,9 +413,19 @@ public class SPUserDAO {
 		
 	}
 	
-	public int updateSLADetails(ServiceProviderVO savedSP, List<SLADetailsVO> slaListVOList, LoginUser loginUser) {
+	public int updateSLADetails(ServiceProviderVO savedSP, List<SLADetailsVO> slaListVOList, LoginUser loginUser, final String spSLAQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        int[] updatedRows = jdbcTemplate.batchUpdate(AppConstants.UPDATE_SP_SLA_QUERY ,
+		List<SLADetailsVO> slaListWithIds = new ArrayList<SLADetailsVO>();
+		List<SLADetailsVO> slaListWithOutIds = new ArrayList<SLADetailsVO>();
+		 int insertedSlaList = 0;
+		for(SLADetailsVO slaDetails  : slaListVOList){
+			if(slaDetails.getSlaId()!=null){
+				slaListWithIds.add(slaDetails);
+			}else{
+				slaListWithOutIds.add(slaDetails);
+			}
+		}
+        int[] updatedRows = jdbcTemplate.batchUpdate(spSLAQuery ,
                 new BatchPreparedStatementSetter() {
 
                     @Override
@@ -408,10 +439,16 @@ public class SPUserDAO {
 
                     @Override
                     public int getBatchSize() {
-                        return slaListVOList.size();
+                        return slaListWithIds.size();
                     }
                 });
-        return updatedRows.length;
+        if(slaListWithOutIds.size()>0 && StringUtils.isEmpty(savedSP.getSpDbName())){
+        	insertedSlaList = saveSLADetails(savedSP, slaListWithOutIds, loginUser, AppConstants.INSERT_SP_SLA_QUERY);
+        }
+        else{
+        	insertedSlaList = saveSLADetails(savedSP, slaListWithOutIds, loginUser, AppConstants.INSERT_RSP_SLA_QUERY);
+        }
+        return   insertedSlaList+updatedRows.length;
 	}
 	
 	public Long getLastSPCreated() {
@@ -430,10 +467,9 @@ public class SPUserDAO {
 		return lastSPId;
 	}
 
-	public List<ServiceProviderVO> findSPList(String spType) {
+	public List<ServiceProviderVO> findSPList() {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		String spQuery = spType.equalsIgnoreCase("EXT")?AppConstants.EXT_SERVICE_PROVIDER_LIST:AppConstants.RSP_SERVICE_PROVIDER_LIST;
-		List<ServiceProviderVO> spList = jdbcTemplate.query(spQuery,  new ResultSetExtractor<List<ServiceProviderVO>>(){
+		List<ServiceProviderVO> externalSpList = jdbcTemplate.query(AppConstants.EXT_SERVICE_PROVIDER_LIST,  new ResultSetExtractor<List<ServiceProviderVO>>(){
 			List<ServiceProviderVO> spList = new ArrayList<ServiceProviderVO>();
 			@Override
 			public List<ServiceProviderVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -451,22 +487,57 @@ public class SPUserDAO {
 					spProviderVO.getCountry().setCountryName(rs.getString("country_name"));
 					spProviderVO.getRegion().setRegionId(rs.getLong("region_id"));
 					spProviderVO.getRegion().setRegionName(rs.getString("region_name"));
-					if(spType.equalsIgnoreCase("EXT")){
-						spProviderVO.setCompanyCode(rs.getString("company_code"));
-					}
+					spProviderVO.setCompanyCode(rs.getString("company_code"));
 					spProviderVO.setCountryName(rs.getString("country_name"));
 					spList.add(spProviderVO);
 				}
 				return spList;
 			}
 		});
-		return spList;
+		return externalSpList;
 	}
-
-	public ServiceProviderVO findSPDetails(Long spId) {
+	public List<ServiceProviderVO> findRSPList() {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<ServiceProviderVO> registeredSpList = jdbcTemplate.query(AppConstants.RSP_SERVICE_PROVIDER_LIST,  new ResultSetExtractor<List<ServiceProviderVO>>(){
+			List<ServiceProviderVO> spList = new ArrayList<ServiceProviderVO>();
+			@Override
+			public List<ServiceProviderVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				while(rs.next()){
+					ServiceProviderVO spProviderVO = new ServiceProviderVO();
+					spProviderVO.setServiceProviderId(rs.getLong("sp_id"));
+					spProviderVO.setName(rs.getString("sp_name"));
+					spProviderVO.setCode(rs.getString("sp_code"));
+					spProviderVO.setAdditionalDetails("sp_desc");
+					spProviderVO.setEmail(rs.getString("sp_email"));
+					spProviderVO.setHelpDeskNumber(rs.getString("help_desk_number"));
+					spProviderVO.setHelpDeskEmail(rs.getString("help_desk_email"));
+					spProviderVO.setSlaDescription(rs.getString("sla_description"));
+					spProviderVO.getCountry().setCountryId(rs.getLong("country_id"));
+					spProviderVO.getCountry().setCountryName(rs.getString("country_name"));
+					spProviderVO.getRegion().setRegionId(rs.getLong("region_id"));
+					spProviderVO.getRegion().setRegionName(rs.getString("region_name"));
+					spProviderVO.setCountryName(rs.getString("country_name"));
+					spProviderVO.setAccessGranted(rs.getString("access_granted"));
+					spProviderVO.setSpDbName(rs.getString("sp_db_name"));
+					
+					spList.add(spProviderVO);
+				}
+				return spList;
+			}
+		});
+		return registeredSpList;
+	}
+	public ServiceProviderVO findSPDetails(Long spId, String spViewType) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		String spQuery=null;
+		if(spViewType.equalsIgnoreCase("EXT")){
+			spQuery = AppConstants.EXT_SERVICE_PROVIDER_INFO;
+		}
+		else if(spViewType.equalsIgnoreCase("RSP")){
+			spQuery = AppConstants.RSP_SERVICE_PROVIDER_INFO;
+		}
 		ServiceProviderVO spProviderVO= new ServiceProviderVO();
-			jdbcTemplate.query(AppConstants.EXT_SERVICE_PROVIDER_INFO, new Object[]{ spId }, 
+			jdbcTemplate.query(spQuery, new Object[]{ spId }, 
 				new ResultSetExtractor<ServiceProviderVO>(){
 			@Override
 			public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -480,8 +551,16 @@ public class SPUserDAO {
 					spProviderVO.setHelpDeskNumber(rs.getString("help_desk_number"));
 					spProviderVO.setHelpDeskEmail(rs.getString("help_desk_email"));
 					spProviderVO.setSlaDescription(rs.getString("sla_description"));
-					spProviderVO.setCompanyCode(rs.getString("company_code"));
-					spProviderVO.setCompanyName(rs.getString("company_name"));
+					if(spViewType.equalsIgnoreCase("EXT")){
+						spProviderVO.setCompanyCode(rs.getString("company_code"));
+						spProviderVO.setCompanyName(rs.getString("company_name"));
+					}
+					else if(spViewType.equalsIgnoreCase("RSP")){
+						spProviderVO.setCompanyCode(rs.getString("sp_code"));
+						spProviderVO.setCompanyName(rs.getString("sp_name"));
+						spProviderVO.setAccessGranted(rs.getString("access_granted"));
+						spProviderVO.setSpDbName(rs.getString("sp_db_name"));
+					}
 					spProviderVO.getCountry().setCountryId(rs.getLong("country_id"));
 					spProviderVO.getCountry().setCountryName(rs.getString("country_name"));
 					spProviderVO.getRegion().setRegionId(rs.getLong("region_id"));
@@ -494,9 +573,16 @@ public class SPUserDAO {
 		return spProviderVO;
 	}
 
-	public List<EscalationLevelVO> getEscalationDetails(Long spId) {
+	public List<EscalationLevelVO> getEscalationDetails(Long spId, String spViewType) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<EscalationLevelVO> spEscList = jdbcTemplate.query(AppConstants.EXT_SP_ESCALATIONS, new Object[] {spId}, new ResultSetExtractor<List<EscalationLevelVO>>(){
+		String spQuery=null;
+		if(spViewType.equalsIgnoreCase("EXT")){
+			spQuery = AppConstants.EXT_SP_ESCALATIONS;
+		}
+		else if(spViewType.equalsIgnoreCase("RSP")){
+			spQuery = AppConstants.RSP_ESCALATIONS_QUERY;
+		}
+		List<EscalationLevelVO> spEscList = jdbcTemplate.query(spQuery, new Object[] {spId}, new ResultSetExtractor<List<EscalationLevelVO>>(){
 			List<EscalationLevelVO> spEscList = new ArrayList<EscalationLevelVO>();
 			@Override
 			public List<EscalationLevelVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -514,9 +600,16 @@ public class SPUserDAO {
 		return spEscList==null?Collections.emptyList():spEscList;
 	}
 	
-	public List<SLADetailsVO> getSLADetails(Long spId) {
+	public List<SLADetailsVO> getSLADetails(Long spId, String spViewType) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<SLADetailsVO> spSLAList = jdbcTemplate.query(AppConstants.EXT_SP_PRIORITY, new Object[] {spId}, new ResultSetExtractor<List<SLADetailsVO>>(){
+		String spQuery=null;
+		if(spViewType.equalsIgnoreCase("EXT")){
+			spQuery =  AppConstants.EXT_SPSLA_PRIORITY;
+		}
+		else if(spViewType.equalsIgnoreCase("RSP")){
+			spQuery =  AppConstants.RSP_SLA_PRIORITY;
+		}
+		List<SLADetailsVO> spSLAList = jdbcTemplate.query( spQuery, new Object[] {spId}, new ResultSetExtractor<List<SLADetailsVO>>(){
 			List<SLADetailsVO> spSLAList = new ArrayList<SLADetailsVO>();
 			@Override
 			public List<SLADetailsVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -529,7 +622,7 @@ public class SPUserDAO {
 					ticketPriority.setPriorityId(rs.getLong("priority_id"));
 					if(ticketPriority.getPriorityId()!=null){
 						if(ticketPriority.getPriorityId().intValue() == 1){
-							ticketPriority.setDescription(TicketPriorityEnum.CRITICAL.name());
+							ticketPriority.setDescription(com.pms.app.constants.TicketPriorityEnum.CRITICAL.name());
 						}
 						else if(ticketPriority.getPriorityId().intValue() == 2){
 							ticketPriority.setDescription(TicketPriorityEnum.HIGH.name());
@@ -569,6 +662,11 @@ public class SPUserDAO {
 			}
 		});
 		return userList;
+	}
+
+	public int updateRSPEscalalationLevels(ServiceProviderVO serviceProviderVO,	List<EscalationLevelVO> escalationLevelList, LoginUser loginUser) {
+		
+		return 0;
 	}
 
 

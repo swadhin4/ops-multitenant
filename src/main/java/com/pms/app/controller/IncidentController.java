@@ -431,7 +431,8 @@ public class IncidentController extends BaseController {
 			if (loginUser != null) {
 				// SelectedTicketVO selectedTicketVO =
 				// ticketSerice.getSelectedTicket(ticketVO.getTicketId(),loginUser);
-				session.setAttribute("selectedTicket", ticketVO);
+				
+					session.setAttribute("selectedTicket", ticketVO);
 				response.setStatusCode(200);
 				response.setObject(ticketVO);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
@@ -460,7 +461,14 @@ public class IncidentController extends BaseController {
 			TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
 			try {
 				if (selectedTicketVO != null) {
-					selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
+					String custDBName = (String) session.getAttribute("selectedTicketDB");
+					if(StringUtils.isEmpty(custDBName)){
+						selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
+					}
+					else{
+						loginUser.setDbName(custDBName);
+						selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
+					}
 					List<EscalationLevelVO> escalationLevelVOs = selectedTicketVO.getEscalationLevelList();
 					if (escalationLevelVOs.isEmpty()) {
 
@@ -566,7 +574,15 @@ public class IncidentController extends BaseController {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		if (loginUser != null) {
 			TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
-			List<TicketAttachment> fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser);
+			String custDBName = (String) session.getAttribute("selectedTicketDB");
+			List<TicketAttachment> fileAttachments = new ArrayList<TicketAttachment>();
+			if(StringUtils.isEmpty(custDBName)){
+				fileAttachments =ticketSerice.findByTicketId(ticketId, loginUser);
+			}
+			else{
+				loginUser.setDbName(custDBName);
+				fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser);
+			}
 			if (fileAttachments == null) {
 				logger.info("Not Ticket Attachment for " + ticketId);
 			} else {

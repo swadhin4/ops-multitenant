@@ -190,6 +190,7 @@ public class ServiceProviderCompanyController extends BaseController {
 				if(!ticketList.isEmpty()){
 					response.setResponseType(custDBName);
 					response.setStatusCode(200);
+					session.setAttribute("selectedTicketDB", custDBName);
 					response.setObject(ticketList);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 				}

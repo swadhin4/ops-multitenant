@@ -43,9 +43,9 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
 	        return def.promise;
 		}
  		
- 		function getSelectedServiceProvider(spId){
+ 		function getSelectedServiceProvider(spId, spAccess){
 		     var def = $q.defer();
-	        $http.get(hostLocation+"/serviceprovider/info/"+spId)
+	        $http.get(hostLocation+"/serviceprovider/info/"+spId+"/"+spAccess)
 	            .success(function(data) {
 	            	//console.log(data)
 	                def.resolve(data);
