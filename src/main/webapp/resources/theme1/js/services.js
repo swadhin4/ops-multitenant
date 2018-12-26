@@ -1244,7 +1244,7 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
 	        if(mode!=undefined && mode.toUpperCase()=="SP"){
 	        	url=hostLocation+"/sp/incident/list";
 	        }else{
-	        	url=hostLocation+"/incident/list";
+	        	url=hostLocation+"/incident/list/"+mode;
 	        }
         $http.get(url)
             .success(function(data) {

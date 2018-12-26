@@ -173,15 +173,15 @@ public class IncidentController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/list", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<RestResponse> listAllTickets(final HttpSession session ) {
+	@RequestMapping(value = "/list/{assignedTo}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> listAllTickets(final HttpSession session,@PathVariable(value="assignedTo") final String assignedTo ) {
 		List<TicketVO> tickets = null;
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-					tickets = ticketSerice.getAllCustomerTickets(loginUser);
+					tickets = ticketSerice.getAllCustomerTickets(loginUser,assignedTo);
 				if (tickets.isEmpty()) {
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NO_CONTENT);
 					return responseEntity;

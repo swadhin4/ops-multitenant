@@ -34,6 +34,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.pms.app.constants.AppConstants;
 import com.pms.app.dao.impl.IncidentDAO;
 import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.CreateSiteVO;
@@ -82,17 +83,22 @@ public class TicketServiceImpl implements TicketService {
 	
 	
 	@Override
-	public List<TicketVO> getAllCustomerTickets(LoginUser loginUser) throws Exception {
+	public List<TicketVO> getAllCustomerTickets(LoginUser loginUser, final String assignedTo) throws Exception {
 		LOGGER.info("Inside TicketServiceImpl - getAllCustomerTickets");
 		LOGGER.info("Getting ticket List for logged in user : "+  loginUser.getFirstName() + "" + loginUser.getLastName());
-		SiteDAO siteDAO = getSiteDAO(loginUser.getDbName());
-		List<CreateSiteVO> siteList = siteDAO.getSiteList(loginUser.getUsername());
-		Set<Long> siteIdList = new HashSet<Long>();
-		for (CreateSiteVO siteVO : siteList) {
-			siteIdList.add(siteVO.getSiteId());
+		List<TicketVO> customerTicketList = new ArrayList<TicketVO>();
+		if(assignedTo.equalsIgnoreCase("EXT")){
+			SiteDAO siteDAO = getSiteDAO(loginUser.getDbName());
+			List<CreateSiteVO> siteList = siteDAO.getSiteList(loginUser.getUsername());
+			Set<Long> siteIdList = new HashSet<Long>();
+			for (CreateSiteVO siteVO : siteList) {
+				siteIdList.add(siteVO.getSiteId());
+			}
+			customerTicketList = getIncidentDAO(loginUser.getDbName()).findTicketsBySiteIdIn(siteIdList, assignedTo);
+		}else{
+			customerTicketList = getIncidentDAO(loginUser.getDbName()).findTicketsBySiteIdIn(null, assignedTo);
 		}
-		List<TicketVO> customerTicketList = getIncidentDAO(loginUser.getDbName()).findTicketsBySiteIdIn(siteIdList);
-		//SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+		
 		LOGGER.info("Exit TicketServiceImpl - getAllCustomerTickets");
 		return customerTicketList == null?Collections.emptyList():customerTicketList;
 	}
@@ -342,10 +348,22 @@ public class TicketServiceImpl implements TicketService {
 	@Override
 	@Transactional
 	public TicketVO getSelectedTicket(Long ticketId, LoginUser loginUser) throws Exception {
-		SelectedTicketVO selectedTicket = getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId);
+		SelectedTicketVO selectedTicket = null;
 		TicketVO ticketVO = new TicketVO();
 		List<String> addressList = new ArrayList<String>(4);
-		ticketVO.setTicketId(selectedTicket.getId()); 
+	//	if(ticketAssignedTo.equalsIgnoreCase("EXT")){
+			selectedTicket= getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId);
+			ticketVO.setTicketId(selectedTicket.getId()); 
+			List<TicketCommentVO> ticketComments = getTicketComments(ticketVO.getTicketId(), loginUser);
+			List<EscalationLevelVO> escalationLevelVOs = getTicketEscalationList(selectedTicket.getAssigned_to(), loginUser);
+			ticketVO.setTicketComments(ticketComments);
+			ticketVO.setEscalationLevelList(escalationLevelVOs);
+	//	}
+	//	else if(ticketAssignedTo.equalsIgnoreCase("RSP")){
+		/*	selectedTicket= getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId, AppConstants.RSP_TICKET_SELECTED_QUERY);
+			ticketVO.setTicketId(selectedTicket.getId()); */
+	//	}
+		
 		ticketVO.setTicketTitle(selectedTicket.getTicket_title());
 		ticketVO.setTicketNumber(selectedTicket.getTicket_number());
 		ticketVO.setDescription(selectedTicket.getTicket_desc());
@@ -386,8 +404,14 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setServiceRestorationTime(selectedTicket.getService_restoration_ts());
 		ticketVO.setCloseCode(selectedTicket.getClose_code()==null?null:Long.parseLong(selectedTicket.getClose_code()));
 		ticketVO.setClosedNote(selectedTicket.getClosed_code_desc());
-		ticketVO.setAssignedTo(selectedTicket.getAssigned_to());
-		ticketVO.setAssignedSP(selectedTicket.getSp_name());
+		if(selectedTicket.getAssigned_to()!=null){
+			ticketVO.setAssignedTo(selectedTicket.getAssigned_to());
+			ticketVO.setAssignedSP(selectedTicket.getSp_name());
+		}
+		else {
+			ticketVO.setAssignedTo(selectedTicket.getRassigned_to());
+			ticketVO.setAssignedSP(selectedTicket.getRsp_name());
+		}
 		ticketVO.setClosedBy(selectedTicket.getClosed_by());
 		ticketVO.setClosedOn(selectedTicket.getClosed_on());
 		ticketVO.setCreatedUser(selectedTicket.getFirst_name()+" "+selectedTicket.getLast_name());
@@ -397,10 +421,7 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setStatusDescription(selectedTicket.getDescription());
 		ticketVO.setStatus(selectedTicket.getStatus());
 		ticketVO.setSlaPercent(getSLAPercent(ticketVO));
-		List<TicketCommentVO> ticketComments = getTicketComments(ticketVO.getTicketId(), loginUser);
-		List<EscalationLevelVO> escalationLevelVOs = getTicketEscalationList(selectedTicket.getAssigned_to(), loginUser);
-		ticketVO.setTicketComments(ticketComments);
-		ticketVO.setEscalationLevelList(escalationLevelVOs);
+		
 		return ticketVO;
 	}
 	

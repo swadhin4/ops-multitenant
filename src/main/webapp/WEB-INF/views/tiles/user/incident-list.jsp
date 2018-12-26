@@ -26,7 +26,7 @@
 <script type="text/javascript"   src='<c:url value="/resources/theme1/js/dataTables.responsive.min.js"></c:url>'></script>
 <script type="text/javascript"   src='<c:url value="/resources/theme1/js/responsive.bootstrap.min.js"></c:url>'></script>
 
-
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/optionbtn.css"></c:url>' />
 
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
@@ -184,12 +184,28 @@ $(function() {
 				<div class="col-md-12">
 						<div class="box">
 							<div class="box-header with-border">
-								<h3 class="box-title">List of Tickets</h3>
-								<!-- 	<select name="spCustomerListSelect" id="spCustomerListSelect"
-										class="form-control"
-										onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
-										required>
-									</select> -->
+							<div class="row">
+									<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio3" ng-model="ticketAssignedTo" value="EXT" 
+																ng-change="checkTicketsAssignedTo(ticketAssignedTo)"/> <label
+																	for="radio3"   >
+																	Tickets Assigned to External SP
+																	</label>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio2" ng-model="ticketAssignedTo" value="RSP" 
+																ng-change="checkTicketsAssignedTo(ticketAssignedTo)"/> <label
+																	for="radio2" >Tickets Assigned to Registered SP</label>
+															</div>
+														</div>
+													</div>
+											</div>		
 								<div class="box-tools pull-right">
 								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER', 'ROLE_SITE_STAFF')">
 									<a 	class="btn btn-success dropdown-toggle pull-right"

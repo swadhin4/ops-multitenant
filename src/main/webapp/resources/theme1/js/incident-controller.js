@@ -148,7 +148,7 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
     				$scope.siteData ={};
     				$scope.sessionUser=angular.copy(data.object);
     				$scope.siteData.company=$scope.sessionUser.company;
-    				$scope.getAllTickets();
+    				$scope.getAllTickets("EXT");
    				 	$('.dpedit').editableSelect();
     			}
             },
@@ -157,15 +157,20 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
             });
 		}
 		
-		$scope.getAllTickets=function(){
-			$scope.findAllTickets();
+		$scope.getAllTickets=function(assignedTo){
+			$scope.ticketAssignedTo=assignedTo;
+			$scope.findAllTickets($scope.ticketAssignedTo);
 		}
 		
+		$scope.checkTicketsAssignedTo=function(assignedTo){
+			console.log("Assigned to ", assignedTo);
+			$scope.ticketAssignedTo=assignedTo;
+			$scope.findAllTickets($scope.ticketAssignedTo);
+		}
 		
-		
-		$scope.findAllTickets=function(){
+		$scope.findAllTickets=function(assignedTo){
 			$('#loadingDiv').show();
-			ticketService.displayAllOpenTickets()
+			ticketService.displayAllOpenTickets(assignedTo)
 			.then(function(data){
 				//console.log(data);
 				if(data.statusCode == 200){
@@ -197,23 +202,19 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 	    				//$scope.asset.selected=$scope.asset.list[0];
 	    			})
 	    		$('#loadingDiv').hide();	
-				 //$('#updateTicket').hide();
-				// $scope.getTicketDetails($scope.ticket.list[0]);
+				if ($.fn.DataTable.isDataTable("#ticketList")) {
+					  $('#ticketList').DataTable().clear().destroy();
+				}
 				populateDataTable($scope.ticket.list,'ticketList');
 				}
+				$('#messageWindow').hide();
+				$('#infoMessageDiv').hide();
+				 	
+				$('#loadingDiv').hide();
 			},function(data){
 				//console.log(data);
+				$('#loadingDiv').hide();
 			});
-	
-			
-			$('#messageWindow').hide();
-			$('#infoMessageDiv').hide();
-			$('#loadingDiv').hide();
-    			//console.log("shibu");
-			 /*$scope.jsonObj = angular.toJson($scope.ticket.list);*/
-			 	//console.log($scope.ticket.list);
-			 	
-			$('#loadingDiv').hide();
 		}
 		
 		$scope.addNewTicket=function(){
@@ -223,7 +224,7 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 			$('#createTicketModal').modal('show');
 		}
 		 $scope.setTicketinSession=function(ticket){
-			 //$('#loadingDiv').show();
+			 ticket.ticketAssignedType=$scope.ticketAssignedTo;
 			 ticketService.setIncidentSelected(ticket)
 				.then(function(data){
 					//console.log(data);

@@ -63,17 +63,29 @@ public class IncidentDAO {
 	public IncidentDAO(String userConfig) {
 		ConnectionManager.getInstance(userConfig);
 	}
-	public List<TicketVO> findTicketsBySiteIdIn(Set<Long> siteIdList) {
+	public List<TicketVO> findTicketsBySiteIdIn(Set<Long> siteIdList, String assignedTo) {
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
-		MapSqlParameterSource parameters = new MapSqlParameterSource();
-		parameters.addValue("siteIds", siteIdList);
-		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.TICKET_LIST_QUERY, parameters,
-				new RowMapper<TicketVO>() {
-					@Override
-					public TicketVO mapRow(ResultSet rs, int arg1) throws SQLException {
-						return toTicketList(rs);
-					}
-				});
+		List<TicketVO> ticketList = new ArrayList<TicketVO>();
+		if(assignedTo.equalsIgnoreCase("EXT")){
+			MapSqlParameterSource parameters = new MapSqlParameterSource();
+			parameters.addValue("siteIds", siteIdList);
+			 ticketList = jdbcTemplate.query(AppConstants.CUST_EXT_TICKET_LIST_QUERY, parameters,
+					new RowMapper<TicketVO>() {
+						@Override
+						public TicketVO mapRow(ResultSet rs, int arg1) throws SQLException {
+							return toTicketList(rs);
+						}
+			});
+		}
+		else if(assignedTo.equalsIgnoreCase("RSP")){
+		 ticketList = jdbcTemplate.query(AppConstants.CUST_RSP_TICKET_LIST_QUERY,
+					new RowMapper<TicketVO>() {
+						@Override
+						public TicketVO mapRow(ResultSet rs, int arg1) throws SQLException {
+							return toTicketList(rs);
+						}
+			});
+		}
 		return ticketList;
 	}
 	
@@ -425,7 +437,7 @@ public class IncidentDAO {
 		});
 		return serviceProvider;
 	}
-	public SelectedTicketVO getSelectedTicket(Long ticketId) {
+	public SelectedTicketVO getSelectedTicket(Long ticketId ) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		SelectedTicketVO selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(AppConstants.TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
 		return selectedTicketVO;

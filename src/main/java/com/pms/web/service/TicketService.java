@@ -20,7 +20,7 @@ import com.pms.jpa.entities.TicketCategory;
 
 public interface TicketService {
 
-	public List<TicketVO> getAllCustomerTickets(LoginUser loginUser) throws Exception;
+	public List<TicketVO> getAllCustomerTickets(LoginUser loginUser, String assignedTo) throws Exception;
 	
 	public List<TicketCategory> getTicketCategories(LoginUser loginUser) throws Exception;
 	

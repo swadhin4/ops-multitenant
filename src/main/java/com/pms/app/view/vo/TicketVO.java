@@ -84,6 +84,7 @@ public class TicketVO implements Serializable{
 	private CreateSiteVO site;
 	private int isRootcauseResolved;
 	private String mode;
+	private String ticketAssignedType;
 	
 	public TicketVO() {
 		super();
@@ -499,6 +500,12 @@ public class TicketVO implements Serializable{
 	}
 	public void setAsstSpType(String asstSpType) {
 		this.asstSpType = asstSpType;
+	}
+	public String getTicketAssignedType() {
+		return ticketAssignedType;
+	}
+	public void setTicketAssignedType(String ticketAssignedType) {
+		this.ticketAssignedType = ticketAssignedType;
 	}
 	@Override
 	public String toString() {

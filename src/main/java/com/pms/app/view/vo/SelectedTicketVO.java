@@ -47,6 +47,8 @@ public class SelectedTicketVO implements Serializable {
 	private String is_rootcause_resolved;
 	private String close_note;
 	private Long assigned_to;
+	private Long rassigned_to;
+	private String rsp_name;
 	private String sp_name;
 	private String closed_by;
 	private String first_name;
@@ -330,6 +332,18 @@ public class SelectedTicketVO implements Serializable {
 	}
 	public void setCreated_on(String created_on) {
 		this.created_on = created_on;
+	}
+	public Long getRassigned_to() {
+		return rassigned_to;
+	}
+	public void setRassigned_to(Long rassigned_to) {
+		this.rassigned_to = rassigned_to;
+	}
+	public String getRsp_name() {
+		return rsp_name;
+	}
+	public void setRsp_name(String rsp_name) {
+		this.rsp_name = rsp_name;
 	}
 	@Override
 	public String toString() {

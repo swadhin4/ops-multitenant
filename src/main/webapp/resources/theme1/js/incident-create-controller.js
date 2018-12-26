@@ -418,7 +418,8 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 						});
     					var selectedSiteId = $('#siteSelectedId').val(); // From Asset Screen if Asset is selected
     					//var siteSelected = $.jStorage.get('selectedSite');	//  After asset is created and returned back to incident
-    					if(selectedSiteId=="" && siteSelected==null){
+    					
+    					if(selectedSiteId==""){
     					  $.jStorage.set('selectedAsset',null);
     					  $.jStorage.set('selectedSite', null);	
     					}else{
@@ -2464,6 +2465,7 @@ function getSelectedAsset(dropDownId){
 				}else if(val.assetType=='S'){
 					scope.getServiceRepairType(category);
 					if(val.subCategoryId1!=null){
+						scope.assetList.selected.subCategoryId1=val.subCategoryId1
 						scope.getServiceSubRepairType(val);
 					}else{
 						scope.subRepairType.list=[];
