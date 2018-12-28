@@ -646,13 +646,13 @@ public class IncidentDAO {
 		});
 		return updatedRow;
 	}
-	public TicketEscalationVO saveTicketEscalations(TicketEscalationVO ticketEscalationLevel, LoginUser user) {
+	public TicketEscalationVO saveTicketEscalations(TicketEscalationVO ticketEscalationLevel, LoginUser user,final String spTypeEscaltionQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_TICKET_ESCALATION_QUERY, 
+	        final PreparedStatement ps = connection.prepareStatement(spTypeEscaltionQuery, 
 	            Statement.RETURN_GENERATED_KEYS);
             ps.setLong(1, ticketEscalationLevel.getTicketId());
             ps.setString(2,ticketEscalationLevel.getTicketNumber());
@@ -688,9 +688,9 @@ public class IncidentDAO {
 		});
 		return ticketList;
 	}
-	public TicketEscalationVO findByTicketIdAndEscLevelId(Long ticketId, Long escId) {
+	public TicketEscalationVO findByTicketIdAndEscLevelId(Long ticketId, Long escId, final String spEscTypeQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		TicketEscalationVO escVO = jdbcTemplate.query(AppConstants.TICKET_BY_ESCID,new Object[]{ticketId, escId}, new ResultSetExtractor<TicketEscalationVO>(){
+		TicketEscalationVO escVO = jdbcTemplate.query(spEscTypeQuery,new Object[]{ticketId, escId}, new ResultSetExtractor<TicketEscalationVO>(){
 			@Override
 			public TicketEscalationVO extractData(ResultSet rs) throws SQLException, DataAccessException {
 				TicketEscalationVO ticketEscalationVO = new TicketEscalationVO();
@@ -706,9 +706,9 @@ public class IncidentDAO {
 			});
 		return escVO;
 	}
-	public List<EscalationLevelVO> getSPEscalation(Long spAssignedTo, LoginUser loginUser) {
+	public List<EscalationLevelVO> getSPEscalation(Long spAssignedTo, LoginUser loginUser, final String spTicketEscQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<EscalationLevelVO> escList = jdbcTemplate.query(AppConstants.SP_ESCALATIONS_QUERY,new Object[]{spAssignedTo}, new ResultSetExtractor<List<EscalationLevelVO>>(){
+		List<EscalationLevelVO> escList = jdbcTemplate.query(spTicketEscQuery,new Object[]{spAssignedTo}, new ResultSetExtractor<List<EscalationLevelVO>>(){
 			@Override
 			public List<EscalationLevelVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<EscalationLevelVO> escVals = new ArrayList<EscalationLevelVO>();

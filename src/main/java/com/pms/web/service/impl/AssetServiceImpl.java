@@ -58,7 +58,7 @@ public class AssetServiceImpl implements AssetService {
 
 	@Override
 	@Transactional
-	public List<AssetVO> findAllAsset(LoginUser user) throws Exception {
+	public List<AssetVO> findAllAsset(LoginUser user, final String viewtype) throws Exception {
 		LOGGER.info("Inside AssetServiceImpl .. findAllAsset");
 		LOGGER.info("Getting Asset List for logged in user : " + user.getFirstName() + "" + user.getLastName());
 		SiteDAO siteDAO = getSiteDAO(user.getDbName());
@@ -67,7 +67,7 @@ public class AssetServiceImpl implements AssetService {
 		for (CreateSiteVO siteVO : siteList) {
 			siteIdList.add(siteVO.getSiteId());
 		}
-		List<AssetVO> siteAssetList = getAssetDAO(user.getDbName()).findBySiteIdIn(siteIdList);
+		List<AssetVO> siteAssetList = getAssetDAO(user.getDbName()).findBySiteIdIn(siteIdList, viewtype);
 		LOGGER.info("Total Assets for user : " + siteAssetList.size());
 
 		LOGGER.info("Exit AssetServiceImpl .. findAllAsset");

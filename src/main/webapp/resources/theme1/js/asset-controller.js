@@ -309,7 +309,7 @@ chrisApp.controller('assetController',
 			 
 			 $scope.getAllAsset=function(viewType){
 				 $('#loadingDiv').show();
-				 assetService.findAllAssets()
+				 assetService.findAllAssets(viewType)
 						.then(function(data) {
 		    			console.log(data);
 		    				if(data.statusCode==200){

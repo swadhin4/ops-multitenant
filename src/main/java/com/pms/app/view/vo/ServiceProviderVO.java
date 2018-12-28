@@ -33,6 +33,10 @@ public class ServiceProviderVO implements Serializable {
 	private String option;
 	private boolean isTenantMapped;
 	private String spDbName;
+	private Long rspCustId;
+	private Long rspOpsTenantSpId;
+	private String customerCode;
+	private String custDbName;
 	private String accessGranted;
 	private int version;
 
@@ -186,6 +190,30 @@ public class ServiceProviderVO implements Serializable {
 	}
 	public void setAccessGranted(String accessGranted) {
 		this.accessGranted = accessGranted;
+	}
+	public Long getRspCustId() {
+		return rspCustId;
+	}
+	public void setRspCustId(Long rspCustId) {
+		this.rspCustId = rspCustId;
+	}
+	public Long getRspOpsTenantSpId() {
+		return rspOpsTenantSpId;
+	}
+	public void setRspOpsTenantSpId(Long rspOpsTenantSpId) {
+		this.rspOpsTenantSpId = rspOpsTenantSpId;
+	}
+	public String getCustomerCode() {
+		return customerCode;
+	}
+	public void setCustomerCode(String customerCode) {
+		this.customerCode = customerCode;
+	}
+	public String getCustDbName() {
+		return custDbName;
+	}
+	public void setCustDbName(String custDbName) {
+		this.custDbName = custDbName;
 	}
 	@Override
 	public int hashCode() {

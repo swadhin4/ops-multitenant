@@ -943,6 +943,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 var spType=$scope.ticketData.spType;
 			 if(viewMode.toUpperCase()=='EDIT'){
 				 spId=parseInt($scope.ticketData.assignedTo);
+				 spType=$scope.ticketData.ticketAssignedType;
 		      }
 			 if(spId==undefined){
 				 //alert("No Site Selected");

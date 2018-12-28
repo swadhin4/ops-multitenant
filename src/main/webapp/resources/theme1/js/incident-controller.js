@@ -120,7 +120,12 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 			
 		});
 		
-		
+		 $scope.rowHighilited=function(row)
+		    {
+		      $scope.selectedRow = row;    
+		    }
+		 
+		 
 		 $scope.getLoggedInUserAccess =function(){
 				authService.loggedinUserAccess()
 	    		.then(function(data) {
@@ -205,7 +210,7 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 				if ($.fn.DataTable.isDataTable("#ticketList")) {
 					  $('#ticketList').DataTable().clear().destroy();
 				}
-				populateDataTable($scope.ticket.list,'ticketList');
+				//populateDataTable($scope.ticket.list,'ticketList');
 				}
 				$('#messageWindow').hide();
 				$('#infoMessageDiv').hide();
@@ -227,7 +232,7 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 			 ticket.ticketAssignedType=$scope.ticketAssignedTo;
 			 ticketService.setIncidentSelected(ticket)
 				.then(function(data){
-					//console.log(data);
+					console.log(data);
 					if(data.statusCode==200){
 						console.log("Ticket logged in session");
 						//console.log(data.object);
@@ -247,6 +252,13 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 				});
 		 }
 
+		 $scope.previewSelectedIncidentInfo=function(ticket){
+			 $('#previewIncidentModal').modal('show');
+			 
+			 
+		 }
+		 
+		 
 		$scope.viewUpdatePage=function(){
 			if($scope.sessionTicket!=null){
 				if($scope.sessionTicket.statusId==15){

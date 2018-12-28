@@ -19,6 +19,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.TransactionDefinition;
 
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
@@ -669,6 +670,96 @@ public class SPUserDAO {
 		return 0;
 	}
 
+	public int setAccessValue(Long rspId, String grantOrRevokeVal) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.CUST_SP_ACCESS_VALUE_UPDATE);
+			ps.setString(1,grantOrRevokeVal);
+			ps.setLong(2,rspId);
+            return ps;
+	        }
+	      });
+	 	return updated;
+	}
 
+	public ServiceProviderVO findRSPCustomerDetailsByCode(String companyCode, final String custMappedDbName) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		ServiceProviderVO spProviderVO= new ServiceProviderVO();
+		jdbcTemplate.query(AppConstants.RSP_CUSTOMER_MAPPED_SP_QUERY, new Object[]{ companyCode, custMappedDbName }, 
+			new ResultSetExtractor<ServiceProviderVO>(){
+		@Override
+		public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+			if(rs.next()){
+				spProviderVO.setRspCustId(rs.getLong("sp_cust_id"));
+				spProviderVO.setRspOpsTenantSpId(rs.getLong("sp_id"));
+				spProviderVO.setCustomerCode(rs.getString("customer_code"));
+				spProviderVO.setCustDbName(rs.getString("cust_db_name"));
+			}
+			return spProviderVO;
+		}
+	 });
+	return spProviderVO;
+	}
+
+	public int deleteRspCustomerRecord(ServiceProviderVO rspOpsTenant) throws SQLException {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.RSP_CUSTOMER_DELETE_QUERY);
+			ps.setLong(1,rspOpsTenant.getRspCustId());
+            return ps;
+	        }
+	      });
+	 	return updated;
+	}
+
+
+	public ServiceProviderVO findRSPDetailsByCode(final String rspCode) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		ServiceProviderVO spProviderVO= new ServiceProviderVO();
+		jdbcTemplate.query(AppConstants.RSP_OPSTENAT_DETAILS_BYCODE, new Object[]{ rspCode }, 
+			new ResultSetExtractor<ServiceProviderVO>(){
+		@Override
+		public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+			if(rs.next()){
+				spProviderVO.setRspOpsTenantSpId(rs.getLong("sp_cid"));
+				spProviderVO.setCustomerCode(rs.getString("sp_code"));
+			}
+			return spProviderVO;
+		}
+	 });
+	return spProviderVO;
+	}
 	
+	public ServiceProviderVO insertRspCustomerRecord(LoginUser loginUser, Long rspId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+		ServiceProviderVO serviceProviderVO = new ServiceProviderVO();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.RSP_CUSTOMER_MAPPING_INSERT, 
+	            Statement.RETURN_GENERATED_KEYS);
+	        ps.setLong(1, rspId);
+	    	ps.setString(2, loginUser.getCompany().getCompanyCode());
+            ps.setString(3, loginUser.getCompany().getCompanyName());
+            ps.setLong(4, loginUser.getCompany().getCountryId());
+            ps.setString(5, loginUser.getDbName());
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved  user company {} with id {}.", loginUser.getCompany().getCompanyName(), key.getKey());
+	    Long spCustId=key.getKey().longValue();
+	    if(spCustId!=null){
+	    	serviceProviderVO.setRspCustId(spCustId);
+	    	serviceProviderVO.setCustomerCode(loginUser.getCompany().getCompanyCode());
+	    	serviceProviderVO.setCustDbName(loginUser.getDbName());
+	    }
+	    return serviceProviderVO;
+	}
+
 }

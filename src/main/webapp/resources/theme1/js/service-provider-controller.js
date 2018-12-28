@@ -273,6 +273,33 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
                 console.log('Unable to get  Service Provider details')
             });
 		}
+		
+		$scope.grantOrRevokeAcess=function(){
+			$('#loadingDiv').show();
+			console.log($scope.selectedServiceProvider.accessGranted);
+			serviceProviderService.grantOrRevokeAcess($scope.selectedServiceProvider.serviceProviderId, 
+					$scope.selectedServiceProvider.accessGranted)
+				.then(function(data) {
+					console.log(data)
+	    			if(data.statusCode == 200){
+	    				$('#loadingDiv').hide();
+	    				$('#messageWindow').show();
+	    				$('#successMessageDiv').show();
+	    				$('#successMessageDiv').alert();
+	    				$scope.successMessage = data.message;
+	    				$scope.getServiceProviderList("ALL");
+	    			}
+				}, function(data) {
+	                console.log('Unable to provide access ')
+	                $scope.errorMessage = data.message;
+	                $('#messageWindow').show();
+    				$('#errorMessageDiv').show();
+    				$('#errorMessageDiv').alert();
+    				$('#successMessageDiv').hide();
+					$('#loadingDiv').hide();
+	        });
+		 }
+		
 		$scope.editServiceProvider=function(){
 			if($scope.serviceProvider!=undefined){
 			$('#createServiceProviderModal').modal('show');
@@ -338,15 +365,28 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
 		}
 		
 		$scope.resetPassword=function(){
+			$('#loadingDiv').show();
 			serviceProviderService.resetServiceProviderPassword($scope.selectedServiceProvider)
 			.then(function(data) {
 				console.log(data)
     			if(data.statusCode == 200){
-    				$scope.selectedServiceProvider = angular.copy(data.object);
-    				$scope.selectedServiceProvider.isSelected=true;
+    				$('#loadingDiv').hide();
+    				$scope.selectedServiceProvider = $scope.selectedServiceProvider;
+    				$('#messageWindow').show();
+    				$('#successMessageDiv').show();
+    				$('#successMessageDiv').alert();
+    				$scope.successMessage = "Password reset successfully";
+    				$('#resetConfirmNo').click();
+    				
     			}
 			}, function(data) {
-                console.log('Unable to get  Service Provider details')
+                console.log('Unable to reset service provider password')
+                $scope.errorMessage = "Unable to reset the password";
+                $('#messageWindow').show();
+				$('#errorMessageDiv').show();
+				$('#errorMessageDiv').alert();
+				$('#successMessageDiv').hide();
+				$('#loadingDiv').hide();
             });
 		}
 }]);    

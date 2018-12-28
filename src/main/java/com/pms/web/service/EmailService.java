@@ -21,4 +21,5 @@ public interface EmailService {
 	public RestResponse sendForgotPasswordEmail(String email, String passwordResetLink) throws Exception;
 	RestResponse successEscalationLevel(TicketVO ticketVO, SPEscalationLevels spEscalationLevel, String ccLevelEmail, String level) throws Exception;
 	RestResponse successExtSPPasswordReset(ServiceProviderVO serviceProviderVO, LoginUser loginUser) throws Exception;
+	public RestResponse accessGrantedRSPEmail(Long rspId, LoginUser user) throws Exception;
 }

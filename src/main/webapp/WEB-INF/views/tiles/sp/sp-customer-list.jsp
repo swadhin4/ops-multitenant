@@ -168,11 +168,11 @@ background:#deefe5
 		<section class="content">
 			<div class="row">
 				<div class="col-md-12">
-					<div class="box" style="height: 70%">
+					<div class="box" style="height: 90%">
 						<div class="box-header with-border">
 							
 							<div class="col-md-3">
-							<h3 class="box-title">Select Customer</h3>		<select name="spCustomerListSelect" id="spCustomerListSelect"
+							<h3 class="box-title">Select Customer</h3>		<select name="spCustomerListSelect" id="spCustomerListSelect" ng-model="isCustomerSelected.spCustomerListSelect" ng-dropdown required
 										class="form-control" onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
 										required>
 									</select>
@@ -240,7 +240,7 @@ background:#deefe5
 
 										<div class="tab-content">
 											<div class="tab-pane active" id="ticketsTab">
-													<div class="row">
+													<div class="row dropdown" ng-show="isCustomerSelected.spCustomerListSelect.length > 0">
 														<div class="col-md-3">
 														<div class="funkyradio">
 															<div class="funkyradio-primary">
@@ -283,7 +283,7 @@ background:#deefe5
 													</div>	
 														<div class="row">
 															<div class="col-md-12">
-																<div style="overflow-x: hidden; overflow-y: auto; height: 110%">
+																<div style="overflow-x: hidden; overflow-y: auto; height: 300px">
 																	<div class="table-responsive">
 																		<table id="incidentDetails"
 																			class="table table-bordered table-striped"

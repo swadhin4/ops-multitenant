@@ -264,8 +264,14 @@ background:#deefe5
 										<ul class="nav nav-tabs">
 											<li class="active"><a href="#primaryinfo"
 												data-toggle="tab">Primary Details</a></li>
-											<li><a href="#linkedticket" data-toggle="tab">External Service provider 
+											<li ng-if="ticketData.ticketAssignedType=='EXT'"><a href="#linkedticket" data-toggle="tab">External Service provider 
 													Ticket</a>
+										<span class="label label-warning" style="position: relative;
+        top: -33px; left: 211px">{{ticketData.linkedTickets.length || 0}}</span></a>			
+													
+													</li>
+													<li ng-if="ticketData.ticketAssignedType=='RSP'"><a href="#linkedticket" data-toggle="tab">RSP Linked Tickets 
+													</a>
 										<span class="label label-warning" style="position: relative;
         top: -33px; left: 211px">{{ticketData.linkedTickets.length || 0}}</span></a>			
 													
@@ -1183,9 +1189,9 @@ background:#deefe5
 													<div class="box-header with-border">
 														<h3 class="box-title">Related Tickets</h3>
 													</div>
-													<div class="box-body">
+													<div class="box-body table-responsive no-padding">
 																	<table id="financialsTable"
-																		class="table table-bordered table-hover table-condensed">
+																		class="table  ">
 																		<thead>
 																			<tr>
 																				<th style="width:30%;"><b>Ticket Number</b></th>

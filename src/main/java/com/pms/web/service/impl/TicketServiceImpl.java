@@ -53,6 +53,7 @@ import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
 import com.pms.jpa.entities.Financials;
+import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
@@ -354,10 +355,7 @@ public class TicketServiceImpl implements TicketService {
 	//	if(ticketAssignedTo.equalsIgnoreCase("EXT")){
 			selectedTicket= getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId);
 			ticketVO.setTicketId(selectedTicket.getId()); 
-			List<TicketCommentVO> ticketComments = getTicketComments(ticketVO.getTicketId(), loginUser);
-			List<EscalationLevelVO> escalationLevelVOs = getTicketEscalationList(selectedTicket.getAssigned_to(), loginUser);
-			ticketVO.setTicketComments(ticketComments);
-			ticketVO.setEscalationLevelList(escalationLevelVOs);
+			
 	//	}
 	//	else if(ticketAssignedTo.equalsIgnoreCase("RSP")){
 		/*	selectedTicket= getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId, AppConstants.RSP_TICKET_SELECTED_QUERY);
@@ -405,13 +403,26 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setCloseCode(selectedTicket.getClose_code()==null?null:Long.parseLong(selectedTicket.getClose_code()));
 		ticketVO.setClosedNote(selectedTicket.getClosed_code_desc());
 		if(selectedTicket.getAssigned_to()!=null){
+			LOGGER.info("Getting ticket details assigned to External SP");
+			ticketVO.setTicketAssignedType("EXT");
 			ticketVO.setAssignedTo(selectedTicket.getAssigned_to());
 			ticketVO.setAssignedSP(selectedTicket.getSp_name());
+			List<EscalationLevelVO> escalationLevelVOs = getTicketEscalationList(selectedTicket.getAssigned_to(), loginUser, AppConstants.SP_ESCALATIONS_QUERY);
+			ticketVO.setEscalationLevelList(escalationLevelVOs);
+			
 		}
 		else {
+			LOGGER.info("Getting ticket details assigned to Registered SP");
+			ticketVO.setTicketAssignedType("RSP");
 			ticketVO.setAssignedTo(selectedTicket.getRassigned_to());
 			ticketVO.setAssignedSP(selectedTicket.getRsp_name());
+			List<EscalationLevelVO> escalationLevelVOs = getTicketEscalationList(selectedTicket.getRassigned_to(), loginUser, AppConstants.RSP_ESCALATIONS_QUERY);
+			ticketVO.setEscalationLevelList(escalationLevelVOs);
+			
 		}
+		
+		List<TicketCommentVO> ticketComments = getTicketComments(ticketVO.getTicketId(), loginUser);
+		ticketVO.setTicketComments(ticketComments);
 		ticketVO.setClosedBy(selectedTicket.getClosed_by());
 		ticketVO.setClosedOn(selectedTicket.getClosed_on());
 		ticketVO.setCreatedUser(selectedTicket.getFirst_name()+" "+selectedTicket.getLast_name());
@@ -551,8 +562,8 @@ public class TicketServiceImpl implements TicketService {
 		return customerTicketList == null?Collections.EMPTY_LIST:customerTicketList;
 	}
 
-	private List<EscalationLevelVO> getTicketEscalationList(Long spAssignedTo, LoginUser loginUser) {
-		List<EscalationLevelVO> escalationLevels =	getIncidentDAO(loginUser.getDbName()).getSPEscalation(spAssignedTo,loginUser);		
+	private List<EscalationLevelVO> getTicketEscalationList(Long spAssignedTo, LoginUser loginUser, final String spEscalationQuery) {
+		List<EscalationLevelVO> escalationLevels =	getIncidentDAO(loginUser.getDbName()).getSPEscalation(spAssignedTo,loginUser, spEscalationQuery);		
 		return escalationLevels == null?Collections.EMPTY_LIST:escalationLevels;
 	}
 	
@@ -560,7 +571,15 @@ public class TicketServiceImpl implements TicketService {
 	@Override
 	public TicketEscalationVO saveTicketEscalations(TicketEscalationVO ticketEscalationLevel, LoginUser user) {
 		LOGGER.info("Inside TicketServiceImpl - saveTicketEscalations");
-		TicketEscalationVO savedTicketEscVO =  getIncidentDAO(user.getDbName()).saveTicketEscalations(ticketEscalationLevel,user);
+		TicketEscalationVO savedTicketEscVO = null;
+		if(ticketEscalationLevel.getTicketData().getTicketAssignedType().equalsIgnoreCase("EXT")){
+			LOGGER.info("Updating Escalation for External SP");
+			savedTicketEscVO =  getIncidentDAO(user.getDbName()).saveTicketEscalations(ticketEscalationLevel,user, AppConstants.INSERT_TICKET_ESCALATION_QUERY);
+		}
+		else if(ticketEscalationLevel.getTicketData().getTicketAssignedType().equalsIgnoreCase("RSP")){
+			LOGGER.info("Updating Escalation for Registered SP");
+			savedTicketEscVO =  getIncidentDAO(user.getDbName()).saveTicketEscalations(ticketEscalationLevel,user, AppConstants.INSERT_RSP_TICKET_ESCALATION_QUERY);
+		}
 		
 		LOGGER.info("Exit TicketServiceImpl - saveTicketEscalations");
 		return savedTicketEscVO;
@@ -574,8 +593,16 @@ public class TicketServiceImpl implements TicketService {
 
 
 	@Override
-	public TicketEscalationVO getEscalationStatus(Long ticketId, Long escId, LoginUser user) {
-		TicketEscalationVO savedTicketEscVO = getIncidentDAO(user.getDbName()).findByTicketIdAndEscLevelId(ticketId, escId);
+	public TicketEscalationVO getEscalationStatus(Long ticketId, Long escId, LoginUser user, final String spType) {
+		TicketEscalationVO savedTicketEscVO =null;
+		 if(spType.equalsIgnoreCase("EXT")){
+			 savedTicketEscVO = getIncidentDAO(user.getDbName()).findByTicketIdAndEscLevelId(ticketId, escId, AppConstants.TICKET_BY_ESCID);
+		 }
+		 
+		 else  if(spType.equalsIgnoreCase("RSP")){
+			 savedTicketEscVO = getIncidentDAO(user.getDbName()).findByTicketIdAndEscLevelId(ticketId, escId, AppConstants.TICKET_BY_RSP_ESCID);
+		 }
+		 
 		savedTicketEscVO.setEscalationStatus("Escalated");
 		return savedTicketEscVO;
 	}
@@ -692,6 +719,14 @@ public class TicketServiceImpl implements TicketService {
 	@Override
 	public boolean deleteFinanceCostById(Long costId, LoginUser user) throws Exception {
 		return getIncidentDAO(user.getDbName()).deleteFinanceCostById(costId,user);
+	}
+
+	@Override
+	public EscalationLevelVO getSPEscalationLevels(Long escId, LoginUser loginUser, String ticketAssignedType)	throws Exception {
+		if(ticketAssignedType.equalsIgnoreCase("EXT")){
+			
+		}
+		return null;
 	}
 
 }

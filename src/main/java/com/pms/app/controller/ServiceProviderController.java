@@ -414,4 +414,61 @@ public class ServiceProviderController extends BaseController {
 		logger.info("Inside ServiceProviderController .. serviceProviderInfo");
 		return responseEntity;
 	}
+	
+	@RequestMapping(value = "/rsp/access/customer/{rspId}/{accessValue}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> accessOrRevokeAccess(HttpSession session, 
+			@PathVariable (value="rspId") final Long rspId,
+			@PathVariable (value="accessValue") final String accessValue) {
+		logger.info("Inside ServiceProviderController -- accessOrRevokeAccess");
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		try {
+			LoginUser user= getCurrentLoggedinUser(session);
+			if(user!=null){
+				int updated=0;
+				if(!StringUtils.isEmpty(accessValue) && accessValue.equalsIgnoreCase("Y")){
+					updated = serviceProviderService.grantOrRevokeAccess(rspId,user,"N");
+				  if(updated==200){
+					  response.setStatusCode(200);
+					  response.setMessage("Access has been revoked");
+					  responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+				  }
+				}
+				else if(!StringUtils.isEmpty(accessValue) && accessValue.equalsIgnoreCase("N")){
+					   updated = serviceProviderService.grantOrRevokeAccess(rspId,user,"Y");
+					  if(updated==200){
+						  response.setStatusCode(200);
+						  response.setMessage("Access has been granted");
+						  responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+						  if(updated==200){
+								TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+								theExecutor.execute(new Runnable() {
+									@Override
+									public void run() {
+										logger.info("Email thread started : " + Thread.currentThread().getName());
+										try {
+											emailService.accessGrantedRSPEmail(rspId, user);
+										} catch (Exception e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
+									}
+								});
+							}
+					  }
+				}else{
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+				}
+			
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			  response.setStatusCode(500);
+			  response.setMessage("Exception while updating access details");
+			  responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+		}
+		logger.info("Exit ServiceProviderController -- accessOrRevokeAccess");
+		return responseEntity;
+	}
+	
 }

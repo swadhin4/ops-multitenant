@@ -27,7 +27,7 @@
 <script type="text/javascript"   src='<c:url value="/resources/theme1/js/responsive.bootstrap.min.js"></c:url>'></script>
 
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/optionbtn.css"></c:url>' />
-
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/incident-modal.css"></c:url>' />
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
@@ -45,7 +45,7 @@
 }
 
 .table tbody tr.currentSelected {
-background-color: rgba(60, 141, 188, 0.58) !important;
+	background-color: rgba(60, 141, 188, 0.58) !important;
 }
 .currentSelected{
 	background:rgba(60, 141, 188, 0.58);
@@ -100,6 +100,7 @@ background-color: rgba(60, 141, 188, 0.58) !important;
   color:red;
 }
 .popover {max-width:500px;}
+
 
 
 
@@ -226,15 +227,75 @@ $(function() {
 							<div class="box-body" style="height:70%" >
 							
 							 <div class="row">
-							 <div class="col-md-12">
+						<!-- 	 <div class="col-md-12">
 								<div style="overflow-x: hidden;overflow-y:auto; height: 110%">
 								<div class="table-responsive"> 
-										<table id="ticketList" class="table table-bordered table-striped" cellspacing="0">
-										</table>
-									</div>	
-									</div>
-							</div>
+									<table id="ticketList" class="table table-bordered table-striped" cellspacing="0">
+									</table>
+									<table >
+									
+									</table>
+								</div>	
+								</div>
+							</div> -->
+							<div class="col-xs-12">
+          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Incident List</h3>
+
+              <div class="box-tools">
+                <div class="input-group input-group-sm" style="width: 450px;">
+                  <input type="text" name="table_search" class="form-control pull-right" ng-model="ticketsearch" 
+                  placeholder="Search by incident number, asset name, site name, service provider, status">
+
+                  <div class="input-group-btn">
+                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+              <table class="table table-hover">
+              <tbody style="font-size: .9em"><tr ">
+					<th style="width:12%">Ticket Number</th>
+					<th style="width:10%">Site Name</th>
+					<th style="width:10%">Asset Name</th>
+					<th style="width:20%">Title</th>
+					<th>Created On</th>
+					<th>Sla Due Date</th>
+					<th>Service Provider</th>
+					<th tyle="width:10%">Status</th>
 					
+					</tr>
+                <tr ng-repeat="val in ticket.list | filter: ticketsearch" ng-class="{currentSelected:$index == selectedRow}" 
+               	 ng-click="setTicketinSession(val);rowHighilited($index)">
+                	<th class="todo-list">
+                  {{val.ticketNumber}}
+                  <a href="#" ng-click="previewSelectedIncidentInfo(val)" data-toggle="modal"  ><i class="fa fa-eye pull-right"></i></a>
+                  </th>
+					<td>{{val.siteName}}</td>
+					<td>{{val.assetName}}</td>
+					<td>{{val.ticketTitle}}</td>
+					<td>{{val.raisedOn}}</td>
+					<td>{{val.sla}}</td>
+					<td>{{val.assignedSP}}</td>
+					<td><span class="label label-success" ng-if="val.statusId == 1">{{val.status}}</span>
+					<span class="label label-warning" ng-if="val.statusId == 2">{{val.status}}</span>
+					<span class="label label-info" ng-if="val.statusId == 3">{{val.status}}</span>
+					<span class="label label-default" ng-if="val.statusId == 4">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId == 5">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId == 6">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId > 6">{{val.status}}</span>
+					
+					</td>
+					
+                </tr>
+              </tbody></table>
+            </div>
+          </div>
+ 
+        </div>
 							</div>
 								
                          </div>
@@ -281,7 +342,128 @@ $(function() {
 							
 						</div>
 				</div>
+				<div class="modal right fade" id="previewIncidentModal" tabindex="-1" role="dialog" aria-labelledby="previewIncidentModalLabel2">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel2">{{sessionTicket.ticketNumber}} - Overview</h4>
+				</div>
+				<div class="modal-body">
+				       <div class="box box-solid">
+            <div class="box-header with-border">
+              <i class="fa fa-text-width"></i>
+
+              <h3 class="box-title">Description</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <dl>
+                <dt>Description lists</dt>
+                <dd>A description list is perfect for defining terms.</dd>
+                <dt>Euismod</dt>
+                <dd>Vestibulum id ligula porta felis euismod semper eget lacinia odio sem nec elit.</dd>
+                <dd>Donec id elit non mi porta gravida at eget metus.</dd>
+                <dt>Malesuada porta</dt>
+                <dd>Etiam porta sem malesuada magna mollis euismod.</dd>
+              </dl>
+            </div>
+          </div>
+								<div class="box box-widget widget-user" ng-if="sessionTicket.ticketNumber != null">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-aqua-active">
+              <h3 class="widget-user-username">Site : {{sessionTicket.siteName}}</h3>
+              <h5 class="widget-user-desc">Owner : {{sessionTicket.siteOwner}}</h5>
+            </div>
+           <!--  <div class="widget-user-image">
+              <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
+            </div> -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-6 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Contact Name</h5>
+                    <span class="description-text">{{sessionTicket.assignedSP}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-6 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Email</h5>
+                    <span class="description-text">{{sessionTicket.email}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+          </div>
+          						<div class="box box-widget widget-user" ng-if="sessionTicket.ticketNumber != null">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-green-active">
+              <h3 class="widget-user-username">Asset : {{sessionTicket.assetName}}</h3>
+              <h5 class="widget-user-desc">Code : {{sessionTicket.assetCode}}</h5>
+            </div>
+           <!--  <div class="widget-user-image">
+              <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
+            </div> -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Service Provider</h5>
+                    <span class="description-text">{{sessionTicket.assignedSP}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Commissioned On</h5>
+                    <span class="description-text">{{sessionTicket.raisedOn}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Location</h5>
+                    <span class="description-text">{{sessionTicket.email}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+          </div>
+          <div class="info-box bg-yellow">
+            <span class="info-box-icon"><i class="ion ion-ios-pricetag-outline" style="margin-top: 26px;"></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">Time to raise the ticket</span>
+              <span class="info-box-number">30:10:30</span>
+              <div class="progress">
+                <div class="progress-bar" style="width: 50%"></div>
+              </div>
+              <span class="progress-description">
+                    50% Increase in 30 Days
+                  </span>
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+				</div>
+
+			</div><!-- modal-content -->
+		</div><!-- modal-dialog -->
+	</div><!-- modal -->
+	
 				</section>
+				
 		</div>
 	</div>
 

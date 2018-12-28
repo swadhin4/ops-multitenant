@@ -32,7 +32,8 @@
 
 
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/pms-admintLTE.css"></c:url>' />
-<link rel="stylesheet" href='<c:url value="/resources/theme1/css/style4.css"></c:url>' />
+<%-- <link rel="stylesheet" href='<c:url value="/resources/theme1/css/style4.css"></c:url>' /> --%>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 <%-- <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/style.css"></c:url>' />
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/skins/skin-red.min.css"></c:url>' /> --%>
 <link rel="stylesheet" href='<c:url value="/resources/theme1/css/bootstrap-multiselect.css"></c:url>' />
@@ -64,7 +65,7 @@
 <script type="text/javascript" src='<c:url value="/resources/js/sockjs.min.js"></c:url>'></script>
  <script type="text/javascript" src='<c:url value="/resources/js/stomp.min.js"></c:url>'></script>
  <script type="text/javascript" src="<c:url value="/resources/theme1/pms/websocket.js"></c:url>"></script>
-
+  
 
 
 <style>

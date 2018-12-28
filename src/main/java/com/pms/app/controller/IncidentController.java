@@ -44,6 +44,7 @@ import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Financials;
+import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -475,8 +476,7 @@ public class IncidentController extends BaseController {
 					} else {
 						List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
 						for (EscalationLevelVO escalationVO : escalationLevelVOs) {
-							TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(
-									selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser);
+							TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser, selectedTicketVO.getTicketAssignedType());
 							EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
 							if (ticketEscalationVO.getCustEscId() != null) {
 								tempEscalationVO.setStatus("Escalated");
@@ -545,6 +545,7 @@ public class IncidentController extends BaseController {
 					List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),
 							loginUser);
 					selectedTicketVO.setFinancialList(finacialsList);
+					
 					session.setAttribute("selectedTicket", selectedTicketVO);
 					response.setStatusCode(200);
 					response.setObject(selectedTicketVO);
@@ -830,8 +831,8 @@ public class IncidentController extends BaseController {
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		TicketEscalationVO savedTicketEscalation = null;
+		LoginUser loginUser = getCurrentLoggedinUser(session);
 		try {
-			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
 				savedTicketEscalation = ticketSerice.saveTicketEscalations(ticketEscalationLevels, loginUser);
 				if (savedTicketEscalation.getCustEscId() != null) {
@@ -851,27 +852,32 @@ public class IncidentController extends BaseController {
 			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
 			logger.info("Exception while escalations", e);
 		}
-/*		if (response.getStatusCode() == 200) {
+		/*if (response.getStatusCode() == 200) {
 			List<String> escCCMailList = new ArrayList<String>(0);
-			SPEscalationLevels spEscalationLevel = null;
+			EscalationLevelVO spEscalationLevel = null;
 			List<EscalationLevelVO> escalationLevelVOs = ticketEscalationLevels.getTicketData()	.getEscalationLevelList();
 
 			if (escalationLevelVOs.size() == 0) {
 				logger.info("No escalation list available");
 			} else {
 				logger.info("Escalation Level list : " + escalationLevelVOs.size());
-				spEscalationLevel = spEscalationRepo.findOne(savedTicketEscalation.getEscId());
-				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
-				for (EscalationLevelVO escalatedTicket : selectedTicketVO.getEscalationLevelList()) {
-					if (StringUtils.isNotBlank(escalatedTicket.getStatus())) {
-						escCCMailList.add(escalatedTicket.getEscalationEmail());
+				try {
+					spEscalationLevel = ticketSerice.getSPEscalationLevels(ticketEscalationLevels.getEscId(), loginUser, ticketEscalationLevels.getTicketData().getTicketAssignedType());
+					TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+					for (EscalationLevelVO escalatedTicket : selectedTicketVO.getEscalationLevelList()) {
+						if (StringUtils.isNotBlank(escalatedTicket.getStatus())) {
+							escCCMailList.add(escalatedTicket.getEscalationEmail());
+						}
 					}
 
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-
+				
 				logger.info("escCCMailList :" + escCCMailList);
-			}
-			final SPEscalationLevels spEscLevel = spEscalationLevel;
+			}*/
+	/*		final SPEscalationLevels spEscLevel = spEscalationLevel;
 			final TicketEscalationVO savedTicketEsc = savedTicketEscalation;
 			TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
 			theExecutor.execute(new Runnable() {
@@ -907,9 +913,9 @@ public class IncidentController extends BaseController {
 					}
 
 				}
-			});
+			});*/
 
-		}*/
+		//}
 
 		logger.info("Exit IncidentController .. escalate");
 		return responseEntity;

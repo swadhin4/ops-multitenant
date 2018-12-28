@@ -45,10 +45,18 @@ public class AssetDAO {
 		ConnectionManager.getInstance(userConfig);
 	}
 
-	public List<AssetVO> findBySiteIdIn(Set<Long> siteIdList) {
+	public List<AssetVO> findBySiteIdIn(Set<Long> siteIdList, String viewType) {
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
 		parameters.addValue("siteIds", siteIdList);
+		parameters.addValue("siteIds", siteIdList);
+		/*if(viewType.equalsIgnoreCase("RSP")){
+			parameters.addValue("viewType", "RSP");
+		}
+		else if(viewType.equalsIgnoreCase("EXT")){
+			parameters.addValue("viewType", "EXT");
+		}*/
+		
 		Object[] siteArray = siteIdList.toArray();
 		List<AssetVO> assetVOList = jdbcTemplate.query(AppConstants.ASSET_LIST_QUERY, parameters,
 				new RowMapper<AssetVO>() {

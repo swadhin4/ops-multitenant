@@ -57,4 +57,6 @@ public interface ServiceProviderService {
 
 	public List<ServiceProviderVO> findAllSPList(LoginUser user) throws Exception;
 
+	public int grantOrRevokeAccess(Long rspId, LoginUser user, String accessValue) throws Exception;
+
 }

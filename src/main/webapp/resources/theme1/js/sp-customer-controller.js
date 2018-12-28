@@ -601,4 +601,6 @@ function getSiteData(){
 				"mData" : "status"
 			} ]
 		});
+		
+		$('#incidentDetails_length').hide();
 }

@@ -103,8 +103,10 @@ $(function() {
 <div class="content-wrapper">
 		<div  ng-controller="serviceProviderController" id="serviceProviderWindow">
 		<div style="display:none" id="loadingDiv"><div class="loader">Loading...</div></div>
-			<section class="content" style="min-height:17px;display:none" id="messageWindow">
-				<div class="row">
+			<%-- <section class="content" style="min-height:17px;display:none" >
+			</section>	 --%>
+			<section class="content">
+			<div class="row" id="messageWindow">
 					<div class="col-md-12">
 						<div class="alert alert-success alert-dismissable" id="successMessageDiv"
 							style="display: none;  height: 34px;white-space: nowrap;">
@@ -119,15 +121,16 @@ $(function() {
 							<strong>Info! </strong> {{InfoMessage}} 
 							<a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
 						</div>
-						<!-- <div class="alert alert-danger alert-dismissable" id="errorMessageDiv"
-							style="display: none;  height: 34px;white-space: nowrap;">
-							<button type="button" class="close">x</button>
-							<strong>Error! </strong> {{errorMessage}} 
-						</div> -->
+						<div class="alert alert-danger alert-dismissable"
+						id="errorMessageDiv"
+						style="display: none; height: 34px; white-space: nowrap;">
+						<!-- <button type="button" class="close" >x</button> -->
+						<strong>Error! </strong> {{errorMessage}} <span
+							id="fileerrorincident"></span> <a href><span
+							class="messageClose" ng-click="closeMessageWindow()">X</span></a>
+					</div>
 					</div>
 				</div>
-			</section>	
-			<section class="content">
 				<div class="row">
 				<div class="col-md-6">
 				
@@ -271,8 +274,9 @@ $(function() {
 										style="margin-right: 5px;" data-toggle="modal"><span class="fa fa-edit">
 										Edit </span>
 									</a></li>
-										<li> <a href ng-click="resetPassword()"> Reset Password</a></li>
-									
+										<li ng-if="selectedServiceProvider.spTypeView=='EXT'"> <a href data-toggle="modal" data-target="#confirmResetPasswordModal"> Reset Password</a></li>
+										<li ng-if="selectedServiceProvider.spTypeView=='RSP' && selectedServiceProvider.accessGranted=='N'"> <a href ng-click="grantOrRevokeAcess()"> Grant Access</a></li>
+										<li ng-if="selectedServiceProvider.spTypeView=='RSP' && selectedServiceProvider.accessGranted=='Y'"> <a href ng-click="grantOrRevokeAcess()"> Revoke Access</a></li>
 									</ul>
 									</div>
 									</sec:authorize>
@@ -421,7 +425,28 @@ $(function() {
 							
 							
 							</div>
-						
+						 	 	<div class="modal fade" id="confirmResetPasswordModal" role="dialog"
+								aria-labelledby="confirmResetPasswordModal" aria-hidden="true"
+								data-keyboard="false" data-backdrop="static">
+								<div class="modal-dialog">
+									<div class="modal-content">
+										<div class="modal-header">
+											<button type="button" class="close" data-dismiss="modal"
+												aria-hidden="true">&times;</button>
+											<h4 class="modal-title">Password reset confirmation</h4>
+										</div>
+										<div class="modal-body">
+											<p>Are you sure you want to reset the password for {{selectedServiceProvider.name}}?</p>
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-default" id="resetConfirmNo"
+												data-dismiss="modal">No</button>
+											<button type="button" class="btn btn-danger" id="confirm"
+												ng-click="resetPassword()">Yes</button>
+										</div>
+									</div>
+								</div>
+							</div>
 						
 						
 								<div class="modal fade" id="createServiceProviderModal" data-keyboard="false" data-backdrop="static" >

@@ -14,7 +14,7 @@ import com.pms.web.util.RestResponse;
 
 public interface AssetService {
 
-	public List<AssetVO> findAllAsset(LoginUser user) throws Exception;
+	public List<AssetVO> findAllAsset(LoginUser user, String viewtype) throws Exception;
 	
 	public AssetVO findAssetById(LoginUser user, Long assetid);
 	

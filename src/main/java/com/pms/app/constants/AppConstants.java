@@ -347,16 +347,26 @@ public class AppConstants {
 	
 	public static final String DELETE_LINKED_TICKET = "UPDATE pm_cust_sp_ticketmapping set del_flag=1, "
 			+ " modified_by=?, modified_on=NOW() where id=? ";
-
+	
 	public static final String INSERT_TICKET_ESCALATION_QUERY = "INSERT INTO pm_ct_escalations "
 			+ " (ticket_id, ticket_number, esc_level, escalated_by,esc_id, escalated_date)"
+			+ " values (?,?,?,?,?,NOW())";
+
+	public static final String INSERT_RSP_TICKET_ESCALATION_QUERY = "INSERT INTO pm_ct_escalations "
+			+ " (ticket_id, ticket_number, esc_level, escalated_by,resc_id, escalated_date)"
 			+ " values (?,?,?,?,?,NOW())";
 	
 	public static final String TICKET_ESCALATIONS = "select * from pm_ct_escalations where ticket_id=?";
 	
 	public static final String TICKET_BY_ESCID = "select * from pm_ct_escalations where ticket_id=? and esc_id=?";
 	
+	public static final String TICKET_BY_RSP_ESCID = "select * from pm_ct_escalations where ticket_id=? and resc_id=?";
+	
 	public static final String SP_ESCALATIONS_QUERY= "select * from pm_sp_escalation_levels where sp_id=?";
+	
+	public static final String EXT_SP_ESCALATIONS = "select esc_id, sp_id, esc_level, esc_person, esc_email from pm_sp_escalation_levels where sp_id=?";
+	
+	public static final String RSP_ESCALATIONS_QUERY = "select esc_id, sp_id, esc_level, esc_person, esc_email from pm_rsp_escalation_levels where sp_id=?";
 	
 	public static final String TICKET_FINANCE_SELECT_QUERY= "select * from pm_cust_ticket_financials where ticket_id=?";
 	
@@ -463,6 +473,8 @@ public class AppConstants {
 			+ "modified_date=NOW(), modified_by=?,help_desk_number=?, help_desk_email=?,sla_description=? where sp_id=?";
 	
 	public static final String RSP_UPDATE_QUERY = "update pm_sp_registered set sp_desc=?, modified_date=NOW(), modified_by=?,help_desk_number=?, help_desk_email=?,sla_description=? where sp_id=?";
+	
+	public static final String CUST_SP_ACCESS_VALUE_UPDATE = "update pm_sp_registered  set access_granted = ? where sp_id=?";
 
 	public static final String EXT_SP_PASSWORD_RESET_QUERY = "update pm_service_provider set access_key=? where sp_id=?";
 
@@ -506,10 +518,6 @@ public class AppConstants {
 	
 	public static final String EXT_SERVICE_PROVIDER_GENERAL_INFO = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email, ps.help_desk_email, ps.access_key "
 			+ " from pm_service_provider ps where ps.sp_id = ? ";
-	
-	public static final String EXT_SP_ESCALATIONS = "select esc_id, esc_level, esc_person, esc_email from pm_sp_escalation_levels where sp_id=?";
-	
-	public static final String RSP_ESCALATIONS_QUERY = "select esc_id, esc_level, esc_person, esc_email from pm_rsp_escalation_levels where sp_id=?";
 	
 	
 
@@ -570,4 +578,17 @@ public class AppConstants {
 	public static final String EXT_SPSLA_PRIORITY = "select sla_id, priority_id, duration, unit from pm_sp_sla where sp_id=?";
 
 	public static final String RSP_SLA_PRIORITY = "select sla_id, priority_id, duration, unit from pm_registered_sp_sla where sp_id=?";
+	
+	public static final String RSP_CUSTOMER_MAPPED_SP_QUERY="select rsp.sp_cust_id, rsp.sp_id, rspc.sp_cname, rsp.customer_code, "
+			+ " rsp.customer_name, rsp.cust_country_id, rsp.cust_db_name "
+			+ " from sp_customers rsp left join sp_company rspc on rspc.sp_cid=rsp.sp_id"
+			+ " where rsp.customer_code=? and rsp.cust_db_name=?";
+	
+	public static final String RSP_CUSTOMER_DELETE_QUERY="delete from sp_customers where sp_cust_id = ?";
+	
+	public static final String RSP_OPSTENAT_DETAILS_BYCODE="select sp_cid, sp_code from sp_company where sp_code=?";
+	
+	public static final String RSP_CUSTOMER_MAPPING_INSERT="insert into sp_customers(sp_id, customer_code,customer_name,cust_country_id,cust_db_name,created_date)"
+			+ " values(?,?,?,?,?, NOW())"; 
+	
 }

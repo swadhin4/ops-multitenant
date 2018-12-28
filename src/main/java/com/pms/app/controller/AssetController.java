@@ -166,14 +166,14 @@ public class AssetController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/list", method = RequestMethod.GET,produces="application/json")
-	public ResponseEntity<RestResponse> listAllAssets(final HttpSession session) {
+	@RequestMapping(value = "/grouplist/{viewType}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> listAllAssets(final HttpSession session, @PathVariable(value="viewType") final String viewType) {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		RestResponse response = new RestResponse();
 		try {
 			LoginUser loginUser=getCurrentLoggedinUser(session);
 			if (loginUser!=null) {
-				List<AssetVO> assets = assetService.findAllAsset(loginUser);
+				List<AssetVO> assets = assetService.findAllAsset(loginUser, viewType);
 				if (assets.isEmpty()) {
 					response.setStatusCode(404);
 					response.setMessage("No assets available");

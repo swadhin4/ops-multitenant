@@ -3,16 +3,17 @@ package com.pms.web.service;
 import java.util.List;
 
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
+import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.FinUpdReqBodyVO;
 import com.pms.app.view.vo.FinancialVO;
 import com.pms.app.view.vo.LoginUser;
-import com.pms.app.view.vo.SelectedTicketVO;
 import com.pms.app.view.vo.TicketCommentVO;
 import com.pms.app.view.vo.TicketEscalationVO;
 import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Financials;
+import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -56,7 +57,7 @@ public interface TicketService {
 
 	public List<TicketEscalationVO> getAllEscalationLevels(Long ticketId, LoginUser user);
 
-	public TicketEscalationVO getEscalationStatus(Long ticketId, Long escId, LoginUser user) throws Exception;
+	public TicketEscalationVO getEscalationStatus(Long ticketId, Long escId, LoginUser user, String spType) throws Exception;
 
 	public List<Financials> saveFinancials(List<FinUpdReqBodyVO> finVOList, LoginUser user) throws Exception;
 
@@ -71,6 +72,8 @@ public interface TicketService {
 	public boolean deleteFinanceCostById(Long costId, LoginUser user) throws Exception;
 
 	public List<TicketVO> getTicketsForSP(LoginUser loginUser, String ticketCreatedBy, String custDBName) throws Exception;
+
+	public EscalationLevelVO getSPEscalationLevels(Long escId, LoginUser loginUser, String ticketAssignedType) throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 

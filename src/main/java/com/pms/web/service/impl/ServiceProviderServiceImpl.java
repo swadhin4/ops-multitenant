@@ -11,6 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.pms.app.constants.AppConstants;
 import com.pms.app.dao.impl.DistrictDAO;
@@ -33,9 +37,12 @@ import com.pms.web.util.QuickPasswordEncodingGenerator;
 import com.pms.web.util.RandomUtils;
 
 @Service("serviceProviderService")
+@Transactional
 public class ServiceProviderServiceImpl implements ServiceProviderService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServiceProviderServiceImpl.class);
+	
+	private PlatformTransactionManager transactionManager;
 	@Autowired
 	private AssetService assetService;
 	
@@ -54,8 +61,11 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return new TenantsDAO(dbName);
 		
 	}
+	
+	public void setTransactionManager(PlatformTransactionManager transactionmanager) {
+	    this.transactionManager = transactionmanager;
+	}
 	@Override
-	@Transactional
 	public List<ServiceProviderVO> findAllServiceProvider(LoginUser user) throws Exception {
 		logger.info("Inside ServiceProviderServiceImpl -- findAllServiceProvider");
 		logger.info("Getting Service Provider List for logged in user : " + user.getFirstName() + " " + user.getLastName());
@@ -128,7 +138,6 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return serviceProviderDAOImpl.getCustomersBySPID(String.valueOf(loginUser.getUserId()), loginUser.getCompany().getCompanyCode());
 	}
 	@Override
-	@Transactional
 	public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser loginUser) {
 		final SPUserDAO spDAO = getSPUserDAO(loginUser.getDbName());
 		ServiceProviderVO savedSP = new ServiceProviderVO();
@@ -286,5 +295,40 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 	public List<UserVO> findALLActiveSPUsers(String customerCode, LoginUser loginUser) throws Exception {
 		List<UserVO> userList =  getSPUserDAO(loginUser.getSpDbName()).getAllActiveUsers(customerCode, loginUser.getUserRoles().get(0).getRole().getRoleId());
 		return userList==null?Collections.emptyList():userList;
+	}
+	@Override
+	public int grantOrRevokeAccess(Long rspId, LoginUser loginUser, String grantOrRevokeVal) throws Exception {
+		logger.info("Getting RSP access Details from Customer DB");
+		ServiceProviderVO registeredSPVO = getSPUserDAO(loginUser.getDbName()).findSPDetails(rspId, "RSP");
+		int isUpdated = getSPUserDAO(loginUser.getDbName()).setAccessValue(rspId, grantOrRevokeVal);
+		logger.info("Registered SP access_granted value changed to {}, by  {}" + grantOrRevokeVal, loginUser.getUsername());
+		int isQueryExectued = 0;
+		if(isUpdated>0){
+			if(grantOrRevokeVal.equalsIgnoreCase("N")){
+				registeredSPVO.setAccessGranted(grantOrRevokeVal);
+				logger.info("Getting RSP mapping details from RSP Tenant DB to validate RSP by Customer Code and customer DB Name");
+				ServiceProviderVO rspCustomerMappedVO = getSPUserDAO(registeredSPVO.getSpDbName()).findRSPCustomerDetailsByCode(loginUser.getCompany().getCompanyCode(), loginUser.getDbName());
+				if(rspCustomerMappedVO!=null){
+					logger.info("Record Found. Deleting the Mapping of Customer and RSP from RSP Tenant DB");
+					int deleted = getSPUserDAO(registeredSPVO.getSpDbName()).deleteRspCustomerRecord(rspCustomerMappedVO);
+					if(deleted > 0){
+						isQueryExectued = 200;
+					}
+				}
+			}
+			else if(grantOrRevokeVal.equalsIgnoreCase("Y")){
+				registeredSPVO.setAccessGranted(grantOrRevokeVal);
+				logger.info("Getting RSP company details by RSP CODE from RSP Tenant DB to validate RSP SPID to Map customer details");
+				ServiceProviderVO rspOpsTenant = getSPUserDAO(registeredSPVO.getSpDbName()).findRSPDetailsByCode(registeredSPVO.getCode());
+				if(rspOpsTenant!=null){
+					logger.info("Inserting new mapping record for Customer and RSP in RSP Tenant DB");
+					ServiceProviderVO updatedRSPMap = getSPUserDAO(registeredSPVO.getSpDbName()).insertRspCustomerRecord(loginUser, rspOpsTenant.getRspOpsTenantSpId());
+					if(updatedRSPMap.getRspCustId()!=null){
+						isQueryExectued = 200;
+					}
+				}
+			}
+		}
+		return isQueryExectued;
 	}
 }

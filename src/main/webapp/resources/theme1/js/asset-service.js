@@ -112,9 +112,9 @@ chrisApp.factory('assetService',  ['$http', '$q',function ($http, $q) {
  	    }
  	    
 		// implementation
- 	    function findAllAssets() {
+ 	    function findAllAssets(viewType) {
  	        var def = $q.defer();
- 	        $http.get(hostLocation+"/asset/list")
+ 	        $http.get(hostLocation+"/asset/grouplist/"+viewType)
  	            .success(function(data) {
  	            	//console.log(data)
  	                def.resolve(data);

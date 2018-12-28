@@ -11,9 +11,24 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
  			getLoggedInSPUser:getLoggedInSPUser,
  			getSelectedServiceProvider:getSelectedServiceProvider,
  			resetServiceProviderPassword:resetServiceProviderPassword,
- 			getSPAgents:getSPAgents
+ 			getSPAgents:getSPAgents,
+ 			grantOrRevokeAcess:grantOrRevokeAcess
         };
  		return ServiceProviderService;
+ 		
+ 		function grantOrRevokeAcess(spId, accessValue){
+			  var def = $q.defer();
+		        $http.get(hostLocation+"/serviceprovider/rsp/access/customer/"+spId+"/"+accessValue)
+		            .success(function(data) {
+		            	//console.log(data)
+		                def.resolve(data);
+		            })
+		            .error(function(data) {
+		            	console.log(data)
+		                def.reject(data);
+		            });
+		        return def.promise;
+		}
  		
  		function getSPAgents(customerCode){
  			  var def = $q.defer();

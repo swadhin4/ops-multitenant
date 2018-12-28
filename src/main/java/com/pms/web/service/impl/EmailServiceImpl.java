@@ -847,6 +847,112 @@ public class EmailServiceImpl implements EmailService {
 	        }
 	        return content.toString();
 	    }
+
+
+
+	@Override
+	public RestResponse accessGrantedRSPEmail(Long rspId, LoginUser user) throws Exception {
+			
+		// Create a Properties object to contain connection configuration information.
+				final RestResponse response = new RestResponse();
+				final ServiceProviderVO serviceProviderVO = serviceProviderService.findServiceProviderInfo(rspId, user, "RSP");
+				Properties props = System.getProperties();
+				props.put("mail.transport.protocol", "smtps");
+				props.put("mail.smtp.port", 25); 
+
+				// Set properties indicating that we want to use STARTTLS to encrypt the connection.
+				// The SMTP session will begin on an unencrypted connection, and then the client
+				// will issue a STARTTLS command to upgrade to an encrypted connection.
+				props.put("mail.smtp.auth", "true");
+				props.put("mail.smtp.starttls.enable", "true");
+				props.put("mail.smtp.starttls.required", "true");
+
+				// Create a Session object to represent a mail session with the specified properties. 
+				Session session = Session.getDefaultInstance(props);
+
+
+				// Create a message with the specified information. 
+				final MimeMessage mimeMessage = new MimeMessage(session);
+				String toMailIds = serviceProviderVO.getHelpDeskEmail(); // Send Email to Service Provider Helpdesk email in PROD
+				String ccMailIds = serviceProviderVO.getEmail(); 
+				mimeMessage.setFrom(new InternetAddress("c.gruen@novazure.com"));
+				//mimeMessage.setFrom(new InternetAddress("swadhin4@gmail.com"));
+				mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toMailIds ));
+				if(StringUtils.isNotBlank(ccMailIds)){
+				mimeMessage.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccMailIds));
+				}
+				if(serviceProviderVO.getAccessGranted().equalsIgnoreCase("Y")){
+					mimeMessage.setSubject("Access Granted for Customer Database : "+user.getCompany().getCompanyName(),"utf-8");
+				}
+				
+				
+
+				// Create a transport.        
+				Transport transport = session.getTransport();
+
+				// Send the message.
+				try
+				{
+					System.out.println("Attempting to send an email through the Amazon SES SMTP interface...");
+					StringBuilder messageContent = new StringBuilder();
+					messageContent.append("<table width='90%' border='0' cellspacing='0' cellpadding='0'>");
+					messageContent.append("<tr><td align='left'>");
+					messageContent.append("Dear "+serviceProviderVO.getEmail()+",<br><br>");
+					messageContent.append("<tr><td align='left'>");
+					messageContent.append(user.getFirstName()+" "+user.getLastName() +" has granted you access to its incident database.<br>");
+					messageContent.append("Please make sure that your agents are assigned for this customer to manage incidents." );				
+					messageContent.append("</td></tr>");
+					messageContent.append("<tr><td align='left'>");
+					messageContent.append("<br><br><b>Application link</b> : http://52.25.66.108:8585/login <br>");
+					messageContent.append("<br>NOTE: Select 'Registered User Login' tab and sign in as Service Provider using your username and password.");
+					messageContent.append("</td></tr></table>");
+					messageContent.append("</table>");
+
+					MimeBodyPart mbp1 = new MimeBodyPart();
+					
+					mbp1.setHeader("Content-Type","text/plain; charset=\"utf-8\""); 
+					mbp1.setContent( messageContent.toString(), "text/html; charset=utf-8" ); 
+					mbp1.setHeader("Content-Transfer-Encoding", "quoted-printable");
+
+					// create the second message part
+					/*MimeBodyPart mbp2 = new MimeBodyPart();
+
+					// attach the file to the message
+					try {
+					mbp2.attachFile(fileName);
+					    } catch (IOException e) {
+					   e.printStackTrace();
+					}*/
+
+					Multipart mp = new MimeMultipart();
+					mp.addBodyPart(mbp1);
+					//mp.addBodyPart(mbp2);
+					mimeMessage.setContent(mp, "text/html");
+
+					// Connect to Amazon SES using the SMTP username and password you specified above.
+					if (!transport.isConnected()){//make sure the connection is alive
+						transport.connect(HOST, SMTP_USERNAME, SMTP_PASSWORD);
+					}
+
+					// Send the email.O
+					mimeMessage.setSentDate(new Date());
+					// Send the email.
+					transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
+					System.out.println("Email sent!");
+					response.setStatusCode(200);
+				}
+				catch (Exception ex) {
+					response.setStatusCode(500);
+					logger.error("The email was not sent.", ex);
+				}
+				finally
+				{
+					// Close and terminate the connection.
+					transport.close();        	
+				}
+				
+				return response;
+	}
 	
 	
 }
