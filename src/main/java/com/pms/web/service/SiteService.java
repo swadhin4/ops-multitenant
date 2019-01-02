@@ -33,4 +33,7 @@ public interface SiteService {
 
 	public List<CreateSiteVO> getSPSiteList(String rspcode, String custDBName, LoginUser user) throws Exception;
 
+
+	public List<CreateSiteVO> getSiteListForCompany(LoginUser user, String custcompCode) throws Exception;
+
 }

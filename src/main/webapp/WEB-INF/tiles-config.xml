@@ -133,7 +133,10 @@
 	</definition>
 	
 	
-	
+	<definition name="asset.task" extends="user.definition">
+		<put-attribute name="title" value="Profile" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/user/asset-task.jsp" />		
+	</definition>
 	
 	
 	<definition name="service.create" extends="user.definition">

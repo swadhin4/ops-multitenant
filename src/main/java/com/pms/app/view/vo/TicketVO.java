@@ -84,6 +84,7 @@ public class TicketVO implements Serializable{
 	private CreateSiteVO site;
 	private int isRootcauseResolved;
 	private String mode;
+	private String customerDB; 
 	private String ticketAssignedType;
 	
 	public TicketVO() {
@@ -506,6 +507,12 @@ public class TicketVO implements Serializable{
 	}
 	public void setTicketAssignedType(String ticketAssignedType) {
 		this.ticketAssignedType = ticketAssignedType;
+	}
+	public String getCustomerDB() {
+		return customerDB;
+	}
+	public void setCustomerDB(String customerDB) {
+		this.customerDB = customerDB;
 	}
 	@Override
 	public String toString() {

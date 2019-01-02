@@ -354,19 +354,13 @@ $(function() {
 				       <div class="box box-solid">
             <div class="box-header with-border">
               <i class="fa fa-text-width"></i>
-
-              <h3 class="box-title">Description</h3>
+              <h3 class="box-title">{{sessionTicket.ticketTitle}}</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body">
               <dl>
-                <dt>Description lists</dt>
-                <dd>A description list is perfect for defining terms.</dd>
-                <dt>Euismod</dt>
-                <dd>Vestibulum id ligula porta felis euismod semper eget lacinia odio sem nec elit.</dd>
-                <dd>Donec id elit non mi porta gravida at eget metus.</dd>
-                <dt>Malesuada porta</dt>
-                <dd>Etiam porta sem malesuada magna mollis euismod.</dd>
+                <dt>Description</dt>
+                <dd>{{sessionTicket.description}}</dd>
               </dl>
             </div>
           </div>
@@ -381,23 +375,25 @@ $(function() {
             </div> -->
             <div class="box-footer">
               <div class="row">
-                <div class="col-sm-6 border-right">
+                <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Contact Name</h5>
                     <span class="description-text">{{sessionTicket.assignedSP}}</span>
                   </div>
-                  <!-- /.description-block -->
                 </div>
-                <!-- /.col -->
-                <div class="col-sm-6 border-right">
+                 <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Site Number</h5>
+                    <span class="description-text">{{sessionTicket.siteContact}}</span>
+                  </div>
+                </div>
+                <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Email</h5>
                     <span class="description-text">{{sessionTicket.email}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
-                <!-- /.col -->
-                <!-- /.col -->
               </div>
               <!-- /.row -->
             </div>

@@ -53,7 +53,6 @@ import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
 import com.pms.jpa.entities.Financials;
-import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
@@ -167,6 +166,7 @@ public class TicketServiceImpl implements TicketService {
 		LOGGER.info("Mode of Ticket Creation : " + customerTicket.getMode() +" by "+ loginUser.getUserType());
 		if(customerTicket.getTicketId()==null && customerTicket.getMode().equalsIgnoreCase("NEW")){
 			incidentVO = customerTicket;
+			String ticketNumber=null;
 			Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated(loginUser.getUserType());
 			Long newIncidentNumber =null;
 			if(lastIncidentNumber == 0){
@@ -175,45 +175,68 @@ public class TicketServiceImpl implements TicketService {
 				newIncidentNumber = lastIncidentNumber + 1;
 			}
 			newIncidentNumber = lastIncidentNumber + 1;
-			String ticketNumber = "IN" +  String.format("%08d", newIncidentNumber);
-			LOGGER.info("Ticket Number Generated : " + ticketNumber);
+			if(loginUser.getUserType().equalsIgnoreCase("USER")){
+				ticketNumber = "IN" +  String.format("%08d", newIncidentNumber);
+			}
+			else if(loginUser.getUserType().equalsIgnoreCase("SP")){
+				 ticketNumber = "SP" +  String.format("%08d", newIncidentNumber);
+			}
+			LOGGER.info("Ticket Number Generated for {} is {}  "+ loginUser.getUserType() , ticketNumber);
 			incidentVO.setTicketNumber(ticketNumber);
+			CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
+			incidentVO.setSite(site);
+			incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
+			//Change the logic if the incident is created by Customer or Registered Service Provider
+			incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
+			
+			if(incidentVO.getMessage().equalsIgnoreCase("CREATED")  ){
+				LOGGER.info("Creating Incident Folder for : " +  incidentVO.getTicketNumber());
+				String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
+				incidentVO = imageUploadFeature(loginUser, incidentVO, folderLocation);
+				
+			}
 		}else if(customerTicket.getTicketId()!=null && customerTicket.getMode().equalsIgnoreCase("UPDATE")){
 			incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
 			BeanUtils.copyProperties(customerTicket, incidentVO);
+			CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
+			incidentVO.setSite(site);
+			incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
+			//Change the logic if the incident is created by Customer or Registered Service Provider
+			incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
 			LOGGER.info("Updated Ticket : " +  incidentVO);
 			
 		}
 		
 		if(customerTicket.getMode().equalsIgnoreCase("IMAGEUPLOAD")){
-			ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(incidentVO);
-			incidentVO.setServiceProvider(serviceProvider);
+			/*ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(incidentVO);
+			incidentVO.setServiceProvider(serviceProvider);*/
+			incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			incidentVO.setIncidentImageList(customerTicket.getIncidentImageList());
+			String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
+			incidentVO = imageUploadFeature(loginUser, incidentVO, folderLocation);
+			
 		}
 		else{
 			incidentVO = customerTicket; 
 		}
-		CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
-		incidentVO.setSite(site);
-		incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
-		//Change the logic if the incident is created by Customer or Registered Service Provider
-		incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
-		if(incidentVO.getMessage().equalsIgnoreCase("CREATED") || incidentVO.getMessage().equalsIgnoreCase("UPDATED")  ){
-			LOGGER.info("Creating Incident Folder for : " +  incidentVO.getTicketNumber());
-			String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
-			if(StringUtils.isNotEmpty(folderLocation)){
-				if(!incidentVO.getIncidentImageList().isEmpty()){
-					boolean isUploaded = uploadIncidentImages(incidentVO, loginUser,null, folderLocation, loginUser.getUsername());
-					if(isUploaded){
-						incidentVO.setFileUploaded(isUploaded);
-						incidentVO.setMessage("UPDATED");
-					}else{
-						incidentVO.setFileUploaded(isUploaded);
-					}
+		
+		
+		return incidentVO;
+	}
+
+	private TicketVO imageUploadFeature(LoginUser loginUser, TicketVO incidentVO, String folderLocation) {
+		if(StringUtils.isNotEmpty(folderLocation)){
+			if(!incidentVO.getIncidentImageList().isEmpty()){
+				boolean isUploaded = uploadIncidentImages(incidentVO, loginUser,null, folderLocation, loginUser.getUsername());
+				if(isUploaded){
+					incidentVO.setFileUploaded(isUploaded);
+					incidentVO.setMessage("UPDATED");
+				}else{
+					incidentVO.setFileUploaded(isUploaded);
 				}
 			}
-			
 		}
-		return incidentVO;
+		return incidentVO; 
 	}
 
 
@@ -510,32 +533,49 @@ public class TicketServiceImpl implements TicketService {
 	@Override
 	public List<TicketCommentVO> getTicketComments(Long ticketId, LoginUser user) {
 		List<TicketCommentVO> commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId);
-		return commentListVO == null?Collections.EMPTY_LIST:commentListVO;
+		return commentListVO == null?Collections.emptyList():commentListVO;
 	}
 
 	@Override
 	public List<TicketHistoryVO> getTicketHistory(String ticketNumber, LoginUser user) throws Exception {
 		List<TicketHistoryVO> ticketHistoryList = getIncidentDAO(user.getDbName()).getTicketHistory(ticketNumber);
-		return ticketHistoryList == null?Collections.EMPTY_LIST:ticketHistoryList;
+		return ticketHistoryList == null?Collections.emptyList():ticketHistoryList;
 	}
 	
 	@Override
-	public CustomerSPLinkedTicketVO saveLinkedTicket(Long custTicket, String custTicketNumber, String linkedTicket, LoginUser user) throws Exception {
+	public CustomerSPLinkedTicketVO saveLinkedTicket(Long custTicket, String custTicketNumber, 
+			String linkedTicket, LoginUser user, String spMappingType, Long rspAssignedTo) throws Exception {
 		LOGGER.info("Inside TicketServiceImpl - saveLinkedTicket");
 		CustomerSPLinkedTicketVO  customerSPLinkedTicketVO = new CustomerSPLinkedTicketVO();
-		customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
-		customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
-		customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicket);
-		customerSPLinkedTicketVO.setClosedFlag("OPEN");
-		CustomerSPLinkedTicketVO savedLinkedTicket = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user);
+		if(spMappingType.equalsIgnoreCase("EXT")){
+			customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
+			customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
+			customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicket);
+			customerSPLinkedTicketVO.setClosedFlag("OPEN");
+			customerSPLinkedTicketVO.setSpType("EXT");
+			customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_EXT_TICKET_MAPPING_QUERY);
+		}
+		else if(spMappingType.equalsIgnoreCase("RSP")){
+			TicketVO ticketVo = getIncidentDAO(user.getDbName()).findRSPTicket(linkedTicket, rspAssignedTo);
+			if(StringUtils.isNotEmpty(ticketVo.getTicketNumber())){
+				customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
+				customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
+				customerSPLinkedTicketVO.setRspTicketId(String.valueOf(ticketVo.getTicketId()));
+				customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicket);
+				customerSPLinkedTicketVO.setClosedFlag("OPEN");
+				customerSPLinkedTicketVO.setSpType("RSP");
+				customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_RSP_TICKET_MAPPING_QUERY);
+			}
+		}
+		
 		LOGGER.info("Exit TicketServiceImpl - saveLinkedTicket");
-		return savedLinkedTicket;
+		return customerSPLinkedTicketVO;
 	}
 
 	@Override
 	public List<CustomerSPLinkedTicketVO> getAllLinkedTickets(Long custTicketId, LoginUser loginUser) throws Exception {
 		List<CustomerSPLinkedTicketVO> customerSPLinkedTickets = getIncidentDAO(loginUser.getDbName()).findByCustTicketIdAndDelFlag(custTicketId);
-		return customerSPLinkedTickets== null?Collections.EMPTY_LIST:customerSPLinkedTickets;
+		return customerSPLinkedTickets== null?Collections.emptyList():customerSPLinkedTickets;
 	}
 	
 	@Override
@@ -559,12 +599,12 @@ public class TicketServiceImpl implements TicketService {
 		else if(loginUser.getUserType().equalsIgnoreCase("EXTSP")){
 			customerTicketList = getIncidentDAO(loginUser.getDbName()).findSPRelatedTickets(ticketId, siteId, loginUser.getSpId());
 		}
-		return customerTicketList == null?Collections.EMPTY_LIST:customerTicketList;
+		return customerTicketList == null?Collections.emptyList():customerTicketList;
 	}
 
 	private List<EscalationLevelVO> getTicketEscalationList(Long spAssignedTo, LoginUser loginUser, final String spEscalationQuery) {
 		List<EscalationLevelVO> escalationLevels =	getIncidentDAO(loginUser.getDbName()).getSPEscalation(spAssignedTo,loginUser, spEscalationQuery);		
-		return escalationLevels == null?Collections.EMPTY_LIST:escalationLevels;
+		return escalationLevels == null?Collections.emptyList():escalationLevels;
 	}
 	
 
@@ -588,7 +628,7 @@ public class TicketServiceImpl implements TicketService {
 	@Override
 	public List<TicketEscalationVO> getAllEscalationLevels(Long ticketId, LoginUser user ) {
 		List<TicketEscalationVO> escalatedTickets =  getIncidentDAO(user.getDbName()).getAllEscalations(ticketId);
-		return escalatedTickets == null?Collections.EMPTY_LIST:escalatedTickets;
+		return escalatedTickets == null?Collections.emptyList():escalatedTickets;
 	}
 
 
@@ -657,7 +697,7 @@ public class TicketServiceImpl implements TicketService {
 		} catch (Exception e) {
 			LOGGER.error("ERROR while updating Financials ", e);
 		}
-		return financials == null ? Collections.EMPTY_LIST:financials;
+		return financials == null ? Collections.emptyList():financials;
 	}
 
 	@Override
@@ -690,7 +730,7 @@ public class TicketServiceImpl implements TicketService {
 				
 			}
 			List<Financials> savedFinanceList= save(financials, user);
-			return savedFinanceList == null ? Collections.EMPTY_LIST:savedFinanceList;
+			return savedFinanceList == null ?Collections.emptyList():savedFinanceList;
 	}
 
 	@Override
@@ -713,7 +753,7 @@ public class TicketServiceImpl implements TicketService {
 			}
 		});
 		List<Financials> savedFinanceList = save(financialList, user);
-		return savedFinanceList == null ? Collections.EMPTY_LIST:savedFinanceList;
+		return savedFinanceList == null ?Collections.emptyList():savedFinanceList;
 	}
 
 	@Override
@@ -727,6 +767,12 @@ public class TicketServiceImpl implements TicketService {
 			
 		}
 		return null;
+	}
+
+	@Override
+	public List<TicketVO> getSuggestedTicketForAsset(LoginUser loginUser,Long assetId) throws Exception {
+		List<TicketVO> rspSuggestedTicket = getIncidentDAO(loginUser.getDbName()).findRSPSuggestedTickets(assetId);
+		return rspSuggestedTicket == null?Collections.emptyList():rspSuggestedTicket;
 	}
 
 }

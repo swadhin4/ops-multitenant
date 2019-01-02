@@ -126,7 +126,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 					$scope.setSLAWidth($scope.ticketData);
 					$scope.getTicketCategory();
 					$scope.getAttachments($scope.ticketData.ticketId);
-					$scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+					$scope.getLinkedTicketDetails($scope.ticketData.ticketId,"EXT");
 					$scope.getEscalationLevel();
 					$scope.changeStatusDescription($scope.ticketData.statusDescription);
 					//Added By Supravat for Financials Requirements.
@@ -353,7 +353,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		
 		$scope.getStatus=function(){
 			
-			statusService.retrieveAllStatus()
+			statusService.retrieveAllStatus('NA')
             .then(function(data){
             	//console.log(data);
             	$("#statusSelect").empty();
@@ -585,18 +585,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	     
 	     
 		 
-		 $scope.getTicketDetails=function(ticket){
-			//console.log(ticket);
-			$scope.selectedTicket={};
-			//$scope.selectedTicket=angular.copy(ticket);
-			ticketService.retrieveTicketDetails(ticket)
-			.then(function(data){
-				//console.log(data);
-			},function(data){
-				
-			});
-		}
-
+	
 		 
 		 $scope.setTicketServiceProvider=function(asset){
 			 $scope.ticketData.sp=asset.serviceProviderId;
@@ -777,6 +766,68 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		 
 	};
 	
+	$scope.LinkNewTicket = function(spType, spTicket){
+		  var ticketLinked=null; 
+			if(spType=="EXT"){
+				if($scope.linkedTicket.ticketNumber != ""){	
+					var linkedTicket={
+							parentTicketId:$scope.ticketData.ticketId,
+							parentTicketNo:$scope.ticketData.ticketNumber,
+							linkedTicketNo:$scope.linkedTicket.ticketNumber,
+							spId:$scope.ticketData.assignedTo,
+							spType:spType
+					}
+					ticketLinked = linkedTicket;
+				}
+			}
+			ticketService.linkTicket(ticketLinked)
+			.then(function(data){
+				//console.log(data);
+				if(data.statusCode == 200){
+				//console.log("Linked ticket added");
+				 $("#linkedTicket").val("");
+				 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.spType);
+				}
+			},function(data){
+				//console.log(data);
+			});
+		}
+	
+
+	
+	$scope.getLinkedTicketDetails=function(linkedTicket, spType){
+		ticketService.getLinkedTickets(linkedTicket)
+		.then(function(data){
+			//console.log(data);
+			if(data.statusCode == 200){
+			 if(spType=="EXT"){	
+				 $("#linkedTicket").val("");
+				 if(data.object.linkedTickets.length>0){
+					 $scope.ticketData.linkedTickets = data.object.linkedTickets;
+					 var valueId = parseInt($("#statusSelect").val());
+					 //Enable save button if status is Logged and linked ticket is available.
+					 if(valueId == 2){
+						 $("#btnSavePrimary").prop("disabled", false);
+					 }
+				 }
+				 else if(data.object.linkedTickets.length == 0){
+					 var valueId = parseInt($("#statusSelect").val());
+					 //Enable save button if status is Logged and linked ticket is available.
+					 if(valueId == 2){
+						 $("#btnSavePrimary").prop("disabled", true);
+					 }
+					
+				 }
+			 }
+			}
+		},function(data){
+			console.log(data);
+		});
+	}
+	
+	
+	
+/*	
 	$scope.LinkNewTicket = function(){
 		if($scope.linkedTicket.ticketNumber != ""){
 			var linkedTicket={
@@ -829,7 +880,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		},function(data){
 			//console.log(data);
 		});
-	}
+	}*/
 	
 	$scope.closeLinkedTicketConfirmation=function(){
 		//console.log($scope.selectedEscalation);
@@ -888,7 +939,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 					
 				}
 				initializeEscalateTicket();
-				$scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+				$scope.getLinkedTicketDetails($scope.ticketData.ticketId, "EXT");
 			},function(data){
 				//console.log(data);
 			});
@@ -1105,8 +1156,23 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			}
 	}
     
+	 $scope.getTicketDetails=function(ticket){
+			$scope.selectedTicket={};
+			ticketService.retrieveTicketDetails(ticket)
+			.then(function(data){
+				console.log(data);
+				if(data.statusCode==200){
+					$scope.selectedTicket = data.object
+					 $scope.previewSelectedIncidentInfo($scope.selectedTicket);
+				}
+			},function(data){
+				console.log(data);
+			});
+		}
     
-    
+	 $scope.previewSelectedIncidentInfo=function(ticket){
+		 $('#previewIncidentModal').modal('show');
+	 }
   //Added by Supravat for Related Ticket Requirements						    
     
     $scope.getRelatedTicketDetails = function(){
@@ -1130,6 +1196,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 								ticketNumber:val.ticketNumber,
 								title:val.ticketTitle,
 								asset:val.assetName,
+								statusId:val.statusId,
 								status:val.status,
 						};
 						$scope.relatedTicketData.push(relTicketData);
@@ -1663,7 +1730,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 					 if(data.object.linkedTickets>0){
 						 $scope.ticketData.linkedTickets = data.object.linkedTickets
 					 }
-					 $scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+					 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, "EXT");
 					 $scope.selectedLinkedTicketDetails = [];
 					 $('#confirmClose').modal('hide');
 				 }
@@ -1687,7 +1754,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 							$scope.selectedLinkedTicketDetails.pop($scope.selectedLinkedTicket);
 						}
 					}
-				 $scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+				 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, "EXT");
 				 $('#confirmUnlink').modal('hide');
 			 }
 		 },function(data){

@@ -44,7 +44,6 @@ import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Financials;
-import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -422,6 +421,40 @@ public class IncidentController extends BaseController {
 		return responseEntity;
 	}
 
+	
+	@RequestMapping(value = "/ticket/{ticketId}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getSelectedTicket(@PathVariable(value = "ticketId") Long ticketId,
+			HttpSession session) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null) {
+			try {
+				TicketVO selectedTicket = ticketSerice.getSelectedTicket(ticketId, loginUser);
+				if (selectedTicket.getTicketId() != null) {
+					response.setStatusCode(200);
+					response.setObject(selectedTicket);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				} else {
+					response.setStatusCode(204);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+
+			} catch (Exception e) {
+				logger.info("Exception in getting response", e);
+				response.setMessage("Exception while getting ticket");
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+
+			}
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		return responseEntity;
+	}
+	
 	@RequestMapping(value = "/selected/ticket", method = RequestMethod.POST)
 	public ResponseEntity<RestResponse> getSelectedTicket(final ModelMap model, final HttpServletRequest request,
 			final HttpSession session, @RequestBody TicketVO ticketVO) {
@@ -430,12 +463,13 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				// SelectedTicketVO selectedTicketVO =
-				// ticketSerice.getSelectedTicket(ticketVO.getTicketId(),loginUser);
-				
-					session.setAttribute("selectedTicket", ticketVO);
+				if(loginUser.getUserType().equalsIgnoreCase("SP")){
+					loginUser.setDbName(ticketVO.getCustomerDB());
+				}
+				TicketVO selectedTicketVO = ticketSerice.getSelectedTicket(ticketVO.getTicketId(),loginUser);
+				session.setAttribute("selectedTicket", selectedTicketVO);
 				response.setStatusCode(200);
-				response.setObject(ticketVO);
+				response.setObject(selectedTicketVO);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 			} else {
 				response.setStatusCode(401);
@@ -465,6 +499,13 @@ public class IncidentController extends BaseController {
 					String custDBName = (String) session.getAttribute("selectedTicketDB");
 					if(StringUtils.isEmpty(custDBName)){
 						selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
+						if(selectedTicketVO.getTicketAssignedType().equalsIgnoreCase("RSP")){
+							List<TicketVO> rspSuggestedTickets = ticketSerice.getSuggestedTicketForAsset(loginUser, selectedTicketVO.getAssetId());
+							if(!rspSuggestedTickets.isEmpty()){
+								response.setObject2(rspSuggestedTickets);
+							}
+						}
+						response.setObject(selectedTicketVO);
 					}
 					else{
 						loginUser.setDbName(custDBName);
@@ -685,22 +726,34 @@ public class IncidentController extends BaseController {
 		return responseEntity;
 	}
 
-	@RequestMapping(value = "/linkedticket/{custticket}/{custticketnumber}/{linkedticket}", method = RequestMethod.GET)
+	@RequestMapping(value = "/linkedticket/{ticketId}/{ticketNumber}/{linkedticket}/{spTicketMapType}/{spAssignedTo}", method = RequestMethod.GET)
 	public ResponseEntity<RestResponse> linked(final ModelMap model, HttpServletRequest request, HttpSession session,
-			@PathVariable(value = "custticket") Long custTicket,
-			@PathVariable(value = "custticketnumber") String custTicketNumber,
-			@PathVariable(value = "linkedticket") String linkedTicket) {
+			@PathVariable(value = "ticketId") Long ticketId,
+			@PathVariable(value = "ticketNumber") String ticketNumber,
+			@PathVariable(value = "linkedticket") String linkedTicket,
+			@PathVariable(value = "spTicketMapType") String spTicketMapType,
+			@PathVariable(value = "spAssignedTo") Long rspAssginedTo) {
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				CustomerSPLinkedTicketVO savedTicketLinked = ticketSerice.saveLinkedTicket(custTicket, custTicketNumber,
-						linkedTicket, loginUser);
+				CustomerSPLinkedTicketVO savedTicketLinked = ticketSerice.saveLinkedTicket(ticketId, ticketNumber,
+						linkedTicket, loginUser, spTicketMapType, rspAssginedTo);
 				if (savedTicketLinked.getId() != null) {
 					response.setStatusCode(200);
 					response.setObject(savedTicketLinked);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}else{
+					if( null==savedTicketLinked.getId()){
+						response.setStatusCode(204);
+						response.setMessage("No Such ticket available for selected Service Provider");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}else{
+						response.setStatusCode(204);
+						response.setMessage("Unable to link ticket");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
 				}
 			} else {
 				response.setStatusCode(401);

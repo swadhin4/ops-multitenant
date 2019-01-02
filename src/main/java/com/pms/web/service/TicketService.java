@@ -51,7 +51,7 @@ public interface TicketService {
 	public int deleteLinkedTicket(Long linkedTicket, LoginUser loginUser) throws Exception;
 
 	public CustomerSPLinkedTicketVO saveLinkedTicket(Long custTicket, String custTicketNumber, String linkedTicket,
-			LoginUser user) throws Exception;
+			LoginUser user, String spMappingType, Long rspAssginedTo) throws Exception;
 
 	public TicketEscalationVO saveTicketEscalations(TicketEscalationVO ticketEscalationLevel, LoginUser user) throws Exception;
 
@@ -74,6 +74,8 @@ public interface TicketService {
 	public List<TicketVO> getTicketsForSP(LoginUser loginUser, String ticketCreatedBy, String custDBName) throws Exception;
 
 	public EscalationLevelVO getSPEscalationLevels(Long escId, LoginUser loginUser, String ticketAssignedType) throws Exception;
+
+	public  List<TicketVO> getSuggestedTicketForAsset(LoginUser loginUser,Long assetId)  throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 

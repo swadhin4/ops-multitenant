@@ -310,6 +310,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 				ServiceProviderVO rspCustomerMappedVO = getSPUserDAO(registeredSPVO.getSpDbName()).findRSPCustomerDetailsByCode(loginUser.getCompany().getCompanyCode(), loginUser.getDbName());
 				if(rspCustomerMappedVO!=null){
 					logger.info("Record Found. Deleting the Mapping of Customer and RSP from RSP Tenant DB");
+					int spUserAccessDel= getSPUserDAO(registeredSPVO.getSpDbName()).deleteRspCustomerAccessRecord(rspCustomerMappedVO);
 					int deleted = getSPUserDAO(registeredSPVO.getSpDbName()).deleteRspCustomerRecord(rspCustomerMappedVO);
 					if(deleted > 0){
 						isQueryExectued = 200;

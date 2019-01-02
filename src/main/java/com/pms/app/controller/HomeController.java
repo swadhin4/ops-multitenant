@@ -178,16 +178,13 @@ public class HomeController extends BaseController {
 						for(String attachement:incidentIds){
 							ticketAttachementIds.add(Long.parseLong(attachement));
 						}
-						responseData = null;///fileIntegrationService.deleteFile(null, null,null,ticketAttachementIds,null);
+						responseData = null;//fileIntegrationService.deleteFile(null, null,null,ticketAttachementIds,null);
 						List<TicketAttachment> fileAttachments = null;//ticketAttachmentRepo.findByTicketNumber(sessionTicketVO.getTicketNumber());
 						List<TicketAttachment> fileAttachmentList = new ArrayList<TicketAttachment>();
 						if(fileAttachments==null){
-							LOGGER.info("Not Ticket Attachment for "+ sessionTicketVO.getTicketNumber());
+							LOGGER.info("No Ticket Attachment for "+ sessionTicketVO.getTicketNumber());
 						}else{
-							if(fileAttachments.isEmpty()){
-								LOGGER.info("Not Ticket Attachment for "+ sessionTicketVO.getTicketNumber());
-							}else{
-								
+							
 								SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 									for(TicketAttachment ticketAttachment : fileAttachments){
 										ticketAttachment.setCreatedDate(formatter.format(ticketAttachment.getCreatedOn()));
@@ -206,7 +203,6 @@ public class HomeController extends BaseController {
 					}
 					
 					
-				}
 			} catch (Exception e) {
 				LOGGER.info("Exception while getting site image", e);
 				responseData.setStatusCode(500);

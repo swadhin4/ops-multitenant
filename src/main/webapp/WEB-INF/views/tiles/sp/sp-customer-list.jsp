@@ -172,11 +172,40 @@ background:#deefe5
 						<div class="box-header with-border">
 							
 							<div class="col-md-3">
-							<h3 class="box-title">Select Customer</h3>		<select name="spCustomerListSelect" id="spCustomerListSelect" ng-model="isCustomerSelected.spCustomerListSelect" ng-dropdown required
+									<select name="spCustomerListSelect" id="spCustomerListSelect" ng-model="isCustomerSelected.spCustomerListSelect" ng-dropdown required
 										class="form-control" onchange="angular.element(this).scope().getCustomerIncident(this, event, 'spCustomerListSelect')"
 										required>
 									</select>
 							</div>
+									<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio3" ng-model="ticketCreatedOrAssigned" value="CUSTOMER" 
+																ng-change="checkTicketsAssignedOrCreated(ticketCreatedOrAssigned)"/> <label
+																	for="radio3"   >
+																	Incidents 
+																	</label> 
+															</div>
+														</div>
+													</div>
+													<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio2" ng-model="ticketCreatedOrAssigned" value="RSP" 
+																ng-change="checkTicketsAssignedOrCreated(ticketCreatedOrAssigned)"/> <label
+																	for="radio2" >Sites</label>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio2" ng-model="ticketCreatedOrAssigned" value="RSP" 
+																ng-change="checkTicketsAssignedOrCreated(ticketCreatedOrAssigned)"/> <label
+																	for="radio2" >Assets</label>
+															</div>
+														</div>
+													</div>
 
 			<!-- 				<div class="row" style="margin-top: 10px">
 								<div class="col-md-4">
@@ -227,7 +256,7 @@ background:#deefe5
 												data-toggle="tab">Incidents</a> <!-- <span class="label label-warning"
 												style="position: relative; top: -50px; left: 80px;">{{spCustomerList.length
 													|| 0}}</span></li> -->
-											<li><a href="#sitesTab" onclick="getSiteData()"
+											<li><a href="#sitesTab" onclick="angular.element(this).scope().getSiteData()"
 												data-toggle="tab">Sites</a> <!-- <span class="label label-warning"
 												style="position: relative; top: -50px; left: 50px;">{{spCustomerList.length
 													|| 0}}</span></li> -->
@@ -306,7 +335,7 @@ background:#deefe5
 																<h3 class="box-title">List of Sites</h3>
 															</div>
 															<div class="box-body"
-																style="height: 65%; overflow-y: visible; overflow-x: hidden">
+																style=" overflow-y: visible; overflow-x: hidden">
 																<div class="row">
 																	<div class="col-md-12">
 																		<input type="text" class="form-control"
@@ -394,7 +423,7 @@ background:#deefe5
 																<h3 class="box-title">Site Detail</h3>
 
 															</div>
-															<div class="box-body" style="overflow-y:auto;overflow-x:hidden;height:72%">
+															<div class="box-body" style="overflow-y:auto;overflow-x:hidden;">
 																<div class="row">
 																	<div class="col-md-12">
 																		<div class="table-responsive">

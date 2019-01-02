@@ -12,12 +12,15 @@ public class CustomerSPLinkedTicketVO implements Serializable{
 	private String spLinkedTicket;
 	private String custTicketNumber;
 	private String custTicketId;
+	private String rspTicketId;
+	private String rspTicketNumber;
 	private String closedFlag;
 	private String closeTime;
 	private String createdBy;
 	private String createdOn;
 	private String modifiedOn;
 	private String modifiedBy;
+	private String spType;
 	
 	public Long getId() {
 		return id;
@@ -78,6 +81,24 @@ public class CustomerSPLinkedTicketVO implements Serializable{
 	}
 	public void setModifiedBy(String modifiedBy) {
 		this.modifiedBy = modifiedBy;
+	}
+	public String getSpType() {
+		return spType;
+	}
+	public void setSpType(String spType) {
+		this.spType = spType;
+	}
+	public String getRspTicketId() {
+		return rspTicketId;
+	}
+	public void setRspTicketId(String rspTicketId) {
+		this.rspTicketId = rspTicketId;
+	}
+	public String getRspTicketNumber() {
+		return rspTicketNumber;
+	}
+	public void setRspTicketNumber(String rspTicketNumber) {
+		this.rspTicketNumber = rspTicketNumber;
 	}
 	@Override
 	public String toString() {

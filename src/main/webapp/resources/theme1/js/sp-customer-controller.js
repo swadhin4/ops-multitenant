@@ -87,7 +87,8 @@ chrisApp.controller('spCustomerController',
 				}
 				
 				$scope.setTicketinSession=function(ticket){
-					 //$('#loadingDiv').show();
+					var connectedDB = $scope.selectedCustList[0].custDBName;
+					ticket.customerDB = connectedDB;
 					 ticketService.setIncidentSelected(ticket)
 						.then(function(data){
 							//console.log(data);
@@ -284,7 +285,28 @@ chrisApp.controller('spCustomerController',
 					
 				}
 				
-				
+				$scope.getSiteData=function(){
+					var custCompCode = $scope.selectedCustList[0].custCode;
+					var custDb  = 	$scope.selectedCustList[0].custDBName;
+					siteService.retrieveSiteForSelectedCustomer(custDb, custCompCode)
+						.then(function(data) {
+			    			console.log(data)
+			    				$scope.siteList=[];
+			    				if(data.length>0){
+			    					$.each(data,function(key,val){
+			    						$scope.siteList.push(val);
+			    					});
+			    				}
+							},
+			    				 function(data) {
+			 		                //console.log(data)
+			 		                	$scope.InfoMessage="No sites assigned to the user."
+			 							$('#messageWindow').show();
+			 		    				$('#infoMessageDiv').show();
+			 		    				$('#infoMessageDiv').alert();
+			 		    				$('#loadingDiv').hide();
+			 		            });
+				}
 				//Sites Requiremnet
 				
 				$scope.findAllSites=function(){

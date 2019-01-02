@@ -148,7 +148,41 @@ public class AssetController extends BaseController {
 			return "redirect:/login";
 		}
 	}
+	//Added By Supravat for Create Task in Asset Page
+	@RequestMapping(value = "/task/create", method = RequestMethod.GET)
+	public String taskCreate(final Locale locale, final ModelMap model,
+			final HttpServletRequest request, final HttpSession session) {
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.put("user", loginUser);
+			if(loginUser.getSysPassword().equalsIgnoreCase("YES")){
+				return "redirect:/user/profile";
+			}else{
+				model.put("mode", "NEW");
+				return "asset.task";
+			}
+		} else {
+			return "redirect:/login";
+		}
+	}
 	
+	@RequestMapping(value = "/task/update", method = RequestMethod.GET)
+	public String taskUpdate(final Locale locale, final ModelMap model,
+			final HttpServletRequest request, final HttpSession session) {
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.put("user", loginUser);
+			if(loginUser.getSysPassword().equalsIgnoreCase("YES")){
+				return "redirect:/user/profile";
+			}else{
+				model.put("mode", "EDIT");
+				return "asset.task";
+			}
+		} else {
+			return "redirect:/login";
+		}
+	}
+	//End
 	@RequestMapping(value = "/info/{siteId}", method = RequestMethod.GET)
 	public String assetSitePage(@PathVariable(value="siteId") String siteId, final ModelMap model,
 			final HttpServletRequest request, final HttpSession session) {

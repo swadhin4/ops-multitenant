@@ -234,7 +234,7 @@ background:#deefe5
 					<div class="box">
 						<div class="box-header with-border">
 							<h3 class="box-title">
-								<a href="${contextPath}/incident/details/"
+								<a href="${contextPath}/serviceprovidercompany/customers"
 									title="View All Incidents"> <i class="fa fa-th-list"
 									aria-hidden="true"></i></a> Update Incident -
 								{{ticketData.ticketNumber}}
@@ -243,7 +243,7 @@ background:#deefe5
 								<input type="hidden" id="mode" value="${mode}">
 								<div class-"row">
 						<div class="col-md-4">
-						<a  href="${contextPath}/incident/details/update" data-toggle="tooltip" data-original-title="Refresh"> 
+						<a  href="${contextPath}/serviceprovider/rsp/incident/update" data-toggle="tooltip" data-original-title="Refresh"> 
 						 <span  style="font-size:12px;" >
 						 <i class="fa fa-refresh fa-2x" style="margin-right: 17px;" aria-hidden="true"></i>
        					 </span>

@@ -350,6 +350,15 @@ chrisApp.controller('assetController',
 			            });
 				 }
 			 
+			$scope.displayAsset=function(spType){
+				if(spType=="ALL"){
+					$scope.searchAsset="";
+				}else{
+				$scope.searchAsset = spType;
+				}
+			} 
+			 
+			 
 			 $scope.getSelectedSiteAssets=function(selectedSite){
 				 $('#loadingDiv').show();
 				 assetService.getAssetBySite(selectedSite)
@@ -520,6 +529,46 @@ chrisApp.controller('assetController',
 				 }
 				 
 			 }
+
+			 //Added by Supravat for adding create task in asset page
+			 
+			 $scope.openAssetTaskPage=function(isCreateUpdate){
+				 if(isCreateUpdate == 'C'){
+					 $scope.taskOperation ="CreateTask";
+					 $.jStorage.set('taskOperation', $scope.taskOperation);
+					 window.location.href=hostLocation+"/asset/task/create"
+				 }
+				 else if(isCreateUpdate == 'U'){
+					 $scope.taskOperation ="UpdateTask";
+					 $.jStorage.set('taskOperation', $scope.taskOperation);
+					 window.location.href=hostLocation+"/asset/task/update"
+				 }	
+				
+			 }
+			 
+			 $scope.assetTaskDetails = [];
+			 
+			 $scope.getAssetTaskDetails=function(){
+					
+					$scope.assetTaskDetails=[];
+						$.each($scope.taskDataData.taskDataDataList,function(key,val){						
+							var taskDataData={
+									ticketID:val.ticketId,
+									costId:val.id,
+									costName:val.costName,
+									cost:val.cost,
+									chargeBack:val.chargeBack,
+									billable:val.billable,
+									isDeleteCheck:false,
+									isEdited:false,
+							};
+							$scope.financialCostDetails.push(taskDataData);
+						});
+				}
+			 
+			 
+			 //end
+			 
 			 
 			/* $scope.editAsset=function(){
 				 $scope.operation ="EDIT";

@@ -31,11 +31,12 @@
 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.js"></c:url>'></script>
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.min.js"></c:url>'></script>
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/incident-modal.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
 
-<link rel="stylesheet"
-	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
-<link rel="stylesheet"
-	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/optionbtn.css"></c:url>' />
+
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
 
@@ -72,7 +73,7 @@
 
 #errorMessageDiv, #successMessageDiv, #infoMessageDiv {
 	top: 0%;
-	left: 50%;
+	left: 40%;
 	/*  width: 45em; */
 	height: 3em;
 	margin-top: 4em;
@@ -96,9 +97,9 @@
 
 .messageClose {
 	background-color: #000;
-	padding: 8px 8px 10px;
-	position: relative;
-	left: 8px;
+	    padding: 0px 11px 11px;
+    position: relative;
+    left: 1px;
 }
 
 .reqDiv.required .control-label:after {
@@ -804,80 +805,180 @@ background:#deefe5
 												</table> -->
 											</div>
 											<div class="tab-pane" id="linkedticket">
-											<div style="display: none" id="loadingDiv3">
+											<!-- <div style="display: none" id="loadingDiv3">
 			<div class="loader">Loading...</div>
-		</div>
-												<div class="row">
-												<div class="col-md-6">
+		</div> -->
+													<div class="row" ng-if="ticketData.ticketAssignedType=='RSP'">
+														<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio3" ng-model="optionVal" value="ZERO" 
+																ng-change="selectLinkTicket(optionVal)"/> <label
+																	for="radio3"   >
+																	Link new ticket
+																	</label>
+															</div>
+														</div>
+													</div>
+													<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio2" ng-model="optionVal" value="ONE" 
+																ng-change="selectLinkTicket(optionVal)"/> <label
+																	for="radio2" >Link ticket from suggestion list</label>
+															</div>
+														</div>
+													</div>
+													</div>
+													<div class="row" ng-if="ticketData.ticketAssignedType=='RSP'">
+														<div class="col-md-6" ng-if="optionVal=='ZERO'">
+														<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Enter Link Ticket Number</h3>
+												</div>
+												<div class="box-body table-responsive no-padding">
+													<table class="table table-hover">
+														<tbody style="font-size: .9em">
+																<tr>
+																<th><input type="text" class="form-control" id="linkedTicket"
+														   placeholder="Add a linked ticket to associate customer ticket {{ticketData.ticketNumber}}"
+															maxlength="20" ng-model="linkedTicket.ticketNumber"></th>
+																<th>
+																	<a href ng-click="LinkNewTicket('RSP', linkedTicket.ticketNumber)">
+																<span class="badge bg-green" style="    font-size: 1.4em;" >
+																<i class="fa fa-link"></i></span></a>
+																</th>
+																</tr>
+																</tbody>
+															</table>
+															</div>	
+												</div>
+														</div>
+												<div class="col-md-6" ng-if="optionVal=='ONE'">
 												<div class="box box-success">
 												<div class="box-header with-border">
-													<h3 class="box-title">Add linked ticket</h3>
+													<h3 class="box-title">Suggested Tickets</h3>
+												</div>
+												<div class="box-body table-responsive no-padding">
+													<table class="table table-hover">
+														<tbody style="font-size: .9em">
+															<tr>
+																<th style="width: 22%">Ticket Number</th>
+																<th style="width: 40%">Title</th>
+																<th style="width:30%">Asset</th>
+																<th style="width:10%">Action</th>
+															</tr>
+															<tr ng-repeat="ticket in suggestedTickets" ng-if="suggestedTickets.length>0">
+																<th style="width: 12%">{{ticket.ticketNumber}}</th>
+																<td style="width: 40%">{{ticket.ticketTitle}}</td>
+																<td style="width:10%">{{ticket.assetName}}</td>
+																<td>
+																<a href ng-click="LinkNewTicket('RSP', ticket.ticketNumber)">
+																<span class="badge bg-green" style="    font-size: 1.4em;" >
+																<i class="fa fa-link"></i></span></a></th>
+															</tr>
+															<tr  ng-if="suggestedTickets==null">
+																<th colspan="4" style="text-align: center">No ticket available</th>
+															</tr>
+														</tbody>
+													</table>
+												</div>
 												</div>	
-													<div class="box-body">	
-														<input type="text" class="form-control" id="linkedTicket"
-														   placeholder="Add a linked ticket to associate customer ticket {{ticketData.ticketNumber}}"
-															maxlength="20" ng-model="linkedTicket.ticketNumber">
-														<a class="btn btn-success" ng-click="LinkNewTicket()">
-															<i class="fa fa-link" aria-hidden="true"></i> Create
-														</a>	
+												</div>
+													<div class="col-md-6">
+												<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Linked Tickets</h3>
+												</div>
+												<div class="box-body table-responsive no-padding">
+													<table class="table table-hover">
+														<tbody style="font-size: .9em">
+															<tr ng-repeat="ticket in linkedRspTickets">
+																<th style="width: 12%">{{ticket.spLinkedTicket}}</th>
+																<td style="vertical-align:middle;width: 60%;">
+																		<span class=" pull-right"
+																			ng-class="{{linkedTkt.closedFlag == 'CLOSED'}} ? 'label label-danger' : 'label label-success'">{{ticket.closedFlag}}</span>
+																		</td>
+																<td><a href ng-click="unlinkTicketConfirmation($index,ticket)"><span class="badge bg-red pull-right" style="    font-size: 1.4em;" >
+																<i class="fa fa-unlink"></i></span></a></th>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+												</div>	
+												</div>
+												</div>
+												<div class="row" ng-if="ticketData.ticketAssignedType=='EXT'">
+												<div class="col-md-6">
+															<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Add Link Ticket Number</h3>
+												</div>
+												<div class="box-body table-responsive no-padding">
+											<table class="table table-hover">
+												<tbody style="font-size: .9em">
+														<tr>
+														<th><input type="text" class="form-control" id="linkedTicket"
+												   placeholder="Add a linked ticket to associate customer ticket 
+												   {{ticketData.ticketNumber}}"
+													maxlength="20" ng-model="linkedTicket.ticketNumber"></th>
+														<th>
+															<a href ng-click="LinkNewTicket('EXT', ticketData)">
+														<span class="badge bg-green" style="    font-size: 1.4em;" >
+														<i class="fa fa-link"></i></span></a>
+														</th>
+														</tr>
+														</tbody>
+													</table>
+											</div>	
+												</div>	
 													</div>
-													</div>	
-													</div>
-											<div class="col-md-6">
+												<div class="col-md-6">
 												<div class="form-group"
 													ng-if="ticketData.linkedTickets.length>0">
 													<div class="box box-success">
 														<div class="box-header with-border">
 															<h3 class="box-title">List of Linked tickets</h3>
 														</div>
-														<div class="box-body">
-															<table id="example2"
-																class="table table-hover table-condensed">
-																<thead>
-																	<tr>
-																		<th style="width: 5px;"></th>
-																		<th><b>Linked Ticket Number</b></th>
-																		<th><b>Status</b></th>
-																		<th></th>
-																	</tr>
-																</thead>
-																<tbody>
-																	<tr ng-repeat="linkedTkt in ticketData.linkedTickets">
+															<div class="box-body table-responsive no-padding">
+													<table class="table table-hover">
+													<tbody style="font-size: .9em">
+														<tr ng-repeat="linkedTkt in ticketData.linkedTickets">
 
-																		<td><input type="checkbox"
-																			id="chkLinkedTicket{{$index}}"
-																			ng-model="linkedTkt.selected"
-																			ng-change="getSelectedLinkedTicket(linkedTkt)" /></td>
-																		<td>
-																			<!-- <span class="label">{{linkedTicket.linkedTicketNo}}</span>     -->
-																			<label class="control-label">{{linkedTkt.spLinkedTicket}}</label>
-																			<!-- <input type="text" class="form-control" ng-model="linkedTicket.linkedTicketNo" disabled="disabled"> -->
-																		</td>
+															<td><input type="checkbox"
+																id="chkLinkedTicket{{$index}}"
+																ng-model="linkedTkt.selected"
+																ng-change="getSelectedLinkedTicket(linkedTkt)" /></td>
+															<td>
+																<label class="control-label">{{linkedTkt.spLinkedTicket}}</label>
+															</td>
 
-																		<td style="vertical-align:middle">
-																		<span
-																			ng-class="{{linkedTkt.closedFlag == 'CLOSED'}} ? 'label label-danger' : 'label label-success'">{{linkedTkt.closedFlag}}</span>
-																		</td>
-																		<td><a type="button" data-toggle="tooltip" title="Unlink the ticket "
-																			class="btn-sm btn-info pull-right"
-																			ng-click="unlinkTicketConfirmation($index,linkedTkt)"
-																			confirm="Are you sure?"> <i
-																				class="fa fa-trash-o" aria-hidden="true"></i>
-																		</a></td>
+															<td style="vertical-align:middle;width: 60%;">
+															<span class=" pull-right"
+																ng-class="{{linkedTkt.closedFlag == 'CLOSED'}} ? 'label label-danger' : 'label label-success'">{{linkedTkt.closedFlag}}</span>
+															</td>
+															<td>
+																<a href type="button" data-toggle="tooltip" title="Unlink the ticket "
+																class="pull-right" 
+																ng-click="unlinkTicketConfirmation($index,linkedTkt)"
+																confirm="Are you sure?"> <span class="badge bg-red" style="font-size: 1.4em;">
+																<i class="fa fa-unlink"></i></span>
+																</a>
+															</td>
 
-																	</tr>
-																	<tr>
-																		<td></td>
-																		<td></td>
-																		<td></td>
-																		<td>
-																			<button type="button" id="closedBtn"
-																				class="btn btn-success pull-right"
-																				ng-click="closeLinkedTicketConfirmation()">Close
-																				and save ticket</button>
-																		</td>
-																	</tr>
-																</tbody>
+														</tr>
+														<tr>
+															<td></td>
+															<td></td>
+															<td></td>
+															<td>
+																<button type="button" id="closedBtn"
+																	class="btn btn-success pull-right"
+																	ng-click="closeLinkedTicketConfirmation()">Close
+																	and save ticket</button>
+															</td>
+														</tr>
+															</tbody>
 															</table>
 														</div>
 														<!-- /.box-body -->
@@ -887,107 +988,86 @@ background:#deefe5
 											</div>
 											</div>
 											<div class="tab-pane" id="attachments">
-											<div style="display: none" id="loadingDiv4">
+											<div style="display: none" id="loadingDiv5">
 			<div class="loader">Loading...</div>
 		</div>
-												<div class="box-body">
-													<div class="row">
-														<div class="nav-tabs-custom">
-															<ul class="nav nav-tabs"
-																style="background-color: rgba(60, 141, 188, 0.34);">
-
-																<li class="active"><a href="#attachmentViewTab"
-																	data-toggle="tab" aria-expanded="true"
-																	id="siteViewLink"><b>View Attachment</b></a></li>
-																<li><a href="#addAttachmentTab" data-toggle="tab"
-																	aria-expanded="true" id="siteContactLink"><b>Add
-																			New Files</b></a></li>
-
-															</ul>
-															<div class="tab-content">
-																<div class="tab-pane active" id="attachmentViewTab">
-																	<table class="table no-margin">
-																		<thead>
-																			<tr>
-																				<th>File Name</th>
-																				<th>Created On</th>
-																				<th>Action</th>
-																			</tr>
-																		</thead>
-																		<tbody ng-repeat="file in ticketData.files">
-																			<tr>
-																				<td>{{file.fileName}}</td>
-																				<td>{{file.createdOn}}</td>
-																				<td><a
-																					href="${contextPath}/selected/file/download?keyname={{file.filePath}}"
-																					download data-toggle="tooltip"
-																					data-original-title="Download this file"> <i
-																						class="fa fa-cloud-download fa-2x"
-																						aria-hidden="true"></i></a> <a href
-																					ng-click="deleteFile('INCIDENT', file)"
-																					data-toggle="tooltip"
-																					data-original-title="Delete this file"> <i
-																						class="fa fa-remove fa-2x" aria-hidden="true"></i></a>
-																				</td>
-																			</tr>
-																		</tbody>
-																	</table>
-
-
-
-																</div>
-
-																<div class="tab-pane" id="addAttachmentTab">
-																	<p>Please choose a file to upload. image/*,.pdf
-																		only.</p>
+													<div class="row" >
+														<div class="col-md-6">
+														  <div class="box">
+											           		 <div class="box-header">
+											             		 <h3 class="box-title">Attachment List</h3>
+															</div>
+														 <div class="box-body table-responsive no-padding">
+											              <table class="table table-hover">
+											              <tbody style="font-size: .9em"><tr ">
+																<th style="width:60%">File Name</th>
+																<th style="width:20%">Created On</th>
+																<th tyle="width:20%">Action</th>
+																
+																</tr>
+																<tr ng-repeat="file in ticketData.files">
+																	
+																		<td>{{file.fileName}}</td>
+																		<td>{{file.createdOn}}</td>
+																		<td><a
+																			href="${contextPath}/selected/file/download?keyname={{file.filePath}}"
+																			download data-toggle="tooltip"
+																			data-original-title="Download this file"> <i
+																				class="fa fa-cloud-download" style="font-size:1.5em"
+																				aria-hidden="true"></i></a> <a href
+																			ng-click="deleteFile('INCIDENT', file)"
+																			data-toggle="tooltip"
+																			data-original-title="Delete this file"> <i style="font-size:1.5em;color:red"
+																				class="fa fa-trash" aria-hidden="true"></i></a>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+															</div>
+															</div>
+														</div>
+														<div class="col-md-6">
+														  <div class="box">
+											           		 <div class="box-header">
+											             		 <h3 class="box-title">Add file to upload. image/*,.pdf only.</h3>
+											             		 <a href ng-click="addNewImage()"><span class="badge pull-right"><i style="font-size:1.5em;color:#fff"
+																				class="fa fa-plus-circle"  aria-hidden="true"></i> Add File</span></a>
+															</div>
+															 <div class="box-body table-responsive no-padding">
 																	<form role="form">
 																		<div class="controls">
-																			<div class="entry input-group col-xs-8">
-																				<input type="button" class="btn btn-success addnew"
-																					style="margin-right: 5px;" onclick=""
-																					ng-click="addNewImage()" value="Add New">
-																				<div style="overflow-y: auto; height: 250px">
-																					<table id="example2"
-																						class="table  table-hover table-condensed">
-																						<tbody>
-																							<tr
-																								ng-repeat="incidentImage in incidentImageList">
-																								<td><input type="file"
-																									id="incidentImage{{$index}}"
-																									class="form-control"
-																									name="incidentImage[{{$index}}]"
-																									accept="image/*,.doc, .docx,.pdf"
-																									onchange="angular.element(this).scope().getIndexedName(this, event)"
-																									style="width: 80%"></td>
-																								<td><span id="imgsize{{$index}}"
-																									class="badge"></span></td>
-																								<td><a class="btn btn-danger" href
-																									ng-click="removeImage($index)"> <i
-																										class="fa fa-trash-o" aria-hidden="true"
-																										style="font-size: 1.4em;"></i>
-																								</a></td>
-																							</tr>
-																						</tbody>
-																					</table>
-																				</div>
-																				<span class="badge" id="totalSize"></span>
-																			</div>
-
-
-																		</div>
-																		</br>
-																		<button type="button" class="btn btn-success"
+											             					 <table class="table table-hover">
+																				<tbody>
+																					<tr
+																						ng-repeat="incidentImage in incidentImageList">
+																						<td><input type="file"
+																							id="incidentImage{{$index}}"
+																							class="form-control"
+																							name="incidentImage[{{$index}}]"
+																							accept="image/*,.doc, .docx,.pdf"
+																							onchange="angular.element(this).scope().getIndexedName(this, event)"
+																							style="width: 80%"></td>
+																						<td><span id="imgsize{{$index}}"
+																							class="badge"></span></td>
+																						<td><a class="btn btn-danger" href
+																							ng-click="removeImage($index)"> <i
+																								class="fa fa-trash-o" aria-hidden="true"
+																								style="font-size: 1.4em;"></i>
+																						</a></td>
+																					</tr>
+																				</tbody>
+																			</table>
+																		   </div>
+																		   <span class="badge" id="totalSize"></span>
+																			<button type="button" class="btn btn-success pull-right" ng-if="incidentImageList.length>0"
 																			ng-click="uploadFiles('EDIT')" value="Upload"
 																			id="btnUpload">Upload</button>
 																	</form>
+																	</div>
+																	</div>
 																</div>
-
-															</div>
-														</div>
-													</div>
+													</div>		
 												</div>
-											</div>
-
 											<div class="tab-pane" id="tickethistory">
 												<div class="box">
 													<div class="box-header with-border">
@@ -1042,7 +1122,7 @@ background:#deefe5
 
 												<!-- Added By Supravat for Financials Requirements. -->
 											<div class="tab-pane" id="financials">
-<div style="display: none" id="loadingDiv5">
+<div style="display: none" id="loadingDiv6">
 			<div class="loader">Loading...</div>
 		</div>
 												<div class="box">
@@ -1185,32 +1265,32 @@ background:#deefe5
 											
 											<!-- Added By Supravat for Related Tickets Requirements. -->
 											<div class="tab-pane" id="relatedTickets">
-												<div class="box">
+										<!-- 		<div class="box">
 													<div class="box-header with-border">
 														<h3 class="box-title">Related Tickets</h3>
 													</div>
 													<div class="box-body table-responsive no-padding">
-																	<table id="financialsTable"
-																		class="table  ">
-																		<thead>
-																			<tr>
-																				<th style="width:30%;"><b>Ticket Number</b></th>
-																				<th style="width:40%;"><b>Title</b></th>
-																				<th style="width:20%;"><b>Asset</b></th>
-																				<th style="width:10%;"><b>Status</b></th>
-																			</tr>
-																		</thead>
-																		<tbody>
+													<table id="financialsTable"
+														class="table  ">
+														<thead>
+															<tr>
+																<th style="width:30%;"><b>Ticket Number</b></th>
+																<th style="width:40%;"><b>Title</b></th>
+																<th style="width:20%;"><b>Asset</b></th>
+																<th style="width:10%;"><b>Status</b></th>
+															</tr>
+														</thead>
+														<tbody>
 
-																			<tr ng-repeat="rowTicketData in relatedTicketData">
-																				<td><a href="" ng-click="setTicketinSession(rowTicketData)">{{rowTicketData.ticketNumber}}</a></td>
-																				<td>{{rowTicketData.title}}</td>
-																				<td>{{rowTicketData.asset}}</td>
-																				<td>{{rowTicketData.status}}</td>
-																			</tr>
+															<tr ng-repeat="rowTicketData in relatedTicketData">
+																<td><a href="" ng-click="setTicketinSession(rowTicketData)">{{rowTicketData.ticketNumber}}</a></td>
+																<td>{{rowTicketData.title}}</td>
+																<td>{{rowTicketData.asset}}</td>
+																<td>{{rowTicketData.status}}</td>
+															</tr>
 
-																		</tbody>
-																	</table>
+														</tbody>
+													</table>
 
 													</div>
 													<div class="box-footer">
@@ -1224,7 +1304,54 @@ background:#deefe5
 														</div>
 													</div>
 												</div>
-												</div>
+												</div> -->
+												          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Related Tickets</h3>
+
+              <div class="box-tools">
+                <div class="input-group input-group-sm" style="width: 450px;">
+                  <input type="text" name="table_search" class="form-control pull-right" ng-model="ticketsearch" 
+                  placeholder="Search by incident number, asset name, site name, service provider, status">
+
+                  <div class="input-group-btn">
+                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+              <table class="table table-hover">
+              <tbody style="font-size: .9em"><tr ">
+					<th style="width:12%">Ticket Number</th>
+					<th style="width:20%">Title</th>
+					<th>Asset</th>
+					<th tyle="width:10%">Status</th>
+					
+					</tr>
+                <tr ng-repeat="val in relatedTicketData | filter: ticketsearch" ng-class="{currentSelected:$index == selectedRow}" 
+               	 ng-click="rowHighilited($index)">
+                	<th class="todo-list">
+                  {{val.ticketNumber}}
+                  <a href="#" ng-click="getTicketDetails(val);" data-toggle="modal"  ><i class="fa fa-eye pull-right"></i></a>
+                  </th>
+					<td>{{val.title}}</td>
+					<td>{{val.asset}}</td>
+					<td><span class="label label-success" ng-if="val.statusId == 1">{{val.status}}</span>
+					<span class="label label-warning" ng-if="val.statusId == 2">{{val.status}}</span>
+					<span class="label label-info" ng-if="val.statusId == 3">{{val.status}}</span>
+					<span class="label label-default" ng-if="val.statusId == 4">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId == 5">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId == 6">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId > 6">{{val.status}}</span>
+					
+					</td>
+					
+                </tr>
+              </tbody></table>
+            </div>
+          </div>
 											</div>
 
 											<!-- Supravat End -->
@@ -1382,7 +1509,7 @@ background:#deefe5
 										<div class="modal-header">
 											<button type="button" class="close" data-dismiss="modal"
 												aria-hidden="true">&times;</button>
-											<h4 class="modal-title">Unlink ticket</h4>
+											<h4 class="modal-title">Confirmation</h4>
 										</div>
 										<div class="modal-body">
 											<p>Are you sure, you want to unlink this ticket ?</p>
@@ -1420,106 +1547,119 @@ background:#deefe5
 								</div>
 							</div>
 
-							<%-- <div class="modal" id="fileAttachModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" data-keyboard="false" data-backdrop="static">
-      <div class="modal-dialog" style="width: 60%;">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-          <h4 class="modal-title" id="upload-avatar-title">View / Upload files</h4>
-          <div class="alert alert-danger alert-dismissable" id="incidentImageModalMessageDiv"
-				style="display: none;  height: 34px;white-space: nowrap;">
-				<strong>Error! </strong> {{incidentImageModalErrorMessage}} 
-				<a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-			</div>
-        </div>
-        <div class="modal-body">
-        <div class="nav-tabs-custom">
-        	<ul class="nav nav-tabs" style="background-color: rgba(60, 141, 188, 0.34);">
-            
-							<li class="active">
-				       		 <a  href="#attachmentViewTab" data-toggle="tab" aria-expanded="true" id="siteViewLink"><b>View Attachment</b></a>
-							</li>
-							<li><a href="#addAttachmentTab" data-toggle="tab" aria-expanded="true" id="siteContactLink"><b>Add New Files</b></a>
-							</li>
-							
-            </ul>
-        	<div class="tab-content">
-                <div class="tab-pane active" id="attachmentViewTab">
-                	<div class="box-body">
-              		<div class="table-responsive">
-                <table class="table no-margin">
-                  <thead>
-                  <tr>
-                    <th>File Name</th>
-                    <th>Created On</th>
-                    <th>Action</th>
-                  </tr>
-                  </thead>
-                 <tbody ng-repeat="file in ticketData.files">
-					<tr>
-						<td>{{file.fileName}}</td>
-						<td>{{file.createdOn}}</td>
-						<td><a href="${contextPath}/selected/file/download?keyname={{file.filePath}}" download data-toggle="tooltip" data-original-title="Download this file">
-							<i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a>
-							<a href ng-click="deleteFile('INCIDENT', file)" data-toggle="tooltip" data-original-title="Delete this file">
-							<i class="fa fa-remove fa-2x" aria-hidden="true"></i></a>
-						</td>
-					</tr>
-				</tbody>
-                </table>
-              </div>
-              
-               </br>
-            <button type="button" class="btn btn-default" id="btnUploadCancel" data-dismiss="modal">Close</button>
-              
-            </div>
-                
-                </div>
-                
-                <div class="tab-pane" id="addAttachmentTab">
-                	<p>Please choose a file to upload. image/*,.doc, .docx,.pdf only.</p>
-          <form role="form">
-          <div class="controls">                       
-              <div class="entry input-group col-xs-12">
-                <input type="button" class="btn btn-success addnew" style="margin-right: 5px;" onclick="" ng-click="addNewImage()" value="Add New">
-                <div  style="overflow-y:auto;height:250px">
-                <table id="example2" class="table  table-hover table-condensed">
-                 <tbody>
-                <tr ng-repeat="incidentImage in incidentImageList">
-                  <td>
-                  <input type="file" id="incidentImage{{$index}}" class="form-control" 
-                  name="incidentImage[{{$index}}]" accept="image/*,.doc, .docx,.pdf" 
-                  onchange="angular.element(this).scope().getIndexedName(this, event)" style="width:80%">
-                   <a class="btn btn-danger" href  ng-click="removeImage($index)" >
-                  <i class="fa fa-trash-o" aria-hidden="true" style="font-size: 1.4em;"></i>
-                  </a>
-                  </td>
-                </tr>
-                <tr>
-                	<td colspan="2">Total Size : {{totalIncidentImageSize}} KB</td>
-                </tr>
-                </tbody>
-                </table>
-                </div>
-              </div>
-              
-           
-          </div>            
-            </br>
-            <button type="button" class="btn btn-default" id="btnUploadCancel" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-success" ng-click="uploadFiles()" value="Upload">Upload</button>
-          </form>
-                </div>
-                
-            </div>
-        </div>
-          
-        </div>
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-<!-- </div> -->
+									<div class="modal right fade" id="previewIncidentModal" tabindex="-1" role="dialog" aria-labelledby="previewIncidentModalLabel2">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
 
-</div> --%>
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel2">{{selectedTicket.ticketNumber}} - Overview</h4>
+				</div>
+				<div class="modal-body">
+				       <div class="box box-solid">
+            <div class="box-header with-border">
+              <i class="fa fa-text-width"></i>
+              <h3 class="box-title">{{selectedTicket.ticketTitle}}</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <dl>
+                <dt>Description</dt>
+                <dd>{{selectedTicket.description}}</dd>
+              </dl>
+            </div>
+          </div>
+								<div class="box box-widget widget-user" ng-if="selectedTicket.ticketNumber != null">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-aqua-active">
+              <h3 class="widget-user-username">Site : {{selectedTicket.siteName}}</h3>
+              <h5 class="widget-user-desc">Owner : {{selectedTicket.siteOwner}}</h5>
+            </div>
+           <!--  <div class="widget-user-image">
+              <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
+            </div> -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-6 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Contact Name</h5>
+                    <span class="description-text">{{selectedTicket.assignedSP}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-6 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Email</h5>
+                    <span class="description-text">{{selectedTicket.email}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+          </div>
+          						<div class="box box-widget widget-user" ng-if="selectedTicket.ticketNumber != null">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-green-active">
+              <h3 class="widget-user-username">Asset : {{selectedTicket.assetName}}</h3>
+              <h5 class="widget-user-desc">Code : {{selectedTicket.assetCode}}</h5>
+            </div>
+           <!--  <div class="widget-user-image">
+              <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
+            </div> -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Service Provider</h5>
+                    <span class="description-text">{{selectedTicket.assignedSP}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Commissioned On</h5>
+                    <span class="description-text">{{selectedTicket.raisedOn}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Location</h5>
+                    <span class="description-text">{{selectedTicket.email}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+          </div>
+          <div class="info-box bg-yellow">
+            <span class="info-box-icon"><i class="ion ion-ios-pricetag-outline" style="margin-top: 26px;"></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">Time to raise the ticket</span>
+              <span class="info-box-number">30:10:30</span>
+              <div class="progress">
+                <div class="progress-bar" style="width: 50%"></div>
+              </div>
+              <span class="progress-description">
+                    50% Increase in 30 Days
+                  </span>
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+				</div>
+
+			</div><!-- modal-content -->
+		</div><!-- modal-dialog -->
+	</div><!-- modal -->
 						</div>
 					</div>
 				</div>

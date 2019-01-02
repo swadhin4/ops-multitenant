@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +41,6 @@ import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
-import com.pms.app.view.vo.ServiceProviderUserRoleVO;
 import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.TicketCommentVO;
 import com.pms.app.view.vo.TicketEscalationVO;
@@ -50,6 +48,7 @@ import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Financials;
+import com.pms.jpa.entities.IncidentReport;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
@@ -108,12 +107,13 @@ public class IncidentDAO {
 		return ticketCategory;
 	}
 	private TicketVO toTicketList(ResultSet rs) throws SQLException {
-		DateFormat df = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
-		DateFormat df2 = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");
+		/*DateFormat df = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
+		DateFormat df2 = new SimpleDateFormat("dd-MM-YYYY HH:mm:ss");*/
 		TicketVO ticketVO = new TicketVO();
 		ticketVO.setTicketId(rs.getLong("id"));
 		ticketVO.setTicketNumber(rs.getString("ticket_number"));
 		ticketVO.setTicketTitle(rs.getString("ticket_title"));
+		ticketVO.setDescription(rs.getString("ticket_desc"));
 		ticketVO.setSiteId(rs.getLong("site_id"));
 		ticketVO.setSiteName(rs.getString("site_name"));
 		ticketVO.setAssetId(rs.getLong("asset_id"));
@@ -126,6 +126,7 @@ public class IncidentDAO {
 		ticketVO.setStatus(rs.getString("status"));
 		ticketVO.setStatusDescription(rs.getString("description"));
 		ticketVO.setStatusId(rs.getLong("status_id"));
+		ticketVO.setRaisedBy(rs.getString("created_by"));
 		return ticketVO;
 	}
 	public TicketPrioritySLAVO getSPSLADetails(Long serviceProviderID, Long ticketCategoryId, String spType, String userType) {
@@ -539,6 +540,10 @@ public class IncidentDAO {
 					customerSPLinkedTicketVO.setSpLinkedTicket(rs.getString("spticket_no"));
 					customerSPLinkedTicketVO.setCustTicketId(rs.getString("cust_ticket_id"));
 					customerSPLinkedTicketVO.setCustTicketNumber(rs.getString("customer_ticket_no"));
+					customerSPLinkedTicketVO.setSpType(rs.getString("sptype"));
+					if(StringUtils.isNotEmpty(String.valueOf(rs.getLong("rsp_ticket_id")))){
+						customerSPLinkedTicketVO.setRspTicketId(String.valueOf(rs.getLong("rsp_ticket_id")));
+					}
 					customerSPLinkedTicketVO.setClosedFlag(rs.getString("closed_flag"));
 					linkedTickets.add(customerSPLinkedTicketVO);
 				}
@@ -565,6 +570,7 @@ public class IncidentDAO {
 					tckt.setTicketTitle(rs.getString("ticket_title"));
 					tckt.setCreatedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
 					tckt.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
+					tckt.setStatusId(rs.getLong("status_id"));
 					tckt.setStatus(rs.getString("status"));
 					tckt.setAssignedSP(rs.getString("sp_name"));
 					relatedTickets.add(tckt);
@@ -591,6 +597,7 @@ public class IncidentDAO {
 					tckt.setTicketTitle(rs.getString("ticket_title"));
 					tckt.setCreatedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
 					tckt.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
+					tckt.setStatusId(rs.getLong("status_id"));
 					tckt.setStatus(rs.getString("status"));
 					tckt.setAssignedSP(rs.getString("sp_name"));
 					relatedTickets.add(tckt);
@@ -601,20 +608,35 @@ public class IncidentDAO {
 		});
 		return ticketList;
 	}
-	public CustomerSPLinkedTicketVO saveLinkedTicket(CustomerSPLinkedTicketVO customerSPLinkedTicketVO, LoginUser user ){
+	public CustomerSPLinkedTicketVO saveLinkedTicket(CustomerSPLinkedTicketVO customerSPLinkedTicketVO, LoginUser user, final String insertSPMappingQuery ){
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_TICKET_MAPPING_QUERY, 
+	        final PreparedStatement ps = connection.prepareStatement(insertSPMappingQuery, 
 	            Statement.RETURN_GENERATED_KEYS);
-	    	ps.setLong(1, Long.parseLong(customerSPLinkedTicketVO.getCustTicketId()));
-            ps.setString(2, customerSPLinkedTicketVO.getCustTicketNumber());
-            ps.setString(3, customerSPLinkedTicketVO.getSpLinkedTicket());
-            ps.setString(4, customerSPLinkedTicketVO.getClosedFlag());
-            ps.setString(5,  StringUtils.isEmpty(customerSPLinkedTicketVO.getCloseTime())==true?null:customerSPLinkedTicketVO.getCloseTime());
-            ps.setString(6,  user.getUsername());
+	        if(customerSPLinkedTicketVO.getSpType().equalsIgnoreCase("EXT")){
+		    	ps.setLong(1, Long.parseLong(customerSPLinkedTicketVO.getCustTicketId()));
+	            ps.setString(2, customerSPLinkedTicketVO.getCustTicketNumber());
+	            ps.setString(3, customerSPLinkedTicketVO.getSpLinkedTicket());
+	            ps.setString(4, customerSPLinkedTicketVO.getSpType());
+	            ps.setString(5, customerSPLinkedTicketVO.getClosedFlag());
+	            ps.setString(6,  StringUtils.isEmpty(customerSPLinkedTicketVO.getCloseTime())==true?null:customerSPLinkedTicketVO.getCloseTime());
+	            ps.setString(7,  user.getUsername());
+	        }
+	        else if(customerSPLinkedTicketVO.getSpType().equalsIgnoreCase("RSP")){
+	        	ps.setLong(1, Long.parseLong(customerSPLinkedTicketVO.getCustTicketId()));
+	            ps.setString(2, customerSPLinkedTicketVO.getCustTicketNumber());
+	            ps.setString(3, customerSPLinkedTicketVO.getRspTicketId());
+	            ps.setString(4, customerSPLinkedTicketVO.getSpLinkedTicket());
+	            ps.setString(5, customerSPLinkedTicketVO.getSpType());
+	            ps.setString(6, customerSPLinkedTicketVO.getClosedFlag());
+	            ps.setString(7,  StringUtils.isEmpty(customerSPLinkedTicketVO.getCloseTime())==true?null:customerSPLinkedTicketVO.getCloseTime());
+	            ps.setString(8,  user.getUsername());
+	        }
+           
+           
 	        return ps;
 	      }
 	    }, key);
@@ -890,6 +912,53 @@ public class IncidentDAO {
 					}
 				});
 		return serviceProviderVO;
+		
+	}	
+	
+	public IncidentReport getIncidentReportDetails(String ticketNumber) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		IncidentReport incidentReport = jdbcTemplate.query(AppConstants.INCIDENT_REPORT_QUERY,
+				new Object[] { ticketNumber }, new ResultSetExtractor<IncidentReport>() {
+					@Override
+					public IncidentReport extractData(ResultSet rs) throws SQLException, DataAccessException {
+						IncidentReport incidentRecord = new IncidentReport();
+						while (rs.next()) {
+							incidentRecord.setTimeToRaiseTicket(rs.getString("time_to_raise_ticket"));;
+							incidentRecord.setCustomerTicketNumber(rs.getString("customer_ticket"));
+						}
+						return incidentRecord;
+					}
+				});
+		return incidentReport;
+		
+	}
+	public List<TicketVO> findRSPSuggestedTickets(Long assetId) {
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("assetId", assetId);
+		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.RSP_TICKET_SUGGESTED_LIST_QUERY, parameters,
+				new RowMapper<TicketVO>() {
+					@Override
+					public TicketVO mapRow(ResultSet rs, int arg1) throws SQLException {
+						return toTicketList(rs);
+					}
+				});
+		return ticketList;
+	}
+	public TicketVO findRSPTicket(String linkedTicket, Long rspAssignedTo) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		TicketVO ticket =  jdbcTemplate.query(AppConstants.VALIDATE_TICKET_RSPID_QUERY, new Object[] { linkedTicket,  rspAssignedTo}, new ResultSetExtractor<TicketVO>() {
+			@Override
+			public TicketVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+				TicketVO incidentRecord = new TicketVO();
+				if (rs.next()) {
+					incidentRecord.setTicketId(rs.getLong("id"));
+					incidentRecord.setTicketNumber(rs.getString("ticket_number"));
+				}
+				return incidentRecord;
+			}
+		});
+		return ticket;
 		
 	}	
 }

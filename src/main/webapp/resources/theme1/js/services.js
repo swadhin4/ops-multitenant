@@ -299,6 +299,7 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
  			site:{},
             siteList: [],
             retrieveAllSites:retrieveAllSites,
+            retrieveSiteForSelectedCustomer:retrieveSiteForSelectedCustomer,
             retrieveSiteDetails:retrieveSiteDetails,
            // saveSite:saveSite,
             assignSiteAccess:assignSiteAccess,
@@ -353,7 +354,19 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
                 });
             return def.promise;
         }
- 
+	    function retrieveSiteForSelectedCustomer(custDb, custCompCode){
+	    	 var def = $q.defer();
+	            $http.get(hostLocation+"/site/view/list/"+custDb+"/"+custCompCode)
+	                .success(function(data) {
+	                	//console.log(data)
+	                    def.resolve(data);
+	                })
+	                .error(function(data) {
+	                	console.log(data)
+	                    def.reject(data);
+	                });
+	            return def.promise;
+	    }
 	 	
 	    // implementation
         function retrieveAllSites() {
@@ -1105,7 +1118,8 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  // implementation
     function linkTicket(linkedTicket, mode) {
         var def = $q.defer();
-        url=hostLocation+"/incident/linkedticket/"+linkedTicket.parentTicketId+"/"+linkedTicket.parentTicketNo+"/"+linkedTicket.linkedTicketNo
+        url=hostLocation+"/incident/linkedticket/"+linkedTicket.parentTicketId+"/"+linkedTicket.parentTicketNo+
+        "/"+linkedTicket.linkedTicketNo+"/"+linkedTicket.spType+"/"+linkedTicket.spId
        /* if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/linkedticket/"+linkedTicket.parentTicketId+"/"+linkedTicket.parentTicketNo+"/"+linkedTicket.linkedTicketNo
         }else{
@@ -1224,7 +1238,7 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
  // implementation
     function retrieveTicketDetails(ticket) {
         var def = $q.defer();
-        $http.get(hostLocation+"/incident/ticket/"+ticket.id)
+        $http.get(hostLocation+"/incident/ticket/"+ticket.ticketId)
             .success(function(data) {
             	//console.log(data)
             	TicketService.ticket=data;

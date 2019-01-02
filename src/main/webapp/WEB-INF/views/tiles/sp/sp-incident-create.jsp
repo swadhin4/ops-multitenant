@@ -178,7 +178,11 @@ $(function() {
 			 <form name="spcreateticketform" ng-submit="saveTicket()" >
 		 			<div class="box-header with-border">
 		 			<div class="col-md-12">
-							<h3 class="box-title">Create New Incident</h3>
+							<h3 class="box-title">
+							<a href="${contextPath}/serviceprovidercompany/customers"> <span
+												title="Asset or Service"><i class="fa fa-th-list"
+													aria-hidden="true"></i></span></a>
+							Create New Incident</h3>
 							<div class="box-tools pull-right" style="margin-top: 0px;">
 								
 							</div>
@@ -239,10 +243,10 @@ $(function() {
 			          <div class="box box-widget widget-user-2" ng-if="assetType!=null && assetList.selected.assetName!=null">
 			            <div class="box-footer no-padding">
 			              <ul class="nav nav-stacked">
-			                <li><a href="#"><b>Category</b> <span class=" pull-right badge bg-blue">{{assetList.selected.assetCategoryName}}</span></a></li>
-			                <li><a href="#"><b>Component Type</b> <span class=" pull-right  badge bg-aqua">{{assetList.selected.assetSubcategory1}}</span></a></li>
+			                <li><a href="#"><b>Category</b> <span class=" pull-right badge bg-blue">{{assetList.selected.assetCategoryName !=null ? assetList.selected.assetCategoryName : 'No Data Available'}}</span></a></li>
+			                <li><a href="#"><b>Component Type</b> <span class=" pull-right  badge bg-aqua">{{assetList.selected.assetSubcategory1 !=null ? assetList.selected.assetSubcategory1 : 'No Data Available'}}</span></a></li>
 			                <li><a href="#"><b>Assigned SP <span class="badge">{{assetList.selected.spType}}</span></b><span class=" pull-right  badge bg-green">
-			                {{assetList.selected.assignedSp}}  - {{assetList.selected.spHelpDeskEmail}} </span></a></li>
+			                {{assetList.selected.assignedSp}}  {{ assetList.selected.spHelpDeskEmail != null ? '-' + assetList.selected.spHelpDeskEmail : 'No Data Available' }} </span></a></li>
 			              </ul>
 			            </div>
 			          </div>

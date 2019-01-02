@@ -106,7 +106,29 @@ public class SiteController extends BaseController {
 		return new ResponseEntity<List<CreateSiteVO>>(sitesList, HttpStatus.OK);
 	}
 
-	
+	@RequestMapping(value = "/view/list/{custdbname}/{custCompCode}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<List<CreateSiteVO>> listAllSites(HttpSession session, 
+			@PathVariable(value="custdbname") final String custdbname, @PathVariable(value="custCompCode") final String custCompCode) {
+		logger.info("Inside TestController -- ListAllSites");
+		List<CreateSiteVO> sitesList = null;
+		try {
+			LoginUser user= getCurrentLoggedinUser(session);
+			if(user!=null){
+				user.setDbName(custdbname);
+				sitesList = siteService.getSiteListForCompany(user, custCompCode);
+				if (sitesList.isEmpty()) {
+					return new ResponseEntity(HttpStatus.NO_CONTENT);
+					// You many decide to return HttpStatus.NOT_FOUND
+				}else{
+					Collections.sort(sitesList, CreateSiteVO.COMPARE_BY_SITENAME);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		logger.info("Exit TestController -- ListAllSites");
+		return new ResponseEntity<List<CreateSiteVO>>(sitesList, HttpStatus.OK);
+	}
 	@RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
 	public ResponseEntity<RestResponse> createNewSite(final Locale locale, final ModelMap model,
 			@RequestBody final CreateSiteVO createSiteVO, final HttpSession session) {

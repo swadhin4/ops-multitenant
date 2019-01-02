@@ -120,7 +120,14 @@ chrisApp.controller('spIncidentController',  ['$rootScope', '$scope', '$filter',
 			
 		});
 		
-		
+		 $scope.rowHighilited=function(row)
+		    {
+		      $scope.selectedRow = row;    
+		    }
+		 
+		 $scope.previewSelectedIncidentInfo=function(ticket){
+			 $('#previewIncidentModal').modal('show');
+		 }
 		
 		$scope.getLoggedInUser=function(){
 			

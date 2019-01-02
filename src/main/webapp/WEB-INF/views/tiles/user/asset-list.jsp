@@ -228,15 +228,15 @@ $(document).ready(function()  {
 									</a>
 
 									<ul class="dropdown-menu" role="menu">
-									<li> <a href ng-click="getAllAsset('ALL')" ng-if="asset.list.length>0"
+									<li> <a href ng-click="displayAsset('ALL')" ng-if="asset.list.length>0"
 										style="margin-right: 5px;" >
 										<span class="badge" style="color:#fff;background-color:gray">A</span> View All Assets
 									</a></li>
-										<li> <a href ng-click="getAllAsset('RSP')" ng-if="asset.list.length>0"
+										<li> <a href ng-click="displayAsset('RSP')" ng-if="asset.list.length>0"
 										style="margin-right: 5px;" >
 										<span class="badge" style="color:#fff;background-color:green">R</span> Assigned to RSP
 									</a></li>
-										<li> <a href ng-click="getAllAsset('EXT')" ng-if="asset.list.length>0"
+										<li> <a href ng-click="displayAsset('EXT')" ng-if="asset.list.length>0"
 										style="margin-right: 5px;" > <span class="badge" style="color:#fff;background-color:red">E</span> Assigned to EXT</a></li>
 									
 									</ul>
@@ -348,7 +348,7 @@ $(document).ready(function()  {
 										<ul class="dropdown-menu" role="menu">
 										<li> <a href ng-click="openAssetPage()"  ng-if="asset.list.length>0">  <span class="fa fa-edit" aria-hidden="true"></span>Edit</a></li>
 										<li> <a href="${contextPath}/incident/details/create"> <span  class="fa fa-plus" aria-hidden="true"></span>Create Incident</a></li>
-										
+										<li> <a href ng-click="openAssetTaskPage('C')"  ng-if="asset.list.length>0">  <span class="fa fa-tasks" aria-hidden="true"></span>Create Task</a></li>
 									</ul>
 									</div>
 									</sec:authorize>
@@ -466,6 +466,40 @@ $(document).ready(function()  {
 									</div>	
 									</div>
 								</div>
+								
+								<div class="row">
+								<div class="col-md-12">
+									<div class="box-header with-border">
+										<h3 class="box-title" style="margin-left: -12px">Asset Task List</h3>
+									</div>
+								</div>
+								<div class="col-md-12">
+									<div class="table-responsive">
+										<table id="taskDeatils" class="table table-bordered">
+											<thead>
+												<tr>
+													<th>Task Name</th>
+													<th>Task Creation</th>
+													<th>Actions</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr
+													ng-repeat="task in assetTaskData.list | filter: searchAssetTask | orderBy :'taskName'"
+													ng-class="{currentSelected:$index == selectedRow}"
+													ng-click="getAssetDetails(asset);rowHighilited($index)">
+													<td>{{task.taskName}}</td>
+													<td>{{task.taskCreation}}</td>
+													<td><a href ng-click="editTask(task)"> <i
+															class="fa fa-edit" aria-hidden="true"></i></a> <a href
+														ng-click="viewTask(task)"> <i class="fa fa-view"
+															aria-hidden="true"></i></a></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
 							</div>
            
 								

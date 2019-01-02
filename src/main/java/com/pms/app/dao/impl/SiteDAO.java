@@ -616,6 +616,40 @@ public class SiteDAO {
         return insertedRows.length;
 	}
 
+	public List<CreateSiteVO> getSiteListByCompany(String custCode) {
+		LOGGER.info("SiteDAO -- getSiteList -- Getting Site List for Company : "+ custCode);
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<CreateSiteVO> siteList =  jdbcTemplate.query(AppConstants.SITE_LIST_BY_COMPANY_QUERY, new Object[]{custCode}, new ResultSetExtractor<List<CreateSiteVO>>() {
+			@Override
+			public List<CreateSiteVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<CreateSiteVO> siteList = new ArrayList<CreateSiteVO>();
+				while (rs.next()) {
+					CreateSiteVO siteVO = new CreateSiteVO();
+					siteVO.setSiteId(rs.getLong("site_id"));
+					siteVO.setSiteName(rs.getString("site_name"));
+					siteVO.setDistrictId(rs.getLong("district_id"));
+					siteVO.setDistrictName(rs.getString("district_name"));
+					siteVO.setAreaId(rs.getLong("area_id"));
+					siteVO.setAreaName(rs.getString("area_name"));
+					siteVO.setClusterId(rs.getLong("cluster_id"));
+					siteVO.setClusterName(rs.getString("cluster_name"));
+					siteVO.setCountryId(rs.getLong("country_id"));
+					siteVO.setCountryName(rs.getString("country_name"));
+					siteVO.setCompanyId(rs.getLong("company_id"));
+					siteVO.setCompanyName(rs.getString("company_name"));
+					siteVO.setSiteOwner(rs.getString("site_owner"));
+					siteVO.setOwner(rs.getString("site_owner"));
+					siteVO.setBrandId(rs.getLong("brand_id"));
+					siteVO.setBrandName(rs.getString("brand_name"));
+					siteList.add(siteVO);
+                }
+				LOGGER.info("SiteDAO -- getSiteList -- Total Site List : "+ siteList.size());
+				return siteList;
+			}
+		});
+		return siteList==null?Collections.EMPTY_LIST:siteList;
+	}
+
 	
 	
 }

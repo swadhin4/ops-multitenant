@@ -363,6 +363,12 @@ chrisApp
 						 					}
 									 }else{	 
 								 if(type.toUpperCase()=='EQUIPMENT'){
+									 $scope.assetList.selected = "";
+									 //$scope.repairType.list=[];
+						    		 //$("#repairtypeSelect").empty();
+						    		 $scope.subRepairType.list=[];
+						    		 $("#subcomponentTypeSelect").empty();
+									 console.log("EQUIPMENT------>",$scope.assetList.selected);
 									 $scope.assetTypechecked = 'E';
 										//console.log($scope.assetTypechecked);
 										var equipmentList = [];
@@ -379,6 +385,12 @@ chrisApp
 						    					options.append($("<option />").val(	this.assetId).text(	this.assetName));
 						    			});
 								 }else if(type.toUpperCase()=='SERVICE'){
+									 $scope.assetList.selected = "";
+									 //$scope.repairType.list=[];
+						    		 //$("#repairtypeSelect").empty();
+						    		 $scope.subRepairType.list=[];
+						    		 $("#subcomponentTypeSelect").empty();
+									 console.log("SERVICE------>",$scope.assetList.selected);
 									 $scope.assetTypechecked = 'S';
 										//console.log($scope.assetTypechecked);
 										var serviceList = [];

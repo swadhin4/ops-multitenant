@@ -258,16 +258,19 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				}
 		
 		$scope.getIncidentSelected=function(){
+			$scope.suggestedTickets=[];
 			ticketService.getSelectedTicketFromSession()
 			.then(function(data){
 				//console.log("Ticket DetailsXXXX")
 				//console.log(data)
 				if(data.statusCode == 200){
 					$scope.ticketData=angular.copy(data.object);
+					$scope.suggestedTickets = angular.copy(data.object2);
 					//$scope.ticketData.createdBy=$scope.sessionUser.username;
 					$scope.getAttachments($scope.ticketData.ticketId);
 					if(viewMode.toUpperCase()=="EDIT"){
-	    				$scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+						$scope.optionVal="ZERO";
+	    				$scope.getLinkedTicketDetails($scope.ticketData.ticketId, $scope.ticketData.ticketAssignedType);
     				}
 					$scope.setSLAWidth($scope.ticketData);
 					$scope.getUserRoleStatusMap();
@@ -917,17 +920,22 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			     
 	     //----------------------- View ticket ------------------------------------
 	     
-	     
+		 $scope.rowHighilited=function(row)
+		    {
+		      $scope.selectedRow = row;    
+		    }
 		 
 		 $scope.getTicketDetails=function(ticket){
-			//console.log(ticket);
 			$scope.selectedTicket={};
-			//$scope.selectedTicket=angular.copy(ticket);
 			ticketService.retrieveTicketDetails(ticket)
 			.then(function(data){
-				//console.log(data);
+				console.log(data);
+				if(data.statusCode==200){
+					$scope.selectedTicket = data.object
+					 $scope.previewSelectedIncidentInfo($scope.selectedTicket);
+				}
 			},function(data){
-				
+				console.log(data);
 			});
 		}
 
@@ -1039,6 +1047,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 
 		 }
 		 $scope.persistTicket=function(ticketData, type){
+			// $('#loadingDiv').show();
 			 if(type.toUpperCase()=='UPDATE'){
 				 $('#loadingDiv1').show();
 			 }
@@ -1073,7 +1082,9 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	    	    				$('#successMessageDiv').show();
 	    	    				$('#successMessageDiv').alert();
 	    	    				$('#errorMessageDiv').hide();
-	    	    				if(data.object.attachments.length>0){
+	    	    				
+	    	    				$scope.getAttachments(ticketData.ticketId)
+	    	    				/*if(data.object.attachments.length>0){
 	    	    					$scope.ticketData.files=[];
 	    	    					$.each(data.object.attachments,function(key,val){
 	    	    						var  fileInfo={
@@ -1086,7 +1097,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	    	    					});
 	    	    				}else{
 	    	    					$scope.ticketData.files=[];
-	    	    				}
+	    	    				}*/
 	    					 }
 	    				}
 				 }
@@ -1146,42 +1157,75 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		}
 		 
 	};
-	
-	$scope.LinkNewTicket = function(){
-		if($scope.linkedTicket.ticketNumber != ""){
-			var linkedTicket={
-					parentTicketId:$scope.ticketData.ticketId,
-					parentTicketNo:$scope.ticketData.ticketNumber,
-					linkedTicketNo:$scope.linkedTicket.ticketNumber
+	$scope.selectLinkTicket=function(optionSelected){
+		if(optionSelected=="ZERO"){
+			$scope.optionVal=optionSelected;
+		}
+		else if(optionSelected=="ONE"){
+			$scope.optionVal=optionSelected;
+		}
+	}
+	$scope.LinkNewTicket = function(spType, spTicket){
+		  var ticketLinked=null; 
+			if(spType=="EXT"){
+				if($scope.linkedTicket.ticketNumber != ""){	
+					var linkedTicket={
+							parentTicketId:$scope.ticketData.ticketId,
+							parentTicketNo:$scope.ticketData.ticketNumber,
+							linkedTicketNo:$scope.linkedTicket.ticketNumber,
+							spId:$scope.ticketData.assignedTo,
+							spType:spType
+					}
+					ticketLinked = linkedTicket;
+				}
 			}
-			ticketService.linkTicket(linkedTicket)
+			else if(spType=="RSP"){
+				$scope.linkedTicket.ticketNumber = spTicket;
+				var linkedTicket={
+						parentTicketId:$scope.ticketData.ticketId,
+						parentTicketNo:$scope.ticketData.ticketNumber,
+						linkedTicketNo:$scope.linkedTicket.ticketNumber,
+						spId:$scope.ticketData.assignedTo,
+						spType:spType
+				}
+				ticketLinked = linkedTicket;
+			}
+			ticketService.linkTicket(ticketLinked)
 			.then(function(data){
 				//console.log(data);
 				if(data.statusCode == 200){
-				//console.log("Linked ticket added");
-				 $("#linkedTicket").val("");
-				 $scope.getLinkedTicketDetails(linkedTicket.parentTicketId);
+					 $("#linkedTicket").val("");
+					 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.spType);
+				}
+				else if(data.statusCode == 204){
+					$('#messageWindow').show();
+					$('#errorMessageDiv').show();
+					$('#errorMessageDiv').alert();
+					$scope.errorMessage=data.message;
 				}
 			},function(data){
 				//console.log(data);
 			});
-			
 		}
-		 
-	};
 	
 
 	
-	$scope.getLinkedTicketDetails=function(linkedTicket){
+	$scope.getLinkedTicketDetails=function(linkedTicket, spType){
 		ticketService.getLinkedTickets(linkedTicket)
 		.then(function(data){
 			//console.log(data);
 			if(data.statusCode == 200){
-			 $("#linkedTicket").val("");
-			 if(data.object.linkedTickets.length>0){
-				 $scope.ticketData.linkedTickets = data.object.linkedTickets;
+			 if(spType=="EXT"){	
+				 $("#linkedTicket").val("");
+				 if(data.object.linkedTickets.length>0){
+					 $scope.ticketData.linkedTickets = data.object.linkedTickets;
+				 }
 			 }
-			 
+			 if(spType=="RSP"){
+				 if(data.object.linkedTickets.length>0){
+					 $scope.linkedRspTickets = data.object.linkedTickets;
+				 } 
+			 }
 			}
 		},function(data){
 			//console.log(data);
@@ -1475,6 +1519,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 														ticketNumber:val.ticketNumber,
 														title:val.ticketTitle,
 														asset:val.assetName,
+														statusId:val.statusId,
 														status:val.status,
 												};
 												$scope.relatedTicketData.push(relTicketData);
@@ -1491,18 +1536,21 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 								 });
 								
 							}
-						    
-						    $scope.setTicketinSession=function(ticket){
+						    $scope.previewSelectedIncidentInfo=function(ticket){
+								 $('#previewIncidentModal').modal('show');
+							 }
+						  /*  $scope.setTicketinSession=function(ticket){
 								 ticketService.setIncidentSelected(ticket)
 									.then(function(data){
 										if(data.statusCode==200){
 											$scope.sessionTicket = data.object;
-											window.location.href=hostLocation+"/incident/details/view";
+											//window.location.href=hostLocation+"/incident/details/view";
+											 $scope.previewSelectedIncidentInfo($scope.sessionTicket);
 										}
 									},function(data){
 										$('#loadingDiv').hide();
 									});
-							 }
+							 }*/
     						//Ended By Supravat
     
     						//Added By Supravat for Financials Requirements.
@@ -2307,7 +2355,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 					 if(data.object.linkedTickets>0){
 						 $scope.ticketData.linkedTickets = data.object.linkedTickets
 					 }
-					 $scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+					 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, linkedTicket.spType);
 					 $scope.selectedLinkedTicketDetails = [];
 					 $('#confirmClose').modal('hide');
 				 }
@@ -2335,12 +2383,16 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 							$scope.selectedLinkedTicketDetails.pop($scope.selectedLinkedTicket);
 						}
 					}
-				 $scope.getLinkedTicketDetails($scope.ticketData.ticketId);
+				 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, linkedTicket.spType);
 				 $('#confirmUnlink').modal('hide');
 			 }
 		 },function(data){
-			 //console.log(data);
+			 console.log(data);
 		 });
+	 }
+	 
+	 $scope.linkRspTicket=function(selectedRspTicket){
+		 
 	 }
 	 
 	 $scope.openChatBox=function(){

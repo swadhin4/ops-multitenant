@@ -158,9 +158,7 @@ $(document).ready(function()  {
 			</section>
 			<section class="content">
 			<div class="box">
-			 				
 				<form name="createassetform" ng-submit="saveAssetEquipment()" >
-				
 				<div class="row">
 			 	<div class="col-md-12">
 			 	

@@ -31,7 +31,7 @@
 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.js"></c:url>'></script>
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.min.js"></c:url>'></script>
-
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/incident-modal.css"></c:url>' />
 <link rel="stylesheet"
 	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
 <link rel="stylesheet"
@@ -793,11 +793,9 @@ background:#deefe5
 												</table> -->
 											</div>
 											<div class="tab-pane" id="linkedticket">
-											<div style="display: none" id="loadingDiv3">
-			<div class="loader">Loading...</div>
-		</div>
+											
 												<div class="row">
-												<div class="col-md-6">
+											<!-- 	<div class="col-md-6">
 												<div class="box box-success">
 												<div class="box-header with-border">
 													<h3 class="box-title">Add linked ticket</h3>
@@ -811,8 +809,98 @@ background:#deefe5
 														</a>	
 													</div>
 													</div>	
+													</div> -->
+													
+														<div class="col-md-6">
+											<!-- 	<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Add linked ticket</h3>
+												</div>	
+													<div class="box-body">	
+														<input type="text" class="form-control" id="linkedTicket"
+														   placeholder="Add a linked ticket to associate customer ticket {{ticketData.ticketNumber}}"
+															maxlength="20" ng-model="linkedTicket.ticketNumber">
+														<a class="btn btn-success" ng-click="LinkNewTicket('EXT', ticketData)">
+															<i class="fa fa-link" aria-hidden="true"></i> Create
+														</a>	
 													</div>
-											<div class="col-md-6">
+													</div> -->
+															<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Add Link Ticket Number</h3>
+												</div>
+												<div class="box-body table-responsive no-padding">
+											<table class="table table-hover">
+												<tbody style="font-size: .9em">
+														<tr>
+														<th><input type="text" class="form-control" id="linkedTicket"
+												   placeholder="Add a linked ticket to associate customer ticket 
+												   {{ticketData.ticketNumber}}"
+													maxlength="20" ng-model="linkedTicket.ticketNumber"></th>
+														<th>
+															<a href ng-click="LinkNewTicket('EXT', ticketData)">
+														<span class="badge bg-green" style="    font-size: 1.4em;" >
+														<i class="fa fa-link"></i></span></a>
+														</th>
+														</tr>
+														</tbody>
+													</table>
+											</div>	
+												</div>	
+													</div>
+															<div class="col-md-6">
+												<div class="form-group"
+													ng-if="ticketData.linkedTickets.length>0">
+													<div class="box box-success">
+														<div class="box-header with-border">
+															<h3 class="box-title">List of Linked tickets</h3>
+														</div>
+															<div class="box-body table-responsive no-padding">
+													<table class="table table-hover">
+													<tbody style="font-size: .9em">
+														<tr ng-repeat="linkedTkt in ticketData.linkedTickets">
+
+															<td><input type="checkbox"
+																id="chkLinkedTicket{{$index}}"
+																ng-model="linkedTkt.selected"
+																ng-change="getSelectedLinkedTicket(linkedTkt)" /></td>
+															<td>
+																<label class="control-label">{{linkedTkt.spLinkedTicket}}</label>
+															</td>
+
+															<td style="vertical-align:middle;width: 60%;">
+															<span class=" pull-right"
+																ng-class="{{linkedTkt.closedFlag == 'CLOSED'}} ? 'label label-danger' : 'label label-success'">{{linkedTkt.closedFlag}}</span>
+															</td>
+															<td>
+																<a href type="button" data-toggle="tooltip" title="Unlink the ticket "
+																class="pull-right" 
+																ng-click="unlinkTicketConfirmation($index,linkedTkt)"
+																confirm="Are you sure?"> <span class="badge bg-red" style="font-size: 1.4em;">
+																<i class="fa fa-unlink"></i></span>
+																</a>
+															</td>
+
+														</tr>
+														<tr>
+															<td></td>
+															<td></td>
+															<td></td>
+															<td>
+																<button type="button" id="closedBtn"
+																	class="btn btn-success pull-right"
+																	ng-click="closeLinkedTicketConfirmation()">Close
+																	and save ticket</button>
+															</td>
+														</tr>
+															</tbody>
+															</table>
+														</div>
+														<!-- /.box-body -->
+													</div>
+												</div>
+											</div>
+								<!-- 			<div class="col-md-6">
 												<div class="form-group"
 													ng-if="ticketData.linkedTickets.length>0">
 													<div class="box box-success">
@@ -838,9 +926,9 @@ background:#deefe5
 																			ng-model="linkedTkt.selected"
 																			ng-change="getSelectedLinkedTicket(linkedTkt)" /></td>
 																		<td>
-																			<!-- <span class="label">{{linkedTicket.linkedTicketNo}}</span>     -->
+																			<span class="label">{{linkedTicket.linkedTicketNo}}</span>    
 																			<label class="control-label">{{linkedTkt.spLinkedTicket}}</label>
-																			<!-- <input type="text" class="form-control" ng-model="linkedTicket.linkedTicketNo" disabled="disabled"> -->
+																			<input type="text" class="form-control" ng-model="linkedTicket.linkedTicketNo" disabled="disabled">
 																		</td>
 
 																		<td style="vertical-align:middle">
@@ -869,10 +957,9 @@ background:#deefe5
 																</tbody>
 															</table>
 														</div>
-														<!-- /.box-body -->
 													</div>
 												</div>
-											</div>
+											</div> -->
 											</div>
 											</div>
 											<div class="tab-pane" id="attachments">
@@ -1176,7 +1263,54 @@ background:#deefe5
 											<div class="tab-pane" id="relatedTickets">
 											<div class="row">
 											<div class="col-md-12">
-												<div class="box">
+																		          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Related Tickets</h3>
+
+              <div class="box-tools">
+                <div class="input-group input-group-sm" style="width: 450px;">
+                  <input type="text" name="table_search" class="form-control pull-right" ng-model="ticketsearch" 
+                  placeholder="Search by incident number, asset name, site name, service provider, status">
+
+                  <div class="input-group-btn">
+                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+              <table class="table table-hover">
+              <tbody style="font-size: .9em"><tr ">
+					<th style="width:12%">Ticket Number</th>
+					<th style="width:20%">Title</th>
+					<th>Asset</th>
+					<th tyle="width:10%">Status</th>
+					
+					</tr>
+                <tr ng-repeat="val in relatedTicketData | filter: ticketsearch" ng-class="{currentSelected:$index == selectedRow}" 
+               	 ng-click="rowHighilited($index)">
+                	<th class="todo-list">
+                  {{val.ticketNumber}}
+                  <a href="#" ng-click="getTicketDetails(val);" data-toggle="modal"  ><i class="fa fa-eye pull-right"></i></a>
+                  </th>
+					<td>{{val.title}}</td>
+					<td>{{val.asset}}</td>
+					<td><span class="label label-success" ng-if="val.statusId == 1">{{val.status}}</span>
+					<span class="label label-warning" ng-if="val.statusId == 2">{{val.status}}</span>
+					<span class="label label-info" ng-if="val.statusId == 3">{{val.status}}</span>
+					<span class="label label-default" ng-if="val.statusId == 4">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId == 5">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId == 6">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId > 6">{{val.status}}</span>
+					
+					</td>
+					
+                </tr>
+              </tbody></table>
+            </div>
+          </div>
+								<!-- 				<div class="box">
 													<div class="box-header with-border">
 														<h3 class="box-title">Related Tickets</h3>
 													</div>
@@ -1216,7 +1350,7 @@ background:#deefe5
 														</div>
 													</div>
 												</div>
-												</div>
+												</div> -->
 												</div>
 												</div>
 											</div>
@@ -1413,6 +1547,120 @@ background:#deefe5
 									</div>
 								</div>
 							</div>
+							
+																		<div class="modal right fade" id="previewIncidentModal" tabindex="-1" role="dialog" aria-labelledby="previewIncidentModalLabel2">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel2">{{selectedTicket.ticketNumber}} - Overview</h4>
+				</div>
+				<div class="modal-body">
+				       <div class="box box-solid">
+            <div class="box-header with-border">
+              <i class="fa fa-text-width"></i>
+              <h3 class="box-title">{{selectedTicket.ticketTitle}}</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <dl>
+                <dt>Description</dt>
+                <dd>{{selectedTicket.description}}</dd>
+              </dl>
+            </div>
+          </div>
+								<div class="box box-widget widget-user" ng-if="selectedTicket.ticketNumber != null">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-aqua-active">
+              <h3 class="widget-user-username">Site : {{selectedTicket.siteName}}</h3>
+              <h5 class="widget-user-desc">Owner : {{selectedTicket.siteOwner}}</h5>
+            </div>
+           <!--  <div class="widget-user-image">
+              <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
+            </div> -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-6 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Contact Name</h5>
+                    <span class="description-text">{{selectedTicket.assignedSP}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-6 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Email</h5>
+                    <span class="description-text">{{selectedTicket.email}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+          </div>
+          						<div class="box box-widget widget-user" ng-if="selectedTicket.ticketNumber != null">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-green-active">
+              <h3 class="widget-user-username">Asset : {{selectedTicket.assetName}}</h3>
+              <h5 class="widget-user-desc">Code : {{selectedTicket.assetCode}}</h5>
+            </div>
+           <!--  <div class="widget-user-image">
+              <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
+            </div> -->
+            <div class="box-footer">
+              <div class="row">
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Service Provider</h5>
+                    <span class="description-text">{{selectedTicket.assignedSP}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Commissioned On</h5>
+                    <span class="description-text">{{selectedTicket.raisedOn}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                    <h5 class="description-header">Location</h5>
+                    <span class="description-text">{{selectedTicket.email}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                <!-- /.col -->
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+          </div>
+          <div class="info-box bg-yellow">
+            <span class="info-box-icon"><i class="ion ion-ios-pricetag-outline" style="margin-top: 26px;"></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">Time to raise the ticket</span>
+              <span class="info-box-number">30:10:30</span>
+              <div class="progress">
+                <div class="progress-bar" style="width: 50%"></div>
+              </div>
+              <span class="progress-description">
+                    50% Increase in 30 Days
+                  </span>
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+				</div>
+
+			</div><!-- modal-content -->
+		</div><!-- modal-dialog -->
+	</div><!-- modal -->
 
 							<%-- <div class="modal" id="fileAttachModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false" data-keyboard="false" data-backdrop="static">
       <div class="modal-dialog" style="width: 60%;">

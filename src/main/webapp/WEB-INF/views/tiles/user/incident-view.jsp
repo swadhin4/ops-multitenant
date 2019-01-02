@@ -23,8 +23,6 @@
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.min.js"></c:url>'></script>
 
-
-
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
@@ -290,7 +288,7 @@ $(function() {
 				        </div>
 				        <!-- /.box-body -->
 				        <div class="box-footer">
-			{{ticketData.createdBy}}
+			{{ticketData.raisedBy}}
 				        </div>
 				      </div>
 				      </div>

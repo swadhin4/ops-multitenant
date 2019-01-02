@@ -19,7 +19,6 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.TransactionDefinition;
 
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
@@ -760,6 +759,19 @@ public class SPUserDAO {
 	    	serviceProviderVO.setCustDbName(loginUser.getDbName());
 	    }
 	    return serviceProviderVO;
+	}
+
+	public int deleteRspCustomerAccessRecord(ServiceProviderVO rspCustomerMappedVO) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.RSP_CUSTOMER_RSP_USERACCESS__QUERY);
+			ps.setLong(1,rspCustomerMappedVO.getRspCustId());
+            return ps;
+	        }
+	      });
+	 	return updated;
 	}
 
 }
