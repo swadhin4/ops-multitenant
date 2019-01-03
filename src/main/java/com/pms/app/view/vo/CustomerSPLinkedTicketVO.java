@@ -21,6 +21,7 @@ public class CustomerSPLinkedTicketVO implements Serializable{
 	private String modifiedOn;
 	private String modifiedBy;
 	private String spType;
+	private String isValidLink; 
 	
 	public Long getId() {
 		return id;
@@ -99,6 +100,12 @@ public class CustomerSPLinkedTicketVO implements Serializable{
 	}
 	public void setRspTicketNumber(String rspTicketNumber) {
 		this.rspTicketNumber = rspTicketNumber;
+	}
+	public String getIsValidLink() {
+		return isValidLink;
+	}
+	public void setIsValidLink(String isValidLink) {
+		this.isValidLink = isValidLink;
 	}
 	@Override
 	public String toString() {

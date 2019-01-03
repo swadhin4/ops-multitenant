@@ -3,6 +3,7 @@ package com.pms.app.dao.impl;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -650,6 +652,34 @@ public class SiteDAO {
 		return siteList==null?Collections.EMPTY_LIST:siteList;
 	}
 
-	
+	public String getSiteAttachment(Long siteId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		String attachment = jdbcTemplate.query(AppConstants.SITE_ATTACHMENT_QUERY, new Object[] { siteId },
+				new ResultSetExtractor<String>() {
+					@Override
+					public String extractData(ResultSet rs) throws SQLException, DataAccessException {
+						String attachment=null;
+						if (rs.next()) {
+							attachment =  rs.getString("attachment_path");
+						}
+						return attachment;
+					}
+				});
+		return attachment;
+	}
+
+	public int deleteFromDB(Long siteId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int updatedRows = jdbcTemplate.update(AppConstants.SITE_ATTACHMENT_DELETE_QUERY,new Object[] { siteId },
+                new PreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps) throws SQLException {
+                        ps.setLong(1, siteId);
+                        ps.setNull(2, Types.NULL);
+                    }
+
+                });
+        return updatedRows;
+	}
 	
 }

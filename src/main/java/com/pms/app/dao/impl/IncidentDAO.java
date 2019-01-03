@@ -117,6 +117,7 @@ public class IncidentDAO {
 		ticketVO.setSiteId(rs.getLong("site_id"));
 		ticketVO.setSiteName(rs.getString("site_name"));
 		ticketVO.setAssetId(rs.getLong("asset_id"));
+		ticketVO.setAssetModel(rs.getString("model_number"));
 		ticketVO.setAssetName(rs.getString("asset_name"));
 		ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
 		String slaDueDate = ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate"));
@@ -960,5 +961,28 @@ public class IncidentDAO {
 		});
 		return ticket;
 		
+	}
+	public List<TicketAttachment> findByAttachmentIdIn(List<Long> incidentAttachementIds) {
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("attachmentIds", incidentAttachementIds);
+		List<TicketAttachment> incidentAttachments =  jdbcTemplate.query(AppConstants.INCIDENT_ATTACHMENT_LIST,parameters, new RowMapper<TicketAttachment>() {
+			@Override
+			public TicketAttachment mapRow(ResultSet rs, int arg1) throws SQLException {
+				TicketAttachment ticketAttachment = new TicketAttachment();
+				ticketAttachment.setAttachmentId(rs.getLong("id")); 
+				ticketAttachment.setTicketNumber(rs.getString("ticket_number"));
+				ticketAttachment.setAttachmentPath(rs.getString("attachment_path"));
+				return ticketAttachment;
+			}
+		});
+		return incidentAttachments;
+	}
+	public int deleteAttachmentById(List<Long> attachmentIds) {
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("attachmentIds", attachmentIds);
+        int updatedRows = jdbcTemplate.update(AppConstants.INCIDENT_ATTACHMENT_DELETE_QUERY,parameters);
+        return updatedRows;		
 	}	
 }

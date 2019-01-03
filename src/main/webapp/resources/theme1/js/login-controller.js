@@ -5,7 +5,7 @@ chrisApp.controller('loginController',
 		$scope.user={};	 
 		$rootScope.tenants={};	 
 		angular.element(document).ready(function(){
-			$scope.getTenants();
+			//$scope.getTenants();
 		});
 		
 		$scope.getTenants=function(){

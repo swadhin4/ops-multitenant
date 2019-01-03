@@ -6,6 +6,7 @@ import java.util.List;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
+import com.pms.web.util.RestResponse;
 
 public interface FileIntegrationService {
 
@@ -19,8 +20,8 @@ public interface FileIntegrationService {
 	
 	public String createIncidentFolder(String incidentNumber, Company company) throws IOException;
 	
-	/*public RestResponse getFileLocation(Company company, String keyName) throws Exception;
+	public RestResponse getFileLocation(Company company, String keyName) throws Exception;
 	
-	public RestResponse deleteFile(Long siteId, List<Long> licenseIdList, Long assetId, List<Long> incidentList, String keyName) throws Exception;*/
+	public RestResponse deleteFile(String dbName, Long siteId, List<Long> licenseIdList, Long assetId, List<Long> incidentList, String keyName) throws Exception;
 	
 }

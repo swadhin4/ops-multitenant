@@ -768,6 +768,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	
 	$scope.LinkNewTicket = function(spType, spTicket){
 		  var ticketLinked=null; 
+		  var isDuplicateTicket=false;
 			if(spType=="EXT"){
 				if($scope.linkedTicket.ticketNumber != ""){	
 					var linkedTicket={
@@ -779,18 +780,33 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 					}
 					ticketLinked = linkedTicket;
 				}
+				$.each( $scope.ticketData.linkedTickets,function(key,val){
+					if($scope.linkedTicket.ticketNumber == val.spLinkedTicket){
+						isDuplicateTicket =true;
+						return false;
+					}
+				});
+				
 			}
-			ticketService.linkTicket(ticketLinked)
-			.then(function(data){
-				//console.log(data);
-				if(data.statusCode == 200){
-				//console.log("Linked ticket added");
-				 $("#linkedTicket").val("");
-				 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.spType);
-				}
-			},function(data){
-				//console.log(data);
-			});
+			if(!isDuplicateTicket){
+				ticketService.linkTicket(ticketLinked)
+				.then(function(data){
+					//console.log(data);
+					if(data.statusCode == 200){
+					//console.log("Linked ticket added");
+					 $("#linkedTicket").val("");
+					 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.spType);
+					}
+				},function(data){
+					//console.log(data);
+				});
+			}else{
+				$scope.linkedTicket.ticketNumber="";
+				$('#messageWindow').show();
+				$('#errorMessageDiv').show();
+				$('#errorMessageDiv').alert();
+				$scope.errorMessage="Ticket number is already linked.";
+			}
 		}
 	
 

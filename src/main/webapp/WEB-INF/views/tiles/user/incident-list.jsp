@@ -366,7 +366,7 @@ $(function() {
           </div>
 								<div class="box box-widget widget-user" ng-if="sessionTicket.ticketNumber != null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-aqua-active">
+            <div class="widget-user-header bg-aqua-active" style="background-color: #4caf507d !important;">
               <h3 class="widget-user-username">Site : {{sessionTicket.siteName}}</h3>
               <h5 class="widget-user-desc">Owner : {{sessionTicket.siteOwner}}</h5>
             </div>
@@ -400,7 +400,7 @@ $(function() {
           </div>
           						<div class="box box-widget widget-user" ng-if="sessionTicket.ticketNumber != null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-green-active">
+            <div class="widget-user-header bg-green-active" style="background-color: #4caf507d !important;">
               <h3 class="widget-user-username">Asset : {{sessionTicket.assetName}}</h3>
               <h5 class="widget-user-desc">Code : {{sessionTicket.assetCode}}</h5>
             </div>
@@ -441,14 +441,19 @@ $(function() {
             <span class="info-box-icon"><i class="ion ion-ios-pricetag-outline" style="margin-top: 26px;"></i></span>
 
             <div class="info-box-content">
-              <span class="info-box-text">Time to raise the ticket</span>
-              <span class="info-box-number">30:10:30</span>
+              <span class="info-box-text">SLA ( % )</span>
+              <span class="info-box-number">{{sessionTicket.slaPercent}}</span>
               <div class="progress">
-                <div class="progress-bar" style="width: 50%"></div>
-              </div>
+               <div class="progress-bar"
+				ng-class="{'progress-bar-danger': sessionTicket.slaPercent >=100, 'progress-bar-warning': sessionTicket.slaPercent>75 && sessionTicket.slaPercent<100, 'progress-bar-info': sessionTicket.slaPercent>0 && sessionTicket.slaPercent<75}"
+				role="progressbar"
+				ng-style="{width: sessionTicket.width+'%'}">
+				 <span class="progress-text">SLA(%) {{sessionTicket.slaPercent}} </span>
+				</div>
               <span class="progress-description">
                     50% Increase in 30 Days
                   </span>
+                  
             </div>
             <!-- /.info-box-content -->
           </div>

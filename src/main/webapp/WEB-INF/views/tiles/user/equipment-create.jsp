@@ -17,9 +17,9 @@
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
 
 
-<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
+<%-- <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.js"></c:url>'></script>
-<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.js"></c:url>'></script> --%>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/moment.min.js"></c:url>'></script>
 
 
@@ -409,7 +409,7 @@ $(document).ready(function()  {
 						</div>
 						<div class="box box-widget widget-user" ng-if="equipmentData.assetId != null || selectedSite.siteId !=null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-aqua-active">
+            <div class="widget-user-header bg-aqua-active" style="background-color: #4caf507d !important;">
               <h3 class="widget-user-username">Site : {{selectedSite.siteName}}</h3>
               <h5 class="widget-user-desc">Owner : {{selectedSite.siteOwner}}</h5>
             </div>
@@ -441,7 +441,7 @@ $(document).ready(function()  {
           </div>
           <div class="box box-widget widget-user" ng-if="equipmentData.assetId != null ">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-aqua-active">
+            <div class="widget-user-header bg-aqua-active" style="background-color: #4caf507d !important;">
               <h3 class="widget-user-username">{{selectedAsset.serviceProviderName}}</h3>
               <h5 class="widget-user-desc">SP Type : <span ng-if="selectedAsset.spType=='RSP'">REGISTERED</span>
               <span ng-if="selectedAsset.spType=='EXT'">EXTERNAL</span></h5>
@@ -453,8 +453,8 @@ $(document).ready(function()  {
               <div class="row">
                 <div class="col-sm-6 border-right">
                   <div class="description-block">
-                    <!-- <h5 class="description-header">Contact Name</h5>
-                    <span class="description-text">{{selectedSite.contactName}}</span> -->
+                    <h5 class="description-header">Contact Email</h5>
+                    <span class="description-text">{{selectedAsset.spHelpDeskEmail}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>

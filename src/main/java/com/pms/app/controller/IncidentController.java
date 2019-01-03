@@ -745,9 +745,14 @@ public class IncidentController extends BaseController {
 					response.setObject(savedTicketLinked);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 				}else{
-					if( null==savedTicketLinked.getId()){
+					if(!loginUser.getUserType().equalsIgnoreCase("EXTSP") && spTicketMapType.equalsIgnoreCase("RSP") && null==savedTicketLinked.getId()){
 						response.setStatusCode(204);
 						response.setMessage("No Such ticket available for selected Service Provider");
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
+					else if(loginUser.getUserType().equalsIgnoreCase("EXTSP") && savedTicketLinked.getIsValidLink().equalsIgnoreCase("DUPLICATE")){
+						response.setStatusCode(204);
+						response.setMessage("Ticket number is already linked.");
 						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 					}else{
 						response.setStatusCode(204);

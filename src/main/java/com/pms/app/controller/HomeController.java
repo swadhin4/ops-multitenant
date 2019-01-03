@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,6 +27,8 @@ import com.pms.app.exception.PMSTechnicalException;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.TicketAttachment;
+import com.pms.web.service.FileIntegrationService;
+import com.pms.web.service.TicketService;
 import com.pms.web.util.RestResponse;
 
 /**
@@ -36,7 +39,10 @@ public class HomeController extends BaseController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(HomeController.class);
 	
-	
+	@Autowired
+	private FileIntegrationService fileIntegrationService;
+	@Autowired
+	private TicketService ticketService;
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home(final Locale locale, final ModelMap model,final HttpSession session) {
 		try{
@@ -121,7 +127,7 @@ public class HomeController extends BaseController {
 		if(loginUser!=null){
 			try {
 				if(StringUtils.isNotEmpty(keyName)){
-				RestResponse responseData = null;//fileIntegrationService.getFileLocation(loginUser.getCompany(),keyName);
+				RestResponse responseData = fileIntegrationService.getFileLocation(loginUser.getCompany(),keyName);
 				if(responseData.getStatusCode()==200){
 					setResponseWithFile(responseData.getMessage(), response);
 				}else{
@@ -178,26 +184,27 @@ public class HomeController extends BaseController {
 						for(String attachement:incidentIds){
 							ticketAttachementIds.add(Long.parseLong(attachement));
 						}
-						responseData = null;//fileIntegrationService.deleteFile(null, null,null,ticketAttachementIds,null);
-						List<TicketAttachment> fileAttachments = null;//ticketAttachmentRepo.findByTicketNumber(sessionTicketVO.getTicketNumber());
+						responseData = fileIntegrationService.deleteFile(loginUser.getDbName(),null, null,null,ticketAttachementIds,null);
+						LOGGER.info("Updating incident image path");
+						List<TicketAttachment> fileAttachments = ticketService.findByTicketId(sessionTicketVO.getTicketId(), loginUser);
 						List<TicketAttachment> fileAttachmentList = new ArrayList<TicketAttachment>();
 						if(fileAttachments==null){
 							LOGGER.info("No Ticket Attachment for "+ sessionTicketVO.getTicketNumber());
 						}else{
 							
-								SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-									for(TicketAttachment ticketAttachment : fileAttachments){
-										ticketAttachment.setCreatedDate(formatter.format(ticketAttachment.getCreatedOn()));
-										fileAttachmentList.add(ticketAttachment);
-									}
+							SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+							for (TicketAttachment ticketAttachment : fileAttachments) {
+								ticketAttachment.setCreatedDate(formatter.format(ticketAttachment.getCreatedOn()));
+								fileAttachmentList.add(ticketAttachment);
 							}
+						}
 								
-								sessionTicketVO.getAttachments().clear();
-								sessionTicketVO.setAttachments(fileAttachmentList);
-								session.setAttribute("selectedTicket", sessionTicketVO);
-								responseData.setStatusCode(200);
-								responseData.setObject(sessionTicketVO);
-								responseEntity = new ResponseEntity<RestResponse>(responseData,HttpStatus.OK);
+						sessionTicketVO.getAttachments().clear();
+						sessionTicketVO.setAttachments(fileAttachmentList);
+						session.setAttribute("selectedTicket", sessionTicketVO);
+						responseData.setStatusCode(200);
+						responseData.setObject(sessionTicketVO);
+						responseEntity = new ResponseEntity<RestResponse>(responseData,HttpStatus.OK);
 							
 						}
 					}

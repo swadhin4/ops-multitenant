@@ -5,41 +5,43 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.pms.app.dao.impl.IncidentDAO;
+import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
 import com.pms.jpa.entities.TicketAttachment;
+import com.pms.web.service.AwsIntegrationService;
 import com.pms.web.service.FileIntegrationService;
 import com.pms.web.util.ApplicationUtil;
+import com.pms.web.util.RestResponse;
 
 @Service(value="fileIntegrationService")
 public class FileIntegrationServiceImpl implements FileIntegrationService {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(FileIntegrationServiceImpl.class);
-	
-/*	@Autowired
-	private SiteRepo siteRepo;
-	
 	@Autowired
 	private AwsIntegrationService awsIntegrationService;
 	
-	@Autowired
-	private LicenseRepo licenseRepo;
-	
-	@Autowired
-	private AssetRepo assetRepo;
-	*/
+	private SiteDAO getSiteDAO(String dbName) {
+		return new SiteDAO(dbName);
+	}
 	private IncidentDAO getIncidentDAO(String dbName) {
 		return new IncidentDAO(dbName);
 	}
@@ -268,7 +270,7 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 
 */
 
-	/*@Override
+	@Override
 	public RestResponse getFileLocation(Company company, String keyName) throws Exception {
 		LOGGER.info("Inside FileIntegrationServiceImpl .. getFileLocation");
 		RestResponse response = new RestResponse();
@@ -321,7 +323,7 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 
 	private static void copyFileUsingApacheCommonsIO(File source, File dest) throws IOException {
 	    FileUtils.copyFile(source, dest);
-	}*/
+	}
 
 	@Override
 	public String createIncidentFolder(String incidentNumber, Company company) throws IOException {
@@ -350,32 +352,32 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 
 
 
-	/*@Override
+	@Override
 	@Transactional
-	public RestResponse deleteFile(Long siteId, List<Long> licenseIdList, Long assetId, List<Long> incidentList, String assetType) throws Exception {
+	public RestResponse deleteFile(final String dbName, Long siteId, List<Long> licenseIdList, Long assetId, List<Long> incidentList, String assetType) throws Exception {
 		LOGGER.info("Inside FileIntegrationServiceImpl .. deleteFile");
 		RestResponse response = new RestResponse();
 		if(siteId!=null){
-			Site site = siteRepo.findOne(siteId);
-			LOGGER.info("Deleting attachment for Site : "+site.getSiteName());
+			String attachmentFile = getSiteDAO(dbName).getSiteAttachment(siteId); 
+			LOGGER.info("Deleting attachment for Site : "+attachmentFile);
 			String fileUploadLocation = ApplicationUtil.getServerUploadLocation();
 			String fileDownloadLocation = ApplicationUtil.getServerDownloadLocation();
 			boolean isFileDeleted=false;
-			if(StringUtils.isNotBlank(site.getAttachmentPath())){
-			File uploadDirectory = new File(fileUploadLocation +"\\"+site.getAttachmentPath());
-			File downloadDirectory = new File(fileDownloadLocation +"\\"+site.getAttachmentPath());
+			if(StringUtils.isNotBlank(attachmentFile)){
+			File uploadDirectory = new File(fileUploadLocation +"\\"+attachmentFile);
+			File downloadDirectory = new File(fileDownloadLocation +"\\"+attachmentFile);
 				if(uploadDirectory.exists()){
 					if(uploadDirectory.delete()){
 						isFileDeleted =true;
 						response.setStatusCode(200);
 						LOGGER.info("Deleted successfully from "+uploadDirectory.getPath());
 					
-						response = deleteFileFromS3(site.getAttachmentPath(), response);
+						response = deleteFileFromS3(attachmentFile, response);
 						LOGGER.info("Deleted successfully from S3");
 						isFileDeleted=true;
 					}
 				}else{
-					response = deleteFileFromS3(site.getAttachmentPath(), response);
+					response = deleteFileFromS3(attachmentFile, response);
 					LOGGER.info("Deleted successfully from S3");
 					isFileDeleted=true;
 				}
@@ -387,14 +389,16 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 					}
 				}
 				if(isFileDeleted){
-					site.setAttachmentPath(null);
-					site = siteRepo.save(site);
-					//response.setObject(site);
-					response.setStatusCode(200);
+					int updatedRows = getSiteDAO(dbName).deleteFromDB(siteId);
+					if(updatedRows > 0){
+						response.setStatusCode(200);
+					}else{
+						response.setStatusCode(204);
+					}
 				}
 			}
 		}
-		if(licenseIdList!=null && !licenseIdList.isEmpty()){
+		if(licenseIdList!=null && !licenseIdList.isEmpty()){/*
 			boolean isFileDeleted=false;
 			List<SiteLicence> siteLicenseList = licenseRepo.findByLicenseIdIn(licenseIdList);
 			if(!siteLicenseList.isEmpty()){
@@ -434,9 +438,9 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 				}
 			}
 			
-		}
+		*/}
 		
-		if(assetId!=null){
+		if(assetId!=null){/*
 			Asset asset  = assetRepo.findOne(assetId);
 			if(StringUtils.isNotBlank(assetType) && assetType.equalsIgnoreCase("IMG")){
 				boolean isImgFileDeleted=false;
@@ -511,10 +515,10 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 				//response.setObject(asset);
 				response.setStatusCode(200);
 			}
-		}
+		*/}
 		
 		if(incidentList!=null && !incidentList.isEmpty()){
-			List<TicketAttachment> ticketAttachmentList = ticketAttachmentRepo.findByAttachmentIdIn(incidentList);
+			List<TicketAttachment> ticketAttachmentList =  getIncidentDAO(dbName).findByAttachmentIdIn(incidentList);
 			boolean isFileDeleted=false;
 			if(!ticketAttachmentList.isEmpty()){
 				List<KeyVersion> keys = new ArrayList<KeyVersion>();
@@ -544,11 +548,7 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 				if(response.getStatusCode()==200 && isFileDeleted){
 					response= awsIntegrationService.deleteMultipleFile(keys);
 					if(response.getStatusCode()==200){
-						LOGGER.info("Updating incident image path");
-						for(TicketAttachment attachment :ticketAttachmentList){
-							TicketAttachment tempAttachment = attachment;
-							ticketAttachmentRepo.delete(tempAttachment.getAttachmentId());
-						}
+						int deleted=getIncidentDAO(dbName).deleteAttachmentById(incidentList);
 						response.setStatusCode(200);
 					}
 				}
@@ -566,7 +566,7 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 		try{
 			response = awsIntegrationService.deleteFile("malay-first-s3-bucket-pms-test", keyName);
 			if(response.getStatusCode()==200){
-				response.setStatusCode(200);
+				return response;
 			}
 		}catch(IOException e){
 			response.setStatusCode(500);
@@ -574,6 +574,6 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 		}
 		return response;
 	}
-	*/
+	
 
 }

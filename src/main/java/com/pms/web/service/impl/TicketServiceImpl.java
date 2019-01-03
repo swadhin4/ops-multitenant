@@ -53,7 +53,6 @@ import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
 import com.pms.jpa.entities.Financials;
-import com.pms.jpa.entities.ServiceProvider;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -204,10 +203,10 @@ public class TicketServiceImpl implements TicketService {
 			//Change the logic if the incident is created by Customer or Registered Service Provider
 			incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
 			LOGGER.info("Updated Ticket : " +  incidentVO);
-			
+			incidentVO.setMessage("UPDATED");
 		}
 		
-		if(customerTicket.getMode().equalsIgnoreCase("IMAGEUPLOAD")){
+		else if(customerTicket.getMode().equalsIgnoreCase("IMAGEUPLOAD")){
 			/*ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(incidentVO);
 			incidentVO.setServiceProvider(serviceProvider);*/
 			incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
@@ -216,11 +215,6 @@ public class TicketServiceImpl implements TicketService {
 			incidentVO = imageUploadFeature(loginUser, incidentVO, folderLocation);
 			
 		}
-		else{
-			incidentVO = customerTicket; 
-		}
-		
-		
 		return incidentVO;
 	}
 
@@ -414,6 +408,7 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setAssetCategoryName(selectedTicket.getCategory_name());
 		ticketVO.setAssetName(selectedTicket.getAsset_name());
 		ticketVO.setAssetCode(selectedTicket.getAsset_code());
+		ticketVO.setAssetModel(selectedTicket.getModel_number());
 		ticketVO.setAssetSubCategory1(selectedTicket.getAsset_subcategory1());
 		ticketVO.setAssetSubCategory2(selectedTicket.getSubcategory2_name());
 		
@@ -450,6 +445,7 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setClosedOn(selectedTicket.getClosed_on());
 		ticketVO.setCreatedUser(selectedTicket.getFirst_name()+" "+selectedTicket.getLast_name());
 		ticketVO.setRaisedBy(selectedTicket.getCreated_by());
+		ticketVO.setRaisedUser(Long.parseLong(selectedTicket.getPhone()));
 		ticketVO.setCreatedOn(ApplicationUtil.makeDateStringFromSQLDate(selectedTicket.getCreated_on()));
 		ticketVO.setStatusId(selectedTicket.getStatus_id());
 		ticketVO.setStatusDescription(selectedTicket.getDescription());
@@ -547,6 +543,7 @@ public class TicketServiceImpl implements TicketService {
 			String linkedTicket, LoginUser user, String spMappingType, Long rspAssignedTo) throws Exception {
 		LOGGER.info("Inside TicketServiceImpl - saveLinkedTicket");
 		CustomerSPLinkedTicketVO  customerSPLinkedTicketVO = new CustomerSPLinkedTicketVO();
+		try{
 		if(spMappingType.equalsIgnoreCase("EXT")){
 			customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
 			customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
@@ -554,6 +551,7 @@ public class TicketServiceImpl implements TicketService {
 			customerSPLinkedTicketVO.setClosedFlag("OPEN");
 			customerSPLinkedTicketVO.setSpType("EXT");
 			customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_EXT_TICKET_MAPPING_QUERY);
+			customerSPLinkedTicketVO.setIsValidLink("VALID");
 		}
 		else if(spMappingType.equalsIgnoreCase("RSP")){
 			TicketVO ticketVo = getIncidentDAO(user.getDbName()).findRSPTicket(linkedTicket, rspAssignedTo);
@@ -565,6 +563,14 @@ public class TicketServiceImpl implements TicketService {
 				customerSPLinkedTicketVO.setClosedFlag("OPEN");
 				customerSPLinkedTicketVO.setSpType("RSP");
 				customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_RSP_TICKET_MAPPING_QUERY);
+				customerSPLinkedTicketVO.setIsValidLink("VALID");
+			}
+		}
+		}catch(Exception e){
+			//e.printStackTrace();
+			if(e.getMessage().contains("Duplicate")){
+				LOGGER.info("Duplicate Entry Customer and Link Ticket");
+				customerSPLinkedTicketVO.setIsValidLink("DUPLICATE");
 			}
 		}
 		

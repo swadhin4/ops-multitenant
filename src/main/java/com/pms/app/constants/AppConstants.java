@@ -178,38 +178,44 @@ public class AppConstants {
 	public static final String ASSET_DELETE_QUERY ="UPDATE pm_asset set del_flag=1 where asset_id=?";
 	
 	
-	public static final String CUST_EXT_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title, pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+	public static final String CUST_EXT_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title, pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, "
+			+ "  pa.asset_name, pa.model_number, pa.asset_code, pct.created_on, "
 			+ " pct.sla_duedate, psp.sp_id, psp.sp_name, pct.status_id, pst.status, pst.description, pct.created_by from pm_cust_ticket pct "
 			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
 			+ " left outer join pm_service_provider psp on psp.sp_id=pa.sp_id left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where pct.site_id in (:siteIds) and pct.assigned_to is NOT null and pct.rassigned_to is null  ";
 	
-	public static final String CUST_RSP_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+	public static final String CUST_RSP_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, "
+			+ "  pa.asset_name,pa.model_number, pa.asset_code, pct.created_on, "
 			+ " pct.sla_duedate, pct.rassigned_to as sp_id, psp.sp_name, pct.status_id, pst.status, pst.description, pct.created_by from pm_cust_ticket pct "
 			+ " left outer join pm_site ps on ps.site_id=pct.site_id "
 			+ " left outer join pm_asset pa on pa.asset_id=pct.asset_id "
 			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where  pct.assigned_to is null and pct.rassigned_to is NOT null  ";
 	
-	public static final String EXTSP_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title, pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+	public static final String EXTSP_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title, pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id,"
+			+ " pa.asset_name,pa.model_number, pa.asset_code, pct.created_on, "
 			+ " pct.sla_duedate, psp.sp_id, psp.sp_name, pct.status_id, pst.status, pst.description, pct.created_by from pm_cust_ticket pct "
 			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
 			+ " left outer join pm_service_provider psp on psp.sp_id=pa.sp_id left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where pct.assigned_to = ? ";
 	
-	public static final String RSP_CUST_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title, pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+	public static final String RSP_CUST_TICKET_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title, pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id,"
+			+ "  pa.asset_name, pa.model_number, pa.asset_code, pct.created_on, "
 			+ " pct.sla_duedate, pct.rassigned_to as sp_id, psp.sp_name, pct.status_id, pst.status, pst.description, pct.created_by from pm_cust_ticket pct "
 			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
 			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where pct.rassigned_to = :spId ";
 	
-	public static final String RSP_TICKET_CREATED_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+	public static final String RSP_TICKET_CREATED_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id,"
+			+ " pa.asset_name, pa.model_number, pa.asset_code, pct.created_on, "
 			+ " pct.sla_duedate, pct.rassigned_to as sp_id, psp.sp_name, pct.status_id, pst.status, pst.description, pct.created_by from pm_sp_tickets pct "
 			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
 			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where psp.sp_code = ? ";
 	
-	public static final String RSP_TICKET_SUGGESTED_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, pa.asset_name, pct.created_on, "
+	public static final String RSP_TICKET_SUGGESTED_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, "
+			+ " pa.asset_name, pa.model_number, pa.asset_code, pct.created_on, "
 			+ " pct.sla_duedate, pct.rassigned_to as sp_id, psp.sp_name, pct.status_id, pst.status, pst.description, pct.created_by from pm_sp_tickets pct "
 			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
 			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
@@ -616,4 +622,12 @@ public class AppConstants {
 	public static final String INCIDENT_REPORT_QUERY="select * from vw_incident_report where customer_ticket_number=?";
 
 	public static final String VALIDATE_TICKET_RSPID_QUERY = "select id, ticket_number from pm_sp_tickets where ticket_number=? and rassigned_to = ?";
+
+	public static final String SITE_ATTACHMENT_QUERY = "select attachment_path from site where site_id=?";
+	
+	public static final String SITE_ATTACHMENT_DELETE_QUERY = "update site set attachment_path = ? where site_id=?";
+
+	public static final String INCIDENT_ATTACHMENT_LIST = "select id,ticket_number, attachment_path from pm_cust_ticket_attachment where id in (:attachmentIds)";
+
+	public static final String INCIDENT_ATTACHMENT_DELETE_QUERY = "delete from pm_cust_ticket_attachment where id in (:attachmentIds)";
 }

@@ -965,7 +965,85 @@ background:#deefe5
 											<div class="tab-pane" id="attachments">
 											<div style="display: none" id="loadingDiv4">
 			<div class="loader">Loading...</div>
-		</div>
+		</div>								
+		
+					<div class="row" >
+														<div class="col-md-6">
+														  <div class="box">
+											           		 <div class="box-header">
+											             		 <h3 class="box-title">Attachment List</h3>
+															</div>
+														 <div class="box-body table-responsive no-padding">
+											              <table class="table table-hover">
+											              <tbody style="font-size: .9em"><tr ">
+																<th style="width:60%">File Name</th>
+																<th style="width:20%">Created On</th>
+																<th tyle="width:20%">Action</th>
+																
+																</tr>
+																<tr ng-repeat="file in ticketData.files">
+																	
+																		<td>{{file.fileName}}</td>
+																		<td>{{file.createdOn}}</td>
+																		<td><a
+																			href="${contextPath}/selected/file/download?keyname={{file.filePath}}"
+																			download data-toggle="tooltip"
+																			data-original-title="Download this file"> <i
+																				class="fa fa-cloud-download" style="font-size:1.5em"
+																				aria-hidden="true"></i></a> <a href
+																			ng-click="deleteFile('INCIDENT', file)"
+																			data-toggle="tooltip"
+																			data-original-title="Delete this file"> <i style="font-size:1.5em;color:red"
+																				class="fa fa-trash" aria-hidden="true"></i></a>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+															</div>
+															</div>
+														</div>
+														<div class="col-md-6">
+														  <div class="box">
+											           		 <div class="box-header">
+											             		 <h3 class="box-title">Add file to upload. image/*,.pdf only.</h3>
+											             		 <a href ng-click="addNewImage()"><span class="badge pull-right"><i style="font-size:1.5em;color:#fff"
+																				class="fa fa-plus-circle"  aria-hidden="true"></i> Add File</span></a>
+															</div>
+															 <div class="box-body table-responsive no-padding">
+																	<form role="form">
+																		<div class="controls">
+											             					 <table class="table table-hover">
+																				<tbody>
+																					<tr
+																						ng-repeat="incidentImage in incidentImageList">
+																						<td><input type="file"
+																							id="incidentImage{{$index}}"
+																							class="form-control"
+																							name="incidentImage[{{$index}}]"
+																							accept="image/*,.doc, .docx,.pdf"
+																							onchange="angular.element(this).scope().getIndexedName(this, event)"
+																							style="width: 80%"></td>
+																						<td><span id="imgsize{{$index}}"
+																							class="badge"></span></td>
+																						<td><a class="btn btn-danger" href
+																							ng-click="removeImage($index)"> <i
+																								class="fa fa-trash-o" aria-hidden="true"
+																								style="font-size: 1.4em;"></i>
+																						</a></td>
+																					</tr>
+																				</tbody>
+																			</table>
+																		   </div>
+																		   <span class="badge" id="totalSize"></span>
+																			<button type="button" class="btn btn-success pull-right" ng-if="incidentImageList.length>0"
+																			ng-click="uploadFiles('EDIT')" value="Upload"
+																			id="btnUpload">Upload</button>
+																	</form>
+																	</div>
+																	</div>
+																</div>
+													</div>
+		<%-- 
 												<div class="box-body">
 													<div class="row">
 														<div class="nav-tabs-custom">
@@ -1061,7 +1139,7 @@ background:#deefe5
 															</div>
 														</div>
 													</div>
-												</div>
+												</div> --%>
 											</div>
 
 											<div class="tab-pane" id="tickethistory">

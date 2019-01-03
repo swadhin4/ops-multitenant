@@ -471,7 +471,7 @@ background:#deefe5
 											            <div class="info-box-content">
 											              <span class="info-box-text">Site</span>
 											              <span class="info-box-number wordspace">{{ticketData.siteName}}<br>
-											              Address :  {{ticketData.siteAddress}}
+											              Address :  {{ticketData.siteAddress}} <br> Contact : {{ticketData.siteContact}}
 											              </span>
 											            </div>
 											          </div>
@@ -638,8 +638,8 @@ background:#deefe5
 																				class="input-group-addon"> <span
 																				class="glyphicon glyphicon-calendar"></span>
 																		</div>
-														<dl class="dl-horizontal">
-															<div class="progress">
+																<dl class="dl-horizontal">
+																	<div class="progress">
 																<div class="progress-bar"
 																	ng-class="{'progress-bar-danger': ticketData.slaPercent >=100, 'progress-bar-warning': ticketData.slaPercent>75 && ticketData.slaPercent<100, 'progress-bar-info': ticketData.slaPercent>0 && ticketData.slaPercent<75}"
 																	role="progressbar"
