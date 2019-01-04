@@ -366,7 +366,7 @@ $(function() {
           </div>
 								<div class="box box-widget widget-user" ng-if="sessionTicket.ticketNumber != null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-aqua-active" style="background-color: #4caf507d !important;">
+            <div class="widget-user-header" style="background-color: #00a65a;color:#fff">
               <h3 class="widget-user-username">Site : {{sessionTicket.siteName}}</h3>
               <h5 class="widget-user-desc">Owner : {{sessionTicket.siteOwner}}</h5>
             </div>
@@ -400,7 +400,7 @@ $(function() {
           </div>
           						<div class="box box-widget widget-user" ng-if="sessionTicket.ticketNumber != null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-green-active" style="background-color: #4caf507d !important;">
+            <div class="widget-user-header" style="background-color: #00a65a;color:#fff">
               <h3 class="widget-user-username">Asset : {{sessionTicket.assetName}}</h3>
               <h5 class="widget-user-desc">Code : {{sessionTicket.assetCode}}</h5>
             </div>

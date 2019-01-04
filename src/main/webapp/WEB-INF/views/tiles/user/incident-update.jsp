@@ -39,7 +39,9 @@
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
-
+ <link rel="stylesheet" href='<c:url value="/resources/theme1/css/baguetteBox.min.css"></c:url>' />
+  <link rel="stylesheet" href='<c:url value="/resources/theme1/css/thumbnail-gallery.css"></c:url>' />  
+ <script type="text/javascript" src='<c:url value="/resources/theme1/js/baguetteBox.min.js"></c:url>'></script>
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/incident-create-controller.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
 <script type="text/javascript"
@@ -181,7 +183,7 @@ background:#deefe5
 				return $(content).children(".popover-body").html();
 			}
 		});
-
+		baguetteBox.run('.tz-gallery');
 	})
 
 	function validate_tab(thisform) {
@@ -997,8 +999,8 @@ background:#deefe5
 											           		 <div class="box-header">
 											             		 <h3 class="box-title">Attachment List</h3>
 															</div>
-														 <div class="box-body table-responsive no-padding">
-											              <table class="table table-hover">
+														 <div class="box-body table-responsive no-padding" style="overflow-x:hidden">
+											           <%--    <table class="table table-hover">
 											              <tbody style="font-size: .9em"><tr ">
 																<th style="width:60%">File Name</th>
 																<th style="width:20%">Created On</th>
@@ -1022,7 +1024,39 @@ background:#deefe5
 																		</td>
 																	</tr>
 																</tbody>
-															</table>
+															</table> --%>
+															<div class="row gallery-container">
+
+   
+    
+    <div class="tz-gallery">
+
+        <div class="row">
+            <div class="col-sm-6 col-md-4" ng-repeat="file in ticketData.files">
+                <div class="thumbnail" ng-if="file.filePath!=null">
+                    <a class="lightbox" href="${contextPath}/selected/file/download?keyname={{file.filePath}}" style="width:100%" target="_blank">
+                        <img src="${contextPath}/selected/file/download?keyname={{file.filePath}}" alt="Park" style="width:100%">
+                    </a>
+                    <div class="caption">
+                        <h3>{{file.createdOn}}</h3>
+                       <a
+						href="${contextPath}/selected/file/download?keyname={{file.filePath}}"
+						download data-toggle="tooltip"
+						data-original-title="Download this file"> <i
+							class="fa fa-cloud-download" style="font-size:1.5em"
+							aria-hidden="true"></i></a> <a href
+						ng-click="deleteFile('INCIDENT', file)"
+						data-toggle="tooltip"
+						data-original-title="Delete this file"> <i style="font-size:1.5em;color:red"
+							class="fa fa-trash" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
 															</div>
 															</div>
 														</div>
@@ -1571,7 +1605,7 @@ background:#deefe5
           </div>
 								<div class="box box-widget widget-user" ng-if="selectedTicket.ticketNumber != null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-aqua-active">
+            <div class="widget-user-header" style="background-color: #00a65a;color:#fff">
               <h3 class="widget-user-username">Site : {{selectedTicket.siteName}}</h3>
               <h5 class="widget-user-desc">Owner : {{selectedTicket.siteOwner}}</h5>
             </div>
@@ -1603,7 +1637,7 @@ background:#deefe5
           </div>
           						<div class="box box-widget widget-user" ng-if="selectedTicket.ticketNumber != null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-green-active">
+            <div class="widget-user-header" style="background-color: #00a65a;color:#fff">
               <h3 class="widget-user-username">Asset : {{selectedTicket.assetName}}</h3>
               <h5 class="widget-user-desc">Code : {{selectedTicket.assetCode}}</h5>
             </div>

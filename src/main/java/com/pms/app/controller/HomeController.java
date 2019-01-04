@@ -47,9 +47,8 @@ public class HomeController extends BaseController {
 	public String home(final Locale locale, final ModelMap model,final HttpSession session) {
 		try{
 		LoginUser loginUser=getCurrentLoggedinUser(session);
-		String message = (String) model.get("message");
 		if(loginUser==null){
-			model.put("message", null);
+			return "index";
 		}
 		else{
 			model.put("message", loginUser.getMessage());
@@ -57,7 +56,7 @@ public class HomeController extends BaseController {
 		}
 		}catch(PMSTechnicalException pmse) {
 			LOGGER.error(pmse.getMessage());
-			return "index";
+			return "redirect:/login";
 		}catch(Exception e){
 			e.printStackTrace();
 			return "index";
@@ -66,8 +65,8 @@ public class HomeController extends BaseController {
 	}
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String login(final Locale locale, final ModelMap model,final HttpServletRequest request) {
-		//List<Tenant> tenantList = tenantService.getAllTenants();
-		//model.put("tenantList", tenantList);
+		/*model.put("message", "Invalid Username or password");
+		model.put("user", 0);*/
 		return "login";
 	}
 	
@@ -185,6 +184,9 @@ public class HomeController extends BaseController {
 							ticketAttachementIds.add(Long.parseLong(attachement));
 						}
 						responseData = fileIntegrationService.deleteFile(loginUser.getDbName(),null, null,null,ticketAttachementIds,null);
+						if(responseData.getStatusCode()==200){
+							
+						}
 						LOGGER.info("Updating incident image path");
 						List<TicketAttachment> fileAttachments = ticketService.findByTicketId(sessionTicketVO.getTicketId(), loginUser);
 						List<TicketAttachment> fileAttachmentList = new ArrayList<TicketAttachment>();
@@ -198,7 +200,6 @@ public class HomeController extends BaseController {
 								fileAttachmentList.add(ticketAttachment);
 							}
 						}
-								
 						sessionTicketVO.getAttachments().clear();
 						sessionTicketVO.setAttachments(fileAttachmentList);
 						session.setAttribute("selectedTicket", sessionTicketVO);

@@ -1169,7 +1169,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		  var ticketLinked=null; 
 		  var isDuplicateTicket=false;
 			if(spType=="EXT"){
-				if($scope.linkedTicket.ticketNumber != ""){	
+				if($scope.linkedTicket.ticketNumber != "" ||  $scope.linkedTicket.ticketNumber != null){	
 					var linkedTicket={
 							parentTicketId:$scope.ticketData.ticketId,
 							parentTicketNo:$scope.ticketData.ticketNumber,
@@ -1197,8 +1197,8 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 						spType:spType
 				}
 				ticketLinked = linkedTicket;
-				$.each( $scope.ticketData.linkedTickets,function(key,val){
-					if($scope.linkedRspTickets == val.spLinkedTicket){
+				$.each($scope.linkedRspTickets,function(key,val){
+					if($scope.linkedTicket.ticketNumber == val.spLinkedTicket){
 						isDuplicateTicket =true;
 						
 						return false;
@@ -1206,24 +1206,27 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				});
 			}
 			if(!isDuplicateTicket){
-				ticketService.linkTicket(ticketLinked)
-				.then(function(data){
-					//console.log(data);
-					if(data.statusCode == 200){
+				if(ticketLinked.linkedTicketNo == null){
+					$('#messageWindow').show();
+					$('#errorMessageDiv').show();
+					$('#errorMessageDiv').alert();
+					$scope.errorMessage="Please enter the link ticket number";
+				}else{
+					ticketService.linkTicket(ticketLinked)
+					.then(function(data){
+						//console.log(data);
+						if(data.statusCode == 200){
 						 $("#linkedTicket").val("");
+						 $scope.linkedTicket.ticketNumber = null;
 						 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.spType);
-					}
-					else if(data.statusCode == 204){
-						$('#messageWindow').show();
-						$('#errorMessageDiv').show();
-						$('#errorMessageDiv').alert();
-						$scope.errorMessage=data.message;
-					}
-				},function(data){
-					//console.log(data);
-				});
+						}
+					},function(data){
+						//console.log(data);
+					});
+				}
 			}else{
-				$scope.linkedTicket.ticketNumber="";
+				 $scope.linkedTicket.ticketNumber = null;
+				 $("#linkedTicket").val("");
 				$('#messageWindow').show();
 				$('#errorMessageDiv').show();
 				$('#errorMessageDiv').alert();
@@ -2327,11 +2330,10 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		 //console.log($scope.ticketData.linkedTickets);
 		 //console.log(selectedLinkedTicket);
 		 var selectedLinkedTicketCount = 0;
-			$scope.selectedLinkedTicket = angular.copy(selectedLinkedTicket)
-			if($scope.selectedLinkedTicketDetails != "undefined"){
-				selectedLinkedTicketCount = $scope.ticketData.linkedTickets.length;
-			}
-			
+			$scope.selectedLinkedTicket = angular.copy(selectedLinkedTicket);
+				if($scope.selectedLinkedTicketDetails != "undefined"){
+					selectedLinkedTicketCount = $scope.ticketData.linkedTickets.length;
+				}
 			//$scope.selectedLinkedTicketDetails.push($scope.selectedLinkedTicket);
 			//console.log($scope.selectedLinkedTicketDetails);
 			

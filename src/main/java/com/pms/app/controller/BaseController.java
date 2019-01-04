@@ -43,10 +43,44 @@ public class BaseController {
 	public String getCurrentLoggedinUserName() {
 		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 		String username = auth.getName();
-		if(StringUtils.isNotBlank(username)){
+		 if(StringUtils.isNotBlank(username)){
 			return username;
 		}
 		return username;
+	}
+	
+	private AuthorizedUserDetails authenticate(Authentication authentication) throws AuthenticationException {
+		UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) authentication;
+		String username = getCurrentLoggedinUserName();
+		String password = String.valueOf(auth.getCredentials());
+
+		logger.info("username:" + username);
+		logger.info("password:" + password); // Don't log passwords in real app
+
+		// 1. Use the username to load the data for the user, including authorities and password.
+		// 2. Check the passwords match (should use a hashed password here).
+		AuthorizedUserDetails userDetails = null;//(AuthorizedUserDetails) userAuthorizationService.loadUserByUsername(username);
+		try {
+			boolean isPasswordValidated = CredentialUtils.validatePassword(password, userDetails.getUser().getPassword());
+			if (isPasswordValidated) {
+
+				// 3. Preferably clear the password in the user object before storing in authentication object
+				userDetails.eraseCredentials();
+
+				// 4. Return an authenticated token, containing user data and authorities  
+				userDetails.getUser().setPassword("");
+			}
+			else{
+				throw new BadCredentialsException("Bad Credentials");
+			}
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			logger.info("Exception while validating password", e);
+		} catch (InvalidKeySpecException e) {
+			e.printStackTrace();
+			logger.info("Exception while validating key for the password", e);
+		}
+		return userDetails ;
 	}
 
 	/**
@@ -68,7 +102,7 @@ public class BaseController {
 			if (StringUtils.isNotBlank(username)) {
 				 if(username.equalsIgnoreCase("anonymousUser")){
 					 loginUser = null;
-					// throw new PMSTechnicalException("User session is expired. Please re-login");
+					 throw new PMSTechnicalException("Invalid user credentials. Please re-login");
 				 }else{
 					Authentication springAuthentication = SecurityContextHolder.getContext().getAuthentication();
 					AuthorizedUserDetails authUser = (AuthorizedUserDetails) springAuthentication.getPrincipal() ;
@@ -171,38 +205,6 @@ public class BaseController {
 	}
 
 
-	private AuthorizedUserDetails authenticate(Authentication authentication) throws AuthenticationException {
-		UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) authentication;
-		String username = getCurrentLoggedinUserName();
-		String password = String.valueOf(auth.getCredentials());
 
-		logger.info("username:" + username);
-		logger.info("password:" + password); // Don't log passwords in real app
-
-		// 1. Use the username to load the data for the user, including authorities and password.
-		// 2. Check the passwords match (should use a hashed password here).
-		AuthorizedUserDetails userDetails = null;//(AuthorizedUserDetails) userAuthorizationService.loadUserByUsername(username);
-		try {
-			boolean isPasswordValidated = CredentialUtils.validatePassword(password, userDetails.getUser().getPassword());
-			if (isPasswordValidated) {
-
-				// 3. Preferably clear the password in the user object before storing in authentication object
-				userDetails.eraseCredentials();
-
-				// 4. Return an authenticated token, containing user data and authorities  
-				userDetails.getUser().setPassword("");
-			}
-			else{
-				throw new BadCredentialsException("Bad Credentials");
-			}
-		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
-			logger.info("Exception while validating password", e);
-		} catch (InvalidKeySpecException e) {
-			e.printStackTrace();
-			logger.info("Exception while validating key for the password", e);
-		}
-		return userDetails ;
-	}
 
 }

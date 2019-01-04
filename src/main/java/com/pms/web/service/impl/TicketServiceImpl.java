@@ -32,6 +32,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.pms.app.constants.AppConstants;
@@ -60,6 +61,7 @@ import com.pms.jpa.entities.TicketComment;
 import com.pms.web.service.AwsIntegrationService;
 import com.pms.web.service.TicketService;
 import com.pms.web.util.ApplicationUtil;
+import com.pms.web.util.RestResponse;
 
 @Service("ticketService")
 public class TicketServiceImpl implements TicketService {
@@ -291,7 +293,6 @@ public class TicketServiceImpl implements TicketService {
 						isUploaded = true;
 					}
 				}
-				
 			}
 			if(company!=null){
 				List<TicketAttachment> ticketAttachments = siteIncidentFileUpload(customerTicketVO.getIncidentImageList(), customerTicketVO, company, folderLocation, uploadedBy);
@@ -347,20 +348,35 @@ public class TicketServiceImpl implements TicketService {
 			
 			for (Map.Entry<Path, String> pathEntry : incidentKeyMap.entrySet()) {
 				LOGGER.info("Uploading file to S3 : "+ pathEntry.getValue());
-				pushToAwsS3(pathEntry.getKey(),  pathEntry.getValue());
+				RestResponse response = pushToAwsS3(pathEntry.getKey(),  pathEntry.getValue());
 			}
 
 			LOGGER.info("Exit FileIntegrationServiceImpl .. siteIncidentFileUpload");
 			return ticketAttachmentList;
 		
 	}
-	private void pushToAwsS3(Path destinationFile, String fileKey) {
+	private RestResponse pushToAwsS3(Path destinationFile, String fileKey) {
 		AWSCredentials credentials = new BasicAWSCredentials("AKIAJZTA6BYNTESWQWBQ","YWzhoGSfC1ADDT+xHzvAsvf/wyMlSl71TexLLg8t");
+		RestResponse response = new RestResponse();
 		@SuppressWarnings("deprecation")
 		AmazonS3 s3client = new AmazonS3Client(credentials);
 		s3client.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_2));
-		String bucketName="malay-first-s3-bucket-pms-test";
-		awsIntegrationService.uploadObject(new PutObjectRequest(bucketName, fileKey, destinationFile.toFile()).withCannedAcl(CannedAccessControlList.Private), s3client);
+		try{
+			List<Bucket> bucketList = s3client.listBuckets();
+			if(bucketList != null){
+				String bucketName="malay-first-s3-bucket-pms-test";
+				awsIntegrationService.uploadObject(new PutObjectRequest(bucketName, fileKey, destinationFile.toFile()).withCannedAcl(CannedAccessControlList.Private), s3client);
+				response.setStatusCode(200);
+			}else{
+				response.setStatusCode(503);
+				response.setMessage("AWS Service Not Available");
+			}
+		}catch(Exception e){
+			LOGGER.info("AWS service not available ", e.getMessage() );
+			response.setStatusCode(503);
+			response.setMessage("AWS Service Not Available");
+		}
+		return response;
 	}
 
 	@Override

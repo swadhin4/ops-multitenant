@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.exception.PMSTechnicalException;
 import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
@@ -62,7 +63,7 @@ import io.swagger.annotations.ApiResponses;
  */
 @RequestMapping(value = "/incident")
 @Controller
-@Api(value="Incident Service")
+@Api(value = "Incident Service")
 public class IncidentController extends BaseController {
 
 	private static final Logger logger = LoggerFactory.getLogger(IncidentController.class);
@@ -71,30 +72,22 @@ public class IncidentController extends BaseController {
 	@Autowired
 	private EmailService emailService;
 
-	/*
-	 * 
-	 * 
-	 * @Autowired private ServiceProviderService serviceProviderService;
-	 * 
-	 * @Autowired private SPEscalationLevelRepo spEscalationRepo;
-	 * 
-	 * @Autowired private TicketAttachmentRepo ticketAttachmentRepo;
-	 * 
-	 * @Autowired private FinancialService finService;
-	 */
-
 	@RequestMapping(value = "/details", method = RequestMethod.GET)
 	public String incidentDetails(final Locale locale, final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
-		LoginUser loginUser = getCurrentLoggedinUser(session);
-		if (loginUser != null) {
-			model.put("user", loginUser);
-			if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
-				return "redirect:/user/profile";
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				model.put("user", loginUser);
+				if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
+					return "redirect:/user/profile";
+				} else {
+					return "incident.details";
+				}
 			} else {
-				return "incident.details";
+				return "redirect:/login";
 			}
-		} else {
+		} catch (PMSTechnicalException e) {
 			return "redirect:/login";
 		}
 	}
@@ -102,56 +95,67 @@ public class IncidentController extends BaseController {
 	@RequestMapping(value = "/details/create", method = RequestMethod.GET)
 	public String incidentDetailsCreate(final Locale locale, final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
-		LoginUser loginUser = getCurrentLoggedinUser(session);
-		if (loginUser != null) {
-			model.put("user", loginUser);
-			if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
-				return "redirect:/user/profile";
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				model.put("user", loginUser);
+				if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
+					return "redirect:/user/profile";
+				} else {
+					model.put("mode", "NEW");
+					session.setAttribute("imageList", null);
+					AssetVO selectedAssetVO = (AssetVO) session.getAttribute("assetVO");
+					model.put("assetVO", selectedAssetVO);
+					return "incident.create";
+				}
 			} else {
-				model.put("mode", "NEW");
-				session.setAttribute("imageList", null);
-				AssetVO selectedAssetVO = (AssetVO)session.getAttribute("assetVO");
-				model.put("assetVO", selectedAssetVO);
-				return "incident.create";
+				return "redirect:/login";
 			}
-		} else {
+		} catch (PMSTechnicalException e) {
 			return "redirect:/login";
 		}
 	}
-	
 
 	@RequestMapping(value = "/create/page", method = RequestMethod.GET)
 	public String incidentCreatePage(final Locale locale, final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
-		LoginUser loginUser = getCurrentLoggedinUser(session);
-		if (loginUser != null) {
-			model.put("user", loginUser);
-			if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
-				return "redirect:/user/profile";
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				model.put("user", loginUser);
+				if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
+					return "redirect:/user/profile";
+				} else {
+					model.put("mode", "NEW");
+					model.put("assetVO", null);
+					session.setAttribute("imageList", null);
+					return "incident.create";
+				}
 			} else {
-				model.put("mode", "NEW");
-				model.put("assetVO", null);
-				session.setAttribute("imageList", null);
-				return "incident.create";
+				return "redirect:/login";
 			}
-		} else {
+		} catch (PMSTechnicalException e) {
 			return "redirect:/login";
 		}
-	}	
+	}
 
 	@RequestMapping(value = "/details/update", method = RequestMethod.GET)
 	public String incidentDetailsUpdate(final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
-		LoginUser loginUser = getCurrentLoggedinUser(session);
-		if (loginUser.getSysPassword() != null) {
-			model.put("user", loginUser);
-			if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
-				return "redirect:/user/profile";
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser.getSysPassword() != null) {
+				model.put("user", loginUser);
+				if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
+					return "redirect:/user/profile";
+				} else {
+					model.put("mode", "EDIT");
+					return "incident.update";
+				}
 			} else {
-				model.put("mode", "EDIT");
-				return "incident.update";
+				return "redirect:/login";
 			}
-		} else {
+		} catch (PMSTechnicalException e) {
 			return "redirect:/login";
 		}
 	}
@@ -160,28 +164,33 @@ public class IncidentController extends BaseController {
 	public String incidentDetailsView(final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
-		if (loginUser != null) {
-			model.put("user", loginUser);
-			if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
-				return "redirect:/user/profile";
+		try {
+			if (loginUser != null) {
+				model.put("user", loginUser);
+				if (loginUser.getSysPassword().equalsIgnoreCase("YES")) {
+					return "redirect:/user/profile";
+				} else {
+					model.put("mode", "EDIT");
+					return "incident.view";
+				}
 			} else {
-				model.put("mode", "EDIT");
-				return "incident.view";
+				return "redirect:/login";
 			}
-		} else {
+		} catch (PMSTechnicalException e) {
 			return "redirect:/login";
 		}
 	}
 
 	@RequestMapping(value = "/list/{assignedTo}", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<RestResponse> listAllTickets(final HttpSession session,@PathVariable(value="assignedTo") final String assignedTo ) {
+	public ResponseEntity<RestResponse> listAllTickets(final HttpSession session,
+			@PathVariable(value = "assignedTo") final String assignedTo) {
 		List<TicketVO> tickets = null;
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-					tickets = ticketSerice.getAllCustomerTickets(loginUser,assignedTo);
+				tickets = ticketSerice.getAllCustomerTickets(loginUser, assignedTo);
 				if (tickets.isEmpty()) {
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NO_CONTENT);
 					return responseEntity;
@@ -224,19 +233,20 @@ public class IncidentController extends BaseController {
 
 	@RequestMapping(value = "/status/{category}/{custdb}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<Status>> listAllOpenTickets(HttpSession session,
-			@PathVariable(value = "category") final String category, @PathVariable(value = "custdb") final String custdb) {
+			@PathVariable(value = "category") final String category,
+			@PathVariable(value = "custdb") final String custdb) {
 		List<Status> statusList = null;
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				if(!custdb.equalsIgnoreCase("NA")){
+				if (!custdb.equalsIgnoreCase("NA")) {
 					loginUser.setDbName(custdb);
 				}
-					statusList = ticketSerice.getStatusByCategory(loginUser, category);
-					if (statusList.isEmpty()) {
-						return new ResponseEntity(HttpStatus.NO_CONTENT);
-						// You many decide to return HttpStatus.NOT_FOUND
-					}
+				statusList = ticketSerice.getStatusByCategory(loginUser, category);
+				if (statusList.isEmpty()) {
+					return new ResponseEntity(HttpStatus.NO_CONTENT);
+					// You many decide to return HttpStatus.NOT_FOUND
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -247,13 +257,15 @@ public class IncidentController extends BaseController {
 
 	@RequestMapping(value = "/priority/sla/{spId}/{categoryId}/{sptype}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> getPriorityAndSLA(@PathVariable(value = "spId") Long spId,
-			@PathVariable(value = "categoryId") Long categoryId,@PathVariable(value = "sptype") String sptype, final HttpSession session) {
+			@PathVariable(value = "categoryId") Long categoryId, @PathVariable(value = "sptype") String sptype,
+			final HttpSession session) {
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if (loginUser != null) {
 			try {
-				TicketPrioritySLAVO ticketPrioritySLAVO = ticketSerice.getTicketPriority(spId, categoryId, sptype, loginUser);
+				TicketPrioritySLAVO ticketPrioritySLAVO = ticketSerice.getTicketPriority(spId, categoryId, sptype,
+						loginUser);
 				if (ticketPrioritySLAVO.getPriorityId() != null) {
 					response.setStatusCode(200);
 					response.setObject(ticketPrioritySLAVO);
@@ -279,8 +291,8 @@ public class IncidentController extends BaseController {
 	}
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST, produces = "application/json")
-	 @ApiOperation(value="Create Incident",notes="Creation a new Incident",response=IncidentController.class)
-    @ApiResponses(value = {  @ApiResponse(code = 200, message = "Incident Created successfully") })
+	@ApiOperation(value = "Create Incident", notes = "Creation a new Incident", response = IncidentController.class)
+	@ApiResponses(value = { @ApiResponse(code = 200, message = "Incident Created successfully") })
 	public ResponseEntity<RestResponse> createNewIncident(final Locale locale, final ModelMap model,
 			@RequestBody final TicketVO ticketVO, final HttpSession session) {
 		logger.info("Inside IncidentController .. createNewIncident");
@@ -293,32 +305,33 @@ public class IncidentController extends BaseController {
 			try {
 				logger.info("TicektVO : " + ticketVO);
 				String selectedCustLocation = (String) session.getAttribute("custLocation");
-				if(!StringUtils.isEmpty(selectedCustLocation)){
+				if (!StringUtils.isEmpty(selectedCustLocation)) {
 					loginUser.setDbName(selectedCustLocation);
 				}
-				logger.info("Saving ticket to : "+ loginUser.getDbName() +" created by : "+loginUser.getUserType());
-					savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
-					if (ticketVO.getMode().equalsIgnoreCase("NEW")	&& savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
-						response.setStatusCode(200);
-						response.setObject(savedTicketVO);
-						response.setMessage("New Incident created successfully");
-						String loginUserDB = (String) session.getAttribute("loggedInUserDB");
-						loginUser.setDbName(loginUserDB);
-						session.setAttribute("loginUser", loginUser);
-						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-					} else if (ticketVO.getMode().equalsIgnoreCase("UPDATE")
-							&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
-						response.setStatusCode(200);
-						response.setObject(savedTicketVO);
-						response.setMessage("Incident updated successfully");
-						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-					} else if (ticketVO.getMode().equalsIgnoreCase("IMAGEUPLOAD")
-							&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
-						response.setStatusCode(200);
-						response.setObject(savedTicketVO);
-						response.setMessage("Incident images uploaded successfully");
-						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-					}
+				logger.info("Saving ticket to : " + loginUser.getDbName() + " created by : " + loginUser.getUserType());
+				savedTicketVO = ticketSerice.saveOrUpdate(ticketVO, loginUser);
+				if (ticketVO.getMode().equalsIgnoreCase("NEW")
+						&& savedTicketVO.getMessage().equalsIgnoreCase("CREATED")) {
+					response.setStatusCode(200);
+					response.setObject(savedTicketVO);
+					response.setMessage("New Incident created successfully");
+					String loginUserDB = (String) session.getAttribute("loggedInUserDB");
+					loginUser.setDbName(loginUserDB);
+					session.setAttribute("loginUser", loginUser);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				} else if (ticketVO.getMode().equalsIgnoreCase("UPDATE")
+						&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
+					response.setStatusCode(200);
+					response.setObject(savedTicketVO);
+					response.setMessage("Incident updated successfully");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				} else if (ticketVO.getMode().equalsIgnoreCase("IMAGEUPLOAD")
+						&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
+					response.setStatusCode(200);
+					response.setObject(savedTicketVO);
+					response.setMessage("Incident images uploaded successfully");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
 
 			} catch (Exception e) {
 				logger.info("Exception in getting response", e);
@@ -346,7 +359,7 @@ public class IncidentController extends BaseController {
 					}
 				});
 			}
-			
+
 		} else {
 			response.setStatusCode(401);
 			response.setMessage("Your current session is expired. Please login again");
@@ -421,7 +434,6 @@ public class IncidentController extends BaseController {
 		return responseEntity;
 	}
 
-	
 	@RequestMapping(value = "/ticket/{ticketId}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> getSelectedTicket(@PathVariable(value = "ticketId") Long ticketId,
 			HttpSession session) {
@@ -447,14 +459,14 @@ public class IncidentController extends BaseController {
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
 
 			}
-		}else {
+		} else {
 			response.setStatusCode(401);
 			response.setMessage("Your current session is expired. Please login again");
 			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
 		}
 		return responseEntity;
 	}
-	
+
 	@RequestMapping(value = "/selected/ticket", method = RequestMethod.POST)
 	public ResponseEntity<RestResponse> getSelectedTicket(final ModelMap model, final HttpServletRequest request,
 			final HttpSession session, @RequestBody TicketVO ticketVO) {
@@ -463,10 +475,10 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				if(loginUser.getUserType().equalsIgnoreCase("SP")){
+				if (loginUser.getUserType().equalsIgnoreCase("SP")) {
 					loginUser.setDbName(ticketVO.getCustomerDB());
 				}
-				TicketVO selectedTicketVO = ticketSerice.getSelectedTicket(ticketVO.getTicketId(),loginUser);
+				TicketVO selectedTicketVO = ticketSerice.getSelectedTicket(ticketVO.getTicketId(), loginUser);
 				session.setAttribute("selectedTicket", selectedTicketVO);
 				response.setStatusCode(200);
 				response.setObject(selectedTicketVO);
@@ -497,17 +509,17 @@ public class IncidentController extends BaseController {
 			try {
 				if (selectedTicketVO != null) {
 					String custDBName = (String) session.getAttribute("selectedTicketDB");
-					if(StringUtils.isEmpty(custDBName)){
+					if (StringUtils.isEmpty(custDBName)) {
 						selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
-						if(selectedTicketVO.getTicketAssignedType().equalsIgnoreCase("RSP")){
-							List<TicketVO> rspSuggestedTickets = ticketSerice.getSuggestedTicketForAsset(loginUser, selectedTicketVO.getAssetId());
-							if(!rspSuggestedTickets.isEmpty()){
+						if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase("RSP")) {
+							List<TicketVO> rspSuggestedTickets = ticketSerice.getSuggestedTicketForAsset(loginUser,
+									selectedTicketVO.getAssetId());
+							if (!rspSuggestedTickets.isEmpty()) {
 								response.setObject2(rspSuggestedTickets);
 							}
 						}
 						response.setObject(selectedTicketVO);
-					}
-					else{
+					} else {
 						loginUser.setDbName(custDBName);
 						selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
 					}
@@ -517,7 +529,9 @@ public class IncidentController extends BaseController {
 					} else {
 						List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
 						for (EscalationLevelVO escalationVO : escalationLevelVOs) {
-							TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser, selectedTicketVO.getTicketAssignedType());
+							TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(
+									selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser,
+									selectedTicketVO.getTicketAssignedType());
 							EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
 							if (ticketEscalationVO.getCustEscId() != null) {
 								tempEscalationVO.setStatus("Escalated");
@@ -586,7 +600,7 @@ public class IncidentController extends BaseController {
 					List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),
 							loginUser);
 					selectedTicketVO.setFinancialList(finacialsList);
-					
+
 					session.setAttribute("selectedTicket", selectedTicketVO);
 					response.setStatusCode(200);
 					response.setObject(selectedTicketVO);
@@ -618,10 +632,9 @@ public class IncidentController extends BaseController {
 			TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
 			String custDBName = (String) session.getAttribute("selectedTicketDB");
 			List<TicketAttachment> fileAttachments = new ArrayList<TicketAttachment>();
-			if(StringUtils.isEmpty(custDBName)){
-				fileAttachments =ticketSerice.findByTicketId(ticketId, loginUser);
-			}
-			else{
+			if (StringUtils.isEmpty(custDBName)) {
+				fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser);
+			} else {
 				loginUser.setDbName(custDBName);
 				fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser);
 			}
@@ -728,8 +741,7 @@ public class IncidentController extends BaseController {
 
 	@RequestMapping(value = "/linkedticket/{ticketId}/{ticketNumber}/{linkedticket}/{spTicketMapType}/{spAssignedTo}", method = RequestMethod.GET)
 	public ResponseEntity<RestResponse> linked(final ModelMap model, HttpServletRequest request, HttpSession session,
-			@PathVariable(value = "ticketId") Long ticketId,
-			@PathVariable(value = "ticketNumber") String ticketNumber,
+			@PathVariable(value = "ticketId") Long ticketId, @PathVariable(value = "ticketNumber") String ticketNumber,
 			@PathVariable(value = "linkedticket") String linkedTicket,
 			@PathVariable(value = "spTicketMapType") String spTicketMapType,
 			@PathVariable(value = "spAssignedTo") Long rspAssginedTo) {
@@ -738,27 +750,31 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				CustomerSPLinkedTicketVO savedTicketLinked = ticketSerice.saveLinkedTicket(ticketId, ticketNumber,
-						linkedTicket, loginUser, spTicketMapType, rspAssginedTo);
-				if (savedTicketLinked.getId() != null) {
-					response.setStatusCode(200);
-					response.setObject(savedTicketLinked);
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				List<CustomerSPLinkedTicketVO> spLinkedTickets = ticketSerice.getAllLinkedTickets(ticketId, loginUser);
+				boolean isSPTicketLinked = false;
+				if(spLinkedTickets.isEmpty()){
+					isSPTicketLinked = true;
 				}else{
-					if(!loginUser.getUserType().equalsIgnoreCase("EXTSP") && spTicketMapType.equalsIgnoreCase("RSP") && null==savedTicketLinked.getId()){
-						response.setStatusCode(204);
-						response.setMessage("No Such ticket available for selected Service Provider");
+					for(CustomerSPLinkedTicketVO spLinkedTicket: spLinkedTickets){
+						if(spLinkedTicket.getSpLinkedTicket().equalsIgnoreCase(linkedTicket)){
+							isSPTicketLinked = false;
+							break;
+						}else{
+							isSPTicketLinked = true;
+						}
+					}
+				}	
+				if(isSPTicketLinked){
+					CustomerSPLinkedTicketVO savedTicketLinked = ticketSerice.saveLinkedTicket(ticketId, ticketNumber,linkedTicket, loginUser, spTicketMapType, rspAssginedTo);
+					if (savedTicketLinked.getId() != null) {
+						response.setStatusCode(200);
+						response.setObject(savedTicketLinked);
 						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 					}
-					else if(loginUser.getUserType().equalsIgnoreCase("EXTSP") && savedTicketLinked.getIsValidLink().equalsIgnoreCase("DUPLICATE")){
-						response.setStatusCode(204);
-						response.setMessage("Ticket number is already linked.");
-						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-					}else{
-						response.setStatusCode(204);
-						response.setMessage("Unable to link ticket");
-						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-					}
+				}else{
+					response.setStatusCode(204);
+					response.setMessage("Ticket number is already linked.");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 				}
 			} else {
 				response.setStatusCode(401);
@@ -910,70 +926,61 @@ public class IncidentController extends BaseController {
 			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
 			logger.info("Exception while escalations", e);
 		}
-		/*if (response.getStatusCode() == 200) {
-			List<String> escCCMailList = new ArrayList<String>(0);
-			EscalationLevelVO spEscalationLevel = null;
-			List<EscalationLevelVO> escalationLevelVOs = ticketEscalationLevels.getTicketData()	.getEscalationLevelList();
+		/*
+		 * if (response.getStatusCode() == 200) { List<String> escCCMailList =
+		 * new ArrayList<String>(0); EscalationLevelVO spEscalationLevel = null;
+		 * List<EscalationLevelVO> escalationLevelVOs =
+		 * ticketEscalationLevels.getTicketData() .getEscalationLevelList();
+		 * 
+		 * if (escalationLevelVOs.size() == 0) { logger.info(
+		 * "No escalation list available"); } else { logger.info(
+		 * "Escalation Level list : " + escalationLevelVOs.size()); try {
+		 * spEscalationLevel =
+		 * ticketSerice.getSPEscalationLevels(ticketEscalationLevels.getEscId(),
+		 * loginUser,
+		 * ticketEscalationLevels.getTicketData().getTicketAssignedType());
+		 * TicketVO selectedTicketVO = (TicketVO)
+		 * session.getAttribute("selectedTicket"); for (EscalationLevelVO
+		 * escalatedTicket : selectedTicketVO.getEscalationLevelList()) { if
+		 * (StringUtils.isNotBlank(escalatedTicket.getStatus())) {
+		 * escCCMailList.add(escalatedTicket.getEscalationEmail()); } }
+		 * 
+		 * } catch (Exception e) { // TODO Auto-generated catch block
+		 * e.printStackTrace(); }
+		 * 
+		 * logger.info("escCCMailList :" + escCCMailList); }
+		 */
+		/*
+		 * final SPEscalationLevels spEscLevel = spEscalationLevel; final
+		 * TicketEscalationVO savedTicketEsc = savedTicketEscalation;
+		 * TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+		 * theExecutor.execute(new Runnable() {
+		 * 
+		 * @Override public void run() { logger.info("Email thread started : " +
+		 * Thread.currentThread().getName()); if (spEscLevel != null) { String
+		 * ccEscList = ""; if (!escCCMailList.isEmpty()) { ccEscList =
+		 * StringUtils.join(escCCMailList, ','); logger.info(
+		 * "Escalation CC List : " + ccEscList); try {
+		 * emailService.successEscalationLevel(ticketEscalationLevels.
+		 * getTicketData(), spEscLevel, ccEscList,
+		 * savedTicketEsc.getEscLevelDesc()); } catch (Exception e) {
+		 * logger.info("Exception while sending email", e); } } else {
+		 * logger.info("Escalation To List : " +
+		 * spEscLevel.getEscalationEmail()); logger.info(
+		 * "Escalation CC list is empty"); try {
+		 * emailService.successEscalationLevel(ticketEscalationLevels.
+		 * getTicketData(), spEscLevel, ccEscList,
+		 * savedTicketEsc.getEscLevelDesc()); } catch (Exception e) {
+		 * logger.info("Exception while sending email", e); }
+		 * 
+		 * }
+		 * 
+		 * } else { logger.info("No ticket escalated for SP"); }
+		 * 
+		 * } });
+		 */
 
-			if (escalationLevelVOs.size() == 0) {
-				logger.info("No escalation list available");
-			} else {
-				logger.info("Escalation Level list : " + escalationLevelVOs.size());
-				try {
-					spEscalationLevel = ticketSerice.getSPEscalationLevels(ticketEscalationLevels.getEscId(), loginUser, ticketEscalationLevels.getTicketData().getTicketAssignedType());
-					TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
-					for (EscalationLevelVO escalatedTicket : selectedTicketVO.getEscalationLevelList()) {
-						if (StringUtils.isNotBlank(escalatedTicket.getStatus())) {
-							escCCMailList.add(escalatedTicket.getEscalationEmail());
-						}
-					}
-
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				logger.info("escCCMailList :" + escCCMailList);
-			}*/
-	/*		final SPEscalationLevels spEscLevel = spEscalationLevel;
-			final TicketEscalationVO savedTicketEsc = savedTicketEscalation;
-			TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
-			theExecutor.execute(new Runnable() {
-
-				@Override
-				public void run() {
-					logger.info("Email thread started : " + Thread.currentThread().getName());
-					if (spEscLevel != null) {
-						String ccEscList = "";
-						if (!escCCMailList.isEmpty()) {
-							ccEscList = StringUtils.join(escCCMailList, ',');
-							logger.info("Escalation CC List : " + ccEscList);
-							try {
-								emailService.successEscalationLevel(ticketEscalationLevels.getTicketData(), spEscLevel,
-										ccEscList, savedTicketEsc.getEscLevelDesc());
-							} catch (Exception e) {
-								logger.info("Exception while sending email", e);
-							}
-						} else {
-							logger.info("Escalation To List : " + spEscLevel.getEscalationEmail());
-							logger.info("Escalation CC list is empty");
-							try {
-								emailService.successEscalationLevel(ticketEscalationLevels.getTicketData(), spEscLevel,
-										ccEscList, savedTicketEsc.getEscLevelDesc());
-							} catch (Exception e) {
-								logger.info("Exception while sending email", e);
-							}
-
-						}
-
-					} else {
-						logger.info("No ticket escalated for SP");
-					}
-
-				}
-			});*/
-
-		//}
+		// }
 
 		logger.info("Exit IncidentController .. escalate");
 		return responseEntity;

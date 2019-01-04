@@ -126,7 +126,11 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 					$scope.setSLAWidth($scope.ticketData);
 					$scope.getTicketCategory();
 					$scope.getAttachments($scope.ticketData.ticketId);
-					$scope.getLinkedTicketDetails($scope.ticketData.ticketId,"EXT");
+					//$scope.getLinkedTicketDetails($scope.ticketData.ticketId,"EXT");
+					if(viewMode.toUpperCase()=="EDIT"){
+						$scope.optionVal="ZERO";
+	    				$scope.getLinkedTicketDetails($scope.ticketData.ticketId, $scope.ticketData.ticketAssignedType);
+    				}
 					$scope.getEscalationLevel();
 					$scope.changeStatusDescription($scope.ticketData.statusDescription);
 					//Added By Supravat for Financials Requirements.
@@ -770,11 +774,11 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		  var ticketLinked=null; 
 		  var isDuplicateTicket=false;
 			if(spType=="EXT"){
-				if($scope.linkedTicket.ticketNumber != ""){	
+				if($scope.linkedTicket.ticketNumber != "" ||  $scope.linkedTicket.ticketNumber != null){	
 					var linkedTicket={
 							parentTicketId:$scope.ticketData.ticketId,
 							parentTicketNo:$scope.ticketData.ticketNumber,
-							linkedTicketNo:$scope.linkedTicket.ticketNumber,
+							linkedTicketNo:$scope.linkedTicket.ticketNumber||null,
 							spId:$scope.ticketData.assignedTo,
 							spType:spType
 					}
@@ -789,19 +793,26 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 				
 			}
 			if(!isDuplicateTicket){
-				ticketService.linkTicket(ticketLinked)
-				.then(function(data){
-					//console.log(data);
-					if(data.statusCode == 200){
-					//console.log("Linked ticket added");
-					 $("#linkedTicket").val("");
-					 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.spType);
-					}
-				},function(data){
-					//console.log(data);
-				});
+				if(ticketLinked.linkedTicketNo == null){
+					$('#messageWindow').show();
+					$('#errorMessageDiv').show();
+					$('#errorMessageDiv').alert();
+					$scope.errorMessage="Please enter the link ticket number";
+				}else{
+					ticketService.linkTicket(ticketLinked)
+					.then(function(data){
+						//console.log(data);
+						if(data.statusCode == 200){
+						 $("#linkedTicket").val("");
+						 $scope.linkedTicket.ticketNumber = null;
+						 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.spType);
+						}
+					},function(data){
+						//console.log(data);
+					});
+				}
 			}else{
-				$scope.linkedTicket.ticketNumber="";
+				 $scope.linkedTicket.ticketNumber = null;
 				$('#messageWindow').show();
 				$('#errorMessageDiv').show();
 				$('#errorMessageDiv').alert();
@@ -955,7 +966,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 					
 				}
 				initializeEscalateTicket();
-				$scope.getLinkedTicketDetails($scope.ticketData.ticketId, "EXT");
+				$scope.getLinkedTicketDetails($scope.ticketData.ticketId, $scope.ticketData.ticketAssignedType);
 			},function(data){
 				//console.log(data);
 			});
@@ -1384,7 +1395,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
     
     
     // NOW UPLOAD THE FILES.
-    $scope.uploadFiles = function () {
+    $scope.uploadFiles = function (mode) {
 	//console.log($scope.incidentImages);
     	
     	if($scope.incidentImages.length>0){
@@ -1400,9 +1411,13 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	        	 $('#errorMessageDiv').show();
 	        	 $('#errorMessageDiv').alert();
     		}else{
-			 $scope.ticketData.incidentImageList=$scope.incidentImages;
-		     $scope.persistTicket( $scope.ticketData, "UPLOAD");
-		     $('#totalSize').text("");
+    			 $scope.ticketData.incidentImageList=$scope.incidentImages;
+    			 if(mode=="EDIT"){
+    				 $scope.ticketData.mode="IMAGEUPLOAD"
+    			     $scope.persistTicket( $scope.ticketData, "UPLOAD");
+    			 }else{
+    				 $('#btnUploadCancel').click();
+    			 }
 		    
 			}
 		 }
@@ -1736,31 +1751,36 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		}
 
 	 $scope.closeLinkedTicket=function(){
+		 //console.log($scope.selectedLinkedTicketDetails.length);
 		 if($scope.selectedLinkedTicketDetails.length==1){
 			 var linkedTicket = {};
 			 linkedTicket.detail= $scope.selectedLinkedTicketDetails[0];
 			 linkedTicket.status="CLOSED";
-			 ticketService.changeLinkedTicketStatus(linkedTicket,"sp")
+			 ticketService.changeLinkedTicketStatus(linkedTicket)
 			 .then(function(data){
 				 if(data.statusCode==200){
 					 if(data.object.linkedTickets>0){
 						 $scope.ticketData.linkedTickets = data.object.linkedTickets
 					 }
-					 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, "EXT");
+					 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, linkedTicket.spType);
 					 $scope.selectedLinkedTicketDetails = [];
 					 $('#confirmClose').modal('hide');
 				 }
 			 },function(data){
 				 //console.log(data);
 			 });
-		 }else{
-			 alert("At a time single ticket status can be closed")
+		 }else if($scope.selectedLinkedTicketDetails.length ==0 ){
+			 //alert("At a time single ticket status can be closed")
+			 	$('#messageWindow').show();
+				$('#errorMessageDiv').show();
+				$('#errorMessageDiv').alert();
+				$scope.errorMessage="At a time select 1 opened linked ticket to close the status."
 		 }
 	 }
 	 
 	 $scope.unlinkTicket=function(){
 		 var linkedTicket = angular.copy($scope.unlinkTktObject);
-		 ticketService.deleteLinkedTicket(linkedTicket,"sp")
+		 ticketService.deleteLinkedTicket(linkedTicket)
 		 .then(function(data){
 			// console.log(data);
 			 if(data.statusCode == 200){
@@ -1770,7 +1790,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 							$scope.selectedLinkedTicketDetails.pop($scope.selectedLinkedTicket);
 						}
 					}
-				 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, "EXT");
+				 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, linkedTicket.spType);
 				 $('#confirmUnlink').modal('hide');
 			 }
 		 },function(data){

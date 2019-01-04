@@ -409,7 +409,7 @@ $(document).ready(function()  {
 						</div>
 						<div class="box box-widget widget-user" ng-if="equipmentData.assetId != null || selectedSite.siteId !=null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-aqua-active" style="background-color: #4caf507d !important;">
+           <div class="widget-user-header" style="background-color: #00a65a;color:#fff">
               <h3 class="widget-user-username">Site : {{selectedSite.siteName}}</h3>
               <h5 class="widget-user-desc">Owner : {{selectedSite.siteOwner}}</h5>
             </div>
@@ -441,7 +441,7 @@ $(document).ready(function()  {
           </div>
           <div class="box box-widget widget-user" ng-if="equipmentData.assetId != null ">
             <!-- Add the bg color to the header using any of the bg-* classes -->
-            <div class="widget-user-header bg-aqua-active" style="background-color: #4caf507d !important;">
+          <div class="widget-user-header" style="background-color: #00a65a;color:#fff">
               <h3 class="widget-user-username">{{selectedAsset.serviceProviderName}}</h3>
               <h5 class="widget-user-desc">SP Type : <span ng-if="selectedAsset.spType=='RSP'">REGISTERED</span>
               <span ng-if="selectedAsset.spType=='EXT'">EXTERNAL</span></h5>

@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.AmazonClientException;
@@ -17,6 +19,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
@@ -35,7 +38,7 @@ import com.pms.web.util.RestResponse;
 public class AwsIntegrationServiceImpl implements AwsIntegrationService{
 	
 	private static final String SUFFIX = "/";
-	
+	private final static Logger LOGGER = LoggerFactory.getLogger(AwsIntegrationServiceImpl.class);
 	@Override
 	public void uploadObject(PutObjectRequest fileObject, AmazonS3 s3Client) {
 		s3Client.putObject(fileObject);
@@ -131,15 +134,27 @@ public class AwsIntegrationServiceImpl implements AwsIntegrationService{
 		AWSCredentials credentials = new BasicAWSCredentials("AKIAJZTA6BYNTESWQWBQ","YWzhoGSfC1ADDT+xHzvAsvf/wyMlSl71TexLLg8t");
 		AmazonS3 s3client = new AmazonS3Client(credentials);
 		s3client.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_2));
-		DeleteObjectsRequest multiObjectDeleteRequest = new DeleteObjectsRequest("malay-first-s3-bucket-pms-test");
-		multiObjectDeleteRequest.setKeys(keys);
-		try {
-		    DeleteObjectsResult delObjRes = s3client.deleteObjects(multiObjectDeleteRequest);
-		    System.out.format("Successfully deleted all the %s items.\n", delObjRes.getDeletedObjects().size());
-		    response.setStatusCode(200);			
-		} catch (MultiObjectDeleteException e) {
-			   response.setStatusCode(500);
-			   e.printStackTrace();
+		try{
+			List<Bucket> bucketList = s3client.listBuckets();
+			if(bucketList != null){
+				DeleteObjectsRequest multiObjectDeleteRequest = new DeleteObjectsRequest("malay-first-s3-bucket-pms-test");
+				multiObjectDeleteRequest.setKeys(keys);
+				try {
+				    DeleteObjectsResult delObjRes = s3client.deleteObjects(multiObjectDeleteRequest);
+				    System.out.format("Successfully deleted all the %s items.\n", delObjRes.getDeletedObjects().size());
+				    response.setStatusCode(200);			
+				} catch (MultiObjectDeleteException e) {
+				   response.setStatusCode(500);
+				   e.printStackTrace();
+				}
+			}else{
+				response.setStatusCode(503);
+				response.setMessage("AWS service not available");
+			}
+		}catch(Exception e){
+			LOGGER.info("AWS service not available ", e.getMessage() );
+			response.setStatusCode(503);
+			response.setMessage("AWS Service Not Available");
 		}
 		return response;
 	}

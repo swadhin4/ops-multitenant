@@ -533,8 +533,9 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 				if(uploadDirectory.exists()){
 					if(uploadDirectory.delete()){
 						isFileDeleted =true;
-						response.setStatusCode(200);
 						LOGGER.info("Deleted successfully from "+uploadDirectory.getPath());
+						int deleted=getIncidentDAO(dbName).deleteAttachmentById(incidentList);
+						response.setStatusCode(200);
 					}else{
 						response = deleteFileFromS3(ticketAttachmentList.get(0).getAttachmentPath(), response);
 						LOGGER.info("Deleted successfully from S3");
@@ -547,8 +548,13 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 				}
 				if(response.getStatusCode()==200 && isFileDeleted){
 					response= awsIntegrationService.deleteMultipleFile(keys);
-					if(response.getStatusCode()==200){
-						int deleted=getIncidentDAO(dbName).deleteAttachmentById(incidentList);
+					if(response.getStatusCode()==503){
+						LOGGER.info("AWS service is not available to connect to S3");
+						// This is for testing only. Remove in production. Send Proper message to UI about S3 connection.
+						//int deleted=getIncidentDAO(dbName).deleteAttachmentById(incidentList);
+						//response.setStatusCode(200);
+					}else {
+						//int deleted=getIncidentDAO(dbName).deleteAttachmentById(incidentList);
 						response.setStatusCode(200);
 					}
 				}

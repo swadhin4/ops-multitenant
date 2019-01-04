@@ -57,7 +57,7 @@
 
 .panel-default {
  opacity: 0.9;
- margin-top:30px;
+ margin-top:8px;
 }
 .form-group.last {
  margin-bottom:0px;
@@ -234,16 +234,16 @@ $(function(){
     	  	  <div class="panel panel-default">
                 <div class="panel-body">
           	    <div class="col-md-4 col-sm-4" style="text-align: center;">
-          	      <img src="${contextPath}/resources/img/incident.png" style="    width:30%;"><br>
+          	      <img src="${contextPath}/resources/img/incident.png" style="    width:23%;"><br>
           	       <h4>Simplify Incident Management Process</h4>
           	    </div>
           	     <div class="col-md-4 col-sm-4" style="text-align: center;" >
-          	      <img src="${contextPath}/resources/img/site-asset.jpg" style="    width: 47%;">
+          	      <img src="${contextPath}/resources/img/site-asset.jpg" style="    width:35%;">
           	      <br>
           	       <h4>Easily Manage your sites and assets</h4>
           	    </div>
           	    <div class="col-md-4 col-sm-4" style="text-align: center;">
-          	      <img src="${contextPath}/resources/img/Performance.png" style="    width: 47%;"><br>
+          	      <img src="${contextPath}/resources/img/Performance.png" style="    width: 35%;"><br>
           	       <h4>Gain insights into Service Providers' Performance</h4>
           	    </div>
           	    </div>

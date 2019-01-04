@@ -116,10 +116,10 @@ a, a:hover, a:active {
                     <div class="nav-tabs-custom">
                         <ul class="nav nav-tabs">
                             <li class="active">
-                                <a  href="#home" aria-expanded="true" class ="btn btn-primary" data-toggle="tab"  >Registered User</a>
+                                <a  href="#home" aria-expanded="true" class ="btn btn-success" data-toggle="tab"  >Registered User</a>
                             </li>
                             <li>
-                                <a  href="#profile" aria-expanded="false" class ="btn btn-warning pull-right" data-toggle="tab" >External User</a>
+                                <a  href="#profile" aria-expanded="false" class ="btn btn-danger pull-right" data-toggle="tab" >External User</a>
                             </li>
                         </ul>
                         <div class="tab-content">
@@ -174,6 +174,7 @@ a, a:hover, a:active {
                                 <h3  class="register-heading">Login as External SP  </h3>
                                 <div class="row register-form">
                                     <div class="col-md-12">
+                                   <%--  <c:if test="${user eq 0}">${message}</c:if> --%>
                                  <form name="extloginForm" class="form-horizontal"  method="post" action="${contextPath}/j_spring_security_check">
 					<div class="col-sm-12">
 							<div class="col-sm-12 form-group">
