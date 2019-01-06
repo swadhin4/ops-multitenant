@@ -1167,6 +1167,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	}
 	$scope.LinkNewTicket = function(spType, spTicket){
 		  var ticketLinked=null; 
+		  if(spTicket != ""){
 		  var isDuplicateTicket=false;
 			if(spType=="EXT"){
 				if($scope.linkedTicket.ticketNumber != "" ||  $scope.linkedTicket.ticketNumber != null){	
@@ -1225,13 +1226,19 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 					});
 				}
 			}else{
-				 $scope.linkedTicket.ticketNumber = null;
-				 $("#linkedTicket").val("");
+					$scope.linkedTicket.ticketNumber = null;
+					$("#linkedTicket").val("");
+					$('#messageWindow').show();
+					$('#errorMessageDiv').show();
+					$('#errorMessageDiv').alert();
+					$scope.errorMessage="Ticket number is already linked.";
+			}
+		  }else{
 				$('#messageWindow').show();
 				$('#errorMessageDiv').show();
 				$('#errorMessageDiv').alert();
-				$scope.errorMessage="Ticket number is already linked.";
-			}
+				$scope.errorMessage="Please enter the link ticket number";
+		  }
 		}
 	
 

@@ -276,8 +276,8 @@ public class AppConstants {
 +" ct.status_id,sts.`status`,sts.description, "
 +" ct.ticket_category as ticket_category_id,tc.ticket_category, "
 +" ct.site_id,st.site_name,st.site_number1,st.site_number2,st.primary_contact_number,"
-+ " st.site_address1,st.site_address2,st.site_address3,st.site_address4,st.post_code, "
-+" ct.asset_id,ast.asset_name,ast.asset_code,ast.model_number, "
++ " st.site_address1,st.site_address2,st.site_address3,st.site_address4,st.post_code, st.site_owner, st.email, "
++" ct.asset_id,ast.asset_name,ast.asset_code,ast.model_number, ast.date_commissioned, "
 +" ct.asset_category_id,ac.category_name, "
 +" ct.asset_subcategory1_id,ac1.asset_subcategory1, "
 +" ct.asset_subcategory2_id,ac2.subcategory2_name, "
@@ -381,6 +381,10 @@ public class AppConstants {
 			+ " values (?,?,?,?,?,NOW())";
 	
 	public static final String TICKET_ESCALATIONS = "select * from pm_ct_escalations where ticket_id=?";
+	
+	public static final String EXT_ESCALATION_BY_ESCID = "select * from pm_sp_escalation_levels where esc_id=?";
+	
+	public static final String RSP_ESCALATION_BY_ESCID = "select * from pm_rsp_escalation_levels where esc_id=?";
 	
 	public static final String TICKET_BY_ESCID = "select * from pm_ct_escalations where ticket_id=? and esc_id=?";
 	
@@ -623,11 +627,13 @@ public class AppConstants {
 
 	public static final String VALIDATE_TICKET_RSPID_QUERY = "select id, ticket_number from pm_sp_tickets where ticket_number=? and rassigned_to = ?";
 
-	public static final String SITE_ATTACHMENT_QUERY = "select attachment_path from site where site_id=?";
+	public static final String SITE_ATTACHMENT_QUERY = "select attachment_path from pm_site where site_id=?";
 	
-	public static final String SITE_ATTACHMENT_DELETE_QUERY = "update site set attachment_path = ? where site_id=?";
+	public static final String SITE_ATTACHMENT_DELETE_QUERY = "update pm_site set attachment_path = ? where site_id=?";
 
 	public static final String INCIDENT_ATTACHMENT_LIST = "select id,ticket_number, attachment_path from pm_cust_ticket_attachment where id in (:attachmentIds)";
 
 	public static final String INCIDENT_ATTACHMENT_DELETE_QUERY = "delete from pm_cust_ticket_attachment where id in (:attachmentIds)";
+
+	public static final String SITE_ATTACHMENT_UPDATE_QUERY = "update pm_site set attachment_path = ?, modified_by = ?, modified_date=NOW()  where site_id =?";
 }

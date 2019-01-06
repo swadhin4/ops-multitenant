@@ -29,10 +29,10 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 import com.pms.app.mail.EmailTemplate;
 import com.pms.app.view.vo.AppUserVO;
 import com.pms.app.view.vo.CreateSiteVO;
+import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.TicketVO;
-import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.ServiceProvider;
 import com.pms.web.service.EmailService;
 import com.pms.web.service.ServiceProviderService;
@@ -725,7 +725,7 @@ public class EmailServiceImpl implements EmailService {
 	
 	@Override
 	@Async
-	public RestResponse successEscalationLevel(TicketVO savedticketVO, SPEscalationLevels spEscalationLevel, String ccLevelEmail, String escaltedlevel) throws Exception {
+	public RestResponse successEscalationLevel(TicketVO savedticketVO, EscalationLevelVO spEscalationLevel, String ccLevelEmail, String escaltedlevel) throws Exception {
 		// Create a Properties object to contain connection configuration information.
 		final RestResponse response = new RestResponse();
 		ServiceProvider serviceProvider = new ServiceProvider();//serviceProviderRepo.findOne(savedticketVO.getAssignedTo());
@@ -754,7 +754,7 @@ public class EmailServiceImpl implements EmailService {
 		if(StringUtils.isNotBlank(ccLevelEmail)){
 		mimeMessage.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccLevelEmail));
 		}
-		mimeMessage.setSubject("Incident Number : "+ savedticketVO.getTicketNumber() +" has been escalated to "+ escaltedlevel,"utf-8");
+		mimeMessage.setSubject("Incident Number : "+ savedticketVO.getTicketNumber() +" has been escalated to level "+ escaltedlevel,"utf-8");
 
 		// Create a transport.        
 		Transport transport = session.getTransport();
@@ -782,7 +782,12 @@ public class EmailServiceImpl implements EmailService {
 			/*messageContent.append("<br><br><b>Username</b> : "+ serviceProvider.getSpUsername() +"<br>");
 			messageContent.append("<br><br><b>Access Key</b> : "+ serviceProvider.getAccessKey() +"<br>");
 			*/messageContent.append("<br><br><b>Application link</b> : http://52.25.66.108:8585/login <br>");
-			messageContent.append("<br>NOTE: Select 'External User Login' tab and sign in using your username and password.");
+			if(savedticketVO.getTicketAssignedType().equalsIgnoreCase("EXT")){
+				messageContent.append("<br>NOTE: Select 'External User ' tab and sign in using your username and password.");
+			}
+			else if(savedticketVO.getTicketAssignedType().equalsIgnoreCase("RSP")){
+				messageContent.append("<br>NOTE: Select 'Registered User' tab and sign in using your username and password.");
+			}
 			messageContent.append("</td></tr></table>");
 			messageContent.append("</table>");
 

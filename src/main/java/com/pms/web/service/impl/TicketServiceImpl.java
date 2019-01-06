@@ -418,7 +418,8 @@ public class TicketServiceImpl implements TicketService {
 		String finalAddress = StringUtils.join(addressList,", ");
 		ticketVO.setSiteAddress(finalAddress + ", " +selectedTicket.getPhone() +", "+ selectedTicket.getPost_code() );
 		ticketVO.setSiteContact(String.valueOf(selectedTicket.getPrimary_contact_number()));
-		
+		ticketVO.setSiteOwner(selectedTicket.getSite_owner());
+		ticketVO.setEmail(selectedTicket.getEmail());
 		ticketVO.setAssetId(selectedTicket.getAsset_id());
 		ticketVO.setAssetCategoryId(selectedTicket.getAsset_category_id());
 		ticketVO.setAssetCategoryName(selectedTicket.getCategory_name());
@@ -427,7 +428,7 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setAssetModel(selectedTicket.getModel_number());
 		ticketVO.setAssetSubCategory1(selectedTicket.getAsset_subcategory1());
 		ticketVO.setAssetSubCategory2(selectedTicket.getSubcategory2_name());
-		
+		ticketVO.setAssetCommissionedDate(ApplicationUtil.makeDateStringFromSQLDate(selectedTicket.getDate_commissioned()));
 		ticketVO.setCategoryId(selectedTicket.getTicket_category_id());
 		ticketVO.setCategoryName(selectedTicket.getTicket_category());
 		ticketVO.setPriorityDescription(selectedTicket.getPriority());
@@ -785,10 +786,14 @@ public class TicketServiceImpl implements TicketService {
 
 	@Override
 	public EscalationLevelVO getSPEscalationLevels(Long escId, LoginUser loginUser, String ticketAssignedType)	throws Exception {
+		EscalationLevelVO escLevelInfo = null;
 		if(ticketAssignedType.equalsIgnoreCase("EXT")){
-			
+			escLevelInfo = getIncidentDAO(loginUser.getDbName()).getEscalationLevelBy(escId, AppConstants.EXT_ESCALATION_BY_ESCID);
 		}
-		return null;
+		else if(ticketAssignedType.equalsIgnoreCase("RSP")){
+			escLevelInfo = getIncidentDAO(loginUser.getDbName()).getEscalationLevelBy(escId, AppConstants.RSP_ESCALATION_BY_ESCID);
+		}
+		return escLevelInfo;
 	}
 
 	@Override

@@ -3,6 +3,8 @@ package com.pms.web.service;
 import java.io.IOException;
 import java.util.List;
 
+import com.pms.app.view.vo.CreateSiteVO;
+import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
@@ -10,9 +12,9 @@ import com.pms.web.util.RestResponse;
 
 public interface FileIntegrationService {
 
-/*	public String siteFileUpload(CreateSiteVO siteVO, UploadFile siteFile, Company company)  throws IOException;
+	public String siteFileUpload(LoginUser user, CreateSiteVO siteVO, UploadFile siteFile, Company company)  throws IOException;
 	
-	public String siteLicenseFileUpload(UploadFile siteFile, Company company)  throws IOException;*/
+	/*	public String siteLicenseFileUpload(UploadFile siteFile, Company company)  throws IOException;*/
 	
 	public String siteIncidentFileUpload(List<UploadFile> fileList,TicketVO customerTicketVO, Company company, String folderLocation, String uploadedBy)  throws IOException;
 	

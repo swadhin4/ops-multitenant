@@ -19,13 +19,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.pms.app.dao.impl.IncidentDAO;
 import com.pms.app.dao.impl.SiteDAO;
+import com.pms.app.view.vo.CreateSiteVO;
+import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
+import com.pms.jpa.entities.Site;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.web.service.AwsIntegrationService;
 import com.pms.web.service.FileIntegrationService;
@@ -46,21 +57,20 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 		return new IncidentDAO(dbName);
 	}
 	
-	/*@Override
-	public String siteFileUpload(CreateSiteVO siteVO, UploadFile siteFile, Company company) throws IOException{
+	@Override
+	public String siteFileUpload(LoginUser user, CreateSiteVO siteVO, UploadFile siteFile, Company company) throws IOException{
 		LOGGER.info("Insdie FileIntegrationServiceImpl .. siteFileUpload");
 		String base64Image = siteFile.getBase64ImageString().split(",")[1];
 		byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64Image);
 		String fileUploadLocation = ApplicationUtil.getServerUploadLocation();
-		Site site=null;
 		String generatedFileName="";
 		Path destinationFile =null;
 		String fileKey="";
 		String siteName=siteVO.getSiteName();
 		if(siteVO.getSiteId()!=null){
-			site=siteRepo.findOne(siteVO.getSiteId());
-			if(StringUtils.isNotBlank(site.getAttachmentPath())){
-				generatedFileName=site.getAttachmentPath();
+			String attachmentFile = getSiteDAO(user.getDbName()).getSiteAttachment(siteVO.getSiteId()); 
+			if(StringUtils.isNotBlank(attachmentFile)){
+				generatedFileName=attachmentFile;
 				fileKey=generatedFileName;
 				destinationFile = Paths.get(fileUploadLocation+"\\"+generatedFileName);
 			}else{
@@ -68,7 +78,7 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 				generatedFileName = siteName+"_"+Calendar.getInstance().getTimeInMillis()+"."+siteFile.getFileExtension().toLowerCase();
 				destinationFile = Paths.get(fileUploadLocation+"\\"+company.getCompanyCode()+"\\site\\"+generatedFileName);
 				fileKey=company.getCompanyCode()+"/site/"+generatedFileName;
-			//}
+	    	}
 		}else{
 			generatedFileName = siteVO.getSiteName()+"_"+Calendar.getInstance().getTimeInMillis()+"."+siteFile.getFileExtension().toLowerCase();
 			destinationFile = Paths.get(fileUploadLocation+"\\"+company.getCompanyCode()+"\\site\\"+generatedFileName);
@@ -79,7 +89,8 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 			Files.write(destinationFile, imageBytes);
 			LOGGER.info("Saving image to location : "+ destinationFile.toString() );
 			siteVO.setFileLocation(destinationFile.toString());
-			pushToAwsS3(destinationFile, fileKey);
+			LOGGER.info("Uploading file to S3 : "+ fileKey);
+			RestResponse response = pushToAwsS3(destinationFile, fileKey);
 		
 		} catch (IOException e) {
 			LOGGER.info("Unable to upload site image ", e );
@@ -89,16 +100,29 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 		return fileKey;
 	}
 
-*/
-/*
-	private void pushToAwsS3(Path destinationFile, String fileKey) {
+	private RestResponse pushToAwsS3(Path destinationFile, String fileKey) {
 		AWSCredentials credentials = new BasicAWSCredentials("AKIAJZTA6BYNTESWQWBQ","YWzhoGSfC1ADDT+xHzvAsvf/wyMlSl71TexLLg8t");
+		RestResponse response = new RestResponse();
 		@SuppressWarnings("deprecation")
 		AmazonS3 s3client = new AmazonS3Client(credentials);
 		s3client.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_2));
-		String bucketName="malay-first-s3-bucket-pms-test";
-		awsIntegrationService.uploadObject(new PutObjectRequest(bucketName, fileKey, destinationFile.toFile()).withCannedAcl(CannedAccessControlList.Private), s3client);
-	}*/
+		try{
+			List<Bucket> bucketList = s3client.listBuckets();
+			if(bucketList != null){
+				String bucketName="malay-first-s3-bucket-pms-test";
+				awsIntegrationService.uploadObject(new PutObjectRequest(bucketName, fileKey, destinationFile.toFile()).withCannedAcl(CannedAccessControlList.Private), s3client);
+				response.setStatusCode(200);
+			}else{
+				response.setStatusCode(503);
+				response.setMessage("AWS Service Not Available");
+			}
+		}catch(Exception e){
+			LOGGER.info("AWS service not available ", e.getMessage() );
+			response.setStatusCode(503);
+			response.setMessage("AWS Service Not Available");
+		}
+		return response;
+	}
 
 	
 

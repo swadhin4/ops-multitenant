@@ -27,6 +27,8 @@ public class SelectedTicketVO implements Serializable {
 	private String site_address2;
 	private String site_address3;
 	private String site_address4;
+	private String site_owner;
+	private String email;
 	private String post_code;
 	private Long asset_id;
 	private String asset_name;
@@ -37,6 +39,7 @@ public class SelectedTicketVO implements Serializable {
 	private Long asset_subcategory1_id;
 	private String asset_subcategory1;
 	private Long asset_subcategory2_id;
+	private String date_commissioned;
 	private String subcategory2_name;
 	private String priority;
 	private String sla_duedate;
@@ -344,6 +347,24 @@ public class SelectedTicketVO implements Serializable {
 	}
 	public void setRsp_name(String rsp_name) {
 		this.rsp_name = rsp_name;
+	}
+	public String getDate_commissioned() {
+		return date_commissioned;
+	}
+	public void setDate_commissioned(String date_commissioned) {
+		this.date_commissioned = date_commissioned;
+	}
+	public String getSite_owner() {
+		return site_owner;
+	}
+	public void setSite_owner(String site_owner) {
+		this.site_owner = site_owner;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	@Override
 	public String toString() {

@@ -170,6 +170,8 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 		$scope.checkTicketsAssignedTo=function(assignedTo){
 			console.log("Assigned to ", assignedTo);
 			$scope.ticketAssignedTo=assignedTo;
+			$scope.sessionTicket = null;
+			$scope.selectedRow=null;
 			$scope.findAllTickets($scope.ticketAssignedTo);
 		}
 		

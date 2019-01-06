@@ -268,7 +268,8 @@ $(function() {
 					<th tyle="width:10%">Status</th>
 					
 					</tr>
-                <tr ng-repeat="val in ticket.list | filter: ticketsearch" ng-class="{currentSelected:$index == selectedRow}" 
+                <tr ng-repeat="val in ticket.list | filter: ticketsearch" 
+                ng-class="{currentSelected:$index == selectedRow}" 
                	 ng-click="setTicketinSession(val);rowHighilited($index)">
                 	<th class="todo-list">
                   {{val.ticketNumber}}
@@ -420,14 +421,14 @@ $(function() {
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Commissioned On</h5>
-                    <span class="description-text">{{sessionTicket.raisedOn}}</span>
+                    <span class="description-text">{{sessionTicket.assetCommissionedDate}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
-                    <h5 class="description-header">Location</h5>
-                    <span class="description-text">{{sessionTicket.email}}</span>
+                    <h5 class="description-header">Sub Category</h5>
+                    <span class="description-text">{{sessionTicket.assetSubCategory1}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>

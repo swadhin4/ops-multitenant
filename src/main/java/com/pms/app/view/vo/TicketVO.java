@@ -26,6 +26,8 @@ public class TicketVO implements Serializable{
 	private String siteNumber1;
 	private String siteNumber2;
 	private String siteAddress;
+	private String siteOwner;
+	private String email;
 	private String ticketNumber;
 	private Long assetId;
 	private String assetName;
@@ -34,6 +36,7 @@ public class TicketVO implements Serializable{
 	private Long assetCategoryId;
 	private String assetCategoryName;
 	private String asstSpType;
+	private String assetCommissionedDate;
 	private Long subCategoryId1;
 	private String assetSubCategory1;
 	private Long subCategoryId2;
@@ -513,6 +516,24 @@ public class TicketVO implements Serializable{
 	}
 	public void setCustomerDB(String customerDB) {
 		this.customerDB = customerDB;
+	}
+	public String getAssetCommissionedDate() {
+		return assetCommissionedDate;
+	}
+	public void setAssetCommissionedDate(String assetCommissionedDate) {
+		this.assetCommissionedDate = assetCommissionedDate;
+	}
+	public String getSiteOwner() {
+		return siteOwner;
+	}
+	public void setSiteOwner(String siteOwner) {
+		this.siteOwner = siteOwner;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
 	}
 	@Override
 	public String toString() {

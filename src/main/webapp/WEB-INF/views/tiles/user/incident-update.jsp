@@ -1614,15 +1614,22 @@ background:#deefe5
             </div> -->
             <div class="box-footer">
               <div class="row">
-                <div class="col-sm-6 border-right">
+                <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Contact Name</h5>
                     <span class="description-text">{{selectedTicket.assignedSP}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
+                 <div class="col-sm-4 border-right">
+                  <div class="description-block">
+                   <h5 class="description-header">Site Number</h5>
+                    <span class="description-text">{{selectedTicket.siteContact}}</span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
                 <!-- /.col -->
-                <div class="col-sm-6 border-right">
+                <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Email</h5>
                     <span class="description-text">{{selectedTicket.email}}</span>
@@ -1657,14 +1664,14 @@ background:#deefe5
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Commissioned On</h5>
-                    <span class="description-text">{{selectedTicket.raisedOn}}</span>
+                    <span class="description-text">{{selectedTicket.assetCommissionedDate}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
-                    <h5 class="description-header">Location</h5>
-                    <span class="description-text">{{selectedTicket.email}}</span>
+                    <h5 class="description-header">Sub Category</h5>
+                    <span class="description-text">{{selectedTicket.assetSubCategory1}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
@@ -1674,21 +1681,27 @@ background:#deefe5
               <!-- /.row -->
             </div>
           </div>
-          <div class="info-box bg-yellow">
+            <div class="info-box bg-yellow">
             <span class="info-box-icon"><i class="ion ion-ios-pricetag-outline" style="margin-top: 26px;"></i></span>
 
             <div class="info-box-content">
-              <span class="info-box-text">Time to raise the ticket</span>
-              <span class="info-box-number">30:10:30</span>
+              <span class="info-box-text">SLA ( % )</span>
+              <span class="info-box-number">{{selectedTicket.slaPercent}}</span>
               <div class="progress">
-                <div class="progress-bar" style="width: 50%"></div>
-              </div>
+               <div class="progress-bar"
+				ng-class="{'progress-bar-danger': selectedTicket.slaPercent >=100, 'progress-bar-warning': selectedTicket.slaPercent>75 && selectedTicket.slaPercent<100, 'progress-bar-info': selectedTicket.slaPercent>0 && selectedTicket.slaPercent<75}"
+				role="progressbar"
+				ng-style="{width: sessionTicket.width+'%'}">
+				 <span class="progress-text">SLA(%) {{selectedTicket.slaPercent}} </span>
+				</div>
               <span class="progress-description">
                     50% Increase in 30 Days
                   </span>
+                  
             </div>
             <!-- /.info-box-content -->
           </div>
+				</div>
 				</div>
 
 			</div><!-- modal-content -->

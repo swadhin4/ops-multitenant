@@ -4,10 +4,10 @@ import org.springframework.mail.MailException;
 
 import com.pms.app.mail.EmailTemplate;
 import com.pms.app.view.vo.AppUserVO;
+import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
 import com.pms.app.view.vo.TicketVO;
-import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.web.util.RestResponse;
 
 public interface EmailService {
@@ -19,7 +19,7 @@ public interface EmailService {
 	public RestResponse successSaveSPEmail(ServiceProviderVO serviceProviderVO, LoginUser loginUser) throws Exception;
 	public void successTicketCreationSPEmail(TicketVO ticketVO, String creationStatus, String company) throws Exception;
 	public RestResponse sendForgotPasswordEmail(String email, String passwordResetLink) throws Exception;
-	RestResponse successEscalationLevel(TicketVO ticketVO, SPEscalationLevels spEscalationLevel, String ccLevelEmail, String level) throws Exception;
+	RestResponse successEscalationLevel(TicketVO ticketVO, EscalationLevelVO spEscalationLevel, String ccLevelEmail, String level) throws Exception;
 	RestResponse successExtSPPasswordReset(ServiceProviderVO serviceProviderVO, LoginUser loginUser) throws Exception;
 	public RestResponse accessGrantedRSPEmail(Long rspId, LoginUser user) throws Exception;
 }

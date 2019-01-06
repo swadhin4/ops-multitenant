@@ -565,8 +565,12 @@ $(function() {
 												<div class="box-header with-border">
 													<h3 class="box-title"><i class="fa fa-picture-o" aria-hidden="true"></i> Attachments</h3>
 													<a class="users-list-name"	href="javascript:void(0);"  ></a>
-													<div class="box-tools">
-														
+													<div class="box-tools"  ng-if="selectedSite.fileInput!=null">
+														<a href="${contextPath}/selected/file/download?keyname={{selectedSite.fileInput}}" class="uppercase" download>
+													<i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a>
+													
+														<a href ng-click="deleteFile('SITE', selectedSite)" data-toggle="tooltip" data-original-title="Delete this file">
+												<i class="fa fa-remove fa-2x" aria-hidden="true"></i></a>
 													</div>
 												</div>
 												<!-- /.box-header -->
@@ -576,14 +580,17 @@ $(function() {
 												 	<div id="noimage" ng-if="selectedSite.fileInput==null">
 												 	 <img src="${contextPath}/resources/theme1/img/no-available-image.png" style="width:50%"></img>
 												 	</div>
+												 	<div id="noimage" ng-if="selectedSite.fileInput!=null">
+												 	 <img src="${contextPath}/selected/file/download?keyname={{selectedSite.fileInput}}" style="width:50%"></img>
+												 	</div>
 												 </div>
 												</div>
 												<div class="box-footer" ng-if="selectedSite.fileInput!=null">
-													<a href="${contextPath}/selected/file/download?keyname={{selectedSite.fileInput}}" class="uppercase" download>
+													<%-- <a href="${contextPath}/selected/file/download?keyname={{selectedSite.fileInput}}" class="uppercase" download>
 													<i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a>
 													
 													<a href ng-click="deleteFile('SITE', selectedSite)" data-toggle="tooltip" data-original-title="Delete this file">
-												<i class="fa fa-remove fa-2x" aria-hidden="true"></i></a>
+												<i class="fa fa-remove fa-2x" aria-hidden="true"></i></a> --%>
 												</div>
 												<!-- /.box-footer -->
 											</div>

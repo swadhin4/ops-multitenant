@@ -1,5 +1,6 @@
 package com.pms.web.service.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,7 +8,9 @@ import javax.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.CreateSiteVO;
@@ -16,6 +19,8 @@ import com.pms.app.view.vo.SiteDeliveryVO;
 import com.pms.app.view.vo.SiteLicenceVO;
 import com.pms.app.view.vo.SiteOperationVO;
 import com.pms.app.view.vo.SiteSubmeterVO;
+import com.pms.app.view.vo.UploadFile;
+import com.pms.web.service.FileIntegrationService;
 import com.pms.web.service.SiteService;
 
 
@@ -29,7 +34,8 @@ public class SiteServiceImpl implements SiteService{
 	private SiteDAO getSiteDAO(String dbName) {
 		return new SiteDAO(dbName);
 	}
-	
+	@Autowired
+	private FileIntegrationService fileIntegrationService;
 	public SiteServiceImpl() {
 		super();
 	}
@@ -63,6 +69,11 @@ public class SiteServiceImpl implements SiteService{
 		CreateSiteVO savedSiteVO = null;
 		if(siteVO.getSiteId()==null){
 			savedSiteVO = siteDAO.saveSite(siteVO, user);
+			String siteFileAttachment = getSiteFileAttachment(savedSiteVO, user);
+			if(!StringUtils.isEmpty(siteFileAttachment)){
+				siteVO.setFileInput(siteFileAttachment);
+				int updatedFile = siteDAO.updateAttachmentSite(savedSiteVO, user);
+			}
 		}
 		return savedSiteVO;
 	}
@@ -204,8 +215,26 @@ public class SiteServiceImpl implements SiteService{
 		CreateSiteVO savedSiteVO = null;
 		if(siteVO.getSiteId()!=null){
 			savedSiteVO = siteDAO.saveSite(siteVO, user);
+			String siteFileAttachment = getSiteFileAttachment(siteVO, user);
+			if(!StringUtils.isEmpty(siteFileAttachment)){
+				siteVO.setFileInput(siteFileAttachment);
+				int updatedFile = siteDAO.updateAttachmentSite(siteVO, user);
+			}
 		}
 		return savedSiteVO;
+	}
+
+
+	private String getSiteFileAttachment(CreateSiteVO siteVO, LoginUser user) throws IOException {
+		String siteFileKey = null;
+		if(!StringUtils.isEmpty(siteVO.getFileInput())){
+			UploadFile siteFile = new UploadFile();
+			siteFile.setSiteId(siteVO.getSiteId());
+			siteFile.setFileExtension(siteVO.getFileExtension());
+			siteFile.setBase64ImageString(siteVO.getFileInput());
+			siteFileKey = fileIntegrationService.siteFileUpload(user,siteVO, siteFile, user.getCompany());
+		}
+		return siteFileKey;
 	}
 
 

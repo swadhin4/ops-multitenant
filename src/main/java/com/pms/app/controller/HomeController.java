@@ -157,7 +157,7 @@ public class HomeController extends BaseController {
 				if(StringUtils.isNotEmpty(feature)){
 					if(feature.equalsIgnoreCase("SITE")){
 						String [] siteId = fileIds.split(",");
-						responseData = null;//fileIntegrationService.deleteFile(Long.parseLong(siteId[0]), null,null,null,null);
+						responseData = fileIntegrationService.deleteFile(loginUser.getDbName(),Long.parseLong(siteId[0]), null,null,null,null);
 						responseEntity = new ResponseEntity<RestResponse>(responseData,HttpStatus.OK);
 					}
 					else if(feature.equalsIgnoreCase("LICENSE")){

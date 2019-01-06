@@ -35,6 +35,7 @@ import com.pms.app.view.vo.SiteDeliveryVO;
 import com.pms.app.view.vo.SiteLicenceVO;
 import com.pms.app.view.vo.SiteOperationVO;
 import com.pms.app.view.vo.SiteSubmeterVO;
+import com.pms.jpa.entities.Site;
 import com.pms.web.util.ApplicationUtil;
 
 @Repository
@@ -131,6 +132,7 @@ public class SiteDAO {
 					siteVO.setLatitude(rs.getString("latitude"));
 					siteVO.setLongitude(rs.getString("longitude"));
 					siteVO.setSalesAreaSize(rs.getString("sales_area_size"));
+					siteVO.setFileInput(rs.getString("attachment_path"));
 					if(rs.getLong("site_number1")>0){
 						siteVO.setSiteNumber1(String.valueOf(rs.getLong("site_number1")));
 					}
@@ -670,7 +672,7 @@ public class SiteDAO {
 
 	public int deleteFromDB(Long siteId) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        int updatedRows = jdbcTemplate.update(AppConstants.SITE_ATTACHMENT_DELETE_QUERY,new Object[] { siteId },
+        int updatedRows = jdbcTemplate.update(AppConstants.SITE_ATTACHMENT_DELETE_QUERY,
                 new PreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps) throws SQLException {
@@ -681,5 +683,22 @@ public class SiteDAO {
                 });
         return updatedRows;
 	}
+
+	public int updateAttachmentSite(CreateSiteVO siteVO, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int updatedRows = jdbcTemplate.update(AppConstants.SITE_ATTACHMENT_UPDATE_QUERY,
+                new PreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps) throws SQLException {
+                        ps.setString(1, siteVO.getFileInput());
+                        ps.setString(2, user.getUsername());
+                        ps.setLong(3, siteVO.getSiteId() );
+                    }
+
+                });
+        return updatedRows;
+	}
+
+	
 	
 }

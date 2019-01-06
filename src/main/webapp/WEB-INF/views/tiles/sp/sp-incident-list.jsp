@@ -343,14 +343,14 @@ $(function() {
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Commissioned On</h5>
-                    <span class="description-text">{{sessionTicket.raisedOn}}</span>
+                    <span class="description-text">{{sessionTicket.assetCommissionedDate}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
-                    <h5 class="description-header">Location</h5>
-                    <span class="description-text">{{sessionTicket.email}}</span>
+                 <h5 class="description-header">Sub Category</h5>
+                    <span class="description-text">{{sessionTicket.assetSubCategory1}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
@@ -364,17 +364,23 @@ $(function() {
             <span class="info-box-icon"><i class="ion ion-ios-pricetag-outline" style="margin-top: 26px;"></i></span>
 
             <div class="info-box-content">
-              <span class="info-box-text">Time to raise the ticket</span>
-              <span class="info-box-number">30:10:30</span>
+              <span class="info-box-text">SLA ( % )</span>
+              <span class="info-box-number">{{sessionTicket.slaPercent}}</span>
               <div class="progress">
-                <div class="progress-bar" style="width: 50%"></div>
-              </div>
+               <div class="progress-bar"
+				ng-class="{'progress-bar-danger': sessionTicket.slaPercent >=100, 'progress-bar-warning': sessionTicket.slaPercent>75 && sessionTicket.slaPercent<100, 'progress-bar-info': sessionTicket.slaPercent>0 && sessionTicket.slaPercent<75}"
+				role="progressbar"
+				ng-style="{width: sessionTicket.width+'%'}">
+				 <span class="progress-text">SLA(%) {{sessionTicket.slaPercent}} </span>
+				</div>
               <span class="progress-description">
                     50% Increase in 30 Days
                   </span>
+                  
             </div>
             <!-- /.info-box-content -->
           </div>
+				</div>
 				</div>
 
 			</div><!-- modal-content -->

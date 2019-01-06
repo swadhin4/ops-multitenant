@@ -984,5 +984,25 @@ public class IncidentDAO {
 		parameters.addValue("attachmentIds", attachmentIds);
         int updatedRows = jdbcTemplate.update(AppConstants.INCIDENT_ATTACHMENT_DELETE_QUERY,parameters);
         return updatedRows;		
-	}	
+	}
+	public EscalationLevelVO getEscalationLevelBy(Long escId, String escLevelQuery) {
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+			EscalationLevelVO escLevelVO = jdbcTemplate.query(escLevelQuery,new Object[]{escId}, new ResultSetExtractor<EscalationLevelVO>(){
+				@Override
+				public EscalationLevelVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+					EscalationLevelVO ticketEscalationVO = new EscalationLevelVO();
+					if(rs.next()){
+						
+						ticketEscalationVO.setEscId(rs.getLong("esc_id"));
+						ticketEscalationVO.setServiceProdviderId(rs.getLong("sp_id"));
+						ticketEscalationVO.setEscalationLevel(rs.getString("esc_level"));
+						ticketEscalationVO.setEscalationEmail(rs.getString("esc_email"));
+						ticketEscalationVO.setEscalationPerson(rs.getString("esc_person"));
+						
+					}
+					return ticketEscalationVO;
+				}
+			});
+			return escLevelVO;
+		}
 }
