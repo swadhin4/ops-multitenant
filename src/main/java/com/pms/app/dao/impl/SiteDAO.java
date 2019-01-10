@@ -698,6 +698,44 @@ public class SiteDAO {
                 });
         return updatedRows;
 	}
+	
+	public int updateLicenseAttachment(List<SiteLicenceVO> siteLicenseList, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int [] updatedRows = jdbcTemplate.batchUpdate(AppConstants.LICENSE_ATTACHMENT_UPDATE_QUERY,
+        		  new BatchPreparedStatementSetter() {
+        	 @Override
+             public void setValues(PreparedStatement ps, int i) throws SQLException {
+        		 		SiteLicenceVO siteLicenceVO = siteLicenseList.get(i);
+                        ps.setString(1, siteLicenceVO.getAttachment());
+                        ps.setString(2, user.getUsername());
+                        ps.setLong(3, siteLicenceVO.getLicenseId() );
+                    }
+                    
+                    @Override
+                    public int getBatchSize() {
+                        return siteLicenseList.size();
+                    }
+
+                });
+        return updatedRows.length;
+	}
+
+
+	public String getLicenseAttachment(Long licenseId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		String attachment = jdbcTemplate.query(AppConstants.LICENSE_ATTACHMENT_QUERY, new Object[] { licenseId },
+				new ResultSetExtractor<String>() {
+					@Override
+					public String extractData(ResultSet rs) throws SQLException, DataAccessException {
+						String attachment=null;
+						if (rs.next()) {
+							attachment =  rs.getString("attachment_path");
+						}
+						return attachment;
+					}
+				});
+		return attachment;
+	}
 
 	
 	

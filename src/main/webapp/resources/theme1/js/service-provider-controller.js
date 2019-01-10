@@ -189,27 +189,21 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
     			
     			if(data.statusCode == 200){
     				$scope.successMessage = data.message;
-    				$('#messageWindow').show();
-    				$('#successMessageDiv').show();
-    				$('#successMessageDiv').alert();
+    				 $scope.getSuccessMessage($scope.successMessage);
     				$('#spModalCloseBtn').click();
     				$scope.getServiceProviderList("ALL");
     				$('#infoMessageDiv').hide();
     				$('#loadingDiv').hide();
     			}else{
     				$scope.modalErrorMessage = data.message;
-    				$('#messageWindow').hide();
-    				$('#modalMessageDiv').show();
-    				$('#modalMessageDiv').alert();
+    				   $scope.getErrorMessage($scope.modalErrorMessage);
     				$('#loadingDiv').hide();
     			}
             },
             function(data) {
                 console.log('Unable to save Service Provider')
                 $scope.modalErrorMessage = data.message;
-				$('#messageWindow').hide();
-				$('#modalMessageDiv').show();
-				$('#modalMessageDiv').alert();
+                $scope.getErrorMessage($scope.modalErrorMessage);
 				$('#loadingDiv').hide();
             });
 		}
@@ -283,19 +277,14 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
 					console.log(data)
 	    			if(data.statusCode == 200){
 	    				$('#loadingDiv').hide();
-	    				$('#messageWindow').show();
-	    				$('#successMessageDiv').show();
-	    				$('#successMessageDiv').alert();
 	    				$scope.successMessage = data.message;
+	    				 $scope.getSuccessMessage($scope.successMessage);
 	    				$scope.getServiceProviderList("ALL");
 	    			}
 				}, function(data) {
 	                console.log('Unable to provide access ')
 	                $scope.errorMessage = data.message;
-	                $('#messageWindow').show();
-    				$('#errorMessageDiv').show();
-    				$('#errorMessageDiv').alert();
-    				$('#successMessageDiv').hide();
+	                $scope.getErrorMessage($scope.errorMessage);
 					$('#loadingDiv').hide();
 	        });
 		 }
@@ -372,22 +361,29 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
     			if(data.statusCode == 200){
     				$('#loadingDiv').hide();
     				$scope.selectedServiceProvider = $scope.selectedServiceProvider;
-    				$('#messageWindow').show();
-    				$('#successMessageDiv').show();
-    				$('#successMessageDiv').alert();
     				$scope.successMessage = "Password reset successfully";
+    				$scope.getSuccessMessage($scope.successMessage);
     				$('#resetConfirmNo').click();
     				
     			}
 			}, function(data) {
                 console.log('Unable to reset service provider password')
-                $scope.errorMessage = "Unable to reset the password";
-                $('#messageWindow').show();
-				$('#errorMessageDiv').show();
-				$('#errorMessageDiv').alert();
-				$('#successMessageDiv').hide();
+                $scope.errorMessage = "Unable to reset service provider password";
+                $scope.getErrorMessage($scope.errorMessage);
 				$('#loadingDiv').hide();
             });
+		}
+		
+		$scope.getSuccessMessage=function(msg){
+			 $('#successDiv').show();
+			 $('#successDiv').alert();
+			 $('#successMessage').text(msg);
+		}
+		
+		$scope.getErrorMessage=function(msg){
+			 $('#errorDiv').show();
+			 $('#errorDiv').alert();
+			 $('#errorMessage').text(msg);
 		}
 }]);    
 

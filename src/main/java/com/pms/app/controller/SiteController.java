@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.DistrictVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.SiteLicenceVO;
 import com.pms.app.view.vo.TicketVO;
+import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Area;
 import com.pms.jpa.entities.Cluster;
 import com.pms.web.service.DistrictService;
@@ -201,6 +203,15 @@ public class SiteController extends BaseController {
 				response.setObject(savedSiteVO);
 				response.setMessage("Site updated successfully");
 				if(!createSiteVO.getSiteLicense().isEmpty()){
+					if(createSiteVO.getLicenseAttachments().size()>0){
+						for(UploadFile uploadFile: createSiteVO.getLicenseAttachments()){
+							for(SiteLicenceVO siteLicenceVO : createSiteVO.getSiteLicense()){
+								if(siteLicenceVO.getLicenseId().equals(uploadFile.getLicenseId())){
+									siteLicenceVO.setAttachment(uploadFile.getBase64ImageString());
+								}
+							}
+						}
+					}
 					List<Integer> savedLicenseRecords = siteService.saveSiteLicense(createSiteVO.getSiteLicense(), savedSiteVO.getSiteId(), loginUser);
 					if(!savedLicenseRecords.isEmpty()){
 						logger.info("Updated Licenses :  "+ savedLicenseRecords.get(1));

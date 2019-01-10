@@ -75,13 +75,15 @@ chrisApp.controller('userController',  ['$rootScope', '$scope', '$filter', '$loc
 	    	$scope.selectedUser = angular.copy(user);
 	    	if($scope.selectedUser.isEnabled == 1){
 	    		$scope.selectedUser.label="Active";
-	    		$scope.selectedUser.status="green";
+	    		$scope.selectedUser.statusColor="green";
+	    		$scope.selectedUser.status=$scope.selectedUser.isEnabled;
 	    		//$('.divToggle').addClass('btn btn-primary');
 	    	   //$('.divToggle').removeClass('btn btn-default off');
 	    	}
 	    	else if($scope.selectedUser.isEnabled == 0){
 	    		$scope.selectedUser.label="Not Active";
-	    		$scope.selectedUser.status="red";
+	    		$scope.selectedUser.statusColor="red";
+	    		$scope.selectedUser.status=$scope.selectedUser.isEnabled;
 	    		//$('.divToggle').addClass('btn btn-default off');
 	    		//$('.divToggle').removeClass('btn-primary');
 	    	}

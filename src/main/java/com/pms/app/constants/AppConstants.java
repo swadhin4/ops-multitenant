@@ -636,4 +636,8 @@ public class AppConstants {
 	public static final String INCIDENT_ATTACHMENT_DELETE_QUERY = "delete from pm_cust_ticket_attachment where id in (:attachmentIds)";
 
 	public static final String SITE_ATTACHMENT_UPDATE_QUERY = "update pm_site set attachment_path = ?, modified_by = ?, modified_date=NOW()  where site_id =?";
+
+	public static final String LICENSE_ATTACHMENT_QUERY = "select attachment_path from pm_sitelicense where license_id=?";
+
+	public static final String LICENSE_ATTACHMENT_UPDATE_QUERY = "update pm_sitelicense set attachment_path = ?, modified_by = ?, modified_date=NOW()  where license_id =?";
 }

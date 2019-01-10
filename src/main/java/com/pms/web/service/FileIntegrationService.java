@@ -14,7 +14,7 @@ public interface FileIntegrationService {
 
 	public String siteFileUpload(LoginUser user, CreateSiteVO siteVO, UploadFile siteFile, Company company)  throws IOException;
 	
-	/*	public String siteLicenseFileUpload(UploadFile siteFile, Company company)  throws IOException;*/
+	public String siteLicenseFileUpload(LoginUser user, UploadFile siteFile, Company company)  throws IOException;
 	
 	public String siteIncidentFileUpload(List<UploadFile> fileList,TicketVO customerTicketVO, Company company, String folderLocation, String uploadedBy)  throws IOException;
 	

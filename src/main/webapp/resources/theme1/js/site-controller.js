@@ -150,8 +150,9 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 		             $scope.fileExtension = ext;
 		             if($.inArray(ext, ["jpg","jpeg","JPEG", "JPG","PDF","pdf","png","PNG"]) == -1) {
 		            	 $scope.modalErrorMessage="";
-				    	 $('#fileerror').text("Supported File types are jpg, png and pdf");
-				    	 $('#modalSiteMessageDiv').show();
+				    	 //$('#fileerror').text("Supported File types are jpg, png and pdf");
+				    	 $scope.getErrorMessage("Supported File types are jpg, png and pdf");
+				    	// $('#modalSiteMessageDiv').show();
 				          $scope.isfileselected=false;
 				          $('#siteInputFile').val('');
 				          $('#siteInputFile').val(null);
@@ -166,8 +167,11 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 			                 $scope.siteFileSize = file[0].size / 1024;
 						         if($scope.siteFileSize > 100){
 						        	 $scope.modalErrorMessage="";
-						        	 $('#fileerror').text("File size exceeds 100KB");
-							    	 $('#modalSiteMessageDiv').show();
+						        	// $('#fileerror').text("File size exceeds 100KB");
+						        	 $scope.getErrorMessage("File size exceeds 100KB");
+						        	 $('#siteInputFile').val('');
+							          $('#siteInputFile').val(null);
+							    	// $('#modalSiteMessageDiv').show();
 							          e.target.files=undefined;
 									
 						         }else{
@@ -245,9 +249,10 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 			$scope.fileSize2 = null;
 			$scope.fileExtension2 = ext;
 			if ($.inArray(ext, [ "PDF", "pdf" ]) == -1) {
-				$('#'+msgDiv).text("Supported file types to upload is pdf");
+				/*$('#'+msgDiv).text("Supported file types to upload is pdf");
 				$('#'+errorDiv).show();
-				$('#'+errorDiv).alert();
+				$('#'+errorDiv).alert();*/
+				$scope.getErrorMessage("Supported file types to upload is pdf");
 				$scope.serviceModalErrorMessage = "";
 				$scope.isfileselected = false;
 				$('#' + documentId).val('');
@@ -260,8 +265,9 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 				$scope.fileSize2 = file[0].size / 1024;
 				if($scope.fileSize2 > 100){
 		        	 $scope.serviceModalErrorMessage="";
-		        	 $('#'+msgDiv).text("File size exceeds 100KB");
-			    	 $('#'+errorDiv).show();
+		        	/* $('#'+msgDiv).text("File size exceeds 100KB");
+			    	 $('#'+errorDiv).show();*/
+			    	 $scope.getErrorMessage("File size exceeds 100KB");
 					
 		         }else{
 					var reader = new FileReader();
@@ -269,8 +275,9 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 					reader.readAsDataURL(file[0]);
 		         }
 			}else{
-				 $('#fileerrorservice').text("Invalid file format");
-				 $('#'+msgDiv).show();
+				/* $('#fileerrorservice').text("Invalid file format");
+				 $('#'+msgDiv).show();*/
+				 $scope.getErrorMessage("Invalid file format");
 				 $('#' + documentId).val('');
 		    	 $('#' + documentId).val(null);
 			}
@@ -292,8 +299,9 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 		     $scope.fileExtension = ext;
 		     if($.inArray(ext, ["PDF","pdf"]) == -1) {
 		    	 $scope.modalErrorMessage="Supported file types to upload is pdf";
-		    	 $('#fileerror').text("Supported File type is pdf");
-		    	 $('#modalSiteMessageDiv').show();
+		    	/* $('#fileerror').text("Supported File type is pdf");
+		    	 $('#modalSiteMessageDiv').show();*/
+		    	 $scope.getErrorMessage($scope.modalErrorMessage);
 		    	 $('#'+licenseId).val('');
 		    	 $('#'+licenseId).val(null);
 		    	 e.target.files=undefined;
@@ -301,11 +309,13 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 		     }else if (e.target.files != undefined) {
 		         $scope.isfileselected=true;
 		         file = $('#'+licenseId).prop('files');
-		         var fileSize= file[0].size / 1024;
-		         if(fileSize > 100){
+		         var fileSize= file[0].size / 1048576;
+		         console.log(file[0].size, fileSize);
+		         if(fileSize > 5){
 		        	 $scope.modalErrorMessage="";
-		        	 $('#fileerror').text("File size exceeds 100KB");
-			    	 $('#modalSiteMessageDiv').show();
+		        /*	 $('#fileerror').text("File size exceeds 100KB");
+			    	 $('#modalSiteMessageDiv').show();*/
+		        	 $scope.getErrorMessage("File size exceeds 5 MB");
 			    	 e.target.files=undefined;
 			    	 $('#'+licenseId).val('');
 			    	 $('#'+licenseId).val(null);
@@ -315,8 +325,9 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 			     	 reader.readAsDataURL(file[0]);
 		         }
 		       }else{
-					 $('#fileerror').text("Invalid file format");
-			    	 $('#modalSiteMessageDiv').show();
+					 /*$('#fileerror').text("Invalid file format");
+			    	 $('#modalSiteMessageDiv').show();*/
+		    	   $scope.getErrorMessage("Invalid file format");
 			    	 $('#'+licenseId).val('');
 			    	 $('#'+licenseId).val(null);
 				}
@@ -1835,12 +1846,13 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 	    	 finalSiteObj.extension=$scope.fileExtension;
 	    	 var validateSiteAndLicense=true;
 	    	 if($scope.siteFileSize!=null && $scope.siteFileSize > 100 ){
-	    		$('#modalSiteMessageDiv').show();
+	    	/*	$('#modalSiteMessageDiv').show();
  				$('#messageWindow').hide();
  				$('#successMessageDiv').hide();
  				$('#errorMessageDiv').show();
- 				$('#errorMessageDiv').alert();
+ 				$('#errorMessageDiv').alert();*/
  				$scope.modalErrorMessage = "File size exceeds Max 100KB";
+ 				 $scope.getErrorMessage($scope.modalErrorMessage);
  				$('#loadingDiv').hide();
  				validateSiteAndLicense=false;
  				
@@ -1872,43 +1884,50 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 	    		.then(function(data) {
 	    			//console.log(data)
 	    			if(data.statusCode == 200){
-	    				$('#messageWindow').show();
+	    			/*	$('#messageWindow').show();
 	    				$('#successMessageDiv').show();
 	    				$('#successMessageDiv').alert();
 	    				$('#errorMessageDiv').hide();
 	    				$('#siteModalCloseBtn').click();
-	    				$('#infoMessageDiv').hide();
-	    				$scope.successMessage = data.message;
+	    				$('#infoMessageDiv').hide();*/
 	    				 $('#loadingDiv').hide();
-	    				$scope.getAllSites();
-	    				
+	    				 $scope.successMessage = data.message;
+	    				 $scope.getSuccessMessage($scope.successMessage);
+	    				 $('#siteModalCloseBtn').click();
+	    				 $scope.getAllSites();	    				
 	    			}else{
-	    				 $('#modalSiteMessageDiv').show();
+	    				$('#loadingDiv').hide();
+	    				 $scope.modalErrorMessage = data.message;
+	    				 $scope.getErrorMessage($scope.modalErrorMessage);
+	    				 
+	    				/*$('#modalSiteMessageDiv').show();
 	    				$('#messageWindow').hide();
 	    				$('#successMessageDiv').hide();
 	    				$('#errorMessageDiv').show();
-	    				$('#errorMessageDiv').alert();
-	    				$scope.modalErrorMessage = data.message;
-	    				$('#loadingDiv').hide();
+	    				$('#errorMessageDiv').alert();*/
+	    				
 	    			}
 	            },
 	            function(data) {
 	                //console.log(data)
-	                $('#messageWindow').hide();
+	            /*    $('#messageWindow').hide();
 	                $('#modalSiteMessageDiv').show();
 	                $('#successMessageDiv').hide();
 	                $('#errorMessageDiv').show();
-					$('#errorMessageDiv').alert();
-					$scope.modalErrorMessage = data.message;
+					$('#errorMessageDiv').alert();*/
+					 $scope.modalErrorMessage = data.message;
+    				 $scope.getErrorMessage($scope.modalErrorMessage);
 					$('#loadingDiv').hide();
 	            });
 	    	}else{
-	    		$('#modalSiteMessageDiv').show();
+	    		/*$('#modalSiteMessageDiv').show();
  				$('#messageWindow').hide();
  				$('#successMessageDiv').hide();
  				$('#errorMessageDiv').show();
- 				$('#errorMessageDiv').alert();
+ 				$('#errorMessageDiv').alert();*/
+	    		
  				$scope.modalErrorMessage = "Please verify site and license attachments.";
+ 				 $scope.getErrorMessage($scope.modalErrorMessage);
  				$('#loadingDiv').hide();
 	    	}
 	    	
@@ -2389,6 +2408,18 @@ $scope.validateDeliveryTime=function(val,$event){
     	})
     return true;
 }
+
+	$scope.getSuccessMessage=function(msg){
+		 $('#successDiv').show();
+		 $('#successDiv').alert();
+		 $('#successMessage').text(msg);
+	}
+	
+	$scope.getErrorMessage=function(msg){
+		 $('#errorDiv').show();
+		 $('#errorDiv').alert();
+		 $('#errorMessage').text(msg);
+	}
 			 
 }]);
 

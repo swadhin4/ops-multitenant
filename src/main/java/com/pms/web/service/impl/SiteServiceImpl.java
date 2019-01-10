@@ -98,20 +98,40 @@ public class SiteServiceImpl implements SiteService{
 				}
 			}
 			if(!newLicenseList.isEmpty()){
+				existingLicenseList.clear();
+				for(SiteLicenceVO existingLicense : newLicenseList){
+					if(!StringUtils.isEmpty(existingLicense.getAttachment())){
+						String siteLicenseAttachment = getLicensFileAttachment(existingLicense, user);
+						existingLicense.setAttachment(siteLicenseAttachment);
+					}
+				}
 				licenseRecordsInserted = siteDAO.insertSiteLicenseBatch(siteId,newLicenseList, user);
 				savedLicenseRecords.add(licenseRecordsInserted);
 			}else{
 				savedLicenseRecords.add(0);
 			}
 			if(!existingLicenseList.isEmpty()){
+				int count=0;
+				newLicenseList.clear();
+				for(SiteLicenceVO existingLicense : existingLicenseList){
+					if(!StringUtils.isEmpty(existingLicense.getAttachment())){
+						count++;
+						String siteLicenseAttachment = getLicensFileAttachment(existingLicense, user);
+						existingLicense.setAttachment(siteLicenseAttachment);
+					}
+				}
+				
 				licenseRecordsUpdated = siteDAO.updateSiteLicenseBatch(siteId,existingLicenseList, user);
 				savedLicenseRecords.add(licenseRecordsUpdated);
+			
 			}else{
 				savedLicenseRecords.add(0);
 			}
 		}
 		return savedLicenseRecords;
 	}
+	
+
 	@Override
 	@Transactional
 	public int updateSiteLicense(List<SiteLicenceVO> siteLicenseVOList, Long siteId, LoginUser user) throws Exception {
@@ -237,6 +257,18 @@ public class SiteServiceImpl implements SiteService{
 		return siteFileKey;
 	}
 
+	private String getLicensFileAttachment(SiteLicenceVO existingLicense, LoginUser user) throws IOException {
+		String siteFileKey = null;
+		if(!StringUtils.isEmpty(existingLicense.getAttachment())){
+			UploadFile licenseFile = new UploadFile();
+			licenseFile.setFileName(existingLicense.getLicenseName());
+			licenseFile.setLicenseId(existingLicense.getLicenseId());
+			licenseFile.setBase64ImageString(existingLicense.getAttachment());
+			licenseFile.setFileExtension("pdf");
+			siteFileKey = fileIntegrationService.siteLicenseFileUpload(user,licenseFile,  user.getCompany());
+		}
+		return siteFileKey;
+	}
 
 
 

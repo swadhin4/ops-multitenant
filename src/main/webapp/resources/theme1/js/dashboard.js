@@ -1,17 +1,144 @@
-	
+chrisApp.controller('dashboardController',
+			[
+				'$rootScope',
+				'$scope',
+				'$filter',
+				'$location',
+				
+				function($rootScope, $scope, $filter, $location){	
 	// load visualization library
     //google.load('visualization', '1', {packages: ['geomap']});
 	//google.charts.load('current', {'packages':['corechart']});
-	google.charts.load('current', {'packages':['corechart', 'controls']});
+//	google.charts.load('current', {'packages':['corechart', 'controls']});
 	
-	
+					$scope.opsEntities=[{
+						  siteId:1,
+						  siteName:"ABC",
+						  assetList:[{
+							  assetId:"A1",
+							  assetName:"Asset Name 1",
+							  assetType:"E",
+							  incidentList:[{
+								   ticketId:100,
+								   ticketName:"T1"
+								  
+							  },{
+								   ticketId:101,
+								   ticketName:"T2"
+								  
+							  }]
+						  },{
+							  assetId:"A2",
+							  assetName:"Asset Name 2",
+							  assetType:"S",
+							  incidentList:[{
+								   ticketId:200,
+								   ticketName:"T1111"
+								  
+							  },{
+								   ticketId:201,
+								   ticketName:"T2222"
+								  
+							  }]
+						  }]	  
+					    },{
+							  siteId:1,
+							  siteName:"ABC",
+							  assetList:[{
+								  assetId:"A1",
+								  assetName:"Asset Name 1",
+								  assetType:"E",
+								  incidentList:[{
+									   ticketId:100,
+									   ticketName:"T1"
+									  
+								  },{
+									   ticketId:101,
+									   ticketName:"T2"
+									  
+								  }]
+							  },{
+								  assetId:"A2",
+								  assetName:"Asset Name 2",
+								  assetType:"S",
+								  incidentList:[{
+									   ticketId:200,
+									   ticketName:"T1111"
+									  
+								  },{
+									   ticketId:201,
+									   ticketName:"T2222"
+									  
+								  }]
+							  }]	  
+						    },{
+								  siteId:1,
+								  siteName:"ABC",
+								  assetList:[{
+									  assetId:"A1",
+									  assetName:"Asset Name 1",
+									  assetType:"E",
+									  incidentList:[{
+										   ticketId:100,
+										   ticketName:"T1"
+										  
+									  },{
+										   ticketId:101,
+										   ticketName:"T2"
+										  
+									  }]
+								  },{
+									  assetId:"A2",
+									  assetName:"Asset Name 2",
+									  assetType:"S",
+									  incidentList:[{
+										   ticketId:200,
+										   ticketName:"T1111"
+										  
+									  },{
+										   ticketId:201,
+										   ticketName:"T2222"
+										  
+									  }]
+								  }]	  
+							    },{
+									  siteId:1,
+									  siteName:"ABC",
+									  assetList:[{
+										  assetId:"A1",
+										  assetName:"Asset Name 1",
+										  assetType:"E",
+										  incidentList:[{
+											   ticketId:100,
+											   ticketName:"T1"
+											  
+										  },{
+											   ticketId:101,
+											   ticketName:"T2"
+											  
+										  }]
+									  },{
+										  assetId:"A2",
+										  assetName:"Asset Name 2",
+										  assetType:"S",
+										  incidentList:[{
+											   ticketId:200,
+											   ticketName:"T1111"
+											  
+										  },{
+											   ticketId:201,
+											   ticketName:"T2222"
+											  
+										  }]
+									  }]	  
+								    }];
 	
 	//google.charts.setOnLoadCallback(Hello('hello'));
 	
 	//function Hello(x){alert(x);};
     
-	$(function(){
-		google.charts.setOnLoadCallback(drawChart);
+	angular.element(document).ready(function() {
+	/*	google.charts.setOnLoadCallback(drawChart);
 		google.charts.setOnLoadCallback(drawChartSP);
 		google.charts.setOnLoadCallback(drawDashboard);
 		google.charts.setOnLoadCallback(drawDashboardSP);
@@ -21,9 +148,85 @@
 			google.charts.setOnLoadCallback(drawChartSP);
 			google.charts.setOnLoadCallback(drawDashboard);
 			google.charts.setOnLoadCallback(drawDashboardSP);
+		});*/
+		
+		
+	
+				 
+			  
+		console.log($scope.opsEntities);
+		$.fn.extend({
+		    treed: function (o) {
+		      
+		      var openedClass = 'glyphicon-minus-sign';
+		      var closedClass = 'glyphicon-plus-sign';
+		      
+		      if (typeof o != 'undefined'){
+		        if (typeof o.openedClass != 'undefined'){
+		        openedClass = o.openedClass;
+		        }
+		        if (typeof o.closedClass != 'undefined'){
+		        closedClass = o.closedClass;
+		        }
+		      };
+		      
+		        //initialize each of the top levels
+		        var tree = $(this);
+		        tree.addClass("tree");
+		        tree.find('li').has("ul").each(function () {
+		            var branch = $(this); //li with children ul
+		            branch.prepend("<i class='indicator glyphicon " + closedClass + "'></i>");
+		            branch.addClass('branch');
+		            branch.on('click', function (e) {
+		                if (this == e.target) {
+		                    var icon = $(this).children('i:first');
+		                    icon.toggleClass(openedClass + " " + closedClass);
+		                    $(this).children().children().toggle();
+		                }
+		            })
+		            branch.children().children().toggle();
+		        });
+		        //fire event from the dynamically added icon
+		      tree.find('.branch .indicator').each(function(){
+		        $(this).on('click', function () {
+		            $(this).closest('li').click();
+		        });
+		      });
+		        //fire event to open branch if the li contains an anchor instead of text
+		        tree.find('.branch>a').each(function () {
+		            $(this).on('click', function (e) {
+		                $(this).closest('li').click();
+		                e.preventDefault();
+		            });
+		        });
+		        //fire event to open branch if the li contains a button instead of text
+		        tree.find('.branch>button').each(function () {
+		            $(this).on('click', function (e) {
+		                $(this).closest('li').click();
+		                e.preventDefault();
+		            });
+		        });
+		    }
 		});
+
+		//Initialization of treeviews
+
+		$('#tree1').treed();
+
+		$('#tree2').treed({openedClass:'glyphicon-folder-open', closedClass:'glyphicon-folder-close'});
+
+		$('#tree3').treed({openedClass:'glyphicon-chevron-right', closedClass:'glyphicon-chevron-down'});
+		
+		
 	});	
 	
+	$scope.getOPSSummary=function(){
+		console.log($scope.opsEntities)
+	 }
+	
+  }
+]);
+
      function drawChart() {
 	
 			//alert(x);
@@ -344,3 +547,4 @@
 				}
 			});
       }
+			

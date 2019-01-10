@@ -288,7 +288,7 @@ $(function() {
 											 <a href="#" >
 												<b>
 													<i class="fa fa-check-circle-o" aria-hidden="true"></i> 
-													<span style="color:{{selectedUser.status}}">{{selectedUser.label}}</span>
+													<span style="color:{{selectedUser.statusColor}}">{{selectedUser.label}}</span>
 												</b>
 												<br>
 												<i class="fa fa-info-circle" aria-hidden="true"></i> {{selectedUser.description}}

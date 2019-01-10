@@ -173,7 +173,7 @@ $(document).ready(function()  {
 								</div>
 							</div>
 				
-			 <div class="box-body" style="background-color: #eee">
+			 <div class="box-body" style="background-color: #fff">
 			 	<div class="row">
 			 	<div class="col-md-8">
 			 	<div class="box">

@@ -199,9 +199,10 @@ chrisApp.controller('equipmentcreateController',
 				$scope.fileExtension1 = ext;
 				if ($.inArray(ext, [ "jpg", "jpeg", "JPEG",	"JPG", "png", "PNG" ]) == -1) {
 					$scope.errorMessage = "Supported file types to upload are jpg and png";
-					$('#messageWindow').show();
+					/*$('#messageWindow').show();
 					$('#errorMessageDiv').show();
-					$('#errorMessageDiv').alert();					
+					$('#errorMessageDiv').alert();	*/
+					$scope.getErrorMessage( $scope.errorMessage);
 					// $('#fileerrorasset').text("Supported file types to upload are jpg and png");
 					$scope.isfileselected = false;
 					$('#inputImgfilepath').val(null);
@@ -216,9 +217,10 @@ chrisApp.controller('equipmentcreateController',
 					if($scope.fileSize1 > 100){
 			        	 $scope.errorMessage="File size exceeds 100KB";
 			        	 //$('#fileerrorasset').text("File size exceeds 100KB");
-			        	 $('#messageWindow').show();
+			        	/* $('#messageWindow').show();
 							$('#errorMessageDiv').show();
-							$('#errorMessageDiv').alert();
+							$('#errorMessageDiv').alert();*/
+							$scope.getErrorMessage( $scope.errorMessage);
 				    	 $('#inputImgfilepath').val('');
 				    	 $('#inputImgfilepath').val(null);
 				    	 e.target.files=undefined;
@@ -231,9 +233,10 @@ chrisApp.controller('equipmentcreateController',
 				}else{
 					$scope.errorMessage="Invalid file format";
 					 //$('#fileerrorasset').text("Invalid file format");
-					 $('#messageWindow').show();
+					 /*$('#messageWindow').show();
 						$('#errorMessageDiv').show();
-						$('#errorMessageDiv').alert();
+						$('#errorMessageDiv').alert();*/
+					$scope.getErrorMessage( $scope.errorMessage);
 			    	 $('#inputImgfilepath').val(null);
 				}
 			 }
@@ -244,13 +247,14 @@ chrisApp.controller('equipmentcreateController',
 				$scope.fileSize2 = null;
 				$scope.fileExtension2 = ext;
 				if ($.inArray(ext, [ "PDF", "pdf"]) == -1) {
-					$('#'+msgDiv).text("Supported file types to upload is pdf");
+					/*$('#'+msgDiv).text("Supported file types to upload is pdf");
 					$('#'+errorDiv).show();
-					$('#'+errorDiv).alert();
+					$('#'+errorDiv).alert();*/
 					$scope.serviceModalErrorMessage = "";
 					$scope.isfileselected = false;
 					$('#' + documentId).val('');
 					$('#' + documentId).val(null);
+					$scope.getErrorMessage( "Supported file types to upload is pdf");
 					 e.target.files=undefined;
 					return false;
 				} else if (e.target.files != undefined) {
@@ -260,11 +264,12 @@ chrisApp.controller('equipmentcreateController',
 					$scope.fileSize2 = file[0].size / 1024;
 					if($scope.fileSize2 > 100){
 			        	 $scope.serviceModalErrorMessage="";
-			        	 $('#'+msgDiv).text("File size exceeds 100KB");
-				    	 $('#'+errorDiv).show();
+			        	/* $('#'+msgDiv).text("File size exceeds 100KB");
+				    	 $('#'+errorDiv).show();*/
 				    	 $('#' + documentId).val('');
 				    	 $('#' + documentId).val(null);
 				    	 e.target.files=undefined;
+				    	 $scope.getErrorMessage( "File size exceeds 100KB");
 			         }else{
 						var reader = new FileReader();
 						reader.onload = $scope.onFileDocUploadReader;
@@ -346,14 +351,15 @@ chrisApp.controller('equipmentcreateController',
 			    				$scope.asset.list.push(val);
 			    				$('#messageWindow').hide();
 			    				$('#infoMessageDiv').hide();
-			    				$('#loadingDiv').hide();
-			    			})
+			    			});
+			    			$('#loadingDiv').hide();
 			    			$scope.getAssetDetails($scope.asset.list[0]);
 		    			  }else{
 		    				  $scope.InfoMessage="No assets available for the user"
-									$('#messageWindow').show();
+									/*$('#messageWindow').show();
 				    				$('#infoMessageDiv').show();
-				    				$('#infoMessageDiv').alert();
+				    				$('#infoMessageDiv').alert();*/
+				    				$scope.getErrorMessage( $scope.InfoMessage);
 				    				$('#loadingDiv').hide();
 		    			  	}
 		    				
@@ -361,9 +367,10 @@ chrisApp.controller('equipmentcreateController',
 			            function(data) {
 			                console.log('Unable to get asset list')
 			                	$scope.InfoMessage="No assets available for the user"
-								$('#messageWindow').show();
+								/*$('#messageWindow').show();
 			    				$('#infoMessageDiv').show();
-			    				$('#infoMessageDiv').alert();
+			    				$('#infoMessageDiv').alert();*/
+			    				$scope.getErrorMessage( $scope.InfoMessage);
 			    				$('#loadingDiv').hide();
 			            });
 				 }
@@ -981,17 +988,19 @@ chrisApp.controller('equipmentcreateController',
 						 $scope.equipmentData.assetDoc = assetDoc;
 						 if( $scope.equipmentData.assetImage.size > 100){
 							 $scope.errorMessage="File size exceeds Max limit (100KB).";
-							 $('#messageWindow').show();
+							/* $('#messageWindow').show();
 				                $('#errorMessageDiv').show();
-			    				$('#errorMessageDiv').alert();	
+			    				$('#errorMessageDiv').alert();*/	
+			    				$scope.getErrorMessage( $scope.errorMessage);
 			                  $scope.isfileselected=false;
 			                  return false;
 			             }
 						 if( $scope.equipmentData.assetDoc.size > 100){
 							 $scope.errorMessage="File size exceeds Max limit (100KB).";
-							 $('#messageWindow').show();
+						/*	 $('#messageWindow').show();
 				                $('#errorMessageDiv').show();
-			    				$('#errorMessageDiv').alert();	
+			    				$('#errorMessageDiv').alert();*/
+			    				$scope.getErrorMessage( $scope.errorMessage);
 			            	
 			                  $scope.isfileselected=false;
 			                  return false;
@@ -1007,9 +1016,10 @@ chrisApp.controller('equipmentcreateController',
 	    				$('#equipmentModalMessageDiv').alert();	*/		
 		        	  
 		        	  $scope.errorMessage = "Decommission date should be after Commission date";
-		        	  $('#messageWindow').show();
+		        /*	  $('#messageWindow').show();
 		                $('#errorMessageDiv').show();
-	    				$('#errorMessageDiv').alert();	
+	    				$('#errorMessageDiv').alert();*/	
+	    				$scope.getErrorMessage( $scope.errorMessage);
 		          }		          
 				 
 			 }
@@ -1022,11 +1032,12 @@ chrisApp.controller('equipmentcreateController',
 		    			
 		    			if(data.statusCode == 200){
 		    				$scope.successMessage = data.message;
-		    				$('#messageWindow').show();
+		    				/*$('#messageWindow').show();
 		    				$('#successMessageDiv').show();
-		    				$('#successMessageDiv').alert();
+		    				$('#successMessageDiv').alert();*/
 		    				$('#infoMessageDiv').hide();
 		    				
+		    				$scope.getSuccessMessage($scope.successMessage);
 		    				//$scope.getAllAsset();
 		    				if($scope.originateFrom == "Asset" && $scope.operation=="NEW"){
 		    					window.location.href=hostLocation+"/asset/details";
@@ -1048,18 +1059,32 @@ chrisApp.controller('equipmentcreateController',
 		 				//$('#equipmentModalMessageDiv').alert();
 		 				if(assetData.assetType == 'E'){
 		 					  $scope.equipmentModalErrorMessage = data.message;
-		 					 $('#messageWindow').show();
+		 					/* $('#messageWindow').show();
 		 					$('#errorMessageDiv').show();
-		 					$('#errorMessageDiv').alert();
+		 					$('#errorMessageDiv').alert();*/
+		 					$scope.getErrorMessage( $scope.equipmentModalErrorMessage);
 		 				}
 		 				else if(assetData.assetType == 'S'){
 		 					$scope.serviceModalErrorMessage = data.message;
-		 					$('#serviceModalMessageDiv').show();
-			    				$('#serviceModalMessageDiv').alert();
+		 					/*$('#serviceModalMessageDiv').show();
+			    				$('#serviceModalMessageDiv').alert();*/
+			    				$scope.getErrorMessage( $scope.serviceModalErrorMessage);
 		 				}
 		 				$('#loadingDiv').hide();
 		            });
 			 }
+			 
+			 $scope.getSuccessMessage=function(msg){
+				 $('#successDiv').show();
+				 $('#successDiv').alert();
+				 $('#successMessage').text(msg);
+			}
+			
+			$scope.getErrorMessage=function(msg){
+				 $('#errorDiv').show();
+				 $('#errorDiv').alert();
+				 $('#errorMessage').text(msg);
+			}
 			
 }]);
 function validateDropdownValues(dropDownId, assetType){

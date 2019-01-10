@@ -36,7 +36,7 @@ import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Company;
-import com.pms.jpa.entities.Site;
+import com.pms.jpa.entities.SiteLicence;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.web.service.AwsIntegrationService;
 import com.pms.web.service.FileIntegrationService;
@@ -126,26 +126,31 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 
 	
 
-	/*@Override
-	public String siteLicenseFileUpload(UploadFile licenseFile, Company company)  throws IOException {
+	@Override
+	public String siteLicenseFileUpload(LoginUser user,UploadFile licenseFile, Company company)  throws IOException {
 		LOGGER.info("Inside FileIntegrationServiceImpl .. siteLicenseFileUpload");
 			String base64Image = licenseFile.getBase64ImageString().split(",")[1];
 			byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64Image);
 			String fileUploadLocation = ApplicationUtil.getServerUploadLocation();
 			SiteLicence license = null;
 			if(licenseFile.getLicenseId()!=null){
-				license = licenseRepo.findOne(licenseFile.getLicenseId());
+				String attachmentFile = getSiteDAO(user.getDbName()).getLicenseAttachment(licenseFile.getLicenseId());
+				if(!StringUtils.isEmpty(attachmentFile)){
+					license=new SiteLicence();
+					license.setAttachmentPath(attachmentFile);
+					license.setLicenseId(licenseFile.getLicenseId());
+				}
 			}
 			String generatedFileName="";
 			String fileKey="";
 			Path destinationFile = null;
 			String licenseName=licenseFile.getFileName();
 			if(license!=null){
-				if(StringUtils.isNotBlank(license.getAttachmentPath())){
+			/*	if(StringUtils.isNotBlank(license.getAttachmentPath())){
 					generatedFileName=license.getAttachmentPath();
 					destinationFile = Paths.get(fileUploadLocation+"\\"+generatedFileName);
 					fileKey=generatedFileName;
-				}else{
+				}else{*/
 					licenseName=licenseName.replaceAll(" ", "_").toLowerCase();
 					generatedFileName = licenseName+"_"+Calendar.getInstance().getTimeInMillis()+"."+licenseFile.getFileExtension().toLowerCase();
 					destinationFile = Paths.get(fileUploadLocation+"\\"+company.getCompanyCode()+"\\site\\license\\"+generatedFileName);
@@ -160,7 +165,8 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 			try {
 				Files.write(destinationFile, imageBytes);
 				LOGGER.info("Saving image to location : "+  destinationFile.toString() );
-				//pushToAwsS3(destinationFile,  fileKey);
+				LOGGER.info("Uploading file to S3 : "+ fileKey);
+				//RestResponse response = pushToAwsS3(destinationFile, fileKey);
 			} catch (IOException e) {
 				LOGGER.info("Unable to upload license image ", e );
 			}
@@ -168,7 +174,7 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 		LOGGER.info("Exit SiteServiceImpl .. uploadSiteLicenseImage");
 		return fileKey;
 	}
-*/
+
 	@Override
 	public String siteIncidentFileUpload(List<UploadFile> incidentFileList, TicketVO customerTicketVO, Company company, String folderLocation, String uploadedBy)  throws IOException {
 		LOGGER.info("Inside FileIntegrationServiceImpl .. siteIncidentFileUpload");
