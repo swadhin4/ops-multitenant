@@ -11,7 +11,6 @@ public class AssetTask implements Serializable {
 	private static final long serialVersionUID = 6328518344093529771L;
 	private Long taskId;
 	private Long assetId;
-	private String assetTaskNumber;
 	private String taskName;
 	private String taskDesc;
 	private String planStartDate;
@@ -109,12 +108,6 @@ public class AssetTask implements Serializable {
 	}
 	public void setPlannedComplDate(Date plannedComplDate) {
 		this.plannedComplDate = plannedComplDate;
-	}
-	public String getAssetTaskNumber() {
-		return assetTaskNumber;
-	}
-	public void setAssetTaskNumber(String assetTaskNumber) {
-		this.assetTaskNumber = assetTaskNumber;
 	}
 	public int getStatus() {
 		return status;

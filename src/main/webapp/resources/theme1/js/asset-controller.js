@@ -548,6 +548,14 @@ chrisApp.controller('assetController',
 					// $.jStorage.set('taskOperation', $scope.taskOperation);
 					// window.location.href=hostLocation+"/asset/task/create"
 					 $('#taskModal').modal('show');
+					 $scope.selectedAsset.taskId=null;
+					 $scope.selectedAsset.taskName=null;
+					 $scope.selectedAsset.taskDesc=null;
+					 $scope.selectedAsset.planStartDate=null;
+					 $scope.selectedAsset.planEndDate=null;
+					 $scope.selectedAsset.taskAssignedTo=null;
+					 $scope.selectedAsset.resComments=null;
+					 $scope.selectedAsset.taskStatus="New";
 				 }
 				 else if(isCreateUpdate == 'U'){
 					 $scope.taskOperation ="UpdateTask";

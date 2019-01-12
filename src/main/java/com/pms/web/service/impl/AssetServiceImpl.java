@@ -485,7 +485,6 @@ public class AssetServiceImpl implements AssetService {
 	public AssetTask saveOrUpdateAssetTask(AssetTask assetTask, LoginUser loginUser) throws Exception {
 		LOGGER.info("Inside AssetServiceImpl .. saveOrUpdateAssetTask");
 		AssetTask savedAssetTask =null;
-		assetTask.setAssetTaskNumber(assetTask.getTaskName()+""+RandomUtils.randomAlphabetic(4));
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 		if (!StringUtils.isEmpty(assetTask.getPlanStartDate())) {
 			Date startDate;

@@ -641,9 +641,9 @@ public class AppConstants {
 
 	public static final String LICENSE_ATTACHMENT_UPDATE_QUERY = "update pm_sitelicense set attachment_path = ?, modified_by = ?, modified_date=NOW()  where license_id =?";
 
-	public static final String INSERT_ASSET_TASK_QUERY = "insert into pm_asset_task(asset_id,task_name,task_number, task_desc, planned_start_date,"
+	public static final String INSERT_ASSET_TASK_QUERY = "insert into pm_asset_task(asset_id,task_name, task_desc, planned_start_date,"
 			+ "  planned_end_date,task_assigned_to,task_status,res_comment,created_date, created_by)"
-			+ " values (?,?,?,?,?,?,?,?,?,NOW(),?)";
+			+ " values (?,?,?,?,?,?,?,?,NOW(),?)";
 
 	public static final String ASSET_TASK_LIST_QUERY = "select * from pm_asset_task where asset_id=?";
 
