@@ -15,7 +15,7 @@
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap-toggle.min.js"></c:url>'></script>
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
 
-
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/incident-modal.css"></c:url>' />
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/moment.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery.knob.js"></c:url>'></script>
@@ -260,8 +260,8 @@ $(document).ready(function()  {
 													</thead>
 													<tbody>
 														<tr ng-repeat="asset in asset.list | filter: searchAsset | orderBy :'assetName'"
-															ng-class="{currentSelected:$index == selectedRow}" 
-															ng-click="getAssetDetails(asset);rowHighilited($index)" >
+															ng-class="{currentSelected:asset.assetId == selectedRow}" 
+															ng-click="rowHighilited(asset, $index)" >
 															<td ng-if="asset.spType=='EXT'"><span class="badge" style="background-color:red">E</span>
 																	{{asset.assetName}}
 															</td><td ng-if="asset.spType=='RSP'"><span class="badge" style="background-color:green">R</span>
@@ -348,7 +348,7 @@ $(document).ready(function()  {
 										<ul class="dropdown-menu" role="menu">
 										<li> <a href ng-click="openAssetPage()"  ng-if="asset.list.length>0">  <span class="fa fa-edit" aria-hidden="true"></span>Edit</a></li>
 										<li> <a href="${contextPath}/incident/details/create"> <span  class="fa fa-plus" aria-hidden="true"></span>Create Incident</a></li>
-										<li> <a href ng-click="openAssetTaskPage('C')"  ng-if="asset.list.length>0">  <span class="fa fa-tasks" aria-hidden="true"></span>Create Task</a></li>
+										<li> <a href ng-click="openAssetTaskPage('C', selectedAsset)"  ng-if="asset.list.length>0">  <span class="fa fa-tasks" aria-hidden="true"></span>Create Task</a></li>
 									</ul>
 									</div>
 									</sec:authorize>
@@ -422,13 +422,10 @@ $(document).ready(function()  {
 										</table>
 										
 										<table class="table no-margin" ng-if="selectedAsset.assetType == 'S' ">
-											<thead>
 											<tr><td style="width:40%">Name</td><td align="right">{{selectedAsset.assetName}}</td>
 											</tr>
 											<tr><td style="width:40%">Service Code</td><td align="right">{{selectedAsset.assetCode}}</td>
 											</tr>
-											</thead>
-											<tbody>
 											<tr><td>Category</td><td align="right">{{selectedAsset.assetCategoryName}}</td></tr>
 											<tr><td>Component Type</td><td align="right">{{selectedAsset.assetSubcategory1}}</td></tr>
 											<!-- <tr><td>SubComponent Type</td><td align="right">{{selectedAsset.assetSubcategory2}}</td></tr> -->
@@ -449,7 +446,6 @@ $(document).ready(function()  {
 												<a href ng-click="deleteFile('ASSET', selectedAsset,'DOC')" data-toggle="tooltip" data-original-title="Delete this file">
 												<i class="fa fa-remove fa-2x" aria-hidden="true"></i></a>
 											</td></tr>
-											</tbody>
 										</table>
 										</div>
 									</div>
@@ -479,18 +475,16 @@ $(document).ready(function()  {
 											<thead>
 												<tr>
 													<th>Task Name</th>
-													<th>Task Creation</th>
+													<th>Status</th>
 													<th>Actions</th>
 												</tr>
 											</thead>
 											<tbody>
 												<tr
-													ng-repeat="task in assetTaskData.list | filter: searchAssetTask | orderBy :'taskName'"
-													ng-class="{currentSelected:$index == selectedRow}"
-													ng-click="getAssetDetails(asset);rowHighilited($index)">
+													ng-repeat="task in selectedAsset.taskList | filter: searchAssetTask | orderBy :'taskName'">
 													<td>{{task.taskName}}</td>
-													<td>{{task.taskCreation}}</td>
-													<td><a href ng-click="editTask(task)"> <i
+													<td>{{task.taskStatus}}</td>
+													<td><a href ng-click="openAssetTaskPage('U', task)"> <i
 															class="fa fa-edit" aria-hidden="true"></i></a> <a href
 														ng-click="viewTask(task)"> <i class="fa fa-view"
 															aria-hidden="true"></i></a></td>
@@ -556,430 +550,124 @@ $(document).ready(function()  {
     </div>  
   </div>  
 </div> 
-	 <%-- <div class="modal fade" id="equipmentModal" data-keyboard="false" data-backdrop="static">
-		<div class="modal-dialog" style="width: 80%;">
+		<div class="modal right fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModal">
+		<div class="modal-dialog" role="document">
 			<div class="modal-content">
-			 <form name="createassetform" ng-submit="saveAssetEquipment()" >
 				<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal"
-				aria-label="Close">
-				<span aria-hidden="true">&times;</span>				
-			</button>
-			<h4 class="modal-title"><span id="assetModalLabel">Add new Asset</span>   |  <a class="btn btn-info">Asset or Service type 
-			<span class="badge">Equipment</span> 
-			</a>
-			</h4>
-			<div class="alert alert-danger " id="equipmentModalMessageDiv"
-				style="display: none;  height: 34px;white-space: nowrap;">
-				<strong>Error! </strong> {{equipmentModalErrorMessage}} <span id="fileerrorasset"></span>
-				<a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-			</div>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel2" ng-if="selectedAsset.taskId==null">Create Task</h4>
+					<h4 class="modal-title" id="myModalLabel3" ng-if="selectedAsset.taskId!=null">Update Task</h4>
+				</div>
+				<div class="modal-body">
+				       <div class="box box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title">Asset : {{selectedAsset.assetName}}</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+            <form name="createUpdatetaskform" ng-submit="saveAssetTask()">
+              <dl>
+                <dt>Task Name <i style="color:red">*</i> </dt>
+                <dd>
+					 <input
+						name="taskname" type="text" class="form-control"
+						maxlength="50" name="taskName"
+						ng-model="selectedAsset.taskName"
+						placeholder="Enter Task Name" required>
+				</dd>
+              </dl>
+                <dl>
+                <dt>Task Description</dt>
+                <dd>
+					<textarea class="form-control"
+					 rows="3"
+					placeholder="Enter Task Description" name="taskDescription"
+					ng-model="selectedAsset.taskDesc"></textarea>
+				</dd>
+                </dl>
+                 <dl>
+                 <div class="row">
+                 <div class="col-xs-6">
+                <dt>Planned Start Date <i style="color:red">*</i></dt>
+                <dd>
+				<div class="input-group date">
+				<div class="input-group-addon">
+					<i class="fa fa-calendar"></i>
+				</div>
+				<input type="text" class="form-control pull-right dt1"
+					placeholder="Planned Start Date" id="planStartDate"
+					ng-model="selectedAsset.planStartDate" required>
 
-		</div>
+			     </div>
+			     </div>
+			       <div class="col-xs-6">
+                <dt>Planned Completion Date <i style="color:red">*</i></dt>
+                <dd>
+			     <div class="input-group date">
+					<div class="input-group-addon">
+						<i class="fa fa-calendar"></i>
+					</div>
+					<input type="text" class="form-control pull-right dt1"
+						placeholder="Completion Date" id="planComplDate"
+						ng-model="selectedAsset.planEndDate" required>
 
-			 <div class="modal-body" style="background-color: #eee">
-			 	<div class="row">
-			 	<div class="col-md-12">
-			 	<div class="box">
-					<div class="box-body">
-					 
-					<div class="row">
-						<div class="col-xs-3 required">
-						<input
-								name="modalInput" type="hidden" class="form-control"
-								 name="sitename" ng-model="equipmentData.assetId">
-							<label class="control-label">Name</label> <input
-								name="modalInput" type="text" class="form-control"
-								maxlength="50" name="sitename" ng-model="equipmentData.assetName"
-								placeholder="Enter equipment name" required tabindex="1">
-								<span class="slider round"></span>
-						</div>
-						<div class="col-xs-3 required">
-							<label class="control-label">Asset code</label> <input
-								name="modalInput" type="text" class="form-control"
-								maxlength="20" name="assetcode" ng-model="equipmentData.assetCode"
-								placeholder="Enter Asset or Service code" required tabindex="2">
-						</div>
-						<div class="col-xs-3">
-							<label for="exampleInputEmail1">Model</label> <input
-								name="modalInput" type="text" class="form-control" tabindex="3"
-								maxlength="20" name="model" ng-model="equipmentData.modelNumber"
-								placeholder="Enter model number">
-						</div>
 						
-					</div>
-
-					<div class="row">
-					<div class="col-xs-3 required">
-								<label class="control-label">Category</label> 
-								<select name="categorySelect" id="categorySelect" class="form-control" required tabindex="3"
-								onchange="validateDropdownValues('categorySelect','E')">
-									
-								</select>
-								<input type="hidden" ng-model="assetCategory.selected" >
-						</div>
-					<div class="col-xs-4 required">
-								<label class="control-label">Component Type</label> 
-								<select name="repairtypeSelect" id="repairtypeSelect" class="form-control" required tabindex="4"
-								onchange="validateDropdownValues('repairtypeSelect','E')">
-									
-								</select>
-								<input type="hidden" ng-model="repairType.selected" >
-						</div>
-						<!-- <div class="col-xs-5 required">
-								<label class="control-label">SubComponent Type</label> 
-								<select name="subrepairtypeSelect" id="subrepairtypeSelect" class="form-control" required tabindex="5"
-								onchange="validateDropdownValues('subrepairtypeSelect','E')">
-									
-								</select>
-								<input type="hidden" ng-model="subrepairType.selected" >
-						</div> -->
-					</div>
-					<div class="row">
-					
-						<div class="col-xs-3">
-							<label for="exampleInputEmail1">Content</label> <input
-								name="modalInput" type="text" class="form-control"
-								maxlength="50" name="content" ng-model="equipmentData.content"
-								placeholder="Enter content">
-						</div>
-						<div class="col-xs-3 required">
-								<label class="control-label">Location</label> 
-								<select name="locationSelect" id="locationSelect" class="form-control" required 
-								onchange="validateDropdownValues('locationSelect','E')">
-									
-								</select>
-								<input type="hidden" ng-model="assetLocation.selected" required>
-						</div>
-						<div class="col-xs-3" ng-if="equipmentData.assetId!=null">
-							<label for="exampleInputEmail1">Picture (Max Size 100KB)</label> <input
-								type="file" class="form-control" id="inputImgfilepath" 
-								name="inputImgfilepath" ng-model="equipmentData.imagePath"  accept="image/*"
-								onchange="angular.element(this).scope().getImageFile(this, event )">
-						</div>
-						<div class="col-xs-3" ng-if="equipmentData.assetId!=null">
-							<label for="exampleInputEmail1">Additional
-								document (Max Size 100KB)</label> <input type="file" class="form-control"
-								id="inputDocfilepath" name="inputDocfilepath" ng-model="equipmentData.documentPath" 
-								accept=".doc, .docx,.pdf" 
-								onchange="angular.element(this).scope().getDocumentFile(this, event, 'equipmentModalMessageDiv','fileerrorasset' )">
-						</div>
-
-					</div>
-
-					<div class="row">
-					<div class="col-md-9 col-sm-9">
-						<div class="row">
-						<div class="col-xs-4">
-							<label class="control-label">Service Provider</label> <!-- <select
-							ng-options="val as val.name for val in serviceProvider.list"
-								class="form-control" ng-model="serviceProvider.selected" required>
-							</select> -->
-							<select	name="spSelect" id="spSelect"	class="form-control" 
-							onchange="validateDropdownValues('spSelect','E')">
-							</select> 
-							<input type="hidden" ng-model="serviceProvider.selected">
-						</div>
-						<div class="col-xs-4 required">
-							<label class="control-label">Date of Asset
-								commission</label>
-							<div class="input-group date">
-								<div class="input-group-addon">
-									<i class="fa fa-calendar"></i>
-								</div>
-								<input type="text" class="form-control pull-right dt1"
-									id="commission" ng-model="equipmentData.commisionedDate" required>
-							</div>
-						</div>
-						<div class="col-xs-4 ">
-							<label class="control-label">Date of Asset decommission</label>
-							<div class="input-group date">
-								<div class="input-group-addon">
-									<i class="fa fa-calendar"></i>
-								</div>
-								<input type="text" class="form-control pull-right dt1"
-									id="decommission" ng-model="equipmentData.deCommissionedDate" >
-							</div>
-						</div>
-						</div>
-						<div class="row">
-						<div class="col-xs-4 required">
-							<label class="control-label">Is Asset
-								Electrical</label> <select id="drpIsAsset"  required
-								class="form-control" >
-								<option value="">Select Asset Electrical</option>
-								<option value="YES">YES</option>
-								<option value="NO">NO</option>
-							</select>
-						</div>
-						<div class="col-xs-4">
-							<label for="exampleInputEmail1">Is a power sensor
-								attached</label> <select id="drpIsPowersensor"
-								class="form-control" >
-								<option value="">Select Sensor Attached</option>
-								<option value="YES">YES</option>
-								<option value="NO">NO</option>
-							</select>
-						</div>
-
-						<div class="col-xs-4">
-							<label for="exampleInputEmail1">Sensor Number</label> <input
-								type="text" maxlength="20" id="txtSensorNumber"
-								class="form-control" placeholder="Enter sensor Number"
-								name="comment" ng-model="equipmentData.pwSensorNumber">
-						</div>
-						</div>
-						</div>
-						<div  class="col-xs-3 required">
-							<div class="col-md-12">
-							<label class="control-label">Site</label> <!-- <select
-							   ng-options="val as val.siteName for val in accessSite.list"
-								class="form-control" ng-model="accessSite.selected" required>
-							</select> -->
-							<label class="form-control" ng-if="operation == 'EDIT'">{{selectedAsset.siteName}}</label>
-																
-							<Select  ng-if="operation == 'ADD'" class="form-control" id="siteSelect" name="siteSelect" multiple="multiple" required
-							onchange="validateDropdownValues('siteSelect','E')">
-							</Select>
-							<input type="hidden" ng-model="accessSite.selected">
-							</div>
-						</div>
-					</div>
-					<div class="row">
-						 <div class="col-xs-9">
-							<label for="exampleInputEmail1">Comments</label> <!-- <input
-								type="text" maxlength="500" class="form-control"
-								placeholder="Enter comment" name="comment" ng-model="equipmentData.assetDescription"> -->
-								<textarea class="form-control" maxlength="1000" style="width: 100%;
-   				 height: 70px;" rows="3" placeholder="Enter comment" name="comment" ng-model="equipmentData.assetDescription"></textarea>
-						</div>
-						
-						<!-- <div class="col-xs-3" ng-show="operation == 'EDIT'">
-						<label for="exampleInputEmail1">&nbsp;&nbsp;</label></br></br>
-						<input id="toggledelete" type="checkbox" class="toggleYesNo form-control" 
-										data-width="70" 
-										data-toggle="toggle" data-size="small"
-										data-off="Active" data-on="Delete" data-onstyle="danger" data-offstyle="primary"
-										onchange="angular.element(this).scope().isDelete(this, event )">&nbsp;<b>Mark for deletion</b>
-						</div> -->
-					</div>
-					</div>
-						</div>
-						</div>
-						</div>
-					</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default pull-left"	id="assetModalCloseBtn" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-success" >Save changes</button>
-					<button type="reset" id="resetAssetForm" class="btn btn-success">RESET</button>
-			</div>
-									</form>
-									
-									
-								</div>
-							</div>
-
-						</div> --%>
-						
-	<%-- <div class="modal fade" id="serviceModal" data-keyboard="false" data-backdrop="static">
-		<div class="modal-dialog" style="width: 80%;">
-			<div class="modal-content">
-			 <form name="createServiceAssetform" ng-submit="saveAssetService()" >
-				<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal"
-				aria-label="Close">
-				<span aria-hidden="true">&times;</span>
-			</button>
-			<h4 class="modal-title"><span id="assetServiceModalLabel">Add new Asset</span>   |  <a class="btn btn-info">Asset or Service type 
-			<span class="badge">Service</span>			
-			</a>
-		
-			</h4>
-			<div class="alert alert-danger alert-dismissable" id="serviceModalMessageDiv"
-				style="display: none;  height: 34px;white-space: nowrap;">
-				<strong>Error! </strong> {{serviceModalErrorMessage}} <span id="fileerrorservice"></span> 
-				<a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-			</div>
-
-		</div>
-
-
-			 <div class="modal-body" style="background-color: #eee">
-			 	<div class="row">
-			 	<div class="col-md-12">
-			 	<div class="box">
-					<div class="box-body">
-					 
-					<div class="row">
-						<div class="col-xs-4 required">
-						<input
-								name="modalInput" type="hidden" class="form-control"
-								 name="serviceName" ng-model="serviceData.assetId">
-							<label class="control-label">Name</label> <input
-								name="modalInput" type="text" class="form-control"
-								maxlength="50" name="serviceName" ng-model="serviceData.assetName"
-								placeholder="Enter service name" required>
-						</div>
-						<div class="col-xs-4 required">
-							<label class="control-label">Service code</label> <input
-								name="modalInput" type="text" class="form-control"
-								maxlength="20" name="serviceCode" ng-model="serviceData.assetCode"
-								placeholder="Enter Asset or Service code" required>
-						</div>
-						
-						<div class="col-xs-4 required">
-							<div class="form-group">
-								<label class="control-label">Category</label> 
-								<select name="serviceCategorySelect" id="serviceCategorySelect" class="form-control" required
-								onchange="validateDropdownValues('serviceCategorySelect','S')">
-									
-								</select>
-								<input type="hidden" ng-model="assetCategory.selected">
-							</div>
-						</div>
-					</div>
-					
-					<div class="row">
-					
-					<div class="col-xs-4 required">
-								<label class="control-label">Component Type</label> 
-								<select name="servicerepairtypeSelect" id="servicerepairtypeSelect" class="form-control" required tabindex="4"
-								onchange="validateDropdownValues('servicerepairtypeSelect','S')">
-									
-								</select>
-								<input type="hidden" ng-model="serviceRepairType.selected" >
-						</div>
-						<!-- <div class="col-xs-5 required">
-								<label class="control-label">SubComponent Type</label> 
-								<select name="servicesubrepairtypeSelect" id="servicesubrepairtypeSelect" class="form-control" required tabindex="5"
-								onchange="validateDropdownValues('servicesubrepairtypeSelect','S')">
-									
-								</select>
-								<input type="hidden" ng-model="subrepairType.selected" >
-						</div> -->
-					</div>
-
-					<div class="row">
-						<div class="col-md-8 col-sm-9">
-						<div class="row">
-						<div class="col-xs-6  required">
-								<label class="control-label">Location</label> <!-- <select
-								ng-options="val as val.locationName for val in assetLocation.list"
-									class="form-control" ng-model=" assetLocation.selected" required>
-									<option></option>
-								</select> -->
-								<select name="serviceLocationSelect" id="serviceLocationSelect" class="form-control" required 
-								onchange="validateDropdownValues('serviceLocationSelect','S')">
-									
-								</select>
-								<input type="hidden" ng-model="assetLocation.selected">
-						</div>
-						<div class="col-xs-6">
-							<label class="control-label">Service Provider</label> <!-- <select
-							ng-options="val as val.name for val in serviceProvider.list"
-								class="form-control" ng-model="serviceProvider.selected" required>
-							</select> -->
-							<select	name="spSelect" id="serviceSPSelect"	class="form-control" 
-							onchange="validateDropdownValues('serviceSPSelect','S')">
-							</select> 
-							<input type="hidden" ng-model="serviceProvider.selected">
-						</div>
-											
-						
-						</div>
-						<div class="row">
-						  <div class="col-xs-6 required">
-							<label class="control-label">Service contract start date</label>
-							<div class="input-group date">
-								<div class="input-group-addon">
-									<i class="fa fa-calendar"></i>
-								</div>
-								<input type="text" class="form-control pull-right dt1"
-									id="commissionDate" ng-model="serviceData.commisionedDate" required>
-							</div>
-						</div>
-						<div class="col-xs-6 ">
-							<label class="control-label">Service contract end date</label>
-							<div class="input-group date">
-								<div class="input-group-addon">
-									<i class="fa fa-calendar"></i>
-								</div>
-								<input type="text" class="form-control pull-right dt1"
-									id="decommissionDate" ng-model="serviceData.deCommissionedDate" >
-							</div>
-						</div>
-						</div>
-						
-						</div>
-						
-						<div  class="col-xs-4 required">
-							<div class="col-md-12">
+				</div>
+				</dd>
+				</div>
+				</div>
+                </dl>
+                 <dl>
+                <dt>Assigned To <i style="color:red">*</i></dt>
+                <dd>
+					<input
+					type="text" class="form-control" name="assignTo"
+					ng-model="selectedAsset.taskAssignedTo"
+					placeholder="Enter Assigned To" required>
+				</dd>
+                </dl>
+                 <label class="control-label">Status <i style="color:red">*</i></label>
+                <div >
+					<select ng-if="taskOperation =='CreateTask'"
+					 name="taskStatus"
+					id="taskStatus" class="form-control" required>
+					<option value="NEW" selected="selected">New</option>
+					</select>
+					<select  ng-if="taskOperation =='UpdateTask'" 
+						name="taskStatusUpdate" id="taskStatusUpdate" class="form-control" 
+						required">
+						<option value="">Select Status</option>
+						<option value="NEW">New</option>
+						<option value="INPROGRESS">In Progress</option>
+						<option value="CLOSED">Closed</option>
+						<option value="REJECTED">Rejected</option>
+					</select>
+				
+                </div>
+                <div >
+					<label class="control-label">Resolution Comment</label>
+					<textarea class="form-control" rows="3"
+						placeholder="Enter Resolution Comment"
+						name="resolutionComment"
+						ng-model="selectedAsset.resComments"></textarea>
+				
+                </div>
+                 <div ng-if="selectedAsset.taskId==null">
+                 <button type="submit" class="btn btn-success">Save	changes</button>
+					<button type="reset" id="resetServiceAssetForm"
+						class="btn btn-success">RESET</button>
+                 </div>
+                 <div ng-if="selectedAsset.taskId!=null">
+                 <button type="submit" class="btn btn-success">Update changes</button>
+                 </div>
+                </form>
+            </div>
+          </div>
 								
-							<label class="control-label">Site</label> <!-- <select
-							   ng-options="val as val.siteName for val in accessSite.list"
-								class="form-control" ng-model="accessSite.selected" required>
-							</select> -->
-							<label class="form-control" ng-show="operation == 'EDIT'">{{selectedAsset.siteName}}</label>
-							
-							<select class="form-control" ng-show="operation == 'ADD'" id="serviceSiteSelect" name="serviceSiteSelect" multiple="multiple" required
-							onchange="validateDropdownValues('serviceSiteSelect','S')">
-							</select>
-							<input type="hidden" ng-model="accessSite.selected">
-						
-					         </div>
-						</div>
-					</div>
-					<div class="row">
-						
-						 <div class="col-xs-8">
-							<label for="exampleInputEmail1">Comments</label> 
-							<!-- <input type="text" maxlength="50" class="form-control"
-								placeholder="Enter comment" name="comment" ng-model="serviceData.assetDescription"> -->
-								
-								<textarea class="form-control" maxlength="1000" style="width: 100%;
-   				 height: 70px;" rows="3" placeholder="Enter comment" name="comment" ng-model="serviceData.assetDescription"></textarea>
-						</div> 
-						
-						<div class="col-xs-4" ng-if="serviceData.assetId!=null">
-							<label for="exampleInputEmail1">Additional
-								document (Max Size 100KB)</label> <input type="file" class="form-control" 
-								id="inputServiceDocfilepath" accept=".doc, .docx,.pdf"
-								name="inputServiceDocfilepath" ng-model="serviceData.documentPath" 
-								onchange="angular.element(this).scope().getDocumentFile(this, event, 'serviceModalMessageDiv','fileerrorservice' )">								
-												
-						</div>
-
-					</div>
-					<!-- <div class="row" ng-show="operation == 'EDIT'">
-					
-					<div class="col-xs-4 pull-right">
-						
-						<input id="toggledeleteService" type="checkbox" class="toggleYesNo form-control" 
-										data-width="70" 
-										data-toggle="toggle" data-size="small"
-										data-off="Active" data-on="Delete" data-onstyle="danger" data-offstyle="primary"
-										onchange="angular.element(this).scope().isDelete(this, event )">&nbsp;<b>Mark for deletion</b>
-						</div>
-					</div> -->
-					
-						
-						</div>
-						</div>
-						</div>
-					</div>
-					</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default pull-left"	id="serviceModalCloseBtn" data-dismiss="modal">Close</button>
-					<button type="submit" class="btn btn-success" >SAVE CHANGES</button>
-					<button type="reset" id="resetServiceAssetForm" class="btn btn-success">RESET</button>
-			</div>
-									</form>
-									
-									
-								</div>
-							</div>
-
-						</div> --%>
+          </div>
+				</div>
+				</div>
+		</div>
 					
 				</div>
 				</section>

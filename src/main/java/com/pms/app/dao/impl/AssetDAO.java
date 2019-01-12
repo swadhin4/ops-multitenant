@@ -1,6 +1,7 @@
 package com.pms.app.dao.impl;
 
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,16 +18,21 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
+import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
+import com.pms.app.view.vo.AssetTask;
 import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
@@ -452,5 +458,78 @@ public class AssetDAO {
 		return assetList;
 	}
 
+	public AssetTask saveAssetTask(AssetTask assetTask, LoginUser user) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_ASSET_TASK_QUERY, 
+	            Statement.RETURN_GENERATED_KEYS);
+	        ps.setLong(1, assetTask.getAssetId());
+	        ps.setString(2, assetTask.getTaskName());
+	        ps.setString(3, assetTask.getAssetTaskNumber());
+    		ps.setString(4, assetTask.getTaskDesc());
+    		ps.setDate(5,	ApplicationUtil.getSqlDate(assetTask.getPlannedStartDate()));
+    		ps.setDate(6,   ApplicationUtil.getSqlDate(assetTask.getPlannedComplDate()));
+    		ps.setString(7, assetTask.getTaskAssignedTo());
+    		ps.setString(8, assetTask.getTaskStatus());
+    		ps.setString(9, assetTask.getResComments());
+    		ps.setString(10, user.getUsername());
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved Asset Task {} with taskId {}.", assetTask.getAssetTaskNumber(), key.getKey());
+	    assetTask.setTaskId(key.getKey().longValue());
+	    return assetTask;
+	}
+
+	public List<AssetTask> findAssetTaskByAsset(Long assetId) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<AssetTask> assetTaskList =  jdbcTemplate.query(AppConstants.ASSET_TASK_LIST_QUERY, new Object[] { assetId }, new ResultSetExtractor<List<AssetTask>>() {
+			@Override
+			public List<AssetTask> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<AssetTask> assetTaskList = new ArrayList<AssetTask>();
+						while (rs.next()) {
+							AssetTask assetTask = new AssetTask();
+							assetTask.setTaskId(rs.getLong("task_id"));
+							assetTask.setTaskName(rs.getString("task_name"));
+							assetTask.setAssetTaskNumber(rs.getString("task_number"));
+							assetTask.setTaskDesc(rs.getString("task_desc"));
+							assetTask.setPlanStartDate(ApplicationUtil.getDateStringFromSQLDate(rs.getString("planned_start_date")));
+							assetTask.setPlanEndDate(ApplicationUtil.getDateStringFromSQLDate(rs.getString("planned_end_date")));
+							assetTask.setTaskAssignedTo(rs.getString("task_assigned_to"));
+							assetTask.setTaskStatus(rs.getString("task_status"));
+							assetTask.setCreatedDate(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_date")));
+							assetTask.setResComments(rs.getString("res_comment"));
+							assetTaskList.add(assetTask);
+						}
+			return assetTaskList;
+		    }
+		
+	   });
+		return assetTaskList;
+	}
 	
+	public int updateAssetTask(AssetTask assetTask , LoginUser user)
+            throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int updatedRow = jdbcTemplate.update(AppConstants.ASSET_TASK_UPDATE_QUERY,  new PreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, assetTask.getTaskName());
+         		ps.setString(2, assetTask.getTaskDesc());
+         		ps.setDate(3,	ApplicationUtil.getSqlDate(assetTask.getPlannedStartDate()));
+         		ps.setDate(4,   ApplicationUtil.getSqlDate(assetTask.getPlannedComplDate()));
+         		ps.setString(5, assetTask.getTaskAssignedTo());
+         		ps.setString(6, assetTask.getTaskStatus());
+         		ps.setString(7, assetTask.getResComments());
+         		ps.setString(8, user.getUsername());
+         		ps.setLong(9, assetTask.getTaskId());
+            }
+
+        });
+		return updatedRow;
+           
+    }
 }

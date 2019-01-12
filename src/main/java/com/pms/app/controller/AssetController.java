@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.view.vo.AssetTask;
 import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.jpa.entities.AssetCategory;
@@ -147,6 +148,45 @@ public class AssetController extends BaseController {
 		} else {
 			return "redirect:/login";
 		}
+	}
+	
+	@RequestMapping(value = "/task/save", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> createNewAssetTask(final Locale locale, final ModelMap model,
+			@RequestBody final AssetTask assetTask, final HttpSession session) {
+		logger.info("Inside AssetController .. createNewAsset");
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if(loginUser!=null){
+			try {
+				logger.info("AssetTask  : "+ assetTask);
+				AssetTask savedAssetTask = assetService.saveOrUpdateAssetTask(assetTask, loginUser);
+				if(savedAssetTask.getTaskId()!=null && savedAssetTask.getStatus()==200){
+						response.setStatusCode(200);
+						response.setMessage("Asset Task created successfully");
+						responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+					}
+				else if(savedAssetTask.getTaskId()!=null && savedAssetTask.getStatus()==202){
+					response.setStatusCode(200);
+					response.setMessage("Asset Task updated successfully");
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+				}
+
+			} catch (Exception e) {
+				logger.info("Exception in getting response", e);
+				response.setMessage("Exception while creating an asset task");
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
+
+			}
+		}else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+
+		logger.info("Exit AssetController .. createNewAsset");
+		return responseEntity;
 	}
 	//Added By Supravat for Create Task in Asset Page
 	@RequestMapping(value = "/task/create", method = RequestMethod.GET)

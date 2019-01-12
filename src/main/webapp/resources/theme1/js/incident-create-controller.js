@@ -1252,12 +1252,16 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				 $("#linkedTicket").val("");
 				 if(data.object.linkedTickets.length>0){
 					 $scope.ticketData.linkedTickets = data.object.linkedTickets;
+				 }else{
+					 $scope.ticketData.linkedTickets=[];
 				 }
 			 }
 			 if(spType=="RSP"){
 				 if(data.object.linkedTickets.length>0){
 					 $scope.linkedRspTickets = data.object.linkedTickets;
-				 } 
+				 }else  {
+					 $scope.linkedRspTickets=[];
+				 }
 			 }
 			}
 		},function(data){

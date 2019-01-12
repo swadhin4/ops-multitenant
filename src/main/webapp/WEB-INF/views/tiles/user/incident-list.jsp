@@ -459,7 +459,7 @@ $(function() {
             <!-- /.info-box-content -->
           </div>
 				</div>
-
+				</div>
 			</div><!-- modal-content -->
 		</div><!-- modal-dialog -->
 	</div><!-- modal -->

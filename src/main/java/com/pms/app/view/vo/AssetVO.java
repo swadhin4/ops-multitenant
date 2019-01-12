@@ -83,7 +83,9 @@ public class AssetVO {
 	private UploadFile assetImage;
 
 	private UploadFile assetDoc;
-
+	
+	private List<AssetTask> taskList = new ArrayList<AssetTask>();
+	
 	private int delFlag;
 
 	public AssetVO() {
@@ -411,6 +413,15 @@ public class AssetVO {
 
 	public void setSpCode(String spCode) {
 		this.spCode = spCode;
+	}
+
+
+	public List<AssetTask> getTaskList() {
+		return taskList;
+	}
+
+	public void setTaskList(List<AssetTask> taskList) {
+		this.taskList = taskList;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.pms.web.service;
 
 import java.util.List;
 
+import com.pms.app.view.vo.AssetTask;
 import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
@@ -33,6 +34,8 @@ public interface AssetService {
 	public List<AssetVO> findAssetBySiteId(LoginUser loginUser, Long siteId) throws Exception;
 
 	public List<AssetSubRepairType> findAssetSubRepairTypeBy(LoginUser user, Long assetSubCategoryid) throws Exception;
+
+	public AssetTask saveOrUpdateAssetTask(AssetTask assetTask, LoginUser loginUser) throws Exception;
 
 	/*public List<AssetVO> findAssetsBySite(Long siteId) throws Exception;
 

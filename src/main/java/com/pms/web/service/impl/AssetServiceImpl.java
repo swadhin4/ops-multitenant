@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -19,6 +20,7 @@ import org.springframework.util.StringUtils;
 
 import com.pms.app.dao.impl.AssetDAO;
 import com.pms.app.dao.impl.SiteDAO;
+import com.pms.app.view.vo.AssetTask;
 import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
@@ -29,6 +31,8 @@ import com.pms.jpa.entities.AssetLocation;
 import com.pms.jpa.entities.AssetRepairType;
 import com.pms.jpa.entities.AssetSubRepairType;
 import com.pms.web.service.AssetService;
+import com.pms.web.util.ApplicationUtil;
+import com.pms.web.util.RandomUtils;
 import com.pms.web.util.RestResponse;
 
 @Service("assetService")
@@ -71,13 +75,17 @@ public class AssetServiceImpl implements AssetService {
 		LOGGER.info("Total Assets for user : " + siteAssetList.size());
 
 		LOGGER.info("Exit AssetServiceImpl .. findAllAsset");
-		return siteAssetList == null ? Collections.EMPTY_LIST : siteAssetList;
+		return siteAssetList == null ? Collections.emptyList() : siteAssetList;
 	}
 
 	@Override
 	public AssetVO findAssetById(LoginUser user, Long assetid) {
 		LOGGER.info("Inside AssetServiceImpl .. findAssetById");
 		AssetVO assetVO = getAssetDAO(user.getDbName()).getAssetDetails(assetid);
+		List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());
+		if(!taskList.isEmpty()){
+			assetVO.setTaskList(taskList);
+		}
 		LOGGER.info("Exit AssetServiceImpl .. findAssetById");
 		return assetVO;
 	}
@@ -129,13 +137,12 @@ public class AssetServiceImpl implements AssetService {
 		if (removedAssetCategory != null) {
 			assetCategories.add(removedAssetCategory);
 		}
-		return assetCategories == null ? Collections.EMPTY_LIST : assetCategories;
+		return assetCategories == null ? Collections.emptyList() : assetCategories;
 	}
 
 	@Override
 	public List<AssetLocation> getAllAssetLocations(LoginUser user) throws Exception {
 		List<AssetLocation> assetLocations = getAssetDAO(user.getDbName()).findAssetLocations();
-		List<AssetLocation> tempLocations = assetLocations;
 		AssetLocation removedAssetLocation = null;
 		for (AssetLocation assetLocation : assetLocations) {
 			if (assetLocation.getLocationName().equalsIgnoreCase("Other")) {
@@ -147,7 +154,7 @@ public class AssetServiceImpl implements AssetService {
 		if (removedAssetLocation != null) {
 			assetLocations.add(removedAssetLocation);
 		}
-		return assetLocations == null ? Collections.EMPTY_LIST : assetLocations;
+		return assetLocations == null ? Collections.emptyList() : assetLocations;
 	}
 
 	@Override
@@ -245,7 +252,6 @@ public class AssetServiceImpl implements AssetService {
 	private List<AssetVO> saveAssetsforMultipleSites(AssetVO assetVO, LoginUser user, List<AssetVO> assetVOList) {
 		List<Asset> savedAssetList = new ArrayList<Asset>();
 		for (Long site : assetVO.getSites()) {
-			AssetVO savedAssetVO = new AssetVO();
 			Asset asset = new Asset();
 			BeanUtils.copyProperties(assetVO, asset);
 			asset.setSiteId(site);
@@ -366,7 +372,7 @@ public class AssetServiceImpl implements AssetService {
 		} else {
 			LOGGER.info("Asset code already exists.");
 		}
-		return assetVOList == null ? Collections.EMPTY_LIST : assetVOList;
+		return assetVOList == null ? Collections.emptyList() : assetVOList;
 	}
 
 	private List<AssetVO> updateAssetForSite(AssetVO assetVO, LoginUser user, List<AssetVO> assetVOList, Asset asset) {
@@ -473,6 +479,40 @@ public class AssetServiceImpl implements AssetService {
 			e.printStackTrace();
 		}
 		return assetVO;
+	}
+
+	@Override
+	public AssetTask saveOrUpdateAssetTask(AssetTask assetTask, LoginUser loginUser) throws Exception {
+		LOGGER.info("Inside AssetServiceImpl .. saveOrUpdateAssetTask");
+		AssetTask savedAssetTask =null;
+		assetTask.setAssetTaskNumber(assetTask.getTaskName()+""+RandomUtils.randomAlphabetic(4));
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		if (!StringUtils.isEmpty(assetTask.getPlanStartDate())) {
+			Date startDate;
+			Date endDate;
+			try {
+				startDate = formatter.parse(assetTask.getPlanStartDate());
+				endDate = formatter.parse(assetTask.getPlanEndDate());
+				assetTask.setPlannedStartDate(startDate);
+				assetTask.setPlannedComplDate(endDate);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+		if(assetTask.getTaskId()==null){
+			savedAssetTask = getAssetDAO(loginUser.getDbName()).saveAssetTask(assetTask, loginUser);
+			savedAssetTask.setStatus(200);
+		}
+		else if(assetTask.getTaskId()!=null){
+			int updated = getAssetDAO(loginUser.getDbName()).updateAssetTask(assetTask, loginUser);
+			if(updated>0){
+				savedAssetTask=assetTask;
+				savedAssetTask.setStatus(202);
+			}
+		}
+		LOGGER.info("Exit AssetServiceImpl .. saveOrUpdateAssetTask");
+		
+		return savedAssetTask;
 	}
 
 	

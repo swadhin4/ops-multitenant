@@ -30,9 +30,26 @@ chrisApp.factory('assetService',  ['$http', '$q',function ($http, $q) {
 				getAssetInfo:getAssetInfo,
 				deleteAsset:deleteAsset,
 				retrieveRepairTypes:retrieveRepairTypes,
-				retrieveSubRepairTypes:retrieveSubRepairTypes
+				retrieveSubRepairTypes:retrieveSubRepairTypes,
+				saveAssetTask:saveAssetTask
 		};
 		return AssetService;
+		
+		
+		// implementation
+ 	    function saveAssetTask(assetTaskObject) {
+ 	        var def = $q.defer();
+ 	        $http.post(hostLocation+"/asset/task/save",assetTaskObject)
+ 	            .success(function(data) {
+ 	            	//console.log(data)
+ 	                def.resolve(data);
+ 	            })
+ 	            .error(function(data) {
+ 	            	console.log(data)
+ 	                def.reject(data);
+ 	            });
+ 	        return def.promise;
+ 	    }
 		
 		// implementation
 		

@@ -142,4 +142,19 @@ public class ApplicationUtil {
 		return javaDateString;
 	}
 
+	public static String getDateStringFromSQLDate(String dateString){
+		DateFormat df1 = new SimpleDateFormat("dd-MM-yyyy");
+		DateFormat df2 = new SimpleDateFormat("yyyy-MM-dd");
+		String javaDateString="";
+		
+		try {
+			java.util.Date oldFormat = df2.parse(dateString);
+			javaDateString =  df1.format(oldFormat);
+		} catch (ParseException e) {
+		    // TODO Auto-generated catch block
+		    e.printStackTrace();
+		}
+		return javaDateString;
+	}
+
 }

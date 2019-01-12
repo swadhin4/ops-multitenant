@@ -55,9 +55,16 @@ chrisApp.controller('assetController',
 					 selected:{},
 					 list:[]
 			 }
-			 $scope.rowHighilited=function(row)
+			 $scope.rowHighilited=function(selectedAsset,row)
 			    {
-			      $scope.selectedRow = row;    
+			      $.each($scope.asset.list,function(key,val){
+			    	  if(val.assetId == selectedAsset.assetId){
+			    		  $scope.selectedRow = selectedAsset.assetId; 
+			    		  return false;
+			    	  }
+			      })
+			      $scope.getAssetDetails(selectedAsset, row);
+			    
 			    }
 			 $scope.selectedSites = [];
 			 
@@ -320,10 +327,12 @@ chrisApp.controller('assetController',
 					    				$('#messageWindow').hide();
 					    				$('#infoMessageDiv').hide();
 					    			});
+					    			$scope.rowHighilited($scope.asset.list[0], 0);
+					    			//$scope.getAssetDetails($scope.asset.list[0], 0);
 					    			$('#rspknob').val(parseInt($scope.asset.list.length));
 					    			$('#rspknob').click();
 					    			$('#rspcavas').click();
-					    				$scope.getAssetDetails($scope.asset.list[0]);
+					    				
 					    				 $scope.equipmentData.isDelete = 0;
 										 $scope.serviceData.isDelete = 0;
 										 $( '#toggledelete' ).parent().addClass('off');
@@ -373,7 +382,8 @@ chrisApp.controller('assetController',
 			    				$('#infoMessageDiv').hide();
 			    				$('#loadingDiv').hide();
 			    			})
-			    			$scope.getAssetDetails($scope.asset.list[0]);
+			    			$scope.rowHighilited($scope.asset.list[0], 0);
+			    			//$scope.getAssetDetails($scope.asset.list[0], 0);
 		    			  }
 	    					else{
 		    				  $scope.InfoMessage="No assets available for the user"
@@ -395,14 +405,14 @@ chrisApp.controller('assetController',
 			            });
 				 }
 			 
-			 $scope.getAssetDetails=function(asset){
+			 $scope.getAssetDetails=function(asset, index){
+				 $.jStorage.set('selectedAsset',null);
 				 assetService.getAssetInfo(asset.assetId)
 				 .then(function(data){
 					 console.log(data);
 					if(data.statusCode == 200){
-						$scope.selectedAsset=angular.copy(data.object);
-						
-						$.jStorage.set('selectedAsset', $scope.selectedAsset);
+						  $scope.selectedAsset=angular.copy(data.object);
+					      $.jStorage.set('selectedAsset', $scope.selectedAsset);
 						//$rootScope.selectedAsset = $scope.selectedAsset;
 						//$scope.send(asset.assetId);
 					} 
@@ -532,16 +542,37 @@ chrisApp.controller('assetController',
 
 			 //Added by Supravat for adding create task in asset page
 			 
-			 $scope.openAssetTaskPage=function(isCreateUpdate){
+			 $scope.openAssetTaskPage=function(isCreateUpdate, selectedTask){
 				 if(isCreateUpdate == 'C'){
 					 $scope.taskOperation ="CreateTask";
-					 $.jStorage.set('taskOperation', $scope.taskOperation);
-					 window.location.href=hostLocation+"/asset/task/create"
+					// $.jStorage.set('taskOperation', $scope.taskOperation);
+					// window.location.href=hostLocation+"/asset/task/create"
+					 $('#taskModal').modal('show');
 				 }
 				 else if(isCreateUpdate == 'U'){
 					 $scope.taskOperation ="UpdateTask";
-					 $.jStorage.set('taskOperation', $scope.taskOperation);
-					 window.location.href=hostLocation+"/asset/task/update"
+					 $scope.selectedAsset.taskId=selectedTask.taskId;
+					 $scope.selectedAsset.taskName=selectedTask.taskName;
+					 $scope.selectedAsset.taskDesc=selectedTask.taskDesc;
+					 $scope.selectedAsset.planStartDate=selectedTask.planStartDate;
+					 $scope.selectedAsset.planEndDate=selectedTask.planEndDate;
+					 $scope.selectedAsset.taskAssignedTo=selectedTask.taskAssignedTo;
+					 $scope.selectedAsset.resComments=selectedTask.resComments;
+					 $scope.selectedAsset.taskStatus=selectedTask.taskStatus;
+						
+					 if($scope.selectedAsset.taskStatus!=null){
+							
+							 $("#taskStatusUpdate option").each(function() {
+									if ($(this).val() == $scope.selectedAsset.taskStatus) {
+										$(this).attr('selected', 'selected');
+										 $('#taskModal').modal('show'); 
+										return false;
+									}
+							 	});
+					 }
+					 
+					// $.jStorage.set('taskOperation', $scope.taskOperation);
+					// window.location.href=hostLocation+"/asset/task/update"
 				 }	
 				
 			 }
@@ -1457,6 +1488,108 @@ chrisApp.controller('assetController',
 				}
 			 
 			
+				 $scope.saveAssetTask =function(){
+						
+					
+					 if($scope.selectedAsset.taskId==null){
+						 $scope.selectedAsset.taskStatus=$('#taskStatus').val();
+					 }
+					 else{
+						 $scope.selectedAsset.taskStatus=$('#taskStatusUpdate').val();
+					 }
+					 console.log("Save Date",$scope.selectedAsset);
+					 var planEndDate = $scope.selectedAsset.planEndDate;
+					 var planStartDate = $scope.selectedAsset.planStartDate;
+					 if($scope.IsValidTaskDate(planEndDate,planStartDate)){
+						 
+						 if($scope.IsEmail($scope.selectedAsset.taskAssignedTo)){
+							 $('#messageWindow').hide();
+			 					$('#errorMessageDiv').hide();
+			 					$scope.saveAssetTaskInfo($scope.selectedAsset);
+			 					//window.location.href=hostLocation+"/asset/details";
+						 } else {
+							 $scope.errorMessage = "Assigned To is not valid. Enter a valid Email ID.";
+							  $scope.getErrorMessage( $scope.errorMessage)
+						 }
+						 
+						 
+			          }
+			          else{	        	  
+			        	  
+			        	  $scope.errorMessage = "Planned Completion Date should be greater Planned Start Date";
+			        	  $scope.getErrorMessage( $scope.errorMessage)
+			          }		     
+					
+				 }
+				 
+				 $scope.IsEmail = function (assignedTo) {	
+					 var isValid = false;
+					 var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+				        if(!regex.test(assignedTo)) {
+				        	isValid = false;
+				        }else{
+				        	isValid = true;
+				        }
+				        return isValid;
+				 }
+				 
+				 $scope.IsValidTaskDate = function (planComplDate, planStartDate) {				 
+						
+					 var isValid = false;
+					
+					 if(planComplDate == null || planComplDate == "" || typeof(planComplDate) === "undefined"){
+						 isValid = true;					 
+					 }
+					 else{					 
+						 var isSame;
+						 var part1 = planComplDate.split('-');
+						 var part2 = planStartDate.split('-');				 
+						 planComplDate =  new Date(part1[1]+'-'+part1[0]+'-'+part1[2]);
+						 planStartDate =  new Date(part2[1]+'-'+ part2[0]+'-'+ part2[2]);				 
+				         isValid = moment(planComplDate).isAfter(planStartDate);
+				          if (!isValid){
+				        	  isValid = moment(planComplDate).isSame(planStartDate);
+				          }	
+					 }		         	          
+			          
+			          return isValid;
+			      }
+				 
+				 $scope.saveAssetTaskInfo=function(assetTaskData){
+					 $('#loadingDiv').show();
+					 assetService.saveAssetTask(assetTaskData)
+					 .then(function(data) {
+			    			
+			    			if(data.statusCode == 200){
+			    				$scope.successMessage = data.message;
+			    				 $scope.getSuccessMessage($scope.successMessage);
+			    				 $scope.getAllAsset("ALL");
+			    				//window.location.href=hostLocation+"/asset/details";
+			    				
+			    				$('#loadingDiv').hide();
+			    			}
+			            },
+			            function(data) {
+			            	 console.log('Error while saving asset Task Data')	
+			            	 $scope.getErrorMessage(data)
+			            	 $('#loadingDiv').hide();
+			            });
+				 }
+				 
+				 
+				 $scope.getSuccessMessage=function(msg){
+					 $('#successDiv').show();
+					 $('#successDiv').alert();
+					 $('#successMessage').text(msg);
+				}
+				
+				$scope.getErrorMessage=function(msg){
+					 $('#errorDiv').show();
+					 $('#errorDiv').alert();
+					 $('#errorMessage').text(msg);
+				}
+				 
+				 
 }]);
 
 function closeModals() {
