@@ -21,6 +21,10 @@ chrisApp
 							$scope.assetTypechecked = 'undefined';
 							$scope.selectedSite={};
 							$scope.statusList=[];
+							$scope.status={
+									selected:{},
+									 list:[]	
+							}
 							$scope.selectedCategory={};
 							
 							$scope.selectedCategory={
@@ -131,7 +135,7 @@ chrisApp
 								ticketService.getSelectedTicketFromSession()
 								.then(function(data){
 									//console.log("Ticket DetailsXXXX")
-									//console.log(data)
+									console.log(data)
 									if(data.statusCode == 200){
 										$scope.ticketData=angular.copy(data.object);
 										//$scope.ticketData.createdBy=$scope.sessionUser.username;
@@ -142,7 +146,7 @@ chrisApp
 										$scope.setSLAWidth($scope.ticketData);
 										$scope.getUserRoleStatusMap();
 										$scope.getTicketCategory();
-										$scope.getEscalationLevel();
+										//$scope.getEscalationLevel();
 										$scope.changeStatusDescription($scope.ticketData.statusDescription);
 										//$('#statusDesc').text("Description: "+ $scope.ticketData.statusDescription);
 										//Added By Supravat for Financials Requirements.
@@ -862,7 +866,7 @@ chrisApp
 									
 								}else if(viewMode.toUpperCase()=='EDIT'){
 									$scope.ticketData.statusInfoList=[];
-									statusService.retrieveAllStatus()
+									statusService.retrieveAllStatus("NA")
 					                .then(function(data){
 					                	//console.log(data);
 					                	$("#statusSelect").empty();
@@ -1419,7 +1423,18 @@ chrisApp
 								 $scope.ticketData.rspAssignedAgent = $("#spAgentsSelect option:selected").text()
 								$scope.persistTicket($scope.ticketData, "NEW");
 							}
-
+							 $scope.updateTicket=function(){
+								 $scope.ticketData.statusId=parseInt($('#statusSelect').val());
+								 $scope.ticketData.status=$('#statusSelect option:selected').text();
+								 if(parseInt($("#closeCodeSelect").val())!=0){
+									 $scope.ticketData.closeCode =  parseInt($("#closeCodeSelect").val());
+								 }
+								 //console.log($scope.ticketData);
+								 $scope.ticketData.sla = $('#sla').val();
+								 $scope.ticketData.mode="UPDATE";
+								 $scope.persistTicket($scope.ticketData, "UPDATE");
+								 
+							 }
 							 $scope.persistTicket=function(ticketData, type){
 								 if(type.toUpperCase()=='UPDATE'){
 									 $('#loadingDiv1').show();

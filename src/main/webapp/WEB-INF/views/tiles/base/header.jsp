@@ -51,7 +51,7 @@
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/fastclick.min.js"></c:url>'></script>
 <script type="text/javascript"  src='<c:url value="/resources/theme1/js/bootstrap-multiselect.js"></c:url>'></script>
-
+<script type="text/javascript"  src='<c:url value="/resources/theme1/js/aws-sdk-2.0.13.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/dist/js/adminlte.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/dist/js/app.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/angular.min.js"></c:url>'></script>
@@ -164,7 +164,7 @@
                 transform: rotate(360deg);
             }
         }
-        #loadingDiv, #loadingDiv1, #loadingDiv2 , #loadingDiv3, #loadingDiv4, #loadingDiv5{
+        #loadingDiv, #loadingDiv1, #loadingDiv2 , #loadingDiv3, #loadingDiv4, #loadingDiv5, #loadingDivRsp{
             position:absolute;;
             top: 52px;
    			 left: 0px;

@@ -242,9 +242,15 @@ public class IncidentDAO {
 		}else if(ticketVO.getTicketId()!=null){
 			TicketVO savedTicketVO = null;
 			try {
-				savedTicketVO = updateTicketData(ticketVO,user);
+				if(user.getUserType().equalsIgnoreCase("USER") || user.getUserType().equalsIgnoreCase("EXTSP")){
+						savedTicketVO = updateTicketData(ticketVO,user);
+					}else if(user.getUserType().equalsIgnoreCase("SP") && ticketVO.getTicketAssignedType().equalsIgnoreCase("RSP")){
+						savedTicketVO = updateSPTicketData(ticketVO,user);
+					}
+					else if(user.getUserType().equalsIgnoreCase("SP") && ticketVO.getTicketAssignedType().equalsIgnoreCase("CUSTOMER")){
+						savedTicketVO = updateTicketData(ticketVO,user);
+					}
 				if(savedTicketVO.getTicketId()!=null ){
-					LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
 					LOGGER.info("Status of the incident updated to : " +  ticketVO.getStatus());
 					LOGGER.info("Incident Modified by : " +  ticketVO.getModifiedBy());
 					savedTicketVO.setStatusCode(200);
@@ -345,6 +351,55 @@ public class IncidentDAO {
 		    ticketVO.setModifiedBy(user.getUsername());
 		    return ticketVO;
 	}
+	
+	private TicketVO updateSPTicketData(TicketVO ticketVO, LoginUser user){
+
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		 jdbcTemplate.update(new PreparedStatementCreator() {
+		      @Override
+		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_RSP_TICKET_QUERY);
+	            ps.setString(1, ticketVO.getTicketTitle());
+	            ps.setString(2, ticketVO.getDescription());
+	            ps.setString(3,  ApplicationUtil.makeSQLDateFromString(ticketVO.getSla()));
+	            ps.setLong(4,  ticketVO.getCategoryId());
+	            ps.setLong(5, ticketVO.getStatusId());
+	            ps.setString(6, ticketVO.getPriorityDescription());
+	            if(ticketVO.getStatusId().intValue()==15){
+	            	 ps.setLong(7, ticketVO.getCloseCode());
+	            	  ps.setDate(11, ApplicationUtil.getSqlDate(new Date()));
+	            }
+	            else{
+	            	ps.setNull(7, Types.NULL);
+	            	 ps.setNull(11, Types.NULL);
+	            }
+	            
+	            if(StringUtils.isEmpty(ticketVO.getCloseNote())){
+	            	ps.setNull(8, Types.NULL);
+	            }
+	            else{
+	            	  ps.setString(8, ticketVO.getCloseNote());
+	            }
+	            if(ticketVO.getStatusId().intValue()==13){
+	            	 ps.setDate(9,ApplicationUtil.getSqlDate(new Date()));
+	            }
+	            else{
+	            	ps.setNull(9, Types.NULL);
+	            }
+	            ps.setInt(10, ticketVO.getIsRootcauseResolved());
+	            ps.setString(12, ticketVO.getStatusId().intValue()==13?user.getUsername():ticketVO.getClosedBy()); //closed by if status is closed
+	            ps.setString(13,  user.getUsername());//Modified by username
+	            ps.setDate(14,  ApplicationUtil.getSqlDate(new Date()));//Modified date
+	            ps.setLong(15, ticketVO.getTicketId());
+		        return ps;
+		      }
+		    });
+		 	LOGGER.info("Update RSP ticket {} with id {}.", ticketVO.getTicketNumber(), ticketVO.getTicketId());
+		    ticketVO.setTicketId(ticketVO.getTicketId());
+		    ticketVO.setModifiedBy(user.getUsername());
+		    return ticketVO;
+	
+	}
 	private TicketVO insertTicketData(TicketVO ticketVO, LoginUser user) {
 		LOGGER.info("Tickey creating for :"+ user.getUsername() + " for asset SP type : "+ ticketVO.getAsstSpType());
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
@@ -442,6 +497,11 @@ public class IncidentDAO {
 	public SelectedTicketVO getSelectedTicket(Long ticketId ) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		SelectedTicketVO selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(AppConstants.TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
+		return selectedTicketVO;
+	}
+	public SelectedTicketVO getRSPSelectedTicket(Long ticketId ) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		SelectedTicketVO selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(AppConstants.RSP_TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
 		return selectedTicketVO;
 	}
 	public List<TicketAttachment> getTicketAttachments(Long ticketId) {
@@ -544,6 +604,8 @@ public class IncidentDAO {
 					customerSPLinkedTicketVO.setSpType(rs.getString("sptype"));
 					if(StringUtils.isNotEmpty(String.valueOf(rs.getLong("rsp_ticket_id")))){
 						customerSPLinkedTicketVO.setRspTicketId(String.valueOf(rs.getLong("rsp_ticket_id")));
+						customerSPLinkedTicketVO.setStatusId(rs.getLong("status_id"));
+						customerSPLinkedTicketVO.setLinkedTicketStatus(rs.getString("description"));
 					}
 					customerSPLinkedTicketVO.setClosedFlag(rs.getString("closed_flag"));
 					linkedTickets.add(customerSPLinkedTicketVO);
@@ -873,6 +935,7 @@ public class IncidentDAO {
 							ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
 							ticketVO.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
 							ticketVO.setAssignedSP(rs.getString("sp_name"));
+							ticketVO.setStatusId(rs.getLong("status_id"));
 							ticketVO.setStatus(rs.getString("status"));
 
 							ticketVOList.add(ticketVO);

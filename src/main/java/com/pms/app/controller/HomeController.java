@@ -24,9 +24,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.pms.app.exception.PMSTechnicalException;
+import com.pms.app.view.vo.CompanyAttachments;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.TicketAttachment;
+import com.pms.web.service.AwsIntegrationService;
 import com.pms.web.service.FileIntegrationService;
 import com.pms.web.service.TicketService;
 import com.pms.web.util.RestResponse;
@@ -43,6 +45,10 @@ public class HomeController extends BaseController {
 	private FileIntegrationService fileIntegrationService;
 	@Autowired
 	private TicketService ticketService;
+	
+	@Autowired
+	private AwsIntegrationService awsIntegrationService;
+	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String home(final Locale locale, final ModelMap model,final HttpSession session) {
 		try{
@@ -90,7 +96,19 @@ public class HomeController extends BaseController {
 	public String register(final Locale locale, final ModelMap model,final HttpServletRequest request) {
 		return "register";
 	}
-
+	@RequestMapping(value = "/awsexplorer", method = RequestMethod.GET, produces="application/json")
+	public ResponseEntity<RestResponse> awsExplorer(final HttpServletRequest request) {
+		
+		List<CompanyAttachments> companyAttachmentList = awsIntegrationService.listBucketObjects();
+		RestResponse responseData = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(responseData,HttpStatus.NO_CONTENT);
+		if(!companyAttachmentList.isEmpty()){
+			responseData.setStatusCode(200);
+			responseData.setObject(companyAttachmentList);
+			responseEntity = new ResponseEntity<RestResponse>(responseData,HttpStatus.OK);
+		}
+		return responseEntity;
+	}
 	@RequestMapping(value = "/appdashboard", method = RequestMethod.GET)
 	public String loginSuccess(final Locale locale, final Model model, final HttpSession session) {
 		LOGGER.info("Validating currently logged in user.");

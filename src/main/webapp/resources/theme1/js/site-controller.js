@@ -10,10 +10,7 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 		$scope.siteData={};
 		$scope.sessionUser={};
 		$scope.selectedArea={};
-		$scope.area={
-				selected:{},
-				list:[]
-		}
+		
 		$scope.brand={
 				selected:{},
 				list:[]
@@ -24,7 +21,10 @@ chrisApp.controller('siteController',  ['$rootScope', '$scope', '$filter','siteS
 		         {'brandId':'3','brandName':'Shell'}
 			];
 		
-		
+		$scope.area={
+				selected:{},
+				list:[]
+		}
 		
 		$scope.district={
 				selected:{},

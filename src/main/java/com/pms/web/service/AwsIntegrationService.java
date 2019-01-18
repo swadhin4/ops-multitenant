@@ -6,6 +6,7 @@ import java.util.List;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.pms.app.view.vo.CompanyAttachments;
 import com.pms.web.util.RestResponse;
 
 public interface AwsIntegrationService {
@@ -21,5 +22,7 @@ public interface AwsIntegrationService {
 	public RestResponse deleteFile(String bucketName, String keyName) throws Exception;
 	
 	public RestResponse deleteMultipleFile(List<KeyVersion> keys) throws Exception;
+	
+	public List<CompanyAttachments> listBucketObjects();
 	
 }

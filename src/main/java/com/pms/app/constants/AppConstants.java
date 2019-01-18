@@ -258,7 +258,7 @@ public class AppConstants {
 			+ " site_id,asset_id,asset_category_id,asset_subcategory1_id,asset_subcategory2_id,priority,rassigned_to, assigned_agent, "
 			+ " ticket_starttime, created_by, created_on) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())";
 	
-	public static final String UPDATE_SP_TICKET_QUERY = "update pm_cust_ticket set ticket_title=?, ticket_desc=?, "
+	public static final String UPDATE_RSP_TICKET_QUERY = "update pm_sp_tickets set ticket_title=?, ticket_desc=?, "
 			+ " sla_duedate = ?, ticket_category=?, status_id=?,priority=?,close_code=?,close_note=?,closed_on=?,"
 			+ "  is_rootcause_resolved=?,service_restoration_ts=?, closed_by=?,"
 			+ " modified_by=?, modified_on=? where id=?";
@@ -305,16 +305,15 @@ public class AppConstants {
 			+" ct.status_id,sts.`status`,sts.description, "
 			+" ct.ticket_category as ticket_category_id,tc.ticket_category, "
 			+" ct.site_id,st.site_name,st.site_number1,st.site_number2,st.primary_contact_number,"
-			+ " st.site_address1,st.site_address2,st.site_address3,st.site_address4,st.post_code, "
-			+" ct.asset_id,ast.asset_name,ast.asset_code,ast.model_number, "
+			+ " st.site_address1,st.site_address2,st.site_address3,st.site_address4,st.post_code, st.site_owner, st.email,"
+			+" ct.asset_id,ast.asset_name,ast.asset_code,ast.model_number,ast.date_commissioned, "
 			+" ct.asset_category_id,ac.category_name, "
 			+" ct.asset_subcategory1_id,ac1.asset_subcategory1, "
 			+" ct.asset_subcategory2_id,ac2.subcategory2_name, "
 			+" ct.priority, ct.sla_duedate, ct.ticket_starttime, "
 			+" ct.service_restoration_ts, ct.close_code,clc.closed_code_desc,"
-			+" ct.is_rootcause_resolved, ct.close_note, ct.rassigned_to,sp.sp_name, "
-			+" ct.closed_by,pu.first_name,pu.last_name,pu.phone, "
-			+" ct.closed_on,  ct.created_by,  ct.created_on  FROM pm_cust_ticket ct "
+			+" ct.is_rootcause_resolved, ct.close_note, ct.rassigned_to,ct.assigned_agent, sp.sp_name rsp_name, "
+			+" ct.closed_by, ct.closed_on,  ct.created_by,  ct.created_on  FROM pm_sp_tickets ct "
 			+" LEFT JOIN pm_site st ON ct.site_id = st.site_id "
 			+" LEFT JOIN pm_asset ast ON ct.asset_id = ast.asset_id "
 			+" LEFT JOIN pm_asset_category ac ON ct.asset_category_id = ac.category_id "
@@ -324,7 +323,6 @@ public class AppConstants {
 			+" LEFT JOIN pm_status sts ON ct.status_id = sts.status_id "
 			+" LEFT JOIN pm_sp_registered sp ON ct.rassigned_to = sp.sp_id "
 			+" LEFT JOIN pm_closecode clc ON ct.close_code = clc.closed_code "
-			+" LEFT JOIN pm_users pu ON ct.created_by = pu.email_id "
 			+" WHERE ct.id = ?";
 
 	public static final String TICKET_ATTACHMENTS = "select id, ticket_number, attachment_path from pm_cust_ticket_attachment where ticket_id=?";
@@ -336,7 +334,10 @@ public class AppConstants {
 
 	public static final String TICKET_HISTORY = "select * from pm_ct_historic_activities where ticket_number=? order by ts desc";
 	
-	public static final String EXT_SP_LINKED_TICKETS = "select * from pm_cust_sp_ticketmapping where cust_ticket_id=? and del_flag=0";
+	public static final String EXT_SP_LINKED_TICKETS = "select pcp.*, ps.status_id, ps.description from  pm_cust_sp_ticketmapping pcp "
+			+ " left outer join pm_sp_tickets psp on psp.ticket_number=pcp.spticket_no"
+			+ " left outer join pm_status ps on ps.status_id=psp.status_id"
+			+ " where cust_ticket_id=? and del_flag=0";
 	
 	public static final String RELATED_TICKETS_QUERY = "select ct.id, ct.ticket_number, ct.ticket_title, ct.status_id, "
 			+ " sts.`status`, ct.site_id,st.site_name,ct.sla_duedate, "

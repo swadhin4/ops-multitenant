@@ -4,8 +4,9 @@ chrisApp.controller('dashboardController',
 				'$scope',
 				'$filter',
 				'$location',
-				
-				function($rootScope, $scope, $filter, $location){	
+				'$http',
+				'$q',
+				function($rootScope, $scope, $filter, $location,$http,$q){	
 	// load visualization library
     //google.load('visualization', '1', {packages: ['geomap']});
 	//google.charts.load('current', {'packages':['corechart']});
@@ -132,7 +133,7 @@ chrisApp.controller('dashboardController',
 										  }]
 									  }]	  
 								    }];
-	
+					
 	//google.charts.setOnLoadCallback(Hello('hello'));
 	
 	//function Hello(x){alert(x);};
@@ -149,12 +150,10 @@ chrisApp.controller('dashboardController',
 			google.charts.setOnLoadCallback(drawDashboard);
 			google.charts.setOnLoadCallback(drawDashboardSP);
 		});*/
+		$scope.attachments=[];
+		//$scope.getAwsExplorer();
 		
-		
-	
 				 
-			  
-		console.log($scope.opsEntities);
 		$.fn.extend({
 		    treed: function (o) {
 		      
@@ -219,7 +218,27 @@ chrisApp.controller('dashboardController',
 		
 		
 	});	
-	
+	$scope.getAwsExplorer=function(){
+		  var def = $q.defer();
+		  $('#loadingDiv').show();
+	        $http.get(hostLocation+"/awsexplorer")
+	            .success(function(data) {
+	            	console.log(data)
+	            	if(data.statusCode==200){
+	            		$.each(data.object,function(key,val){
+	            			$scope.attachments.push(val);
+	            		});
+	            		$('#loadingDiv').hide();
+	            	}
+	                def.resolve(data);
+	            })
+	            .error(function(data) {
+	            	console.log(data)
+	                def.reject(data);
+	            	$('#loadingDiv').hide();
+	            });
+	        return def.promise;
+	}
 	$scope.getOPSSummary=function(){
 		console.log($scope.opsEntities)
 	 }

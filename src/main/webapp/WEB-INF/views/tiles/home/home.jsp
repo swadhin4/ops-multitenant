@@ -12,11 +12,11 @@
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
  <script type="text/javascript" src='<c:url value="/resources/theme1/chart/loader.js"></c:url>'></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
+ 
  <script type="text/javascript" src='<c:url value="/resources/theme1/js/dashboard.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
  
-<script>
-var webContextPath="${pageContext.request.contextPath}";
-</script>
+
 <style>
 .tree, .tree ul {
     margin:-9px;
@@ -182,7 +182,28 @@ var webContextPath="${pageContext.request.contextPath}";
 		
 		  </div>
 	</div>
-
+		<div class="box" >
+		<div class="box-header with-border">
+		<h3 class="box-title">Application File Attachments</h3>
+		</div>
+		 <div class="box-body table-responsive no-padding">
+		 	<div style="display:none" id="loadingDiv"><div class="loader">Loading...</div></div>
+			<table class="table table-hover">
+				<tbody style="font-size: .9em">
+					<tr">
+						<th style="width: 12%">Filename</th>
+						<th style="width: 10%">Size</th>
+						<th style="width: 10%">Last Modified</th>
+					</tr>
+					<tr ng-repeat="val in attachments">
+						<td>{{val.imagePath}}</td>
+						<td>{{val.imageSize}}</td>
+						<td>{{val.creationDate}}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+			</div>
 		<!-- 	<div class="row">
 			<div class="col-sm-6 col-md-6 col-lg-6">
 			<div class="box" >

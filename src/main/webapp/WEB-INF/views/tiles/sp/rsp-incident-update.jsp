@@ -464,7 +464,7 @@ background:#deefe5
 											            <div class="info-box-content">
 											              <span class="info-box-text">Site</span>
 											              <span class="info-box-number wordspace">{{ticketData.siteName}}<br>
-											              Address :  {{ticketData.siteAddress}}
+											              Address :  {{ticketData.siteAddress}} <br> Contact : {{ticketData.siteContact}}
 											              </span>
 											            </div>
 											          </div>
@@ -678,7 +678,7 @@ background:#deefe5
 
 																	<select name="statusSelect" id="statusSelect"
 																		class="form-control" required
-																		onchange="ticketStatusChange('statusSelect')">
+																		onchange="angular.element(this).scope().ticketStatusChange('statusSelect')">
 
 																	</select> <input type="hidden"
 																		ng-model="selectedTicketStatus.selected">

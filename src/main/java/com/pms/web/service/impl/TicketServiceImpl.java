@@ -197,7 +197,13 @@ public class TicketServiceImpl implements TicketService {
 				
 			}
 		}else if(customerTicket.getTicketId()!=null && customerTicket.getMode().equalsIgnoreCase("UPDATE")){
-			incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			if(loginUser.getUserType().equalsIgnoreCase("SP") && customerTicket.getTicketAssignedType().equalsIgnoreCase("RSP")){
+				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser);
+			}else if(loginUser.getUserType().equalsIgnoreCase("SP") && customerTicket.getTicketAssignedType().equalsIgnoreCase("CUSTOMER")){
+				incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			}else{
+				incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			}
 			BeanUtils.copyProperties(customerTicket, incidentVO);
 			CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
 			incidentVO.setSite(site);
@@ -382,19 +388,32 @@ public class TicketServiceImpl implements TicketService {
 	@Override
 	@Transactional
 	public TicketVO getSelectedTicket(Long ticketId, LoginUser loginUser) throws Exception {
+		LOGGER.info("Getting ticket details for Customer created by Customer ");
 		SelectedTicketVO selectedTicket = null;
 		TicketVO ticketVO = new TicketVO();
 		List<String> addressList = new ArrayList<String>(4);
-	//	if(ticketAssignedTo.equalsIgnoreCase("EXT")){
-			selectedTicket= getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId);
-			ticketVO.setTicketId(selectedTicket.getId()); 
-			
-	//	}
-	//	else if(ticketAssignedTo.equalsIgnoreCase("RSP")){
-		/*	selectedTicket= getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId, AppConstants.RSP_TICKET_SELECTED_QUERY);
-			ticketVO.setTicketId(selectedTicket.getId()); */
-	//	}
-		
+		selectedTicket= getIncidentDAO(loginUser.getDbName()).getSelectedTicket(ticketId);
+		ticketVO.setTicketId(selectedTicket.getId()); 
+		ticketVO = getTicketDetails(loginUser, selectedTicket, ticketVO, addressList);
+		ticketVO.setRaisedUser(Long.parseLong(selectedTicket.getPhone()));
+		return ticketVO;
+	}
+	
+	@Override
+	@Transactional
+	public TicketVO getRSPCreatedSelectedTicket(Long ticketId, LoginUser loginUser) throws Exception {
+		LOGGER.info("Getting ticket details for RSP created by RSP ");
+		SelectedTicketVO selectedTicket = null;
+		TicketVO ticketVO = new TicketVO();
+		List<String> addressList = new ArrayList<String>(4);
+		selectedTicket= getIncidentDAO(loginUser.getDbName()).getRSPSelectedTicket(ticketId);
+		ticketVO.setTicketId(selectedTicket.getId()); 
+		ticketVO = getTicketDetails(loginUser, selectedTicket, ticketVO, addressList);
+		return ticketVO;
+	}
+
+	private TicketVO getTicketDetails(LoginUser loginUser, SelectedTicketVO selectedTicket, TicketVO ticketVO,
+			List<String> addressList) {
 		ticketVO.setTicketTitle(selectedTicket.getTicket_title());
 		ticketVO.setTicketNumber(selectedTicket.getTicket_number());
 		ticketVO.setDescription(selectedTicket.getTicket_desc());
@@ -416,7 +435,13 @@ public class TicketServiceImpl implements TicketService {
 			addressList.add(selectedTicket.getSite_address4());
 		}
 		String finalAddress = StringUtils.join(addressList,", ");
-		ticketVO.setSiteAddress(finalAddress + ", " +selectedTicket.getPhone() +", "+ selectedTicket.getPost_code() );
+		
+		if(StringUtils.isNotEmpty(selectedTicket.getPost_code())){
+			ticketVO.setSiteAddress(finalAddress + ", " +selectedTicket.getPrimary_contact_number() +", "+selectedTicket.getPost_code() );
+		}
+		else{
+		ticketVO.setSiteAddress(finalAddress + ", " +selectedTicket.getPrimary_contact_number());
+		}
 		ticketVO.setSiteContact(String.valueOf(selectedTicket.getPrimary_contact_number()));
 		ticketVO.setSiteOwner(selectedTicket.getSite_owner());
 		ticketVO.setEmail(selectedTicket.getEmail());
@@ -446,6 +471,7 @@ public class TicketServiceImpl implements TicketService {
 			ticketVO.setEscalationLevelList(escalationLevelVOs);
 			
 		}
+		
 		else {
 			LOGGER.info("Getting ticket details assigned to Registered SP");
 			ticketVO.setTicketAssignedType("RSP");
@@ -462,13 +488,12 @@ public class TicketServiceImpl implements TicketService {
 		ticketVO.setClosedOn(selectedTicket.getClosed_on());
 		ticketVO.setCreatedUser(selectedTicket.getFirst_name()+" "+selectedTicket.getLast_name());
 		ticketVO.setRaisedBy(selectedTicket.getCreated_by());
-		ticketVO.setRaisedUser(Long.parseLong(selectedTicket.getPhone()));
+
 		ticketVO.setCreatedOn(ApplicationUtil.makeDateStringFromSQLDate(selectedTicket.getCreated_on()));
 		ticketVO.setStatusId(selectedTicket.getStatus_id());
 		ticketVO.setStatusDescription(selectedTicket.getDescription());
 		ticketVO.setStatus(selectedTicket.getStatus());
 		ticketVO.setSlaPercent(getSLAPercent(ticketVO));
-		
 		return ticketVO;
 	}
 	
@@ -801,5 +826,7 @@ public class TicketServiceImpl implements TicketService {
 		List<TicketVO> rspSuggestedTicket = getIncidentDAO(loginUser.getDbName()).findRSPSuggestedTickets(assetId);
 		return rspSuggestedTicket == null?Collections.emptyList():rspSuggestedTicket;
 	}
+
+	
 
 }

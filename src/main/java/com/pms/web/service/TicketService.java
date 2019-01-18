@@ -33,6 +33,8 @@ public interface TicketService {
 	public String updateSlaDate(String ticketNumber, int duration, String unit, LoginUser loginUser) throws Exception;
 
 	public TicketVO getSelectedTicket(Long ticketId,LoginUser loginUser) throws Exception;
+	
+	public TicketVO getRSPCreatedSelectedTicket(Long ticketId,LoginUser loginUser) throws Exception;
 
 	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser) throws Exception;
 

@@ -1061,10 +1061,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 					  $.jStorage.set('selectedAsset',null);
 					  $.jStorage.set('selectedSite', null);	
 					 	$scope.successMessage = data.message;
-					 	$('#messageWindow').show();
-	    				$('#successMessageDiv').show();
-	    				$('#successMessageDiv').alert();
-	    				$('#errorMessageDiv').hide();
+					 	 $scope.getSuccessMessage($scope.successMessage);
 	    				 $scope.incidentImageList=[];
     					 $scope.incidentImages=[];
     					 $('#totalIncidentSize').text("0KB");
@@ -1078,10 +1075,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	    				}else{
 	    					if(type.toUpperCase()=='UPLOAD'){
 	    						$scope.successMessage = "Files uploaded successfully";
-	    					 	$('#messageWindow').show();
-	    	    				$('#successMessageDiv').show();
-	    	    				$('#successMessageDiv').alert();
-	    	    				$('#errorMessageDiv').hide();
+	    						 $scope.getSuccessMessage($scope.successMessage);
 	    	    				
 	    	    				$scope.getAttachments(ticketData.ticketId)
 	    	    				/*if(data.object.attachments.length>0){
@@ -1167,7 +1161,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	}
 	$scope.LinkNewTicket = function(spType, spTicket){
 		  var ticketLinked=null; 
-		  if(spTicket != ""){
+		  if(spTicket.ticketNumber != ""){
 		  var isDuplicateTicket=false;
 			if(spType=="EXT"){
 				if($scope.linkedTicket.ticketNumber != "" ||  $scope.linkedTicket.ticketNumber != null){	
@@ -1189,7 +1183,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				
 			}
 			else if(spType=="RSP"){
-				$scope.linkedTicket.ticketNumber = spTicket;
+				$scope.linkedTicket.ticketNumber = spTicket.ticketNumber;
 				var linkedTicket={
 						parentTicketId:$scope.ticketData.ticketId,
 						parentTicketNo:$scope.ticketData.ticketNumber,
@@ -1208,10 +1202,11 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			}
 			if(!isDuplicateTicket){
 				if(ticketLinked.linkedTicketNo == null){
-					$('#messageWindow').show();
+					/*$('#messageWindow').show();
 					$('#errorMessageDiv').show();
-					$('#errorMessageDiv').alert();
+					$('#errorMessageDiv').alert();*/
 					$scope.errorMessage="Please enter the link ticket number";
+					 $scope.getErrorMessage($scope.errorMessage);
 				}else{
 					ticketService.linkTicket(ticketLinked)
 					.then(function(data){
@@ -1219,6 +1214,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 						if(data.statusCode == 200){
 						 $("#linkedTicket").val("");
 						 $scope.linkedTicket.ticketNumber = null;
+						 $scope.getSuccessMessage("Ticket linked successfully");
 						 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.spType);
 						}
 					},function(data){
@@ -1228,16 +1224,18 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			}else{
 					$scope.linkedTicket.ticketNumber = null;
 					$("#linkedTicket").val("");
-					$('#messageWindow').show();
+				/*	$('#messageWindow').show();
 					$('#errorMessageDiv').show();
-					$('#errorMessageDiv').alert();
+					$('#errorMessageDiv').alert();*/
 					$scope.errorMessage="Ticket number is already linked.";
+					 $scope.getErrorMessage($scope.errorMessage);
 			}
 		  }else{
-				$('#messageWindow').show();
+				/*$('#messageWindow').show();
 				$('#errorMessageDiv').show();
-				$('#errorMessageDiv').alert();
+				$('#errorMessageDiv').alert();*/
 				$scope.errorMessage="Please enter the link ticket number";
+				 $scope.getErrorMessage($scope.errorMessage);
 		  }
 		}
 	
@@ -1286,10 +1284,11 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	$scope.escalateTicketConfirmation=function(){
 		//console.log($scope.selectedEscalation);
 		if($.isEmptyObject($scope.selectedEscalation)){
-			$('#messageWindow').show();
+		/*	$('#messageWindow').show();
 			$('#errorMessageDiv').show();
-			$('#errorMessageDiv').alert();
+			$('#errorMessageDiv').alert();*/
 			$scope.errorMessage="No Escalation level selected."
+				 $scope.getErrorMessage($scope.errorMessage);
 		}
 		else if($scope.selectedEscalation != "undefined"){
 			//console.log($scope.escalationLevelDetails);
@@ -1300,10 +1299,12 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	$scope.closeLinkedTicketConfirmation=function(){
 		//console.log($scope.selectedEscalation);
 		if($scope.selectedLinkedTicketDetails.length ==0 ){
-			$('#messageWindow').show();
+			/*$('#messageWindow').show();
 			$('#errorMessageDiv').show();
-			$('#errorMessageDiv').alert();
+			$('#errorMessageDiv').alert();*/
 			$scope.errorMessage="At a time select 1 opened linked ticket to close the status."
+				 $scope.getErrorMessage($scope.errorMessage);
+				
 		}
 		else if($scope.selectedLinkedTicketDetails.length > 0){
 			//console.log($scope.escalationLevelDetails);
@@ -1321,10 +1322,11 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	$scope.escalateTicket=function(){
 		//console.log($scope.selectedEscalation);
 		if($.isEmptyObject($scope.selectedEscalation)){
-			$('#messageWindow').show();
+			/*$('#messageWindow').show();
 			$('#errorMessageDiv').show();
-			$('#errorMessageDiv').alert();
+			$('#errorMessageDiv').alert();*/
 			$scope.errorMessage="No Escalation level selected."
+				 $scope.getErrorMessage($scope.errorMessage);
 		}
 		else if($scope.selectedEscalation != "undefined"){
 			//console.log($scope.escalationLevelDetails);			
@@ -1343,7 +1345,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 						}
 						
 					});
-					
+					 $scope.getSuccessMessage("Ticket escalated successfully");
 				}
 				initializeEscalateTicket();
 				$scope.getLinkedTicketDetails($scope.ticketData.ticketId, $scope.ticketData.ticketAssignedType);
@@ -1428,12 +1430,13 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	     $scope.fileExtension = ext;
 	     $scope.indexPos=incidentImageId.charAt(incidentImageId.length-1);
 	     if($.inArray(ext, ["jpg","jpeg","JPEG", "JPG","PDF","pdf","png","PNG"]) === -1) {
-	    	 $('#messageWindow').show();
+	    	// $('#messageWindow').show();
 	    	 $scope.incidentImageModalErrorMessage="";
 	    	 $('#incidentImageModalMessageDiv').show();
-        	 $('#errorMessageDiv').show();
-        	 $('#errorMessageDiv').alert();
+        	/* $('#errorMessageDiv').show();
+        	 $('#errorMessageDiv').alert();*/
         	 $('#fileerrorincident').text('Supported file types to upload are jpg,  png and pdf');
+        	 $scope.getErrorMessage("Supported file types to upload are jpg,  png and pdf");
 	          $scope.isfileselected=false;	 
 	          $('#'+incidentImageId).val('');
 	          $('#'+incidentImageId).val(null);
@@ -1477,10 +1480,11 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	 				$('#totalSize').text("Files ( "+$scope.incidentImages.length +" ) Total Size : "+ totalSize +" KB");
 	 				if(totalSize > 1024){
 	 					$('#incidentImageModalMessageDiv').show();
-	 					 $('#messageWindow').show();
+	 				/*	 $('#messageWindow').show();
 	 					 $('#errorMessageDiv').show();
-	 		        	 $('#errorMessageDiv').alert();
+	 		        	 $('#errorMessageDiv').alert();*/
 	 					$('#fileerrorincident').text("File size exceeds 1 MB");
+	 					 $scope.getErrorMessage("File size exceeds 1 MB");
 	 					$('#uploadImgBtn').attr("disabled",true)
 	 					$('#btnUpload').attr("disabled",true)
 	 				}else{
@@ -1516,10 +1520,11 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		  });
 			if(totalSize > 1024){
 					$('#incidentImageModalMessageDiv').show();
-					 $('#messageWindow').show();
+/*					 $('#messageWindow').show();
 					 $('#errorMessageDiv').show();
 		        	 $('#errorMessageDiv').alert();
-					$('#fileerrorincident').text("File size exceeds 1 MB");
+*/					 $('#fileerrorincident').text("File size exceeds 1 MB");
+					 $scope.getErrorMessage("File size exceeds 1 MB");
 					$('#uploadImgBtn').attr("disabled",true)
 					$('#btnUpload').attr("disabled",true)
 				}else{
@@ -1563,10 +1568,8 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 											});
 										 
 									 } else {
-										 $('#messageWindow').show();
-										 $('#errorMessageDiv').show();
-										 $('#errorMessageDiv').alert();
 										 $scope.errorMessage = relatedTktData.message;
+										 $scope.getErrorMessage($scope.errorMessage);
 									 }
 									
 								 },function(relatedTktData){
@@ -1607,16 +1610,11 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 											 $('#loadingDiv').hide();
 											 $scope.successMessage = data.message;
 											 $scope.enabledEdit = [];
-											 $('#messageWindow').show();
-											 $('#successMessageDiv').show();
-											 $('#successMessageDiv').alert();
-											 $('#errorMessageDiv').hide();
+											 $scope.getSuccessMessage($scope.successMessage);
 										 } else {
 											 $('#loadingDiv').hide();
-											 $('#messageWindow').show();
-											 $('#errorMessageDiv').show();
-											 $('#errorMessageDiv').alert();
 											 $scope.errorMessage = data.message;
+											 $scope.getErrorMessage($scope.errorMessage);
 										 }
 										
 									 },function(data){
@@ -1667,16 +1665,12 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 											 $('#confirmCostDelete').appendTo("body").modal('hide');				 
 											 $scope.successMessage = data.message;
 											 
-											 $('#messageWindow').show();
-											 $('#successMessageDiv').show();
-											 $('#successMessageDiv').alert();
-											 $('#errorMessageDiv').hide();
+											 $scope.getSuccessMessage($scope.successMessage);
 										 } else {
 											 $('#loadingDiv').hide();
-											 $('#messageWindow').show();
-											 $('#errorMessageDiv').show();
-											 $('#errorMessageDiv').alert();
+											
 											 $scope.errorMessage = data.message;
+												$scope.getErrorMessage($scope.errorMessage);
 										 }
 										
 									 },function(data){
@@ -2400,10 +2394,11 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 });
 		 }else if($scope.selectedLinkedTicketDetails.length ==0 ){
 			 //alert("At a time single ticket status can be closed")
-			 	$('#messageWindow').show();
+			 /*	$('#messageWindow').show();
 				$('#errorMessageDiv').show();
-				$('#errorMessageDiv').alert();
+				$('#errorMessageDiv').alert();*/
 				$scope.errorMessage="At a time select 1 opened linked ticket to close the status."
+					$scope.getErrorMessage($scope.errorMessage);
 		 }
 	 }
 	 
@@ -2496,6 +2491,18 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			console.log(data);
 		})
 		
+	}
+	
+	 $scope.getSuccessMessage=function(msg){
+		 $('#successDiv').show();
+		 $('#successDiv').alert();
+		 $('#successMessage').text(msg);
+	}
+	
+	$scope.getErrorMessage=function(msg){
+		 $('#errorDiv').show();
+		 $('#errorDiv').alert();
+		 $('#errorMessage').text(msg);
 	}
 			 
 }]);

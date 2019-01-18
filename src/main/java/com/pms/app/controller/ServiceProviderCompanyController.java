@@ -186,11 +186,12 @@ public class ServiceProviderCompanyController extends BaseController {
 		
 		if (loginUser != null) {
 			try {
+				session.setAttribute("ticketsBy", "CUSTOMER");
 				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(loginUser.getCompany().getCompanyCode(),custDBName, loginUser);
 				if(!ticketList.isEmpty()){
 					response.setResponseType(custDBName);
 					response.setStatusCode(200);
-					session.setAttribute("selectedTicketDB", custDBName);
+					session.setAttribute("selectedCustomerDB", custDBName);
 					response.setObject(ticketList);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 				}
@@ -214,6 +215,7 @@ public class ServiceProviderCompanyController extends BaseController {
 		
 		if (loginUser != null) {
 			try {
+				session.setAttribute("ticketsBy", ticketsBy);
 				List<TicketVO> ticketList = ticketSerice.getTicketsForSP(loginUser, ticketsBy, custDBName);
 				if(!ticketList.isEmpty()){
 					response.setResponseType(custDBName);

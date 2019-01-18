@@ -66,6 +66,12 @@ chrisApp.controller('assetController',
 			      $scope.getAssetDetails(selectedAsset, row);
 			    
 			    }
+			 //
+			 $scope.rowTaskHighilited=function(row)
+			 {
+				 $scope.selectedTaskRow = row;    
+			 }
+			 //
 			 $scope.selectedSites = [];
 			 
 			/* $scope.send = function(assetId){
@@ -555,7 +561,7 @@ chrisApp.controller('assetController',
 					 $scope.selectedAsset.planEndDate=null;
 					 $scope.selectedAsset.taskAssignedTo=null;
 					 $scope.selectedAsset.resComments=null;
-					 $scope.selectedAsset.taskStatus="New";
+					 $scope.selectedAsset.taskStatus="NEW";
 				 }
 				 else if(isCreateUpdate == 'U'){
 					 $scope.taskOperation ="UpdateTask";
@@ -567,8 +573,11 @@ chrisApp.controller('assetController',
 					 $scope.selectedAsset.taskAssignedTo=selectedTask.taskAssignedTo;
 					 $scope.selectedAsset.resComments=selectedTask.resComments;
 					 $scope.selectedAsset.taskStatus=selectedTask.taskStatus;
-						
-					 if($scope.selectedAsset.taskStatus!=null){
+					 $scope.selectedAsset.taskSelectedStatus=selectedTask.taskStatus;
+					 //
+					 $('#taskModal').modal('show');
+					 //
+					 /*if($scope.selectedAsset.taskStatus!=null){
 							
 							 $("#taskStatusUpdate option").each(function() {
 									if ($(this).val() == $scope.selectedAsset.taskStatus) {
@@ -577,7 +586,7 @@ chrisApp.controller('assetController',
 										return false;
 									}
 							 	});
-					 }
+					 }*/
 					 
 					// $.jStorage.set('taskOperation', $scope.taskOperation);
 					// window.location.href=hostLocation+"/asset/task/update"
@@ -1573,7 +1582,7 @@ chrisApp.controller('assetController',
 			    				 $scope.getSuccessMessage($scope.successMessage);
 			    				 $scope.getAllAsset("ALL");
 			    				//window.location.href=hostLocation+"/asset/details";
-			    				
+			    				$('#taskModal').modal('hide');
 			    				$('#loadingDiv').hide();
 			    			}
 			            },

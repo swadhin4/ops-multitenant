@@ -352,7 +352,44 @@ public class SiteController extends BaseController {
 		logger.info("Exit SiteController .. getSelectedSite");
 		return responseEntity;
 	}
-	
+	@RequestMapping(value = "/customer/v1/selected/{siteId}/{custdb}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getCustomerSelectedSite(@PathVariable(value = "siteId") Long siteId, 
+			final HttpSession session,@PathVariable(value = "custdb") String custdb ) {
+		logger.info("Inside SiteController .. getSelectedSite");
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if(loginUser!=null){
+		CreateSiteVO savedSiteVO = null;
+		try {
+			if(loginUser.getUserType().equalsIgnoreCase("SP")){
+				String selectedCustomerDB = (String) session.getAttribute("selectedCustomerDB");
+				loginUser.setDbName(selectedCustomerDB);
+			}
+			savedSiteVO = siteService.findSiteBySiteId(siteId, loginUser);
+			//loginUser.setDbName(custdb);
+			
+			if (savedSiteVO.getSiteId() != null) {
+				response.setStatusCode(200);
+				response.setObject(savedSiteVO);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			} else {
+				response.setStatusCode(404);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			}
+
+		} catch (Exception e) {
+			logger.info("Exception while getting site details for " + siteId, e);
+			response.setMessage("Exception while getting site details for " + siteId);
+			response.setStatusCode(500);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+
+		}
+		}
+
+		logger.info("Exit SiteController .. getSelectedSite");
+		return responseEntity;
+	}
 	@RequestMapping(value = "/relatedtickets/{ticketId}/{siteId}", method = RequestMethod.GET)
 	public ResponseEntity<RestResponse> getRelatedTickets(@PathVariable Long ticketId, @PathVariable Long siteId,
 			final HttpSession session) {

@@ -13,7 +13,17 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 			 selected:{},
 			 list:[]
 		}
+		 $scope.getSuccessMessage=function(msg){
+			 $('#successDiv').show();
+			 $('#successDiv').alert();
+			 $('#successMessage').text(msg);
+		}
 		
+		$scope.getErrorMessage=function(msg){
+			 $('#errorDiv').show();
+			 $('#errorDiv').alert();
+			 $('#errorMessage').text(msg);
+		}
 		$scope.assetTypechecked = 'undefined';
 		$scope.linkedTicketDetails=[];
 		$scope.selectedLinkedTicketDetails=[];
@@ -264,20 +274,23 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 		$scope.viewUpdatePage=function(){
 			if($scope.sessionTicket!=null){
 				if($scope.sessionTicket.statusId==15){
-					$('#messageWindow').show();
+				/*	$('#messageWindow').show();
 					$('#infoMessageDiv').show();
-					$('#infoMessageDiv').alert();
+					$('#infoMessageDiv').alert();*/
+					
 					$scope.InfoMessage="This ticket cannot be updated because the service is already restored."
+						$scope.getErrorMessage($scope.InfoMessage);
 	       		 }else{
 					window.location.href=hostLocation+"/incident/details/update"
 					$('#messageWindow').hide();
 					$('#errorMessageDiv').hide();
 	       		 }
 			}else{
-				$('#messageWindow').show();
+				/*$('#messageWindow').show();
 				$('#infoMessageDiv').show();
-				$('#infoMessageDiv').alert();
+				$('#infoMessageDiv').alert();*/
 				$scope.InfoMessage="Please select a ticket to update."
+				$scope.getErrorMessage($scope.InfoMessage);
 			}
 		}
 		
@@ -292,6 +305,7 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 				$('#infoMessageDiv').show();
 				$('#infoMessageDiv').alert();
 				$scope.InfoMessage="Please select a ticket to view."
+					$scope.getErrorMessage($scope.InfoMessage);
 			}
 		}
 		
@@ -314,20 +328,33 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 	     
 	     
 		 console.log("allticket retrived");
-		 
+	/*	 
 		 $scope.getTicketDetails=function(ticket){
 			//console.log(ticket);
 			$scope.selectedTicket=angular.copy(ticket);
 			$scope.ticketData=angular.copy(ticket);
-			/*ticketService.retrieveTicketDetails(ticket)
+			ticketService.retrieveTicketDetails(ticket)
 			.then(function(data){
 				//console.log(data);
 			},function(data){
 				
-			});*/
+			});
 		}
-
-	
+*/
+		 $scope.getTicketDetails=function(ticket){
+				$scope.selectedTicket={};
+				ticketService.retrieveTicketDetails(ticket)
+				.then(function(data){
+					console.log(data);
+					if(data.statusCode==200){
+						$scope.selectedTicket = data.object
+						$scope.ticketData=angular.copy($scope.selectedTicket);
+						$scope.previewSelectedIncidentInfo($scope.selectedTicket);
+					}
+				},function(data){
+					console.log(data);
+				});
+			}
 			 
 }]);
 

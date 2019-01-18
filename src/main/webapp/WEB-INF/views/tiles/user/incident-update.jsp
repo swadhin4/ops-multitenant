@@ -260,6 +260,7 @@ background:#deefe5
        				 	</div>
 							</div>
 						</div>
+						</div>
 						<div class="box-body">
 							<div class="row">
 								<div class="col-md-12">
@@ -276,10 +277,10 @@ background:#deefe5
 													<li ng-if="ticketData.ticketAssignedType=='RSP'"><a href="#linkedticket" data-toggle="tab">RSP Linked Tickets 
 													</a>
 										<span class="label label-warning" style="position: relative;
-        top: -33px; left: 211px">{{ticketData.linkedTickets.length || 0}}</span></a>			
+        top: -33px; left: 132px">{{linkedRspTickets.length || 0}}</span></a>			
 													
 													</li>
-											<li><a href="#escalate" data-toggle="tab"
+	    							<li><a href="#escalate" data-toggle="tab"
 												onclick="initializeEscalateTicket()">Escalation</a></li>
 											<!--  Added by Supravat -->
 											<li><a href="#financials" data-toggle="tab">Financials
@@ -302,7 +303,7 @@ background:#deefe5
 											<!--  Ended by Supravat -->
 											
 										</ul>
-										<div class="tab-content">
+										<div class="tab-content" style="height:450px">
 											<div class="active tab-pane" id="primaryinfo">
 											<div style="display: none" id="loadingDiv1">
 			<div class="loader">Loading...</div>
@@ -846,7 +847,7 @@ background:#deefe5
 														   placeholder="Add a linked ticket to associate customer ticket {{ticketData.ticketNumber}}"
 															maxlength="20" ng-model="linkedTicket.ticketNumber"></th>
 																<th>
-																	<a href ng-click="LinkNewTicket('RSP', linkedTicket.ticketNumber)">
+																	<a href ng-click="LinkNewTicket('RSP', linkedTicket)">
 																<span class="badge bg-green" style="    font-size: 1.4em;" >
 																<i class="fa fa-link"></i></span></a>
 																</th>
@@ -875,7 +876,7 @@ background:#deefe5
 																<td style="width: 40%">{{ticket.ticketTitle}}</td>
 																<td style="width:10%">{{ticket.assetName}}</td>
 																<td>
-																<a href ng-click="LinkNewTicket('RSP', ticket.ticketNumber)">
+																<a href ng-click="LinkNewTicket('RSP', ticket)">
 																<span class="badge bg-green" style="    font-size: 1.4em;" >
 																<i class="fa fa-link"></i></span></a></th>
 															</tr>
@@ -898,8 +899,7 @@ background:#deefe5
 															<tr ng-repeat="ticket in linkedRspTickets">
 																<th style="width: 12%">{{ticket.spLinkedTicket}}</th>
 																<td style="vertical-align:middle;width: 60%;">
-																		<span class=" pull-right"
-																			ng-class="{{linkedTkt.closedFlag == 'CLOSED'}} ? 'label label-danger' : 'label label-success'">{{ticket.closedFlag}}</span>
+																		<span class=" pull-right label label-success">{{ticket.linkedTicketStatus}}</span>
 																		</td>
 																<td><a href ng-click="unlinkTicketConfirmation($index,ticket)"><span class="badge bg-red pull-right" style="    font-size: 1.4em;" >
 																<i class="fa fa-unlink"></i></span></a></th>
@@ -1103,12 +1103,11 @@ background:#deefe5
 													</div>		
 												</div>
 											<div class="tab-pane" id="tickethistory">
-												<div class="box">
+												<div class="box" >
 													<div class="box-header with-border">
 														<h3 class="box-title">Ticket History</h3>
 													</div>
-													<div class="box-body">
-
+													<div class="box-body" >
 														<!-- <div class="table-responsive"> -->
 															<div class="row">
 																	<!-- The time line -->
@@ -1588,6 +1587,7 @@ background:#deefe5
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title" id="myModalLabel2">{{selectedTicket.ticketNumber}} - Overview</h4>
+					<span class="badge" style="background-color: #cfe4e2;color:#000"><i class="fa fa-flag" aria-hidden="true" style="color:red;"></i> {{selectedTicket.status}}</span>
 				</div>
 				<div class="modal-body">
 				       <div class="box box-solid">

@@ -32,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.constants.TicketUpdateType;
+import com.pms.app.constants.UserType;
 import com.pms.app.exception.PMSTechnicalException;
 import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
@@ -443,7 +445,21 @@ public class IncidentController extends BaseController {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if (loginUser != null) {
 			try {
-				TicketVO selectedTicket = ticketSerice.getSelectedTicket(ticketId, loginUser);
+				TicketVO selectedTicket = null;
+				if(loginUser.getUserType().equalsIgnoreCase("SP")){
+					String selectedCustomerDB = (String) session.getAttribute("selectedCustomerDB");
+					loginUser.setDbName(selectedCustomerDB);
+					String ticketsOf = (String) session.getAttribute("ticketsBy");
+					if(ticketsOf.equalsIgnoreCase("CUSTOMER")){
+						selectedTicket  = ticketSerice.getSelectedTicket(ticketId, loginUser);
+					}
+					else if(ticketsOf.equalsIgnoreCase("RSP")){
+						selectedTicket  = ticketSerice.getRSPCreatedSelectedTicket(ticketId, loginUser);
+					}
+				}
+				else{
+					selectedTicket  = ticketSerice.getSelectedTicket(ticketId, loginUser);
+				}
 				if (selectedTicket.getTicketId() != null) {
 					response.setStatusCode(200);
 					response.setObject(selectedTicket);
@@ -476,13 +492,23 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				if (loginUser.getUserType().equalsIgnoreCase("SP")) {
-					loginUser.setDbName(ticketVO.getCustomerDB());
+				if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+					logger.info("Loggedin user is Customer pointing to its DB");
 				}
-				TicketVO selectedTicketVO = ticketSerice.getSelectedTicket(ticketVO.getTicketId(), loginUser);
-				session.setAttribute("selectedTicket", selectedTicketVO);
+				else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+					logger.info("Loggedin user is RSP pointing to Customer DB : " + ticketVO.getCustomerDB() );
+					loginUser.setDbName(ticketVO.getCustomerDB());
+					session.setAttribute("selectedCustomerDB", ticketVO.getCustomerDB());
+				}
+				
+				/*if (loginUser.getUserType().equalsIgnoreCase("SP")) {
+					loginUser.setDbName(ticketVO.getCustomerDB());
+					session.setAttribute("selectedCustomerDB", ticketVO.getCustomerDB());
+				}*/
+				//TicketVO selectedTicketVO = ticketSerice.getSelectedTicket(ticketVO.getTicketId(), loginUser);
+				session.setAttribute("selectedTicket", ticketVO);
 				response.setStatusCode(200);
-				response.setObject(selectedTicketVO);
+				response.setObject(ticketVO);
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 			} else {
 				response.setStatusCode(401);
@@ -509,99 +535,69 @@ public class IncidentController extends BaseController {
 			TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
 			try {
 				if (selectedTicketVO != null) {
-					String custDBName = (String) session.getAttribute("selectedTicketDB");
-					if (StringUtils.isEmpty(custDBName)) {
+					if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+						logger.info("Getting selected ticket from customer DB");
 						selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
-						if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase("RSP")) {
+						if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_FOR_RSP_ASSIGNED_TICKETS.getUpdateType())){
+							logger.info("Getting suggested tickets from RSP TICKETS -- table");
 							List<TicketVO> rspSuggestedTickets = ticketSerice.getSuggestedTicketForAsset(loginUser,
 									selectedTicketVO.getAssetId());
 							if (!rspSuggestedTickets.isEmpty()) {
 								response.setObject2(rspSuggestedTickets);
 							}
 						}
-						response.setObject(selectedTicketVO);
-					} else {
-						loginUser.setDbName(custDBName);
+
+						List<EscalationLevelVO> escalationLevelVOs = selectedTicketVO.getEscalationLevelList();
+						if (escalationLevelVOs.isEmpty()) {
+
+						} else {
+							List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
+							for (EscalationLevelVO escalationVO : escalationLevelVOs) {
+								TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(
+										selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser,
+										selectedTicketVO.getTicketAssignedType());
+								EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
+								if (ticketEscalationVO.getCustEscId() != null) {
+									tempEscalationVO.setStatus("Escalated");
+								}
+								tempEscalationVO.setEscId(escalationVO.getEscId());
+								tempEscalationVO.setEscalationEmail(escalationVO.getEscalationEmail());
+								tempEscalationVO.setEscalationLevel(escalationVO.getEscalationLevel());
+								tempEscalationVO.setServiceProdviderId(escalationVO.getServiceProdviderId());
+								tempEscalationVO.setEscalationPerson(escalationVO.getEscalationPerson());
+								finalEscalationList.add(tempEscalationVO);
+							}
+
+							selectedTicketVO.setEscalationLevelList(finalEscalationList);
+						}
+					
+						List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),
+								loginUser);
+						selectedTicketVO.setFinancialList(finacialsList);
+						
+						
+					}
+					else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
+						logger.info("Getting selected ticket from customer DB");
 						selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
 					}
-					List<EscalationLevelVO> escalationLevelVOs = selectedTicketVO.getEscalationLevelList();
-					if (escalationLevelVOs.isEmpty()) {
-
-					} else {
-						List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
-						for (EscalationLevelVO escalationVO : escalationLevelVOs) {
-							TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(
-									selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser,
-									selectedTicketVO.getTicketAssignedType());
-							EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
-							if (ticketEscalationVO.getCustEscId() != null) {
-								tempEscalationVO.setStatus("Escalated");
+					else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+						String custDBName = (String) session.getAttribute("selectedCustomerDB");
+						if (!StringUtils.isEmpty(custDBName)){
+						logger.info("Getting selected ticket from RSP DB");
+							if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())) {
+								loginUser.setDbName(custDBName);
+								selectedTicketVO = ticketSerice.getRSPCreatedSelectedTicket(selectedTicketVO.getTicketId(),
+										loginUser);
+							} else if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())) {
+								loginUser.setDbName(custDBName);
+								selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(),
+										loginUser);
+								selectedTicketVO.setTicketAssignedType(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType());
 							}
-							tempEscalationVO.setEscId(escalationVO.getEscId());
-							tempEscalationVO.setEscalationEmail(escalationVO.getEscalationEmail());
-							tempEscalationVO.setEscalationLevel(escalationVO.getEscalationLevel());
-							tempEscalationVO.setServiceProdviderId(escalationVO.getServiceProdviderId());
-							tempEscalationVO.setEscalationPerson(escalationVO.getEscalationPerson());
-							finalEscalationList.add(tempEscalationVO);
 						}
-
-						selectedTicketVO.setEscalationLevelList(finalEscalationList);
 					}
-					/*
-					 * ServiceProviderVO serviceProviderVO =
-					 * serviceProviderService.findServiceProvider(
-					 * selectedTicketVO.getAssignedTo()); if
-					 * (StringUtils.isNotBlank(serviceProviderVO.
-					 * getHelpDeskEmail())) {
-					 * selectedTicketVO.setAssignedSPEmail(serviceProviderVO.
-					 * getHelpDeskEmail()); }
-					 * 
-					 * List<CustomerSPLinkedTicketVO> customerLinkedTickets =
-					 * ticketSerice.getAllLinkedTickets(selectedTicketVO.
-					 * getTicketId()); if (!customerLinkedTickets.isEmpty()) {
-					 * selectedTicketVO.setLinkedTickets(customerLinkedTickets);
-					 * }
-					 * 
-					 * List<TicketCommentVO> selectedTicketComments =
-					 * ticketSerice.getTicketComments(selectedTicketVO.
-					 * getTicketId()); if (!selectedTicketComments.isEmpty()) {
-					 * selectedTicketVO.setTicketComments(selectedTicketComments
-					 * ); }
-					 * 
-					 * List<TicketAttachment> fileAttachments =
-					 * ticketAttachmentRepo.findByTicketNumber(selectedTicketVO.
-					 * getTicketNumber()); if (fileAttachments == null) {
-					 * logger.info("Not Ticket Attachment for " +
-					 * selectedTicketVO.getTicketNumber()); } else { if
-					 * (fileAttachments.isEmpty()) { logger.info(
-					 * "Not Ticket Attachment for " +
-					 * selectedTicketVO.getTicketNumber()); } else {
-					 * List<TicketAttachment> fileAttachmentList = new
-					 * ArrayList<TicketAttachment>(); SimpleDateFormat formatter
-					 * = new SimpleDateFormat("dd-MM-yyyy HH:mm"); for
-					 * (TicketAttachment ticketAttachment : fileAttachments) {
-					 * ticketAttachment.setCreatedDate(formatter.format(
-					 * ticketAttachment.getCreatedOn()));
-					 * fileAttachmentList.add(ticketAttachment); }
-					 * selectedTicketVO.setAttachments(fileAttachmentList); } }
-					 * selectedTicketVO.setLinkedTickets(selectedTicketVO.
-					 * getLinkedTickets()); //
-					 * selectedTicketVO.getEscalationLevelList().clear();
-					 * selectedTicketVO.setEscalationLevelList(selectedTicketVO.
-					 * getEscalationLevelList());
-					 * selectedTicketVO.setTicketComments(selectedTicketVO.
-					 * getTicketComments()); // Changes added by ankit for
-					 * Financials Data //List<Financials> finacialsList =
-					 * finService.findByTicketId(selectedTicketVO.getTicketId())
-					 * ; //selectedTicketVO.setFinancialList(finacialsList);
-					 * logger.info("these are financials====>>> " +
-					 * selectedTicketVO.getFinancialList()); // Changes end here
-					 * 
-					 */
-					List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),
-							loginUser);
-					selectedTicketVO.setFinancialList(finacialsList);
-
+					
 					session.setAttribute("selectedTicket", selectedTicketVO);
 					response.setStatusCode(200);
 					response.setObject(selectedTicketVO);

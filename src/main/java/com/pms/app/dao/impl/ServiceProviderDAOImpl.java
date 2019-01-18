@@ -458,6 +458,7 @@ public class ServiceProviderDAOImpl implements ServiceProviderDAO {
 							ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
 							ticketVO.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
 							ticketVO.setAssignedSP(rs.getString("sp_name"));
+							ticketVO.setStatusId(rs.getLong("status_id"));
 							ticketVO.setStatus(rs.getString("status"));
 
 							ticketVOList.add(ticketVO);

@@ -37,7 +37,21 @@ chrisApp.controller('spCustomerController',
 					selected : {},
 					list : []
 				}
-
+				
+				$scope.area={
+						selected:{},
+						list:[]
+				}
+				
+				$scope.district={
+						selected:{},
+						list:[]
+				}
+				$scope.cluster={
+						selected:{},
+						list:[]
+				}
+				
 				$scope.started = false;
 
 				$scope.equipmentData = {};
@@ -55,9 +69,12 @@ chrisApp.controller('spCustomerController',
 				//
 
 				angular.element(document).ready(function() {
+					$scope.selectedSite={};
+					$scope.selectedSite.fileInput=null;
 					 $scope.sessionTicket=null;
 					$scope.getLoggedInUserAccess();	
 					$scope.ticketCreatedOrAssigned="CUSTOMER";
+					$scope.pageViewFor="INCIDENTS";
 					$('#incidentDetails').on('click', 'tbody tr',function(){
 						 $('#incidentDetails tbody > tr').removeClass('currentSelected');
 						  $(this).addClass('currentSelected');
@@ -86,9 +103,40 @@ chrisApp.controller('spCustomerController',
 					
 				}
 				
+				 $scope.getTicketDetails=function(ticket){
+					 	$('#loadingDivRsp').show();
+						$scope.selectedTicket={};
+						ticketService.retrieveTicketDetails(ticket)
+						.then(function(data){
+							console.log(data);
+							if(data.statusCode==200){
+								$scope.selectedTicket = data.object
+								$scope.ticketData=angular.copy($scope.selectedTicket);
+								//$scope.previewSelectedIncidentInfo($scope.selectedTicket);
+								$('#loadingDivRsp').hide();
+							}
+						},function(data){
+							console.log(data);
+							$('#loadingDivRsp').hide();
+						});
+					}
+					 
+				
+				$scope.previewSelectedIncidentInfo=function(val){
+					$scope.getTicketDetails(val);
+					$('#previewIncidentModal').modal('show');
+					
+				}
+				
 				$scope.setTicketinSession=function(ticket){
 					var connectedDB = $scope.selectedCustList[0].custDBName;
 					ticket.customerDB = connectedDB;
+					if($scope.ticketCreatedOrAssigned=="CUSTOMER"){
+						ticket.ticketAssignedType="CUSTOMER";
+					}
+					else{
+						ticket.ticketAssignedType=$scope.ticketCreatedOrAssigned;
+					}
 					 ticketService.setIncidentSelected(ticket)
 						.then(function(data){
 							//console.log(data);
@@ -156,11 +204,29 @@ chrisApp.controller('spCustomerController',
 				
 				$scope.checkTicketsAssignedOrCreated=function(ticketType){
 					console.log(ticketType);
-					$scope.ticketCreatedOrAssigned=ticketType;
-					if($scope.ticketCreatedOrAssigned=="RSP"){
-						$scope.findTicketsCreated();
-					}else{
-						$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
+						$scope.siteList=[];
+						$scope.ticketCreatedOrAssigned=ticketType;
+						if($scope.ticketCreatedOrAssigned=="RSP"){
+							$scope.findTicketsCreated();
+						}else{
+							$scope.ticketCreatedOrAssigned="CUSTOMER";
+							$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
+						}
+					
+				}
+				
+				$scope.displayCustomerView=function(viewType){
+					$scope.pageViewFor = viewType;
+					if($scope.pageViewFor=="INCIDENTS"){
+						$scope.checkTicketsAssignedOrCreated($scope.ticketCreatedOrAssigned);
+						
+					}
+					else if($scope.pageViewFor=="SITES"){
+						$scope.spCustomerIncidentList.list=[];
+						$scope.getSiteData();
+					}
+					if($scope.pageViewFor=="ASSETS"){
+						
 					}
 				}
 				$scope.getSpCustomerList=function(){
@@ -199,45 +265,47 @@ chrisApp.controller('spCustomerController',
 					});
 
 				}
-				$scope.getCustomerIncident = function(cCode, e,spCustomerListSelect) {
-				// this array will store selected customer list
-				// details.
-					$scope.selectedCustList = [];
-					if ($.fn.DataTable.isDataTable("#incidentDetails")) {
-						  $('#incidentDetails').DataTable().clear().destroy();
-					}
-					for (var i = 0; i < $scope.spCustomerList.list.length; i++) {
-						if ($scope.spCustomerList.list[i].custCode === cCode.value) {
-							$scope.selectedCustList.push($scope.spCustomerList.list[i]);
-							//$scope.spCustomerList.selected = $scope.spCustomerList.list[i];
+				$scope.getSelectionOption = function(cCode, e,spCustomerListSelect) {
+					// this array will store selected customer list
+					// details.
+						$scope.selectedCustList = [];
+						/*if ($.fn.DataTable.isDataTable("#incidentDetails")) {
+							  $('#incidentDetails').DataTable().clear().destroy();
+						}*/
+						for (var i = 0; i < $scope.spCustomerList.list.length; i++) {
+							if ($scope.spCustomerList.list[i].custCode === cCode.value) {
+								$scope.selectedCustList.push($scope.spCustomerList.list[i]);
+								//$scope.spCustomerList.selected = $scope.spCustomerList.list[i];
+							}
 						}
+		
+						console.log("------------------->",$scope.selectedCustList[0]);
+						
+					// countryName
+					console.log("cCode.value",cCode.value);
+					if (cCode.value.length > 0) {
+						console.log("Ifffffff111111--->",$scope.selectedCustList.length);   
+						//$("#countryName").html("Country: "+$scope.selectedCustList[0].countryName);
+						//console.log("countryName",$scope.selectedCustList[0].countryName);
+						var encodedString = window.btoa($scope.selectedCustList[0].custDBName); 
+						$scope.spCustomerList.selected = encodedString ;
+						$.jStorage.set("selectedCustomer", $scope.spCustomerList.selected);
+						$.jStorage.set("selectedCustomerCode", $scope.selectedCustList[0].custCode);
+						$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
+					} else {
+						$scope.selectedCustList = [];
+						console.log("ELseeeeeeeeeeeeeeee111111--->",$scope.selectedCustList.length);
+						console.log("ELseeeeeeeeeeeeeeee",$scope.selectedCustList);
+						$("#countryName").text(" ");
+						if ($.fn.DataTable.isDataTable("#incidentDetails")) {
+							  $('#incidentDetails').DataTable().clear().destroy();
+						}
+						
 					}
-	
-					console.log("------------------->",$scope.selectedCustList[0]);
-					
-				// countryName
-				console.log("cCode.value",cCode.value);
-				if (cCode.value.length > 0) {
-					console.log("Ifffffff111111--->",$scope.selectedCustList.length);   
-					//$("#countryName").html("Country: "+$scope.selectedCustList[0].countryName);
-					//console.log("countryName",$scope.selectedCustList[0].countryName);
-					var encodedString = window.btoa($scope.selectedCustList[0].custDBName); 
-					$scope.spCustomerList.selected = encodedString ;
-					$.jStorage.set("selectedCustomer", $scope.spCustomerList.selected);
-					$.jStorage.set("selectedCustomerCode", $scope.selectedCustList[0].custCode);
-					$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
-				} else {
-					$scope.selectedCustList = [];
-					console.log("ELseeeeeeeeeeeeeeee111111--->",$scope.selectedCustList.length);
-					console.log("ELseeeeeeeeeeeeeeee",$scope.selectedCustList);
-					$("#countryName").text(" ");
-					if ($.fn.DataTable.isDataTable("#incidentDetails")) {
-						  $('#incidentDetails').DataTable().clear().destroy();
-					}
-					
+				
 				}
 				
-			}
+				
 				$scope.getSPCustomerIncidents=function(spCode,dbName){
 				userService.getSPCustomerTicketList(spCode,dbName)
 				.then(function(data) {
@@ -245,16 +313,16 @@ chrisApp.controller('spCustomerController',
 					if (data.statusCode == 200) {
 						$scope.spCustomerIncidentList.list = [];
 						if (data.object.length > 0) {
-							if ($.fn.DataTable.isDataTable("#incidentDetails")) {
+							/*if ($.fn.DataTable.isDataTable("#incidentDetails")) {
 								  $('#incidentDetails').DataTable().clear().destroy();
-							}
+							}*/
 							$.each(data.object,function(key,val) {
 								$scope.spCustomerIncidentList.list.push(val);
 							});
 						}
 						$('#loadingDiv').hide();
 						$("#countryName").text($scope.selectedCustList[0].countryName);
-						populateSPIncidentDataTable($scope.spCustomerIncidentList.list,'incidentDetails');					
+						//populateSPIncidentDataTable($scope.spCustomerIncidentList.list,'incidentDetails');					
 					}
 				},function(data) {
 					console.log('Unable to change the status of the user');
@@ -301,10 +369,10 @@ chrisApp.controller('spCustomerController',
 			    				 function(data) {
 			 		                //console.log(data)
 			 		                	$scope.InfoMessage="No sites assigned to the user."
-			 							$('#messageWindow').show();
-			 		    				$('#infoMessageDiv').show();
-			 		    				$('#infoMessageDiv').alert();
-			 		    				$('#loadingDiv').hide();
+		 							$('#messageWindow').show();
+		 		    				$('#infoMessageDiv').show();
+		 		    				$('#infoMessageDiv').alert();
+		 		    				$('#loadingDiv').hide();
 			 		            });
 				}
 				//Sites Requiremnet
@@ -353,7 +421,8 @@ chrisApp.controller('spCustomerController',
 				
 				
 				$scope.getSelectedSiteData=function(siteId){
-					 siteService.retrieveSiteDetails(siteId)
+					var custDb  = 	$scope.selectedCustList[0].custDBName;
+					 siteService.retrieveCustomerSiteDetails(siteId,custDb)
 			    		.then(function(data) {
 			    			console.log(data)
 			    			var site=angular.copy(data.object);

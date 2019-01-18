@@ -301,7 +301,7 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
             retrieveAllSites:retrieveAllSites,
             retrieveSiteForSelectedCustomer:retrieveSiteForSelectedCustomer,
             retrieveSiteDetails:retrieveSiteDetails,
-           // saveSite:saveSite,
+            retrieveCustomerSiteDetails:retrieveCustomerSiteDetails,
             assignSiteAccess:assignSiteAccess,
             removeSiteAccess:removeSiteAccess,
             siteFileDownload:siteFileDownload,
@@ -354,6 +354,22 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
                 });
             return def.promise;
         }
+	 	
+	 	function retrieveCustomerSiteDetails(siteId, custDb) {
+            var def = $q.defer();
+            $http.get(hostLocation+"/site/customer/v1/selected/"+siteId+"/"+custDb)
+                .success(function(data) {
+                     //console.log(data)
+                     SiteService.site=data;
+                    def.resolve(data);
+                })
+                .error(function(data) {
+                     console.log(data)
+                    def.reject(data);
+                });
+            return def.promise;
+        }
+	 	
 	    function retrieveSiteForSelectedCustomer(custDb, custCompCode){
 	    	 var def = $q.defer();
 	            $http.get(hostLocation+"/site/view/list/"+custDb+"/"+custCompCode)

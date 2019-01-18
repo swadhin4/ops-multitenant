@@ -51,6 +51,7 @@ public class SelectedTicketVO implements Serializable {
 	private String close_note;
 	private Long assigned_to;
 	private Long rassigned_to;
+	private String assigned_agent;
 	private String rsp_name;
 	private String sp_name;
 	private String closed_by;
@@ -365,6 +366,12 @@ public class SelectedTicketVO implements Serializable {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public String getAssigned_agent() {
+		return assigned_agent;
+	}
+	public void setAssigned_agent(String assigned_agent) {
+		this.assigned_agent = assigned_agent;
 	}
 	@Override
 	public String toString() {

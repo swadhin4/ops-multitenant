@@ -272,6 +272,7 @@ $(function() {
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 					<h4 class="modal-title" id="myModalLabel2">{{sessionTicket.ticketNumber}} - Overview</h4>
+					<span class="badge" style="background-color: #cfe4e2;color:#000"><i class="fa fa-flag" aria-hidden="true" style="color:red;"></i> {{sessionTicket.status}}</span>
 				</div>
 				<div class="modal-body">
 				       <div class="box box-solid">

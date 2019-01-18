@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
@@ -24,12 +26,15 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.DeleteObjectsResult;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.MultiObjectDeleteException;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.pms.app.view.vo.CompanyAttachments;
 import com.pms.web.service.AwsIntegrationService;
 import com.pms.web.util.ApplicationUtil;
 import com.pms.web.util.RestResponse;
@@ -159,4 +164,51 @@ public class AwsIntegrationServiceImpl implements AwsIntegrationService{
 		return response;
 	}
 
+
+
+@Override
+public List<CompanyAttachments> listBucketObjects() {
+    String bucketName = "malay-first-s3-bucket-pms-test";
+    List<CompanyAttachments>  companyAttachments = new ArrayList<CompanyAttachments>();
+    try {    
+    	AWSCredentials credentials = new BasicAWSCredentials("AKIAJZTA6BYNTESWQWBQ","YWzhoGSfC1ADDT+xHzvAsvf/wyMlSl71TexLLg8t");
+		AmazonS3 s3Client = new AmazonS3Client(credentials);
+		s3Client.setRegion(com.amazonaws.regions.Region.getRegion(Regions.US_WEST_2));
+        System.out.println("Listing objects");
+
+        // maxKeys is set to 2 to demonstrate the use of
+        // ListObjectsV2Result.getNextContinuationToken()
+        ListObjectsV2Request req = new ListObjectsV2Request().withBucketName(bucketName).withMaxKeys(2);
+        ListObjectsV2Result result;
+        do {
+            result = s3Client.listObjectsV2(req);
+
+            for (S3ObjectSummary objectSummary : result.getObjectSummaries()) {
+            	CompanyAttachments copmanyAttachment = new CompanyAttachments();
+            	copmanyAttachment.setImagePath(objectSummary.getKey());
+            	copmanyAttachment.setImageSize( ApplicationUtil.bytesConverter(objectSummary.getSize()));
+            	copmanyAttachment.setCreationDate(objectSummary.getLastModified().toString());
+            	companyAttachments.add(copmanyAttachment);
+                //System.out.printf(" - %s (size: %s)  %s \n", objectSummary.getKey(), ApplicationUtil.bytesConverter(objectSummary.getSize()), objectSummary.getLastModified() );
+            }
+            // If there are more than maxKeys keys in the bucket, get a continuation token
+            // and list the next objects.
+            String token = result.getNextContinuationToken();
+            System.out.println("Next Continuation Token: " + token);
+            req.setContinuationToken(token);
+        } while (result.isTruncated());
+    }
+    catch(AmazonServiceException e) {
+        // The call was transmitted successfully, but Amazon S3 couldn't process 
+        // it, so it returned an error response.
+        e.printStackTrace();
+    }
+    catch(SdkClientException e) {
+        // Amazon S3 couldn't be contacted for a response, or the client
+        // couldn't parse the response from Amazon S3.
+        e.printStackTrace();
+    }
+	return companyAttachments;
+}
+	
 }

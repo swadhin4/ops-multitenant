@@ -12,6 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.pms.app.constants.UserType;
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
 import com.pms.app.dao.impl.TenantsDAO;
@@ -125,7 +126,7 @@ public class UserServiceImpl implements UserService {
 		String encryptedPassword = QuickPasswordEncodingGenerator.encodePassword(generatedRawPassword);
 		appUserVO.setGeneratedPassword(encryptedPassword);
 		UserVO savedUserVO = null;
-		if(user.getUserType().equalsIgnoreCase("USER")){
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
 			savedUserVO	= getUserDAO(user.getDbName()).saveNewUser(appUserVO, user);
 			if(savedUserVO.getUserId()!=null){
 				savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
@@ -145,7 +146,7 @@ public class UserServiceImpl implements UserService {
 					LOGGER.info("User not created with role");
 				}
 			}
-		}else if(user.getUserType().equalsIgnoreCase("SP")){
+		}else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
 			savedUserVO	= getSPUserDAO(user.getDbName()).saveNewSPUser(appUserVO, user);
 			if(savedUserVO.getUserId()!=null){
 				savedUserVO.setRoleId(appUserVO.getRole().getRoleId());
@@ -233,10 +234,10 @@ public class UserServiceImpl implements UserService {
 	public RestResponse updateStatus(AppUserVO appUserVO, LoginUser user) throws Exception {
 		int updated=0;
 		RestResponse response = new RestResponse();
-		if(user.getUserType().equalsIgnoreCase("USER")){
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
 			updated =   getUserDAO(user.getDbName()).updateUserStatus(appUserVO);
 		}
-		else if(user.getUserType().equalsIgnoreCase("SP")){
+		else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
 			updated =   getUserDAO(user.getDbName()).updateSPUserStatus(appUserVO);
 		}
 		
