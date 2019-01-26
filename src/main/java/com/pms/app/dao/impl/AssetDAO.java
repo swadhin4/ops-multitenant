@@ -73,6 +73,42 @@ public class AssetDAO {
 				});
 		return assetVOList;
 	}
+	
+	public List<AssetVO> findAssetList(Long rspId, String custCompanyCode, final String assetListQuery) {
+		LOGGER.info("Inside AssetDAO .. findAssetList");
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+		List<AssetVO> assetList = jdbcTemplate.query(assetListQuery, new Object[] { rspId, custCompanyCode },
+				new ResultSetExtractor<List<AssetVO>>() {
+					@Override
+					public List<AssetVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<AssetVO> assets = new ArrayList<AssetVO>();
+						while (rs.next()) {
+							AssetVO assetVO = new AssetVO();
+							assetVO.setAssetId(rs.getLong("asset_id"));
+							assetVO.setAssetCode(rs.getString("asset_code"));
+							assetVO.setAssetName(rs.getString("asset_name"));
+							assetVO.setModelNumber(rs.getString("model_number"));
+							assetVO.setSiteId(rs.getLong("site_id"));
+							assetVO.setSiteName(rs.getString("site_name"));
+							assetVO.setCategoryId(rs.getLong("category_id"));
+							assetVO.setAssetCategoryName(rs.getString("category_name"));
+							assetVO.setSpType(rs.getString("sp_type"));
+							assetVO.setLocationId(rs.getLong("location_id"));
+							assetVO.setLocationName(rs.getString("location_name"));
+							String commissionedDate = df.format(rs.getDate("date_commissioned"));
+							String deComissionedDate = null==rs.getDate("date_decomissioned")?null:df.format(rs.getDate("date_decomissioned"));
+							assetVO.setCommisionedDate(commissionedDate);
+							assetVO.setDeCommissionedDate(deComissionedDate);
+							assetVO.setAssetDescription(rs.getString("asset_desc"));
+							assets.add(assetVO);
+						}
+						return assets;
+					}
+				});
+		LOGGER.info("Exit AssetDAO .. findAssetList");
+		return assetList;
+	}
 
 	public AssetVO getAssetDetails(Long assetId) {
 		LOGGER.info("AssetDAO -- getAssetDetails -- Getting Asset details for selected asset : " + assetId);

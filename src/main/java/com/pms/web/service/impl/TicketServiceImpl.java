@@ -36,6 +36,8 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.TicketUpdateType;
+import com.pms.app.constants.UserType;
 import com.pms.app.dao.impl.IncidentDAO;
 import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.CreateSiteVO;
@@ -192,7 +194,7 @@ public class TicketServiceImpl implements TicketService {
 			
 			if(incidentVO.getMessage().equalsIgnoreCase("CREATED")  ){
 				LOGGER.info("Creating Incident Folder for : " +  incidentVO.getTicketNumber());
-				String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
+				String folderLocation = createIncidentFolder(incidentVO, loginUser, null);
 				incidentVO = imageUploadFeature(loginUser, incidentVO, folderLocation);
 				
 			}
@@ -217,9 +219,28 @@ public class TicketServiceImpl implements TicketService {
 		else if(customerTicket.getMode().equalsIgnoreCase("IMAGEUPLOAD")){
 			/*ServiceProvider serviceProvider = getIncidentDAO(loginUser.getDbName()).getTicketServiceProvider(incidentVO);
 			incidentVO.setServiceProvider(serviceProvider);*/
-			incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) &&
+					customerTicket.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser);
+				incidentVO.setRspCustMappedCompanyId(customerTicket.getRspCustMappedCompanyId());
+				incidentVO.setRspCustMappedCompanyName(customerTicket.getRspCustMappedCompanyName());
+				incidentVO.setRspCustMappedCompanyCode(customerTicket.getRspCustMappedCompanyCode());
+			}else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && 
+					customerTicket.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+				incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser);
+				incidentVO.setRspCustMappedCompanyId(customerTicket.getRspCustMappedCompanyId());
+				incidentVO.setRspCustMappedCompanyName(customerTicket.getRspCustMappedCompanyName());
+				incidentVO.setRspCustMappedCompanyCode(customerTicket.getRspCustMappedCompanyCode());
+			}
+			else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
+				incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			}
+			else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+				incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			}
 			incidentVO.setIncidentImageList(customerTicket.getIncidentImageList());
-			String folderLocation = createIncidentFolder(incidentVO.getTicketNumber(), loginUser, null);
+			String folderLocation = createIncidentFolder(incidentVO, loginUser, null);
 			incidentVO = imageUploadFeature(loginUser, incidentVO, folderLocation);
 			
 		}
@@ -242,15 +263,26 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 
-	private String createIncidentFolder(String ticketNumber, LoginUser user, Company spSiteCompany) {
+	private String createIncidentFolder(TicketVO incidentVO, LoginUser user, Company spSiteCompany) {
 		LOGGER.info("Inside TicketServiceImpl .. createIncidentFolder");
 		String incidentFolderLocation="";
 		try {
 			if(spSiteCompany!=null){
-			 incidentFolderLocation = createIncidentFolder(ticketNumber, spSiteCompany) ;
+			 incidentFolderLocation = createIncidentFolder(incidentVO.getTicketNumber(), spSiteCompany) ;
 			}
 			if(user!=null){
-				incidentFolderLocation = createIncidentFolder(ticketNumber, user.getCompany()) ; //fileIntegrationService.createIncidentFolder(ticketNumber, user.getCompany());
+				if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+					LOGGER.info("RSP Mapped Customer Code to Create Folder : "+ incidentVO.getRspCustMappedCompanyCode());
+					 user.getCompany().setCompanyId(incidentVO.getRspCustMappedCompanyId());
+					 user.getCompany().setCompanyName(incidentVO.getRspCustMappedCompanyName());
+					 user.getCompany().setCompanyCode(incidentVO.getRspCustMappedCompanyCode());
+					incidentFolderLocation = createIncidentFolder(incidentVO.getTicketNumber(),user.getCompany()) ;
+				}
+				else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+					LOGGER.info("Customer Code to Create Folder : " +  user.getCompany().getCompanyCode());
+					incidentFolderLocation = createIncidentFolder(incidentVO.getTicketNumber(),user.getCompany()) ;
+				}
+				 //fileIntegrationService.createIncidentFolder(ticketNumber, user.getCompany());
 			}
 			if(StringUtils.isNotEmpty(incidentFolderLocation)){
 				LOGGER.info("Incident Folder Created..");
@@ -287,22 +319,49 @@ public class TicketServiceImpl implements TicketService {
 	}
 
 
-	private boolean uploadIncidentImages(TicketVO customerTicketVO, LoginUser user, Company company, String folderLocation, String uploadedBy) {
+	private boolean uploadIncidentImages(TicketVO customerTicketVO, LoginUser loginUser, Company company, String folderLocation, String uploadedBy) {
 		LOGGER.info("Inside TicketServiceImpl .. uploadIncidentImages");
 		boolean isUploaded =false;
 		try {
-			if(user!=null){
-				List<TicketAttachment> ticketAttachments = siteIncidentFileUpload(customerTicketVO.getIncidentImageList(), customerTicketVO, user.getCompany(), folderLocation, uploadedBy);
-				if(!ticketAttachments.isEmpty()){
-					int attachmenentSaved=getIncidentDAO(user.getDbName()).insertOrUpdateTicketAttachments(ticketAttachments);
-					if(attachmenentSaved>0){
-						isUploaded = true;
+			if (loginUser != null) {
+				List<TicketAttachment> ticketAttachments = siteIncidentFileUpload(
+						customerTicketVO.getIncidentImageList(), customerTicketVO, loginUser.getCompany(),
+						folderLocation, uploadedBy);
+				if (loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())
+						&& customerTicketVO.getTicketAssignedType()
+								.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())) {
+					if (!ticketAttachments.isEmpty()) {
+						int attachmenentSaved = getIncidentDAO(loginUser.getDbName())
+								.insertOrUpdateTicketAttachments(ticketAttachments, AppConstants.RSP_INSERT_TICKET_ATTACHMENT_QUERY);
+						if (attachmenentSaved > 0) {
+							isUploaded = true;
+						}
+					}
+				}
+				else if (loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())
+						&& customerTicketVO.getTicketAssignedType()
+								.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())) {
+					if (!ticketAttachments.isEmpty()) {
+						int attachmenentSaved = getIncidentDAO(loginUser.getDbName())
+								.insertOrUpdateTicketAttachments(ticketAttachments, AppConstants.INSERT_TICKET_ATTACHMENT_QUERY);
+						if (attachmenentSaved > 0) {
+							isUploaded = true;
+						}
+					}
+				}
+				else if (loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())) {
+					if (!ticketAttachments.isEmpty()) {
+						int attachmenentSaved = getIncidentDAO(loginUser.getDbName())
+								.insertOrUpdateTicketAttachments(ticketAttachments, AppConstants.INSERT_TICKET_ATTACHMENT_QUERY);
+						if (attachmenentSaved > 0) {
+							isUploaded = true;
+						}
 					}
 				}
 			}
 			if(company!=null){
 				List<TicketAttachment> ticketAttachments = siteIncidentFileUpload(customerTicketVO.getIncidentImageList(), customerTicketVO, company, folderLocation, uploadedBy);
-				int attachmenentSaved=getIncidentDAO(user.getDbName()).insertOrUpdateTicketAttachments(ticketAttachments);
+				int attachmenentSaved=getIncidentDAO(loginUser.getDbName()).insertOrUpdateTicketAttachments(ticketAttachments, AppConstants.INSERT_TICKET_ATTACHMENT_QUERY);
 				if(attachmenentSaved>0){
 					isUploaded = true;
 				}
@@ -541,8 +600,23 @@ public class TicketServiceImpl implements TicketService {
 	
 	
 	@Override
-	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser) throws Exception {
-		List<TicketAttachment> selectedTicketAttachments = getIncidentDAO(loginUser.getDbName()).getTicketAttachments(ticketId);
+	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser, final TicketVO ticketVO) throws Exception {
+		List<TicketAttachment> selectedTicketAttachments = new ArrayList<TicketAttachment>();
+		if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) &&
+				ticketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+			selectedTicketAttachments = getIncidentDAO(loginUser.getDbName()).getTicketAttachments(ticketId, AppConstants.RSP_TICKET_ATTACHMENTS);
+		}
+		if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) &&
+				ticketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+			selectedTicketAttachments = getIncidentDAO(loginUser.getDbName()).getTicketAttachments(ticketId, AppConstants.TICKET_ATTACHMENTS);
+		}
+		if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType()) ){
+			selectedTicketAttachments = getIncidentDAO(loginUser.getDbName()).getTicketAttachments(ticketId, AppConstants.TICKET_ATTACHMENTS);
+		}
+		if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
+			selectedTicketAttachments = getIncidentDAO(loginUser.getDbName()).getTicketAttachments(ticketId, AppConstants.TICKET_ATTACHMENTS);
+		}
+
 		return selectedTicketAttachments==null?Collections.emptyList():selectedTicketAttachments;
 	}
 	
@@ -586,28 +660,42 @@ public class TicketServiceImpl implements TicketService {
 		LOGGER.info("Inside TicketServiceImpl - saveLinkedTicket");
 		CustomerSPLinkedTicketVO  customerSPLinkedTicketVO = new CustomerSPLinkedTicketVO();
 		try{
-		if(spMappingType.equalsIgnoreCase("EXT")){
-			customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
-			customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
-			customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicket);
-			customerSPLinkedTicketVO.setClosedFlag("OPEN");
-			customerSPLinkedTicketVO.setSpType("EXT");
-			customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_EXT_TICKET_MAPPING_QUERY);
-			customerSPLinkedTicketVO.setIsValidLink("VALID");
-		}
-		else if(spMappingType.equalsIgnoreCase("RSP")){
-			TicketVO ticketVo = getIncidentDAO(user.getDbName()).findRSPTicket(linkedTicket, rspAssignedTo);
-			if(StringUtils.isNotEmpty(ticketVo.getTicketNumber())){
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){	
+			if(spMappingType.equalsIgnoreCase("EXT")){
 				customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
 				customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
-				customerSPLinkedTicketVO.setRspTicketId(String.valueOf(ticketVo.getTicketId()));
 				customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicket);
 				customerSPLinkedTicketVO.setClosedFlag("OPEN");
-				customerSPLinkedTicketVO.setSpType("RSP");
-				customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_RSP_TICKET_MAPPING_QUERY);
+				customerSPLinkedTicketVO.setSpType("EXT");
+				customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_EXT_TICKET_MAPPING_QUERY);
 				customerSPLinkedTicketVO.setIsValidLink("VALID");
 			}
+			else if(spMappingType.equalsIgnoreCase("RSP")){
+				TicketVO ticketVo = getIncidentDAO(user.getDbName()).findRSPTicket(linkedTicket, rspAssignedTo);
+				if(StringUtils.isNotEmpty(ticketVo.getTicketNumber())){
+					customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
+					customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
+					customerSPLinkedTicketVO.setRspTicketId(String.valueOf(ticketVo.getTicketId()));
+					customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicket);
+					customerSPLinkedTicketVO.setClosedFlag("OPEN");
+					customerSPLinkedTicketVO.setSpType("RSP");
+					customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_RSP_TICKET_MAPPING_QUERY);
+					customerSPLinkedTicketVO.setIsValidLink("VALID");
+				}
+			}
 		}
+		else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
+			if(spMappingType.equalsIgnoreCase("EXT")){
+				customerSPLinkedTicketVO.setCustTicketId(String.valueOf(custTicket));
+				customerSPLinkedTicketVO.setCustTicketNumber(custTicketNumber);
+				customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicket);
+				customerSPLinkedTicketVO.setClosedFlag("OPEN");
+				customerSPLinkedTicketVO.setSpType("EXT");
+				customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveLinkedTicket(customerSPLinkedTicketVO, user, AppConstants.INSERT_EXT_TICKET_MAPPING_QUERY);
+			}
+		}
+		
+	
 		}catch(Exception e){
 			//e.printStackTrace();
 			if(e.getMessage().contains("Duplicate")){
@@ -619,9 +707,42 @@ public class TicketServiceImpl implements TicketService {
 		LOGGER.info("Exit TicketServiceImpl - saveLinkedTicket");
 		return customerSPLinkedTicketVO;
 	}
+	
+	@Override
+	public CustomerSPLinkedTicketVO saveRSPLinkedTicket(Long parentRspTicketId, Long linkedTicketId,
+			String linkedTicketType, String linkedTicketNumber, LoginUser user) throws Exception {
+			CustomerSPLinkedTicketVO  customerSPLinkedTicketVO = new CustomerSPLinkedTicketVO();
+			if (user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())) {
+				LOGGER.info("Saving RSP Customer Linked Ticket ");
+				customerSPLinkedTicketVO.setRspTicketLongId(parentRspTicketId);
+				if(linkedTicketType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+					customerSPLinkedTicketVO.setLinkedCTticketId(linkedTicketId);
+					customerSPLinkedTicketVO.setLinkedTicketType("CT");
+					customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicketNumber);
+					customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveRSPLinkedTicket(customerSPLinkedTicketVO, user,
+							AppConstants.INSERT_RSP_CUST_LINKED_TICKET_QUERY);
+				}
+				else if(linkedTicketType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+					LOGGER.info("Saving RSP Company Linked Ticket ");
+					customerSPLinkedTicketVO.setLinkedRspTicketId(linkedTicketId);
+					customerSPLinkedTicketVO.setLinkedTicketType("SP");
+					customerSPLinkedTicketVO.setSpLinkedTicket(linkedTicketNumber);
+					customerSPLinkedTicketVO = getIncidentDAO(user.getDbName()).saveRSPLinkedTicket(customerSPLinkedTicketVO, user,
+							AppConstants.INSERT_RSP_LINKED_TICKET_QUERY);
+				}
+				
+				if(customerSPLinkedTicketVO.getId()!=null){
+					customerSPLinkedTicketVO.setStatusId(200l);
+				}
+			}
+
+		return customerSPLinkedTicketVO;
+		
+	}
 
 	@Override
 	public List<CustomerSPLinkedTicketVO> getAllLinkedTickets(Long custTicketId, LoginUser loginUser) throws Exception {
+		
 		List<CustomerSPLinkedTicketVO> customerSPLinkedTickets = getIncidentDAO(loginUser.getDbName()).findByCustTicketIdAndDelFlag(custTicketId);
 		return customerSPLinkedTickets== null?Collections.emptyList():customerSPLinkedTickets;
 	}
@@ -695,13 +816,25 @@ public class TicketServiceImpl implements TicketService {
 		return savedTicketEscVO;
 	}
 	@Override
-	public List<Financials> findFinanceByTicketId(Long ticketId, LoginUser user) {
+	public List<Financials> findFinanceByTicketId(Long ticketId, LoginUser user, final String ticketAssignedType) {
+		List<Financials> financials=new ArrayList<Financials>();
 		try {
-			return getIncidentDAO(user.getDbName()).getTicketFinancials(ticketId,user);
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType()) ||  
+					user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
+				financials = getIncidentDAO(user.getDbName()).getTicketFinancials(ticketId,user, AppConstants.TICKET_FINANCE_SELECT_QUERY);
+			}
+			else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				 if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+					 financials =getIncidentDAO(user.getDbName()).getTicketFinancials(ticketId,user, AppConstants.TICKET_FINANCE_SELECT_QUERY);
+				 }
+				 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+					 financials =getIncidentDAO(user.getDbName()).getTicketFinancials(ticketId,user, AppConstants.RSP_TICKET_FINANCE_SELECT_QUERY);
+				 }
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
 		}
+		return financials;
 	}
 
 /*	
@@ -720,37 +853,71 @@ public class TicketServiceImpl implements TicketService {
 
 	@Override
 	@Transactional
-	public List<Financials> save(List<Financials> finList, LoginUser user) {
+	public List<Financials> save(List<Financials> finList, LoginUser user, final String ticketAssignedType) {
 		List<Financials> financials=new ArrayList<Financials>();
 		try {
-			for (Financials fin : finList) {
-				if (fin.getId() != null) {
-					Financials savedFinancial = getIncidentDAO(user.getDbName()).getTicketFinanceById(fin.getId(),user);
-					org.springframework.beans.BeanUtils.copyProperties(fin, savedFinancial);
-					savedFinancial.setModifiedOn(new Date());
-					savedFinancial.setModifiedBy(user.getUsername());
-					Financials editedFinance = getIncidentDAO(user.getDbName()).updateFinance(savedFinancial, user);
-					if(editedFinance!=null){
-						financials.add(editedFinance);
-					}
-				} else {
-					fin.setCreatedBy(user.getUsername());
-					Financials savedFinance= getIncidentDAO(user.getDbName()).saveFinance(fin, user);
-					if(savedFinance!=null){
-						financials.add(savedFinance);
-					}
-				}
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType()) || 
+					user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
+				financials = customerTicketFinanceOperation(finList, user, financials);
+		 }else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			 if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+				 financials = customerTicketFinanceOperation(finList, user, financials);
+			 }
+			 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+				 for (Financials fin : finList) {
+						if (fin.getId() != null) {
+							Financials savedFinancial = getIncidentDAO(user.getDbName()).getTicketFinanceById(fin.getId(),user, AppConstants.RSP_TICKET_FINANCE_BY_ID);
+							org.springframework.beans.BeanUtils.copyProperties(fin, savedFinancial);
+							savedFinancial.setModifiedOn(new Date());
+							savedFinancial.setModifiedBy(user.getUsername());
+							Financials editedFinance = getIncidentDAO(user.getDbName()).updateFinance(savedFinancial, user, AppConstants.RSP_TICKET_FINANCE_UPDATE_QUERY);
+							if(editedFinance!=null){
+								financials.add(editedFinance);
+							}
+						} else {
+							fin.setCreatedBy(user.getUsername());
+							Financials savedFinance= getIncidentDAO(user.getDbName()).saveFinance(fin, user, AppConstants.RSP_TICKET_FINANCE_INSERT_QUERY);
+							if(savedFinance!=null){
+								financials.add(savedFinance);
+							}
+						}
 
-			}
+					}
+			 }
+		 }
 		} catch (Exception e) {
 			LOGGER.error("ERROR while updating Financials ", e);
 		}
 		return financials == null ? Collections.emptyList():financials;
 	}
 
+	private List<Financials> customerTicketFinanceOperation(List<Financials> finList, LoginUser user, List<Financials> financials)
+			throws Exception {
+		for (Financials fin : finList) {
+			if (fin.getId() != null) {
+				Financials savedFinancial = getIncidentDAO(user.getDbName()).getTicketFinanceById(fin.getId(),user, AppConstants.TICKET_FINANCE_BY_ID);
+				org.springframework.beans.BeanUtils.copyProperties(fin, savedFinancial);
+				savedFinancial.setModifiedOn(new Date());
+				savedFinancial.setModifiedBy(user.getUsername());
+				Financials editedFinance = getIncidentDAO(user.getDbName()).updateFinance(savedFinancial, user, AppConstants.TICKET_FINANCE_UPDATE_QUERY);
+				if(editedFinance!=null){
+					financials.add(editedFinance);
+				}
+			} else {
+				fin.setCreatedBy(user.getUsername());
+				Financials savedFinance= getIncidentDAO(user.getDbName()).saveFinance(fin, user, AppConstants.TICKET_FINANCE_INSERT_QUERY);
+				if(savedFinance!=null){
+					financials.add(savedFinance);
+				}
+			}
+
+		}
+		return financials == null ? Collections.emptyList():financials;
+	}
+
 	@Override
 	@Transactional
-	public List<Financials> saveAndUpdate(List<FinancialVO> financialVOList, LoginUser user) {
+	public List<Financials> saveAndUpdate(List<FinancialVO> financialVOList, LoginUser user, String ticketAssignedType) {
 			List<Financials> financials=new ArrayList<Financials>();
 			for(FinancialVO finVO : financialVOList){
 				Financials fin = new Financials();
@@ -777,12 +944,12 @@ public class TicketServiceImpl implements TicketService {
 				}
 				
 			}
-			List<Financials> savedFinanceList= save(financials, user);
+			List<Financials> savedFinanceList= save(financials, user, ticketAssignedType);
 			return savedFinanceList == null ?Collections.emptyList():savedFinanceList;
 	}
 
 	@Override
-	public List<Financials> saveFinancials(List<FinUpdReqBodyVO> finVOList, LoginUser user) {
+	public List<Financials> saveFinancials(List<FinUpdReqBodyVO> finVOList, LoginUser user, String ticketAssignedType) {
 		List<Financials> financialList = new ArrayList<Financials>();
 		finVOList.forEach(FinupdVO -> {
 			if (FinupdVO.getCostId()!=null) {
@@ -800,13 +967,25 @@ public class TicketServiceImpl implements TicketService {
 				financialList.add(fin);
 			}
 		});
-		List<Financials> savedFinanceList = save(financialList, user);
+		List<Financials> savedFinanceList = save(financialList, user, ticketAssignedType);
 		return savedFinanceList == null ?Collections.emptyList():savedFinanceList;
 	}
 
 	@Override
-	public boolean deleteFinanceCostById(Long costId, LoginUser user) throws Exception {
-		return getIncidentDAO(user.getDbName()).deleteFinanceCostById(costId,user);
+	public boolean deleteFinanceCostById(Long costId, LoginUser user, String ticketAssignedType) throws Exception {
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType()) && 
+				user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
+			return getIncidentDAO(user.getDbName()).deleteFinanceCostById(costId,user, AppConstants.DELETE_TICKET_FINANCE_BY_ID);
+		}
+		else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+					return getIncidentDAO(user.getDbName()).deleteFinanceCostById(costId,user, AppConstants.RSP_DELETE_TICKET_FINANCE_BY_ID);
+				}
+				else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+					return getIncidentDAO(user.getDbName()).deleteFinanceCostById(costId,user, AppConstants.DELETE_TICKET_FINANCE_BY_ID);
+				}
+			}
+		return false;
 	}
 
 	@Override
@@ -827,6 +1006,39 @@ public class TicketServiceImpl implements TicketService {
 		return rspSuggestedTicket == null?Collections.emptyList():rspSuggestedTicket;
 	}
 
+	@Override
+	public List<TicketVO> getRSPSuggestedTicketForAsset(LoginUser loginUser,Long assetId, TicketVO ticketVO) throws Exception {
+		List<TicketVO> rspSuggestedTicket = getIncidentDAO(loginUser.getDbName()).findRSPReferenceTickets(assetId, loginUser.getCompany().getCompanyId(), ticketVO.getTicketNumber());
+		for(TicketVO suggestedTicket: rspSuggestedTicket){
+			suggestedTicket.setTicketAssignedType("RSP");
+		}
+		return rspSuggestedTicket == null?Collections.emptyList():rspSuggestedTicket;
+	}
+
+	@Override
+	public List<TicketVO> getCustomerSuggestedTicketForAsset(LoginUser loginUser,Long assetId) throws Exception {
+		List<TicketVO> customerSuggestedTicket = getIncidentDAO(loginUser.getDbName()).findCustomerSuggestedTickets(assetId, loginUser.getCompany().getCompanyId());
+		for(TicketVO suggestedTicket: customerSuggestedTicket){
+			suggestedTicket.setTicketAssignedType("CUSTOMER");
+		}
+		return customerSuggestedTicket == null?Collections.emptyList():customerSuggestedTicket;
+	}
+
+	@Override
+	public List<CustomerSPLinkedTicketVO> getRSPLinkedTickets(LoginUser loginUser, Long parentTicketId, String linkedTicketType)
+			throws Exception {
+		List<CustomerSPLinkedTicketVO> customerSPLinkedTickets = new ArrayList<CustomerSPLinkedTicketVO>();
+		if(linkedTicketType.equalsIgnoreCase("CT")){
+			customerSPLinkedTickets =  getIncidentDAO(loginUser.getDbName()).findLinkedTicketForRSP(parentTicketId, linkedTicketType, AppConstants.RSP_CUSTOMER_LINKED_TICKETS);
+		}
+		else if(linkedTicketType.equalsIgnoreCase("SP")){
+			customerSPLinkedTickets =  getIncidentDAO(loginUser.getDbName()).findLinkedTicketForRSP(parentTicketId, linkedTicketType, AppConstants.RSP_COMPANY_LINKED_TICKETS);
+		}
+		
+		return customerSPLinkedTickets== null?Collections.emptyList():customerSPLinkedTickets;
+	}
+
+	
 	
 
 }

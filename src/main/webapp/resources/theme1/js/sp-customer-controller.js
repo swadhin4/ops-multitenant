@@ -127,6 +127,15 @@ chrisApp.controller('spCustomerController',
 					$('#previewIncidentModal').modal('show');
 					
 				}
+				$scope.previewSelectedSiteInfo=function(val){
+					$scope.getSiteDetails(val);
+					$('#previewSiteModal').modal('show');
+				}
+				
+				$scope.previewSelectedAssetInfo=function(val){
+					$scope.getAssetDetails(val);
+					$('#previewAssetModal').modal('show');
+				}
 				
 				$scope.setTicketinSession=function(ticket){
 					var connectedDB = $scope.selectedCustList[0].custDBName;
@@ -205,7 +214,11 @@ chrisApp.controller('spCustomerController',
 				$scope.checkTicketsAssignedOrCreated=function(ticketType){
 					console.log(ticketType);
 						$scope.siteList=[];
+						$scope.assetList=[];
 						$scope.ticketCreatedOrAssigned=ticketType;
+						//keep this type to show task tab or not in update incident.
+						$.jStorage.set('ticketType', ticketType);
+						//End
 						if($scope.ticketCreatedOrAssigned=="RSP"){
 							$scope.findTicketsCreated();
 						}else{
@@ -223,10 +236,13 @@ chrisApp.controller('spCustomerController',
 					}
 					else if($scope.pageViewFor=="SITES"){
 						$scope.spCustomerIncidentList.list=[];
+						$scope.assetList=[];
 						$scope.getSiteData();
 					}
 					if($scope.pageViewFor=="ASSETS"){
-						
+						$scope.spCustomerIncidentList.list=[];
+						$scope.siteList=[];
+						$scope.getAssetData();
 					}
 				}
 				$scope.getSpCustomerList=function(){
@@ -289,6 +305,7 @@ chrisApp.controller('spCustomerController',
 						//console.log("countryName",$scope.selectedCustList[0].countryName);
 						var encodedString = window.btoa($scope.selectedCustList[0].custDBName); 
 						$scope.spCustomerList.selected = encodedString ;
+						$.jStorage.set("selectedRSPCustomer", $scope.selectedCustList[0]);
 						$.jStorage.set("selectedCustomer", $scope.spCustomerList.selected);
 						$.jStorage.set("selectedCustomerCode", $scope.selectedCustList[0].custCode);
 						$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
@@ -310,6 +327,9 @@ chrisApp.controller('spCustomerController',
 				userService.getSPCustomerTicketList(spCode,dbName)
 				.then(function(data) {
 					console.log("getSPCustomerTicketList----->",data)
+					//keep this type to show task tab or not in update incident.
+					$.jStorage.set('ticketType', 'CUSTOMER');
+					//End
 					if (data.statusCode == 200) {
 						$scope.spCustomerIncidentList.list = [];
 						if (data.object.length > 0) {
@@ -529,20 +549,37 @@ chrisApp.controller('spCustomerController',
 			//For Asset Requirement
 				
 				$scope.getAssetData =function(){
-					authService.loggedinUserAccess()
-		    		.then(function(data) {
-		    			
-		    			if(data.statusCode == 200){
-		    				$scope.sessionUser=data;
-		    				$scope.getLoggedInUser($scope.sessionUser);
-		    				
-		    			}
-		            },
-		            function(data) {
-		                console.log('Unauthorized Access.')
-		            }); 
-					
+					var custCompCode = $scope.selectedCustList[0].custCode;
+					$('#loadingDiv').show();
+					siteService.retrieveAssetsForRSP(custCompCode)
+						.then(function(data) {
+		    			console.log(data)
+		    				$scope.assetList=[];
+		    				if(data.statusCode==200){
+		    					$.each(data.object,function(key,val){
+		    						$scope.assetList.push(val);
+		    					});
+		    				}
+		    				$('#loadingDiv').hide();
+						},
+    				 function(data) {
+						console.log(data);	
+	    				$('#loadingDiv').hide();
+ 		            });
+				
 			    }
+				
+				$scope.getAssetDetails=function(asset){
+					 siteService.getAssetInfo(asset.assetId)
+					 .then(function(data){
+						 console.log(data);
+						if(data.statusCode == 200){
+							$scope.selectedAsset=angular.copy(data.object);
+						} 
+					 },function(data){
+						 console.log(data);
+					 });
+				}
 			 
 	/*			$scope.getSelectedSiteAssets=function(selectedSite){
 					 $('#loadingDiv').show();

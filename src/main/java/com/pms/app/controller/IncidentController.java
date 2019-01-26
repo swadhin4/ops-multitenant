@@ -546,40 +546,16 @@ public class IncidentController extends BaseController {
 								response.setObject2(rspSuggestedTickets);
 							}
 						}
-
-						List<EscalationLevelVO> escalationLevelVOs = selectedTicketVO.getEscalationLevelList();
-						if (escalationLevelVOs.isEmpty()) {
-
-						} else {
-							List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
-							for (EscalationLevelVO escalationVO : escalationLevelVOs) {
-								TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(
-										selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser,
-										selectedTicketVO.getTicketAssignedType());
-								EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
-								if (ticketEscalationVO.getCustEscId() != null) {
-									tempEscalationVO.setStatus("Escalated");
-								}
-								tempEscalationVO.setEscId(escalationVO.getEscId());
-								tempEscalationVO.setEscalationEmail(escalationVO.getEscalationEmail());
-								tempEscalationVO.setEscalationLevel(escalationVO.getEscalationLevel());
-								tempEscalationVO.setServiceProdviderId(escalationVO.getServiceProdviderId());
-								tempEscalationVO.setEscalationPerson(escalationVO.getEscalationPerson());
-								finalEscalationList.add(tempEscalationVO);
-							}
-
-							selectedTicketVO.setEscalationLevelList(finalEscalationList);
-						}
-					
-						List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),
-								loginUser);
+						selectedTicketVO = getSelectedTicketEscalations(loginUser, selectedTicketVO);
+						List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),	loginUser, selectedTicketVO.getTicketAssignedType());
 						selectedTicketVO.setFinancialList(finacialsList);
-						
-						
 					}
 					else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
 						logger.info("Getting selected ticket from customer DB");
 						selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(), loginUser);
+						selectedTicketVO = getSelectedTicketEscalations(loginUser, selectedTicketVO);
+						List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),	loginUser, selectedTicketVO.getTicketAssignedType());
+						selectedTicketVO.setFinancialList(finacialsList);
 					}
 					else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
 						String custDBName = (String) session.getAttribute("selectedCustomerDB");
@@ -587,13 +563,18 @@ public class IncidentController extends BaseController {
 						logger.info("Getting selected ticket from RSP DB");
 							if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())) {
 								loginUser.setDbName(custDBName);
-								selectedTicketVO = ticketSerice.getRSPCreatedSelectedTicket(selectedTicketVO.getTicketId(),
-										loginUser);
+								selectedTicketVO = ticketSerice.getRSPCreatedSelectedTicket(selectedTicketVO.getTicketId(),	loginUser);
+								selectedTicketVO = getSelectedTicketEscalations(loginUser, selectedTicketVO);
+								selectedTicketVO.setTicketAssignedType(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType());
+								List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),	loginUser, selectedTicketVO.getTicketAssignedType());
+								selectedTicketVO.setFinancialList(finacialsList);
 							} else if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())) {
 								loginUser.setDbName(custDBName);
-								selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(),
-										loginUser);
+								selectedTicketVO = ticketSerice.getSelectedTicket(selectedTicketVO.getTicketId(),loginUser);
+								selectedTicketVO = getSelectedTicketEscalations(loginUser, selectedTicketVO);
 								selectedTicketVO.setTicketAssignedType(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType());
+								List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),	loginUser, selectedTicketVO.getTicketAssignedType());
+								selectedTicketVO.setFinancialList(finacialsList);
 							}
 						}
 					}
@@ -619,6 +600,33 @@ public class IncidentController extends BaseController {
 		return responseEntity;
 	}
 
+	private TicketVO getSelectedTicketEscalations(LoginUser loginUser, TicketVO selectedTicketVO) throws Exception {
+		List<EscalationLevelVO> escalationLevelVOs = selectedTicketVO.getEscalationLevelList();
+		if (escalationLevelVOs.isEmpty()) {
+
+		} else {
+			List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
+			for (EscalationLevelVO escalationVO : escalationLevelVOs) {
+				TicketEscalationVO ticketEscalationVO = ticketSerice.getEscalationStatus(
+						selectedTicketVO.getTicketId(), escalationVO.getEscId(), loginUser,
+						selectedTicketVO.getTicketAssignedType());
+				EscalationLevelVO tempEscalationVO = new EscalationLevelVO();
+				if (ticketEscalationVO.getCustEscId() != null) {
+					tempEscalationVO.setStatus("Escalated");
+				}
+				tempEscalationVO.setEscId(escalationVO.getEscId());
+				tempEscalationVO.setEscalationEmail(escalationVO.getEscalationEmail());
+				tempEscalationVO.setEscalationLevel(escalationVO.getEscalationLevel());
+				tempEscalationVO.setServiceProdviderId(escalationVO.getServiceProdviderId());
+				tempEscalationVO.setEscalationPerson(escalationVO.getEscalationPerson());
+				finalEscalationList.add(tempEscalationVO);
+			}
+
+			selectedTicketVO.setEscalationLevelList(finalEscalationList);
+		}
+		return selectedTicketVO;
+	}
+
 	@RequestMapping(value = "/file/attachments/{ticketId}", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<RestResponse> getTicketAttachments(@PathVariable(value = "ticketId") Long ticketId,
 			HttpSession session) throws Exception {
@@ -630,10 +638,10 @@ public class IncidentController extends BaseController {
 			String custDBName = (String) session.getAttribute("selectedTicketDB");
 			List<TicketAttachment> fileAttachments = new ArrayList<TicketAttachment>();
 			if (StringUtils.isEmpty(custDBName)) {
-				fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser);
+				fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser, selectedTicketVO);
 			} else {
 				loginUser.setDbName(custDBName);
-				fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser);
+				fileAttachments = ticketSerice.findByTicketId(ticketId, loginUser, selectedTicketVO);
 			}
 			if (fileAttachments == null) {
 				logger.info("Not Ticket Attachment for " + ticketId);
@@ -747,6 +755,7 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
+				
 				List<CustomerSPLinkedTicketVO> spLinkedTickets = ticketSerice.getAllLinkedTickets(ticketId, loginUser);
 				boolean isSPTicketLinked = false;
 				if(spLinkedTickets.isEmpty()){
@@ -786,6 +795,7 @@ public class IncidentController extends BaseController {
 
 		return responseEntity;
 	}
+	
 
 	@RequestMapping(value = "/linkedticket/list/{custTicketId}", method = RequestMethod.GET)
 	public ResponseEntity<RestResponse> listLinkedTickets(final ModelMap model, final HttpServletRequest request,
@@ -1001,10 +1011,10 @@ public class IncidentController extends BaseController {
 		try {
 			if (loginUser != null) {
 				List<FinUpdReqBodyVO> finVOList = getFinancialVOList(finVO);
-				List<Financials> financials = ticketSerice.saveFinancials(finVOList, loginUser);
+				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+				List<Financials> financials = ticketSerice.saveFinancials(finVOList, loginUser, selectedTicketVO.getTicketAssignedType());
 				if (!financials.isEmpty()) {
-					TicketVO sessionTicket = (TicketVO) session.getAttribute("selectedTicket");
-					sessionTicket.setFinancialList(financials);
+					selectedTicketVO.setFinancialList(financials);
 					response.setStatusCode(200);
 					response.setObject(financials);
 					response.setMessage("Cost Item(s) Updated successfully");
@@ -1063,6 +1073,7 @@ public class IncidentController extends BaseController {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		try {
 			if (loginUser != null) {
+				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
 				JSONArray jsonArray = new JSONArray(finVO);
 				int successCount = 0;
 				int failureCount = 0;
@@ -1070,7 +1081,7 @@ public class IncidentController extends BaseController {
 					JSONObject explrObject = jsonArray.getJSONObject(i);
 					if (explrObject.getBoolean("isDeleteCheck") == true) {
 						boolean resp;
-						resp = ticketSerice.deleteFinanceCostById(explrObject.getLong("costId"), loginUser);
+						resp = ticketSerice.deleteFinanceCostById(explrObject.getLong("costId"), loginUser, selectedTicketVO.getTicketAssignedType());
 						if (resp == true) {
 							successCount++;
 						} else {
@@ -1102,4 +1113,149 @@ public class IncidentController extends BaseController {
 
 		return responseEntity;
 	}
+	
+	@RequestMapping(value = "/suggestion/list", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getRSPSuggestionList(HttpSession session) throws Exception {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+				String custDBName = (String) session.getAttribute("selectedCustomerDB");
+				if (StringUtils.isNotEmpty(custDBName)) {
+					loginUser.setDbName(custDBName);
+					List<TicketVO> rspReferenceTickets = ticketSerice.getRSPSuggestedTicketForAsset(loginUser,
+							selectedTicketVO.getAssetId(), selectedTicketVO);
+					List<TicketVO> customerReferenceTickets = ticketSerice.getCustomerSuggestedTicketForAsset(loginUser,
+							selectedTicketVO.getAssetId());
+					if (!rspReferenceTickets.isEmpty()) {
+						response.setObject(rspReferenceTickets);
+					}
+					if (!customerReferenceTickets.isEmpty()) {
+						response.setObject2(customerReferenceTickets);
+					}
+					response.setStatusCode(200);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				} else {
+					response.setStatusCode(204);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.EXPECTATION_FAILED);
+				}
+
+			} else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			response.setStatusCode(500);
+			response.setMessage("Exception failed.Please try again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return responseEntity;
+	}
+	@RequestMapping(value = "/rsp/linkedticket/save/{parentTicketId}/{linkedTicketId}/{linkedTicketType}/{linkedTicketNumber}", method = RequestMethod.GET)
+	public ResponseEntity<RestResponse> linked(final ModelMap model, HttpServletRequest request, HttpSession session,
+			@PathVariable(value = "parentTicketId") Long parentTicketId, 
+			@PathVariable(value = "linkedTicketId") Long linkedTicketId,
+			@PathVariable(value = "linkedTicketType") String linkedTicketType,
+			@PathVariable(value = "linkedTicketNumber") String linkedTicketNumber) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				CustomerSPLinkedTicketVO savedTicketLinked = ticketSerice.saveRSPLinkedTicket(parentTicketId, linkedTicketId, linkedTicketType, linkedTicketNumber, loginUser);
+				if (savedTicketLinked.getId() != null) {
+					response.setStatusCode(200);
+					response.setMessage("Ticket number "+ linkedTicketNumber +" linked successfully" );
+					response.setObject(savedTicketLinked);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+				/*List<CustomerSPLinkedTicketVO> spLinkedTickets = ticketSerice.getRSPAllLinkedTickets(parentTicketId, loginUser, linkedTicketType);
+				boolean isSPTicketLinked = false;
+				if(spLinkedTickets.isEmpty()){
+					isSPTicketLinked = true;
+				}else{
+					for(CustomerSPLinkedTicketVO spLinkedTicket: spLinkedTickets){
+						if(spLinkedTicket.getSpLinkedTicket().equalsIgnoreCase(linkedTicketNumber)){
+							isSPTicketLinked = false;
+							break;
+						}else{
+							isSPTicketLinked = true;
+						}
+					}
+				}	
+				if(isSPTicketLinked){
+					CustomerSPLinkedTicketVO savedTicketLinked = ticketSerice.saveRSPLinkedTicket(parentTicketId, linkedTicketId, linkedTicketType, loginUser);
+					if (savedTicketLinked.getId() != null) {
+						response.setStatusCode(200);
+						response.setObject(savedTicketLinked);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
+				}else{
+					response.setStatusCode(204);
+					response.setMessage("Ticket number is already linked.");
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}*/
+			} else {
+				response.setStatusCode(204);
+				response.setMessage("Ticket number is already linked.");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+			}
+		} catch (Exception e) {
+			response.setStatusCode(500);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+			logger.info("Exception while escalations", e);
+		}
+
+		return responseEntity;
+	}
+
+	@RequestMapping(value = "/rsp/linkedticket/list/{parentTicketId}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getRSPLinkedTickedtist(HttpSession session,@PathVariable(value = "parentTicketId") Long parentTicketId) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+				String custDBName = (String) session.getAttribute("selectedCustomerDB");
+				if (StringUtils.isNotEmpty(custDBName)) {
+					loginUser.setDbName(custDBName);
+					if(selectedTicketVO.getTicketId().equals(parentTicketId)){
+						String linkedTicketType=null;
+						if(selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+							linkedTicketType="CT";
+						}
+						if(selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+							linkedTicketType="SP";
+						}
+						List<CustomerSPLinkedTicketVO> rspLinkedTickets = ticketSerice.getRSPLinkedTickets(loginUser,parentTicketId,linkedTicketType);
+						if(!rspLinkedTickets.isEmpty()){
+							response.setStatusCode(200);
+							response.setObject(rspLinkedTickets);
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}
+					}
+				} else {
+					response.setStatusCode(204);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.EXPECTATION_FAILED);
+				}
+
+			} else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			response.setStatusCode(500);
+			response.setMessage("Exception failed.Please try again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return responseEntity;
+	}
+	
 }

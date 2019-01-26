@@ -1057,57 +1057,57 @@ background:#deefe5
     </div>
 
 </div>
-															</div>
-															</div>
-														</div>
-														<div class="col-md-6">
-														  <div class="box">
-											           		 <div class="box-header">
-											             		 <h3 class="box-title">Add file to upload. image/*,.pdf only.</h3>
-											             		 <a href ng-click="addNewImage()"><span class="badge pull-right"><i style="font-size:1.5em;color:#fff"
-																				class="fa fa-plus-circle"  aria-hidden="true"></i> Add File</span></a>
-															</div>
-															 <div class="box-body table-responsive no-padding">
-																	<form role="form">
-																		<div class="controls">
-											             					 <table class="table table-hover">
-																				<tbody>
-																					<tr
-																						ng-repeat="incidentImage in incidentImageList">
-																						<td><input type="file"
-																							id="incidentImage{{$index}}"
-																							class="form-control"
-																							name="incidentImage[{{$index}}]"
-																							accept="image/*,.doc, .docx,.pdf"
-																							onchange="angular.element(this).scope().getIndexedName(this, event)"
-																							style="width: 80%"></td>
-																						<td><span id="imgsize{{$index}}"
-																							class="badge"></span></td>
-																						<td><a class="btn btn-danger" href
-																							ng-click="removeImage($index)"> <i
-																								class="fa fa-trash-o" aria-hidden="true"
-																								style="font-size: 1.4em;"></i>
-																						</a></td>
-																					</tr>
-																				</tbody>
-																			</table>
-																		   </div>
-																		   <span class="badge" id="totalSize"></span>
-																			<button type="button" class="btn btn-success pull-right" ng-if="incidentImageList.length>0"
-																			ng-click="uploadFiles('EDIT')" value="Upload"
-																			id="btnUpload">Upload</button>
-																	</form>
-																	</div>
-																	</div>
-																</div>
-													</div>		
+						</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+					  <div class="box">
+		           		 <div class="box-header">
+		             		 <h3 class="box-title">Add file to upload. image/*,.pdf only.</h3>
+		             		 <a href ng-click="addNewImage()"><span class="badge pull-right"><i style="font-size:1.5em;color:#fff"
+											class="fa fa-plus-circle"  aria-hidden="true"></i> Add File</span></a>
+						</div>
+						 <div class="box-body table-responsive no-padding">
+								<form role="form">
+									<div class="controls">
+		             					 <table class="table table-hover">
+											<tbody>
+												<tr
+													ng-repeat="incidentImage in incidentImageList">
+													<td><input type="file"
+														id="incidentImage{{$index}}"
+														class="form-control"
+														name="incidentImage[{{$index}}]"
+														accept="image/*,.doc, .docx,.pdf"
+														onchange="angular.element(this).scope().getIndexedName(this, event)"
+														style="width: 80%"></td>
+													<td><span id="imgsize{{$index}}"
+														class="badge"></span></td>
+													<td><a class="btn btn-danger" href
+														ng-click="removeImage($index)"> <i
+															class="fa fa-trash-o" aria-hidden="true"
+															style="font-size: 1.4em;"></i>
+													</a></td>
+												</tr>
+											</tbody>
+										</table>
+									   </div>
+									   <span class="badge" id="totalSize"></span>
+										<button type="button" class="btn btn-success pull-right" ng-if="incidentImageList.length>0"
+										ng-click="uploadFiles('EDIT')" value="Upload"
+										id="btnUpload">Upload</button>
+								</form>
+								</div>
+								</div>
+							</div>
+				</div>		
 												</div>
-											<div class="tab-pane" id="tickethistory">
-												<div class="box" >
+											<div class="tab-pane" id="tickethistory" >
+												<!-- <div class="box" >
 													<div class="box-header with-border">
 														<h3 class="box-title">Ticket History</h3>
-													</div>
-													<div class="box-body" >
+													</div> -->
+													<div class="box-body" style="height:450px; overflow-x:hidden;overflow-y:auto">
 														<!-- <div class="table-responsive"> -->
 															<div class="row">
 																	<!-- The time line -->
@@ -1149,7 +1149,7 @@ background:#deefe5
 														<!-- </div> -->
 													</div>
 
-												</div>
+												<!-- </div> -->
 											</div>
 
 

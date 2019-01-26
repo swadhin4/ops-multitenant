@@ -36,7 +36,7 @@ public interface TicketService {
 	
 	public TicketVO getRSPCreatedSelectedTicket(Long ticketId,LoginUser loginUser) throws Exception;
 
-	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser) throws Exception;
+	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser, final TicketVO ticketVO) throws Exception;
 
 	public TicketCommentVO saveTicketComment(TicketCommentVO ticketCommentVO, LoginUser loginUser) throws Exception;
 
@@ -54,6 +54,8 @@ public interface TicketService {
 
 	public CustomerSPLinkedTicketVO saveLinkedTicket(Long custTicket, String custTicketNumber, String linkedTicket,
 			LoginUser user, String spMappingType, Long rspAssginedTo) throws Exception;
+	
+	public CustomerSPLinkedTicketVO saveRSPLinkedTicket(Long parentRspTicketId, Long linkedTicketId, String linkedTicketType, String linkedTicketNumber, LoginUser user) throws Exception;
 
 	public TicketEscalationVO saveTicketEscalations(TicketEscalationVO ticketEscalationLevel, LoginUser user) throws Exception;
 
@@ -61,23 +63,30 @@ public interface TicketService {
 
 	public TicketEscalationVO getEscalationStatus(Long ticketId, Long escId, LoginUser user, String spType) throws Exception;
 
-	public List<Financials> saveFinancials(List<FinUpdReqBodyVO> finVOList, LoginUser user) throws Exception;
+	public List<Financials> saveFinancials(List<FinUpdReqBodyVO> finVOList, LoginUser user, String ticketAssignedType) throws Exception;
 
-	List<Financials> saveAndUpdate(List<FinancialVO> financialVOList, LoginUser user) throws Exception;
+	List<Financials> saveAndUpdate(List<FinancialVO> financialVOList, LoginUser user, String ticketAssignedType) throws Exception;
 
-	List<Financials> save(List<Financials> finList, LoginUser user) throws Exception;
+	List<Financials> save(List<Financials> finList, LoginUser user, String ticketAssignedType) throws Exception;
 
-	List<Financials> findFinanceByTicketId(Long ticketId, LoginUser user) throws Exception;
+	List<Financials> findFinanceByTicketId(Long ticketId, LoginUser user, String ticketAssignedType) throws Exception;
 
 	List<TicketVO> getAllSPTickets(LoginUser loginUser) throws Exception;
 
-	public boolean deleteFinanceCostById(Long costId, LoginUser user) throws Exception;
+	public boolean deleteFinanceCostById(Long costId, LoginUser user, String ticketAssignedType) throws Exception;
 
 	public List<TicketVO> getTicketsForSP(LoginUser loginUser, String ticketCreatedBy, String custDBName) throws Exception;
 
 	public EscalationLevelVO getSPEscalationLevels(Long escId, LoginUser loginUser, String ticketAssignedType) throws Exception;
 
 	public  List<TicketVO> getSuggestedTicketForAsset(LoginUser loginUser,Long assetId)  throws Exception;
+
+
+	List<TicketVO> getRSPSuggestedTicketForAsset(LoginUser loginUser, Long assetId, TicketVO ticketVO) throws Exception;
+
+	List<TicketVO> getCustomerSuggestedTicketForAsset(LoginUser loginUser, Long assetId) throws Exception;
+
+	public List<CustomerSPLinkedTicketVO> getRSPLinkedTickets(LoginUser loginUser, Long parentTicketId, String linkedTicketType) throws Exception;
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 

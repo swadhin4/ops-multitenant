@@ -47,7 +47,7 @@ public class AppConstants {
 			+ " left join pm_company pcomp on pcomp.company_id = pu.company_id WHERE pu.email_id = ?";
 	
 	public static final String SITE_LIST_BY_COMPANY_QUERY = "select ps.site_id, ps.site_name, ps.district_id, pd.district_name,"
-			+ " ps.area_id, pa.area_name, ps.cluster_id, pc.cluster_name, pcomp.company_id,pcomp.company_name, "
+			+ " ps.area_id, pa.area_name, ps.cluster_id, pc.cluster_name, pcomp.company_id,pcomp.company_name, ps.contact_name, ps.primary_contact_number, ps.email, "
 			+ " pcon.country_id, pcon.country_name, ps.site_owner,ps.brand_id, ps.brand_name  from pm_site ps "
 			+ " left join pm_district pd on pd.district_id=ps.district_id "
 			+ " left join pm_area pa on pa.area_id = ps.area_id "
@@ -111,6 +111,17 @@ public class AppConstants {
 			+ " left OUTER join pm_asset_location pl on pl.location_id=ps.location_id "
 			+ " left outer join pm_site p on p.site_id=ps.site_id "
 			+ " where ps.site_id in (:siteIds) ";
+	
+	public static final String RSP_ASSIGNED_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, ps.asset_desc,"
+			+ " ps.location_id, pl.location_name, ps.sp_type, p.site_name, p.site_id, ps.model_number,"
+			+ " ps.date_commissioned, ps.date_decomissioned, "
+			+ " ps.category_id, pc.category_name, ps.location_id, pl.location_name from pm_asset ps "
+			+ " left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
+			+ " left OUTER join pm_asset_location pl on pl.location_id=ps.location_id "
+			+ " left outer join pm_site p on p.site_id=ps.site_id "
+			+ " left outer join pm_company pcom on pcom.company_id=p.operator_id"
+			+ " where ps.rsp_id = ? and pcom.company_code=?";
+	
 
 	public static final String ASSET_DETAILS_QUERY = "SELECT pa.asset_id,pa.asset_name, "
 			+ " pa.asset_code, pa.model_number, pa.category_id,pac.category_name, pa.subcategory1_id,pas.asset_subcategory1, "
@@ -221,6 +232,20 @@ public class AppConstants {
 			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
 			+ " on pst.status_id=pct.status_id where pct.asset_id = :assetId ";
 	
+	public static final String CUSTOMER_TICKET_SUGGESTED_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, "
+			+ " pa.asset_name, pa.model_number, pa.asset_code, pct.created_on, "
+			+ " pct.sla_duedate, pct.rassigned_to as sp_id, psp.sp_name, pct.status_id, pst.status, pst.description, pct.created_by from pm_cust_ticket pct "
+			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
+			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
+			+ " on pst.status_id=pct.status_id where pct.asset_id = :assetId and pct.rassigned_to =:rspId ";
+	
+	public static final String RSP_TICKET_REFERENCE_LIST_QUERY="select pct.id, pct.ticket_number,pct.ticket_title,pct.ticket_desc, pct.site_id, ps.site_name,pct.asset_id, "
+			+ " pa.asset_name, pa.model_number, pa.asset_code, pct.created_on, "
+			+ " pct.sla_duedate, pct.rassigned_to as sp_id, psp.sp_name, pct.status_id, pst.status, pst.description, pct.created_by from pm_sp_tickets pct "
+			+ " left outer join pm_site ps on ps.site_id=pct.site_id left outer join pm_asset pa on pa.asset_id=pct.asset_id "
+			+ " left outer join pm_sp_registered psp on psp.sp_id=pct.rassigned_to left outer join pm_status pst "
+			+ " on pst.status_id=pct.status_id where pct.asset_id = :assetId and pct.rassigned_to =:rspId and pct.ticket_number <> :parentTicketNumber";
+	
 	public static final String TICKET_CATEGORY_QUERY ="select * from pm_ticket_category ";
 	
 	public static final String TICKETS_STATUS_QUERY ="select * from pm_status where category=?";
@@ -268,6 +293,8 @@ public class AppConstants {
 	public static final String LAST_SP_INCIDENT_NUMBER_QUERY="select id from pm_sp_tickets order by id desc limit 1"; 
 	
 	public static final String INSERT_TICKET_ATTACHMENT_QUERY = "insert into pm_cust_ticket_attachment(ticket_id,ticket_number, attachment_path, "
+			+ "created_by,created_on) values(?,?,?,?,NOW())";
+	public static final String RSP_INSERT_TICKET_ATTACHMENT_QUERY = "insert into pm_rsp_ticket_attachment(ticket_id,ticket_number, attachment_path, "
 			+ "created_by,created_on) values(?,?,?,?,NOW())";
 	
 	public static final String TICKET_SELECTED_QUERY = "SELECT "
@@ -326,6 +353,8 @@ public class AppConstants {
 			+" WHERE ct.id = ?";
 
 	public static final String TICKET_ATTACHMENTS = "select id, ticket_number, attachment_path from pm_cust_ticket_attachment where ticket_id=?";
+	
+	public static final String RSP_TICKET_ATTACHMENTS = "select id, ticket_number, attachment_path from pm_rsp_ticket_attachment where ticket_id=?";
 
 	public  static final String INSERT_TICKET_COMMENT_QUERY = "INSERT into pm_cust_ticket_comment(ticket_id,custticket_number,comment, created_by, created_date) "
 			+ " values(?,?,?,?,NOW())";
@@ -338,6 +367,24 @@ public class AppConstants {
 			+ " left outer join pm_sp_tickets psp on psp.ticket_number=pcp.spticket_no"
 			+ " left outer join pm_status ps on ps.status_id=psp.status_id"
 			+ " where cust_ticket_id=? and del_flag=0";
+	
+	public static final String RSP_COMPANY_LINKED_TICKETS = "select pcp.*,psp.ticket_number, ps.status_id, ps.description from  pm_rsp_ticket_mapping pcp "
+			+ " left outer join pm_sp_tickets psp on psp.id=pcp.linked_rsp_ticket_id"
+			+ " left outer join pm_status ps on ps.status_id=psp.status_id"
+			+ " where pcp.rsp_ticket_id=? ";
+	
+	public static final String RSP_CUSTOMER_LINKED_TICKETS = "select pcp.*,psp.ticket_number, ps.status_id, ps.description from  pm_rsp_ticket_mapping pcp "
+			+ " left outer join pm_cust_ticket psp on psp.id=pcp.linked_ct_ticket_id"
+			+ " left outer join pm_status ps on ps.status_id=psp.status_id"
+			+ " where pcp.rsp_ticket_id=?";
+	
+	public static final String INSERT_RSP_LINKED_TICKET_QUERY= "INSERT INTO pm_rsp_ticket_mapping "
+			+ " (rsp_ticket_id,linked_rsp_ticket_id,linked_ticket_number,linked_ticket_type,created_on,"
+			+ " created_by) VALUES (?,?,?,?,NOW(),?)";
+	
+	public static final String INSERT_RSP_CUST_LINKED_TICKET_QUERY= "INSERT INTO pm_rsp_ticket_mapping "
+			+ " (rsp_ticket_id,linked_ct_ticket_id,linked_ticket_number,linked_ticket_type,created_on,"
+			+ " created_by) VALUES (?,?,?,?,NOW(),?)";
 	
 	public static final String RELATED_TICKETS_QUERY = "select ct.id, ct.ticket_number, ct.ticket_title, ct.status_id, "
 			+ " sts.`status`, ct.site_id,st.site_name,ct.sla_duedate, "
@@ -381,6 +428,10 @@ public class AppConstants {
 			+ " (ticket_id, ticket_number, esc_level, escalated_by,resc_id, escalated_date)"
 			+ " values (?,?,?,?,?,NOW())";
 	
+	public static final String RSP_TICKET_ESCALATION_INSERT_QUERY = "INSERT INTO pm_rspt_escalations "
+			+ " (ticket_id, ticket_number, esc_level, escalated_by,esc_id, escalated_date)"
+			+ " values (?,?,?,?,?,NOW())";
+	
 	public static final String TICKET_ESCALATIONS = "select * from pm_ct_escalations where ticket_id=?";
 	
 	public static final String EXT_ESCALATION_BY_ESCID = "select * from pm_sp_escalation_levels where esc_id=?";
@@ -398,14 +449,19 @@ public class AppConstants {
 	public static final String RSP_ESCALATIONS_QUERY = "select esc_id, sp_id, esc_level, esc_person, esc_email from pm_rsp_escalation_levels where sp_id=?";
 	
 	public static final String TICKET_FINANCE_SELECT_QUERY= "select * from pm_cust_ticket_financials where ticket_id=?";
-	
 	public static final String TICKET_FINANCE_BY_ID= "select * from pm_cust_ticket_financials where cost_id=?";
 	public static final String DELETE_TICKET_FINANCE_BY_ID= "delete from pm_cust_ticket_financials where cost_id=?";
-	
 	public static final String TICKET_FINANCE_INSERT_QUERY= "INSERT into pm_cust_ticket_financials "
 			+ " (ticket_id, cost_name, cost, charge_back, billable, created_by) values(?, ?,?,?, ?,?)";
-	
 	public static final String TICKET_FINANCE_UPDATE_QUERY= "UPDATE  pm_cust_ticket_financials "
+			+  " set cost_name=?, cost=?, charge_back=?, billable=?, modified_by=?, modified_on=NOW() where cost_id=?";
+	
+	public static final String RSP_TICKET_FINANCE_SELECT_QUERY= "select * from pm_rsp_ticket_financials where ticket_id=?";
+	public static final String RSP_TICKET_FINANCE_BY_ID= "select * from pm_rsp_ticket_financials where cost_id=?";
+	public static final String RSP_DELETE_TICKET_FINANCE_BY_ID= "delete from pm_rsp_ticket_financials where cost_id=?";
+	public static final String RSP_TICKET_FINANCE_INSERT_QUERY= "INSERT into pm_rsp_ticket_financials "
+			+ " (ticket_id, cost_name, cost, charge_back, billable, created_by) values(?, ?,?,?, ?,?)";
+	public static final String RSP_TICKET_FINANCE_UPDATE_QUERY= "UPDATE  pm_rsp_ticket_financials "
 			+  " set cost_name=?, cost=?, charge_back=?, billable=?, modified_by=?, modified_on=NOW() where cost_id=?";
 	
 	public static final String USER_LIST_QUERY= "SELECT u.user_id,u.first_name,u.last_name,u.email_id,u.phone,"
@@ -596,7 +652,7 @@ public class AppConstants {
 			+ " left join pm_asset_subcategory1 pas on pa.subcategory1_id = pas.subcategory1_id"
 			+ " left join pm_asset_subcategory2 pas2 on pas.subcategory1_id = pas2.subcategory1_id"
 			+ " left join pm_sp_registered psr on pa.rsp_id = psr.sp_id"
-			+ " where pa.asset_id = 1 and pa.del_flag = 0";
+			+ " where pa.asset_id = ? and pa.del_flag = 0";
 	
 	public static final String RSP_USER_LIST_QUERY = " select su.user_id,su.first_name,su.last_name,su.email_id,sc.customer_code"
 			+ " from sp_users su inner join sp_user_access suc on su.user_id = suc.user_id "

@@ -454,9 +454,9 @@ public class IncidentDAO {
 	      
 	}
 	
-	public int insertOrUpdateTicketAttachments(List<TicketAttachment> ticketAttachments) {
+	public int insertOrUpdateTicketAttachments(List<TicketAttachment> ticketAttachments, final String ticketAttachmentQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        int[] insertedRows = jdbcTemplate.batchUpdate(AppConstants.INSERT_TICKET_ATTACHMENT_QUERY , 
+        int[] insertedRows = jdbcTemplate.batchUpdate(ticketAttachmentQuery , 
                 new BatchPreparedStatementSetter() {
 
                     @Override
@@ -504,9 +504,9 @@ public class IncidentDAO {
 		SelectedTicketVO selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(AppConstants.RSP_TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
 		return selectedTicketVO;
 	}
-	public List<TicketAttachment> getTicketAttachments(Long ticketId) {
+	public List<TicketAttachment> getTicketAttachments(Long ticketId, final String ticketAttachmentQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<TicketAttachment> ticketAttachments = jdbcTemplate.query(AppConstants.TICKET_ATTACHMENTS,new Object[]{ticketId}, new ResultSetExtractor<List<TicketAttachment>>(){
+		List<TicketAttachment> ticketAttachments = jdbcTemplate.query(ticketAttachmentQuery,new Object[]{ticketId}, new ResultSetExtractor<List<TicketAttachment>>(){
 			@Override
 			public List<TicketAttachment> extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<TicketAttachment> attachments = new ArrayList<TicketAttachment>();
@@ -708,6 +708,38 @@ public class IncidentDAO {
 	    return customerSPLinkedTicketVO;
 	}
 	
+	public CustomerSPLinkedTicketVO saveRSPLinkedTicket(CustomerSPLinkedTicketVO customerSPLinkedTicketVO, LoginUser user, final String insertSPMappingQuery ){
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(insertSPMappingQuery, 
+	            Statement.RETURN_GENERATED_KEYS);
+	        if(customerSPLinkedTicketVO.getLinkedTicketType().equalsIgnoreCase("CT")){
+		    	ps.setLong(1, customerSPLinkedTicketVO.getRspTicketLongId());
+	            ps.setLong(2, customerSPLinkedTicketVO.getLinkedCTticketId());
+	            ps.setString(3, customerSPLinkedTicketVO.getSpLinkedTicket());
+	            ps.setString(4, customerSPLinkedTicketVO.getLinkedTicketType());
+	            ps.setString(5,  user.getUsername());
+	        }
+	        else if(customerSPLinkedTicketVO.getLinkedTicketType().equalsIgnoreCase("SP")){
+	        	ps.setLong(1, customerSPLinkedTicketVO.getRspTicketLongId());
+	            ps.setLong(2, customerSPLinkedTicketVO.getLinkedRspTicketId());
+	            ps.setString(3, customerSPLinkedTicketVO.getSpLinkedTicket());
+	            ps.setString(4, customerSPLinkedTicketVO.getLinkedTicketType());
+	            ps.setString(5,  user.getUsername());
+	        }
+           
+           
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved customer linked ticket {} with id {}.", customerSPLinkedTicketVO.getSpLinkedTicket(), key.getKey());
+	    customerSPLinkedTicketVO.setId(key.getKey().longValue());
+	    return customerSPLinkedTicketVO;
+	}
+	
 	public int changeLinkedTicketStatus(Long linkedTicket, LoginUser user) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		int updatedRow = jdbcTemplate.update(AppConstants.STATUS_CHANGED_LINKED_TICKET, new PreparedStatementSetter(){
@@ -812,9 +844,9 @@ public class IncidentDAO {
 		return escList;
 	}
 	
-	public List<Financials> getTicketFinancials(Long ticketId, LoginUser loginUser) {
+	public List<Financials> getTicketFinancials(Long ticketId, LoginUser loginUser, final String financeQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<Financials> financialVOList = jdbcTemplate.query(AppConstants.TICKET_FINANCE_SELECT_QUERY,new Object[]{ticketId}, new ResultSetExtractor<List<Financials>>(){
+		List<Financials> financialVOList = jdbcTemplate.query(financeQuery,new Object[]{ticketId}, new ResultSetExtractor<List<Financials>>(){
 			@Override
 			public List<Financials> extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<Financials> financeList = new ArrayList<Financials>();
@@ -835,9 +867,9 @@ public class IncidentDAO {
 		return financialVOList == null?Collections.emptyList():financialVOList;
 	}
 	
-	public Financials getTicketFinanceById(Long costId, LoginUser loginUser) {
+	public Financials getTicketFinanceById(Long costId, LoginUser loginUser, final String financeQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		Financials financeObj = jdbcTemplate.query(AppConstants.TICKET_FINANCE_BY_ID,new Object[]{costId}, new ResultSetExtractor<Financials>(){
+		Financials financeObj = jdbcTemplate.query(financeQuery,new Object[]{costId}, new ResultSetExtractor<Financials>(){
 			@Override
 			public Financials extractData(ResultSet rs) throws SQLException, DataAccessException {
 				Financials financeVO = new Financials();
@@ -856,14 +888,14 @@ public class IncidentDAO {
 		return financeObj ;
 	}
 
-	public Financials saveFinance(Financials financialVO, LoginUser user)
+	public Financials saveFinance(Financials financialVO, LoginUser user, final String financeQuery)
             throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.TICKET_FINANCE_INSERT_QUERY, 
+	        final PreparedStatement ps = connection.prepareStatement(financeQuery, 
 	            Statement.RETURN_GENERATED_KEYS);
 	        ps.setLong(1, financialVO.getTicketId());
     		ps.setString(2, financialVO.getCostName());
@@ -879,10 +911,10 @@ public class IncidentDAO {
 	    return financialVO;
     }
 	
-	public Financials updateFinance(Financials financeVO, LoginUser user)
+	public Financials updateFinance(Financials financeVO, LoginUser user, final String financeQuery)
             throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-        int updatedRows = jdbcTemplate.update(AppConstants.TICKET_FINANCE_UPDATE_QUERY,     new PreparedStatementSetter() {
+        int updatedRows = jdbcTemplate.update(financeQuery,     new PreparedStatementSetter() {
                     @Override
                     public void setValues(PreparedStatement ps) throws SQLException {
                 		ps.setString(1, financeVO.getCostName());
@@ -906,9 +938,9 @@ public class IncidentDAO {
 				});
 		return ticketList;
 	}
-	public boolean deleteFinanceCostById(Long costId, LoginUser user) {
+	public boolean deleteFinanceCostById(Long costId, LoginUser user, final String financeQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		int updatedRow = jdbcTemplate.update(AppConstants.DELETE_TICKET_FINANCE_BY_ID,new Object[]{costId});
+		int updatedRow = jdbcTemplate.update(financeQuery,new Object[]{costId});
 		if(updatedRow>0){
 			return true;
 		}else{
@@ -1009,6 +1041,39 @@ public class IncidentDAO {
 				});
 		return ticketList;
 	}
+	
+	public List<TicketVO> findCustomerSuggestedTickets(Long assetId, Long rspId) {
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("assetId", assetId);
+		parameters.addValue("rspId", rspId);
+		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.CUSTOMER_TICKET_SUGGESTED_LIST_QUERY, parameters,
+				new RowMapper<TicketVO>() {
+					@Override
+					public TicketVO mapRow(ResultSet rs, int arg1) throws SQLException {
+						return toTicketList(rs);
+					}
+				});
+		return ticketList;
+	}
+	
+	public List<TicketVO> findRSPReferenceTickets(Long assetId, Long rspId, String parentTicketNumber) {
+		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
+		MapSqlParameterSource parameters = new MapSqlParameterSource();
+		parameters.addValue("assetId", assetId);
+		parameters.addValue("rspId", rspId);
+		parameters.addValue("parentTicketNumber", parentTicketNumber);
+		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.RSP_TICKET_REFERENCE_LIST_QUERY, parameters,
+				new RowMapper<TicketVO>() {
+					@Override
+					public TicketVO mapRow(ResultSet rs, int arg1) throws SQLException {
+						return toTicketList(rs);
+					}
+				});
+		return ticketList;
+	}
+	
+	
 	public TicketVO findRSPTicket(String linkedTicket, Long rspAssignedTo) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		TicketVO ticket =  jdbcTemplate.query(AppConstants.VALIDATE_TICKET_RSPID_QUERY, new Object[] { linkedTicket,  rspAssignedTo}, new ResultSetExtractor<TicketVO>() {
@@ -1068,4 +1133,32 @@ public class IncidentDAO {
 			});
 			return escLevelVO;
 		}
+	public List<CustomerSPLinkedTicketVO> findLinkedTicketForRSP(Long parentTicketId, String linkedTicketType, final String rspLinkedTicketQuery) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<CustomerSPLinkedTicketVO> spLinkedTickets = jdbcTemplate.query(rspLinkedTicketQuery,new Object[]{parentTicketId}, new ResultSetExtractor<List<CustomerSPLinkedTicketVO>>(){
+			@Override
+			public List<CustomerSPLinkedTicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<CustomerSPLinkedTicketVO> linkedTickets = new ArrayList<CustomerSPLinkedTicketVO>();
+				while(rs.next()){
+					CustomerSPLinkedTicketVO customerSPLinkedTicketVO = new CustomerSPLinkedTicketVO();
+					customerSPLinkedTicketVO.setId(rs.getLong("id"));
+					customerSPLinkedTicketVO.setRspTicketLongId(rs.getLong("rsp_ticket_id"));
+					customerSPLinkedTicketVO.setSpLinkedTicket(rs.getString("linked_ticket_number"));
+					customerSPLinkedTicketVO.setLinkedTicketType(rs.getString("linked_ticket_type"));
+					if(rs.getString("linked_ticket_type").equalsIgnoreCase("CT")){
+						customerSPLinkedTicketVO.setLinkedCTticketId(rs.getLong("linked_ct_ticket_id"));
+					}
+					else if(rs.getString("linked_ticket_type").equalsIgnoreCase("SP")){
+						customerSPLinkedTicketVO.setLinkedRspTicketId(rs.getLong("linked_rsp_ticket_id"));
+					}
+					customerSPLinkedTicketVO.setStatusId(rs.getLong("status_id"));
+					customerSPLinkedTicketVO.setLinkedTicketStatus(rs.getString("description"));
+					linkedTickets.add(customerSPLinkedTicketVO);
+				}
+				return linkedTickets;
+			}
+			
+		});
+		return spLinkedTickets;
+	}
 }

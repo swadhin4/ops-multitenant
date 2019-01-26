@@ -89,7 +89,9 @@ public class TicketVO implements Serializable{
 	private String mode;
 	private String customerDB; 
 	private String ticketAssignedType;
-	
+	private String rspCustMappedCompanyCode;
+	private String rspCustMappedCompanyName;
+	private Long rspCustMappedCompanyId;
 	public TicketVO() {
 		super();
 	}
@@ -534,6 +536,25 @@ public class TicketVO implements Serializable{
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	
+	public String getRspCustMappedCompanyCode() {
+		return rspCustMappedCompanyCode;
+	}
+	public void setRspCustMappedCompanyCode(String rspCustMappedCompanyCode) {
+		this.rspCustMappedCompanyCode = rspCustMappedCompanyCode;
+	}
+	public String getRspCustMappedCompanyName() {
+		return rspCustMappedCompanyName;
+	}
+	public void setRspCustMappedCompanyName(String rspCustMappedCompanyName) {
+		this.rspCustMappedCompanyName = rspCustMappedCompanyName;
+	}
+	public Long getRspCustMappedCompanyId() {
+		return rspCustMappedCompanyId;
+	}
+	public void setRspCustMappedCompanyId(Long rspCustMappedCompanyId) {
+		this.rspCustMappedCompanyId = rspCustMappedCompanyId;
 	}
 	@Override
 	public String toString() {

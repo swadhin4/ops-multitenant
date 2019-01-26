@@ -645,6 +645,9 @@ public class SiteDAO {
 					siteVO.setOwner(rs.getString("site_owner"));
 					siteVO.setBrandId(rs.getLong("brand_id"));
 					siteVO.setBrandName(rs.getString("brand_name"));
+					siteVO.setPrimaryContact(String.valueOf(rs.getLong("primary_contact_number")));
+					siteVO.setContactName(rs.getString("contact_name"));
+					siteVO.setEmail(rs.getString("email"));
 					siteList.add(siteVO);
                 }
 				LOGGER.info("SiteDAO -- getSiteList -- Total Site List : "+ siteList.size());

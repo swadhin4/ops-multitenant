@@ -35,6 +35,7 @@ public class LoginUser implements Serializable{
 	private String spDbName;
 	private String userType;
 	private int tenantId;
+	
 	public String getUsername() {
 		return username;
 	}

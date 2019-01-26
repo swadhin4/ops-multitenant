@@ -224,39 +224,29 @@ $(function() {
 									
 								</div>
 							</div>
-							<div class="box-body" style="height:70%" >
-							
+							<div class="box-body table-responsive no-padding" style="height:70%; overflow-x:hidden;"" >
 							 <div class="row">
-						<!-- 	 <div class="col-md-12">
-								<div style="overflow-x: hidden;overflow-y:auto; height: 110%">
-								<div class="table-responsive"> 
-									<table id="ticketList" class="table table-bordered table-striped" cellspacing="0">
-									</table>
-									<table >
-									
-									</table>
-								</div>	
+							 <div class="col-xs-12">
+								<div class="col-xs-4">
+									<h4 class="box-title">Incident List</h4>
 								</div>
-							</div> -->
-							<div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">Incident List</h3>
-
-              <div class="box-tools">
-                <div class="input-group input-group-sm" style="width: 450px;">
-                  <input type="text" name="table_search" class="form-control pull-right" ng-model="ticketsearch" 
-                  placeholder="Search by incident number, asset name, site name, service provider, status">
-
-                  <div class="input-group-btn">
-                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- /.box-header -->
-            <div class="box-body table-responsive no-padding">
-              <table class="table table-hover">
+								<div class="col-xs-8">
+									<div class="box-tools pull-right">
+										<div class="input-group input-group-sm" style="width: 450px;">
+											<input type="text" name="table_search"
+												class="form-control pull-right" ng-model="ticketsearch"
+												placeholder="Search by incident number, asset name, site name, service provider, status">
+											<div class="input-group-btn">
+												<button type="submit" class="btn btn-default">
+													<i class="fa fa-search"></i>
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								</div>
+								<div class="col-xs-12">
+              <table class="table table-hover" >
               <tbody style="font-size: .9em"><tr ">
 					<th style="width:12%">Ticket Number</th>
 					<th style="width:10%">Site Name</th>
@@ -293,13 +283,10 @@ $(function() {
 					
                 </tr>
               </tbody></table>
-            </div>
+              </div>
           </div>
  
         </div>
-							</div>
-								
-                         </div>
                             
 							<div class="box-footer">
 								<div class="row">

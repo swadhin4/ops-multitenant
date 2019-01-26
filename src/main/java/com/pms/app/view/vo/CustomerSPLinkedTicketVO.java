@@ -25,6 +25,12 @@ public class CustomerSPLinkedTicketVO implements Serializable{
 	private Long statusId;
 	private String linkedTicketStatus;
 	
+	private Long rspTicketLongId;
+	private Long linkedCTticketId;
+	private Long linkedRspTicketId;
+	private String linkedTicketType;
+	
+	
 	public Long getId() {
 		return id;
 	}
@@ -120,6 +126,30 @@ public class CustomerSPLinkedTicketVO implements Serializable{
 	}
 	public void setLinkedTicketStatus(String linkedTicketStatus) {
 		this.linkedTicketStatus = linkedTicketStatus;
+	}
+	public Long getRspTicketLongId() {
+		return rspTicketLongId;
+	}
+	public void setRspTicketLongId(Long rspTicketLongId) {
+		this.rspTicketLongId = rspTicketLongId;
+	}
+	public Long getLinkedCTticketId() {
+		return linkedCTticketId;
+	}
+	public void setLinkedCTticketId(Long linkedCTticketId) {
+		this.linkedCTticketId = linkedCTticketId;
+	}
+	public Long getLinkedRspTicketId() {
+		return linkedRspTicketId;
+	}
+	public void setLinkedRspTicketId(Long linkedRspTicketId) {
+		this.linkedRspTicketId = linkedRspTicketId;
+	}
+	public String getLinkedTicketType() {
+		return linkedTicketType;
+	}
+	public void setLinkedTicketType(String linkedTicketType) {
+		this.linkedTicketType = linkedTicketType;
 	}
 	@Override
 	public String toString() {

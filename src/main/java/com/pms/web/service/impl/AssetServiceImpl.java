@@ -11,13 +11,14 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.UserType;
 import com.pms.app.dao.impl.AssetDAO;
 import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.AssetTask;
@@ -31,8 +32,6 @@ import com.pms.jpa.entities.AssetLocation;
 import com.pms.jpa.entities.AssetRepairType;
 import com.pms.jpa.entities.AssetSubRepairType;
 import com.pms.web.service.AssetService;
-import com.pms.web.util.ApplicationUtil;
-import com.pms.web.util.RandomUtils;
 import com.pms.web.util.RestResponse;
 
 @Service("assetService")
@@ -512,6 +511,15 @@ public class AssetServiceImpl implements AssetService {
 		LOGGER.info("Exit AssetServiceImpl .. saveOrUpdateAssetTask");
 		
 		return savedAssetTask;
+	}
+
+	@Override
+	public List<AssetVO> findAssetList(LoginUser loginUser, final String custCompanyCode) throws Exception {
+		List<AssetVO> assetList = new ArrayList<AssetVO>();
+		if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			assetList = getAssetDAO(loginUser.getDbName()).findAssetList(loginUser.getCompany().getCompanyId(), custCompanyCode, AppConstants.RSP_ASSIGNED_ASSET_LIST_QUERY);
+		}
+		return assetList==null?Collections.emptyList():assetList;
 	}
 
 	

@@ -206,7 +206,7 @@ public class HomeController extends BaseController {
 							
 						}
 						LOGGER.info("Updating incident image path");
-						List<TicketAttachment> fileAttachments = ticketService.findByTicketId(sessionTicketVO.getTicketId(), loginUser);
+						List<TicketAttachment> fileAttachments = ticketService.findByTicketId(sessionTicketVO.getTicketId(), loginUser, sessionTicketVO);
 						List<TicketAttachment> fileAttachmentList = new ArrayList<TicketAttachment>();
 						if(fileAttachments==null){
 							LOGGER.info("No Ticket Attachment for "+ sessionTicketVO.getTicketNumber());

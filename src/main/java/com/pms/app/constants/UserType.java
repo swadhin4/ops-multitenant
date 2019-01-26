@@ -6,7 +6,10 @@ public enum UserType {
 	
 	LOGGEDIN_USER_EXTSP("EXTSP"),
 	
-	LOGGEDIN_USER_RSP("SP")
+	LOGGEDIN_USER_RSP("SP"),
+	
+	LOGGEDIN_USER_RSP_FOR_CUSTOMER("SP"),
+	
 	;
 	
 

@@ -1159,13 +1159,19 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		  $.each($scope.incidentImages,function(key,val){
 			  totalSize =  totalSize + parseInt(val.fileSize);
 		  });
+		  $.each($scope.incidentImageList,function(key,val){
+			  if(val.id==indexPos){
+				  $scope.incidentImageList.splice(indexPos,1);	
+				  return false;
+			  }
+		  });
 		  $.each($scope.incidentImages,function(key,val){
 			 if(val.imgPos==indexPos) {
 				 $scope.incidentImages.splice(indexPos,1);		
 				 totalSize = totalSize - val.fileSize ;
 				// $('#totalIncidentSize').text(totalIncidentImageSize+" KB");
 				
-				 $scope.incidentImageList.splice(indexPos,1);
+				// $scope.incidentImageList.splice(indexPos,1);
 				 return false;
 			 }
 		  });

@@ -24,6 +24,7 @@
 <link rel="stylesheet" media="screen"
 	href='<c:url value="/resources/css/bootstrap-datetimepicker.min.css"></c:url>' />
 <link href='<c:url value="/resources/theme1/font-awesome-4.7.0/css/font-awesome.min.css"></c:url>'  rel="stylesheet">
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/incident-modal.css"></c:url>' />
 
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/bootstrap-toggle.min.js"></c:url>'></script>
@@ -31,14 +32,16 @@
 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.js"></c:url>'></script>
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.min.js"></c:url>'></script>
-
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/optionbtn.css"></c:url>' />
 <link rel="stylesheet"
 	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
 <link rel="stylesheet"
 	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
-
+ <link rel="stylesheet" href='<c:url value="/resources/theme1/css/baguetteBox.min.css"></c:url>' />
+  <link rel="stylesheet" href='<c:url value="/resources/theme1/css/thumbnail-gallery.css"></c:url>' />  
+ <script type="text/javascript" src='<c:url value="/resources/theme1/js/baguetteBox.min.js"></c:url>'></script>
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/sp-incident-create-controller.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
 <script type="text/javascript"
@@ -156,6 +159,13 @@ background:#deefe5
 		$('#datetimepicker3').datetimepicker({
 			format : 'DD-MM-YYYY HH:MM A',
 		});
+		$('input').attr('autocomplete', 'off');
+		 $('.toggle-on').removeAttr('style');
+		 $('.toggle-off').removeAttr('style');
+		 $(".dt1").datepicker({
+	         format:"dd-mm-yyyy",
+	         autoclose: true
+	     })
 		/* $('#ticketList').DataTable({
 			"processing": true
 			
@@ -242,14 +252,17 @@ background:#deefe5
 							<div class="box-tools pull-right" style="margin-top: 0px;">
 								<input type="hidden" id="mode" value="${mode}">
 								<div class-"row">
-						<div class="col-md-4">
+								<div class="col-md-3">
+						 <span class="badge">{{ticketData.mappedCustomer}}</span>
+       					 </div>
+						<div class="col-md-3">
 						<a  href="${contextPath}/serviceprovider/rsp/incident/update" data-toggle="tooltip" data-original-title="Refresh"> 
 						 <span  style="font-size:12px;" >
 						 <i class="fa fa-refresh fa-2x" style="margin-right: 17px;" aria-hidden="true"></i>
        					 </span>
        					 </a>
        					 </div>
-						<div class="col-md-8 round hollow text-center">
+						<div class="col-md-6 round hollow text-center">
 						<a href ng-click="openChatBox();" id="addClass" class="pull-right" ><span class="glyphicon glyphicon-comment"></span>&nbsp;Add Worknote </a>
 						 <!--<a  href ng-click="openChatBox();" data-toggle="tooltip" data-original-title="Incident work notes">						  
 						 <span class="pull-right" style="font-size:20px;"> <i class="glyphicon glyphicon-comment" aria-hidden="true">Add Worknote</i></span>
@@ -257,21 +270,19 @@ background:#deefe5
        				 	</div>
 							</div>
 						</div>
-						<div class="box-body">
+						<div class="box-body" style="height:450px">
 							<div class="row">
 								<div class="col-md-12">
 									<div class="nav-tabs-custom">
 										<ul class="nav nav-tabs">
 											<li class="active"><a href="#primaryinfo"
 												data-toggle="tab">Primary Details</a></li>
-											<!-- <li><a href="#linkedticket" data-toggle="tab">External Service provider 
-													Ticket</a>
+											<li><a href="#linkedticket" data-toggle="tab">Linked Tickets</a>
 										<span class="label label-warning" style="position: relative;
         top: -33px; left: 211px">{{ticketData.linkedTickets.length || 0}}</span></a>			
-													
-													</li> -->
-											<!-- <li><a href="#escalate" data-toggle="tab"
-												onclick="initializeEscalateTicket()">Escalation</a></li> -->
+													</li>
+											 <li><a href="#escalate" data-toggle="tab"
+												onclick="initializeEscalateTicket()">Escalation</a></li> 
 											<!--  Added by Supravat -->
 											<li><a href="#financials" data-toggle="tab">Financials
 											<span class="label label-warning" style="position: relative;
@@ -291,6 +302,16 @@ background:#deefe5
     top: -33px;left: 110px;">{{relatedTicketData.length || 0}}</span>
 											</li>
 											<!--  Ended by Supravat -->
+											
+											<!-- Added by Supravat for adding Incident Task -->
+											
+											<li ng-show="ticketType=='RSP'"><a href="#incidentTask" ng-click="getIncidentTasks()" data-toggle="tab">Tasks</a>
+											<span class="label label-warning" style="position: relative;
+    top: -33px;left: 45px;">{{relatedTicketData.length || 0}}</span>
+											</li>
+											
+											<!-- End -->
+											
 											
 										</ul>
 										<div class="tab-content">
@@ -699,7 +720,7 @@ background:#deefe5
 															</form>
 											</div>
 											</div>
-											<!-- <div class="tab-pane" id="escalate">
+											<div class="tab-pane" id="escalate">
 											<div style="display: none" id="loadingDiv2">
 			<div class="loader">Loading...</div>
 		</div>
@@ -746,7 +767,7 @@ background:#deefe5
 									        </div>
 									        </div>
 									        </div>
-												<table id="example2"
+										<!-- 		<table id="example2"
 													class="table table-hover table-condensed">
 													<thead>
 														<tr>
@@ -795,92 +816,204 @@ background:#deefe5
 														</tr>
 
 													</tbody>
-												</table>
-											</div> -->
-											<!-- <div class="tab-pane" id="linkedticket">
+												</table> -->
+											</div> 
+											<div class="tab-pane" id="linkedticket">
 											<div style="display: none" id="loadingDiv3">
 			<div class="loader">Loading...</div>
 		</div>
-												<div class="row">
-												<div class="col-md-6">
-												<div class="box box-success">
-												<div class="box-header with-border">
-													<h3 class="box-title">Add linked ticket</h3>
-												</div>	
-													<div class="box-body">	
-														<input type="text" class="form-control" id="linkedTicket"
-														   placeholder="Add a linked ticket to associate customer ticket {{ticketData.ticketNumber}}"
-															maxlength="20" ng-model="linkedTicket.ticketNumber">
-														<a class="btn btn-success" ng-click="LinkNewTicket()">
-															<i class="fa fa-link" aria-hidden="true"></i> Create
-														</a>	
-													</div>
-													</div>	
-													</div>
-											<div class="col-md-6">
-												<div class="form-group"
-													ng-if="ticketData.linkedTickets.length>0">
-													<div class="box box-success">
-														<div class="box-header with-border">
-															<h3 class="box-title">List of Linked tickets</h3>
+													<div class="row" ng-if="ticketData.ticketAssignedType=='RSP'">
+													<!-- 	<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio1" ng-model="optionVal" value="ZERO" 
+																ng-change="selectLinkTicket(optionVal)"/> <label
+																	for="radio1"   >
+																	Link new ticket
+																	</label>
+															</div>
 														</div>
-														<div class="box-body">
-															<table id="example2"
-																class="table table-hover table-condensed">
-																<thead>
-																	<tr>
-																		<th style="width: 5px;"></th>
-																		<th><b>Linked Ticket Number</b></th>
-																		<th><b>Status</b></th>
-																		<th></th>
-																	</tr>
-																</thead>
-																<tbody>
-																	<tr ng-repeat="linkedTkt in ticketData.linkedTickets">
-
-																		<td><input type="checkbox"
-																			id="chkLinkedTicket{{$index}}"
-																			ng-model="linkedTkt.selected"
-																			ng-change="getSelectedLinkedTicket(linkedTkt)" /></td>
-																		<td>
-																			<span class="label">{{linkedTicket.linkedTicketNo}}</span>    
-																			<label class="control-label">{{linkedTkt.spLinkedTicket}}</label>
-																			<input type="text" class="form-control" ng-model="linkedTicket.linkedTicketNo" disabled="disabled">
-																		</td>
-
-																		<td style="vertical-align:middle">
-																		<span
-																			ng-class="{{linkedTkt.closedFlag == 'CLOSED'}} ? 'label label-danger' : 'label label-success'">{{linkedTkt.closedFlag}}</span>
-																		</td>
-																		<td><a type="button" data-toggle="tooltip" title="Unlink the ticket "
-																			class="btn-sm btn-info pull-right"
-																			ng-click="unlinkTicketConfirmation($index,linkedTkt)"
-																			confirm="Are you sure?"> <i
-																				class="fa fa-trash-o" aria-hidden="true"></i>
-																		</a></td>
-
-																	</tr>
-																	<tr>
-																		<td></td>
-																		<td></td>
-																		<td></td>
-																		<td>
-																			<button type="button" id="closedBtn"
-																				class="btn btn-success pull-right"
-																				ng-click="closeLinkedTicketConfirmation()">Close
-																				and save ticket</button>
-																		</td>
-																	</tr>
+													</div> -->
+													<div class="col-md-3">
+														<div class="funkyradio">
+															<div class="funkyradio-primary">
+																<input type="radio" name="radio" id="radio2" ng-model="optionVal" value="ONE" 
+																ng-change="selectLinkTicket(optionVal)"/> <label
+																	for="radio2" >Link ticket from suggestion list</label>
+															</div>
+														</div>
+													</div>
+													</div>
+												<div class="row" ng-if="ticketData.ticketAssignedType=='RSP'">
+														<div class="col-md-6" ng-if="optionVal=='ZERO'">
+														<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Enter Link Ticket Number</h3>
+												</div>
+												<div class="box-body table-responsive no-padding">
+													<table class="table table-hover">
+														<tbody style="font-size: .9em">
+																<tr>
+																<th><input type="text" class="form-control" id="linkedTicket"
+														   placeholder="Add a linked ticket to associate customer ticket {{ticketData.ticketNumber}}"
+															maxlength="20" ng-model="linkedTicket.ticketNumber"></th>
+																<th>
+																	<a href ng-click="LinkNewTicket('RSP', linkedTicket)">
+																<span class="badge bg-green" style="    font-size: 1.4em;" >
+																<i class="fa fa-link"></i></span></a>
+																</th>
+																</tr>
 																</tbody>
 															</table>
-														</div>
-														/.box-body
-													</div>
+															</div>	
 												</div>
-											</div>
-											</div>
-											</div> -->
-											<div class="tab-pane" id="attachments">
+														</div>
+												<div class="col-md-6" ng-if="optionVal=='ONE'">
+												<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Suggested Tickets</h3>
+												</div>
+												<div class="box-body table-responsive no-padding">
+												<div class="col-md-12">
+													<table class="table table-hover">
+														<tbody style="font-size: .9em">
+															<tr>
+																<th style="width: 22%">Ticket Number</th>
+																<th style="width: 40%">Title </th>
+																<th style="width:30%">Asset</th>
+																<th style="width:10%">Action</th>
+															</tr>
+															<tr ng-repeat="ticket in suggestedTickets | filter : searchText" ng-if="suggestedTickets.length>0">
+																<th style="width: 12%">{{ticket.ticketNumber}}</th>
+																<td style="width: 40%">{{ticket.ticketTitle}}</td>
+																<td style="width:10%">{{ticket.assetName}}</td>
+																<td> 
+																<a href ng-click="LinkNewTicket(ticket.ticketAssignedType, ticket)">
+																<span class="badge bg-green" style="    font-size: 1.4em;" >
+																<i class="fa fa-link"></i></span></a></td>
+															</tr>
+															<tr  ng-if="suggestedTickets==null">
+																<th colspan="4" style="text-align: center">No ticket available</th>
+															</tr>
+														</tbody>
+													</table>
+												</div>	
+												</div>
+												</div>	
+												</div>
+													<div class="col-md-6">
+												<div class="box box-success">
+												<div class="box-header with-border">
+													<h3 class="box-title">Linked Tickets</h3>
+												</div>
+												<div class="box-body table-responsive no-padding">
+													<table class="table table-hover">
+														<tbody style="font-size: .9em">
+															<tr ng-repeat="ticket in ticketData.linkedTickets">
+																<th style="width: 12%">{{ticket.spLinkedTicket}}</th>
+																<td style="vertical-align:middle;width: 60%;">
+																		<span class=" pull-right label label-success">{{ticket.linkedTicketStatus}}</span>
+																		</td>
+																<td><!-- <a href ng-click="unlinkTicketConfirmation($index,ticket)"><span class="badge bg-red pull-right" style="    font-size: 1.4em;" >
+																<i class="fa fa-unlink"></i></span></a> --></th>
+															</tr>
+															<tr  ng-if="ticketData.linkedTickets.length==0 || ticketData.linkedTickets==null ">
+																<th colspan="4" style="text-align: center">No ticket linked</th>
+															</tr>
+														</tbody>
+													</table>
+												</div>
+												</div>	
+												</div>
+												</div>
+											</div> 
+												<div class="tab-pane" id="attachments" style="height:65%">
+											<div style="display: none" id="loadingDiv5">
+			<div class="loader">Loading...</div>
+		</div>
+													<div class="row" >
+														<div class="col-md-6">
+														  <div class="box">
+											           		 <div class="box-header">
+											             		 <h3 class="box-title">Attachment List</h3>
+															</div>
+														 <div class="box-body table-responsive no-padding" style="overflow-x:hidden">
+			<div class="row gallery-container">
+    
+    <div class="tz-gallery">
+
+        <div class="row">
+            <div class="col-sm-6 col-md-4" ng-repeat="file in ticketData.files">
+                <div class="thumbnail" ng-if="file.filePath!=null">
+                    <a class="lightbox" href="${contextPath}/selected/file/download?keyname={{file.filePath}}" style="width:100%" target="_blank">
+                        <img src="${contextPath}/selected/file/download?keyname={{file.filePath}}" alt="Park" style="width:100%">
+                    </a>
+                    <div class="caption">
+                        <h3>{{file.createdOn}}</h3>
+                       <a
+						href="${contextPath}/selected/file/download?keyname={{file.filePath}}"
+						download data-toggle="tooltip"
+						data-original-title="Download this file"> <i
+							class="fa fa-cloud-download" style="font-size:1.5em"
+							aria-hidden="true"></i></a> <a href
+						ng-click="deleteFile('INCIDENT', file)"
+						data-toggle="tooltip"
+						data-original-title="Delete this file"> <i style="font-size:1.5em;color:red"
+							class="fa fa-trash" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+						</div>
+						</div>
+					</div>
+					<div class="col-md-6">
+					  <div class="box">
+		           		 <div class="box-header">
+		             		 <h3 class="box-title">Add file to upload. image/*,.pdf only.</h3>
+		             		 <a href ng-click="addNewImage()"><span class="badge pull-right"><i style="font-size:1.5em;color:#fff"
+											class="fa fa-plus-circle"  aria-hidden="true"></i> Add File</span></a>
+						</div>
+						 <div class="box-body table-responsive no-padding">
+								<form role="form">
+									<div class="controls">
+		             					 <table class="table table-hover">
+											<tbody>
+												<tr
+													ng-repeat="incidentImage in incidentImageList">
+													<td><input type="file"
+														id="incidentImage{{$index}}"
+														class="form-control"
+														name="incidentImage[{{$index}}]"
+														accept="image/*,.doc, .docx,.pdf"
+														onchange="angular.element(this).scope().getIndexedName(this, event)"
+														style="width: 80%"></td>
+													<td><span id="imgsize{{$index}}"
+														class="badge"></span></td>
+													<td><a class="btn btn-danger" href
+														ng-click="removeImage($index)"> <i
+															class="fa fa-trash-o" aria-hidden="true"
+															style="font-size: 1.4em;"></i>
+													</a></td>
+												</tr>
+											</tbody>
+										</table>
+									   </div>
+									   <span class="badge" id="totalSize"></span>
+										<button type="button" class="btn btn-success pull-right" ng-if="incidentImageList.length>0"
+										ng-click="uploadFiles('EDIT')" value="Upload"
+										id="btnUpload">Upload</button>
+								</form>
+								</div>
+								</div>
+							</div>
+				</div>		
+												</div>
+									<%-- 		<div class="tab-pane" id="attachments">
 											<div style="display: none" id="loadingDiv4">
 			<div class="loader">Loading...</div>
 		</div>
@@ -980,7 +1113,7 @@ background:#deefe5
 														</div>
 													</div>
 												</div>
-											</div>
+											</div> --%>
 
 											<div class="tab-pane" id="tickethistory">
 												<div class="box">
@@ -1042,7 +1175,7 @@ background:#deefe5
 												<div class="box">
 													<div class="box-header with-border">
 														<h3 class="box-title">Cost Details</h3>
-														<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+														<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 														<p class="text-info">Note: Cost Name, Cost, Charge Back and Billable are required cost item(s).</p>
 														</sec:authorize>
 													</div>
@@ -1051,7 +1184,7 @@ background:#deefe5
 															<div class="row">
 																<div class="col-md-12">
 																	<div class="form-group" style="margin-bottom:50px;">
-																		<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+																		<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 																		<button type="button" style="float: right; margin-right: 5px;"
 																		class="btn btn-success bg-red" ng-click="deleteCostFinancialItems()" ng-disabled="isCostDeleteButton">Delete
 																		Cost Items</button>
@@ -1070,7 +1203,7 @@ background:#deefe5
 																				<th style="width: 30%;"><b>Cost (&euro;)</b></th>
 																				<th style="width: 12%;"><b>Charge Back</b></th>
 																				<th style="width: 12%;"><b>Billable</b></th>
-																				<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+																				<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 																				<th style="width: 6%;" colspan="2"></th>
 																				</sec:authorize>
 																			</tr>
@@ -1110,7 +1243,7 @@ background:#deefe5
 																						<option value="1">Yes</option>
 																						<option value="2">No</option>
 																				</select></td>
-																				<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+																				<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 																				<td ng-show="row.costId.length != 0" style="valign:middle;">
 																					<button type="button" ng-show="row.costId.length != 0"
 																								ng-click="editCostDetails($index)">
@@ -1142,7 +1275,7 @@ background:#deefe5
 															<div class="row">
 
 																<div class="col-md-12">
-																	<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF')">
+																	<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 																	<button type="submit" style="float: right; margin-right: 5px;"
 																		class="btn btn-success" ng-disabled="isCostSaveButton">Save changes</button>
 																	</sec:authorize>
@@ -1219,6 +1352,198 @@ background:#deefe5
 													</div>
 												</div>
 												</div>
+											</div>
+
+											<!-- Supravat End -->
+											
+											<!-- Added By Supravat for Incident Task. -->
+											<div class="tab-pane" id="incidentTask">
+												<div class="box">
+													<div class="box-header with-border">
+														<h3 class="box-title">Task List</h3>
+														<div class="box-tools pull-right">
+														<%-- <sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER','ROLE_SITE_STAFF')"> --%>
+														<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
+														<div class="btn-group pull-right">
+															<button type="button"
+															class="btn btn-success dropdown-toggle pull-right"
+															style="margin-right: 5px;" data-toggle="dropdown"><span class="fa fa-gear"></span>
+															Action <span class="caret"></span>
+															</button>
+															
+															<ul class="dropdown-menu" role="menu">
+															<li> <a href ng-click="openIncidentTask('C',incidentTasks)">  <span class="fa fa-tasks" aria-hidden="true"></span>Create Task</a></li>
+														</ul>
+														</div>
+														</sec:authorize>
+														<%-- </sec:authorize> --%>
+														</div>
+													</div>
+													<div class="box-body">
+																	<table id="incidentTaskDetails"
+																		class="table table-bordered table-hover table-condensed">
+																		<thead>
+																			<tr>
+																				<th style="width:10%;"><b>Task ID</b></th>
+																				<th style="width:30%;"><b>Title</b></th>
+																				<th style="width:20%;"><b>Status</b></th>
+																				<th style="width:30%;"><b>Assigned To</b></th>
+																				<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
+																				<th style="width:10%;"><b>Action</b></th>
+																				</sec:authorize>
+																			</tr>
+																		</thead>
+																		<tbody>
+
+																			<tr
+													ng-repeat="inctask in incidentTasks"
+													ng-class="{currentSelected:$index == selectedTaskRow}"
+													ng-click="rowTaskHighilited($index)">
+													<td>{{inctask.taskId}}</td>
+													<td>{{inctask.taskName}}</td>
+													<td>{{inctask.taskStatus}}</td>
+													<td>{{inctask.taskAssignedTo}}</td>
+													<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
+													<td align="center"><a href ng-click="openIncidentTask('U',inctask)"> <i
+															class="fa fa-edit" aria-hidden="true"></i></a></td>
+															</sec:authorize>
+												</tr>
+
+																		</tbody>
+																	</table>
+
+													</div>
+												</div>
+												
+												
+												<div class="modal right fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModal">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" id="myModalLabel2" ng-if="selectedAsset.taskId==null">Create Task</h4>
+					<h4 class="modal-title" id="myModalLabel3" ng-if="selectedAsset.taskId!=null">Update Task</h4>
+				</div>
+				<div class="modal-body">
+				       <div class="box box-solid">
+            <div class="box-header with-border">
+              <h3 class="box-title">Incident : {{ticketData.ticketNumber}}</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+            <form name="createUpdatetaskform" ng-submit="saveIncidentTask()">
+              <dl>
+                <dt>Task Name <i style="color:red">*</i> </dt>
+                <dd>
+					 <input
+						name="taskname" type="text" class="form-control"
+						maxlength="50" name="taskName" 
+						ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+						ng-model="incidentTasks.taskName"
+						placeholder="Enter Task Name" required>
+				</dd>
+              </dl>
+                <dl>
+                <dt>Task Description</dt>
+                <dd>
+					<textarea class="form-control"
+					 rows="3"
+					 ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+					placeholder="Enter Task Description" name="taskDescription"
+					ng-model="incidentTasks.taskDesc"></textarea>
+				</dd>
+                </dl>
+                 <dl>
+                 <div class="row">
+                 <div class="col-xs-6">
+                <dt>Planned Start Date <i style="color:red">*</i></dt>
+                <dd>
+				<div class="input-group date">
+				<div class="input-group-addon">
+					<i class="fa fa-calendar"></i>
+				</div>
+				<input type="text" class="form-control pull-right dt1"
+					placeholder="Planned Start Date" id="planStartDate"
+					ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+					ng-model="incidentTasks.planStartDate" required>
+
+			     </div>
+			     </div>
+			       <div class="col-xs-6">
+                <dt>Planned Completion Date <i style="color:red">*</i></dt>
+                <dd>
+			     <div class="input-group date">
+					<div class="input-group-addon">
+						<i class="fa fa-calendar"></i>
+					</div>
+					<input type="text" class="form-control pull-right dt1"
+						placeholder="Completion Date" id="planComplDate"
+						ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+						ng-model="incidentTasks.planEndDate" required>
+
+						
+				</div>
+				</dd>
+				</div>
+				</div>
+                </dl>
+                 <dl>
+                <dt>Assigned To <i style="color:red">*</i></dt>
+                <dd>
+					<input
+					type="text" class="form-control" name="assignTo"
+					ng-model="incidentTasks.taskAssignedTo"
+					ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+					placeholder="Enter Assigned To" required>
+				</dd>
+                </dl>
+                 <label class="control-label">Status <i style="color:red">*</i></label>
+                <div >
+					<select ng-if="taskOperation =='CreateTask'"
+					 name="taskStatus" ng-model="incidentTasks.taskStatus"
+					id="taskStatus" class="form-control" required>
+					<option value="NEW" selected="selected">New</option>
+					</select>
+					<select  ng-if="taskOperation =='UpdateTask'" 
+						name="taskStatusUpdate" id="taskStatusUpdate" class="form-control" 
+						ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+						required ng-model="incidentTasks.taskStatus">
+						<option value="NEW" ng-hide="incidentTasks.taskSelectedStatus =='INPROGRESS'">New</option>
+						<option value="INPROGRESS">In Progress</option>
+						<option value="CLOSED">Closed</option>
+						<option value="REJECTED">Rejected</option>
+					</select>
+				
+                </div>
+                <div ng-hide="incidentTasks.taskStatus =='NEW' || incidentTasks.taskStatus =='INPROGRESS'">
+					<label class="control-label">Resolution Comment</label>
+					<textarea class="form-control" rows="3"
+						placeholder="Enter Resolution Comment"
+						ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+						name="resolutionComment"
+						ng-model="incidentTasks.resComments"></textarea>
+				
+                </div>
+                 <div ng-if="incidentTasks.taskId==null" style="margin-top: 15px; margin-right: 1px;"
+                 ng-hide="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'">
+                 <button type="submit" class="btn btn-success">Save	changes</button>
+					<button type="reset" id="resetServiceAssetForm"
+						class="btn btn-success">RESET</button>
+                 </div>
+                 <div ng-if="incidentTasks.taskId!=null" style="margin-top: 15px; margin-right: 1px;"
+                 ng-hide="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'">
+                 <button type="submit" class="btn btn-success">Update changes</button>
+                 </div>
+                </form>
+            </div>
+          </div>
+								
+          </div>
+				</div>
+				</div>
+		</div>
+												
+												
 											</div>
 
 											<!-- Supravat End -->
@@ -1346,7 +1671,7 @@ background:#deefe5
 							<!-- Ended by Supravat for Status validation -->
 
 
-							<!-- <div class="modal fade" id="confirmEscalate" role="dialog"
+							<div class="modal fade" id="confirmEscalate" role="dialog"
 								aria-labelledby="confirmDeleteLabel" aria-hidden="true"
 								data-keyboard="false" data-backdrop="static">
 								<div class="modal-dialog">
@@ -1367,7 +1692,7 @@ background:#deefe5
 										</div>
 									</div>
 								</div>
-							</div> -->
+							</div> 
 							<!-- <div class="modal fade" id="confirmUnlink" role="dialog"
 								aria-labelledby="confirmDeleteLabel" aria-hidden="true"
 								data-keyboard="false" data-backdrop="static">

@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.constants.UserType;
 import com.pms.app.view.vo.AssetTask;
 import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.LoginUser;
@@ -507,6 +508,48 @@ public class AssetController extends BaseController {
 		}
 
 		logger.info("Exit  AssetController..listAllAssetsBySite");
+		return responseEntity;
+	}
+
+	@RequestMapping(value = "/rsp/list/{custcode}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> listAllAssetsForRSP(final HttpSession session, 
+			@PathVariable (value="custcode") String custcode) {
+		logger.info("Inside AssetController..listAllAssetsForRSP");
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		try {
+			LoginUser loginUser=getCurrentLoggedinUser(session);
+			if (loginUser!=null) {
+				List<AssetVO> assets = null;
+				if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+					String custDbName = (String) session.getAttribute("selectedCustomerDB");
+					if(StringUtils.isNotBlank(custDbName)){
+						loginUser.setDbName(custDbName);
+						assets  = assetService.findAssetList(loginUser,custcode);
+						if (assets.isEmpty()) {
+							response.setStatusCode(404);
+							response.setMessage("No assets available");
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+						}else{
+							response.setStatusCode(200);
+							response.setObject(assets);
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}
+					}
+				}
+			}else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		} catch (Exception e) {
+			logger.info("Exception in getting asset list response", e);
+			response.setStatusCode(500);
+			response.setMessage("Exception occurred while getting asset list");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		logger.info("Exit  AssetController..listAllAssetsForRSP");
 		return responseEntity;
 	}
 

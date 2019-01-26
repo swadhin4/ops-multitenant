@@ -61,19 +61,43 @@ chrisApp
 									 list:[]					 
 									 
 							 }
+							  //Added by Supravat for Incident Tasks
+							 $scope.incidentTasks=[];
 							
+							 $scope.ticketType = {};
+							 //End
+							$scope.suggestedTickets = [];
+							 $scope.getSuccessMessage=function(msg){
+								 $('#successDiv').show();
+								 $('#successDiv').alert();
+								 $('#successMessage').text(msg);
+							}
+							
+							$scope.getErrorMessage=function(msg){
+								 $('#errorDiv').show();
+								 $('#errorDiv').alert();
+								 $('#errorMessage').text(msg);
+							}
 							var viewMode = null;
 							angular.element(document).ready(function(){
-								//console.log("loaded");
+								console.log("loaded 11111111");
+								//Added to show task tab or npt based on ticketType -- RSP -- CUSTOMER
+								$scope.ticketType = {};
+								$scope.ticketType = $.jStorage.get('ticketType');
+								console.log("ticketType----->",$scope.ticketType);
+								//End
 								$scope.initalizeCloseDiv();	
 								viewMode = $('#mode').val();
 								$scope.getLoggedInUserAccess();	
 								$scope.selectedTicket={};
+								
 								if(viewMode.toUpperCase() == 'EDIT'){
 									$scope.getIncidentSelected();
 									$scope.refreshing=false;
+									$scope.optionVal="ZERO";
 								}
-								
+								$scope.incidentImageList=[];
+								$scope.incidentImages=[];
 								$("#drpIsAsset").change(
 										function() {
 
@@ -131,7 +155,175 @@ chrisApp
 								
 							});
 							
+							//Added by Supravat for Incident Tasks
+							$scope.rowTaskHighilited=function(row)
+							 {
+								 $scope.selectedTaskRow = row;    
+							 }
+							
+							$scope.getIncidentTasks=function(){
+								 $.jStorage.set('incidentTasks',null);
+								 var ticketId =  $scope.ticketData.ticketNumber;
+								 console.log("Inside getIncidentTasks ticketId--->",ticketId);
+								 
+								 $scope.incidentTasks = [
+						                { taskId: 1, taskName: "task1", taskDesc: "task1 desc", taskAssignedTo:"abc.com" },
+						                { taskId: 2, taskName: "task2", taskDesc: "task2 desc", taskAssignedTo:"supravat.com" }
+						               ];
+								 
+								 
+								 
+								
+								 
+								 //$scope.selectedAsset
+								 debugger
+								 console.log("$scope.incidentTasks--->",$scope.incidentTasks);
+								 
+								 $.jStorage.set('incidentTasks', $scope.incidentTasks);
+							      
+							      
+								 /*assetService.getIncidentTaskDetails(ticketId)//Need to pass incident Ticket ID
+								 .then(function(data){
+									 console.log(data);
+									if(data.statusCode == 200){
+										  $scope.incidentTasks=angular.copy(data.object);
+									      $.jStorage.set('incidentTasks', $scope.incidentTasks);
+									} 
+								 },function(data){
+									 console.log(data);
+								 });*/
+							
+							
+							}
+							$scope.openIncidentTask=function(isCreateUpdate,selectedTask){
+								 if(isCreateUpdate == 'C'){
+									 $scope.taskOperation ="CreateTask";
+									 $('#taskModal').modal('show');
+									 $scope.incidentTasks.taskId=null;
+									 $scope.incidentTasks.taskName=null;
+									 $scope.incidentTasks.taskDesc=null;
+									 $scope.incidentTasks.planStartDate=null;
+									 $scope.incidentTasks.planEndDate=null;
+									 $scope.incidentTasks.taskAssignedTo=null;
+									 $scope.incidentTasks.resComments=null;
+									 $scope.incidentTasks.taskStatus="NEW";
+								 }
+								 if(isCreateUpdate == 'U'){
+									 $scope.taskOperation ="UpdateTask";
+									 $scope.incidentTasks.taskId=selectedTask.taskId;
+									 $scope.incidentTasks.taskName=selectedTask.taskName;
+									 $scope.incidentTasks.taskDesc=selectedTask.taskDesc;
+									 $scope.incidentTasks.planStartDate=selectedTask.planStartDate;
+									 $scope.incidentTasks.planEndDate=selectedTask.planEndDate;
+									 $scope.incidentTasks.taskAssignedTo=selectedTask.taskAssignedTo;
+									 $scope.incidentTasks.resComments=selectedTask.resComments;
+									 $scope.incidentTasks.taskStatus=selectedTask.taskStatus;
+									 $scope.incidentTasks.taskSelectedStatus=selectedTask.taskStatus;
+									 $('#taskModal').modal('show');
+								 }
+							}
+							
+							
+							
+							$scope.saveIncidentTask =function(){
+								
+								
+								 if($scope.incidentTasks.taskId==null){
+									 $scope.incidentTasks.taskStatus=$('#taskStatus').val();
+								 }
+								 else{
+									 $scope.incidentTasks.taskStatus=$('#taskStatusUpdate').val();
+								 }
+								 console.log("Save Data",$scope.incidentTasks);
+								 var planEndDate = $scope.incidentTasks.planEndDate;
+								 var planStartDate = $scope.incidentTasks.planStartDate;
+								 if($scope.IsValidTaskDate(planEndDate,planStartDate)){
+									 
+									 if($scope.IsEmail($scope.incidentTasks.taskAssignedTo)){
+										 	$('#messageWindow').hide();
+						 					$('#errorMessageDiv').hide();
+						 					$scope.saveIncidentTaskInfo($scope.incidentTasks);
+						 					//window.location.href=hostLocation+"/asset/details";
+									 } else {
+										 $scope.errorMessage = "Assigned To is not valid. Enter a valid Email ID.";
+										  $scope.getErrorMessage( $scope.errorMessage)
+									 }
+									 
+									 
+						          }
+						          else{	        	  
+						        	  
+						        	  $scope.errorMessage = "Planned Completion Date should be greater Planned Start Date";
+						        	  $scope.getErrorMessage( $scope.errorMessage)
+						          }		     
+								
+							 }
+							 
+							 $scope.IsEmail = function (assignedTo) {	
+								 var isValid = false;
+								 var regex = /^([a-zA-Z0-9_\.\-\+])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+							        if(!regex.test(assignedTo)) {
+							        	isValid = false;
+							        }else{
+							        	isValid = true;
+							        }
+							        return isValid;
+							 }
+							 
+							 $scope.IsValidTaskDate = function (planComplDate, planStartDate) {				 
+									
+								 var isValid = false;
+								
+								 if(planComplDate == null || planComplDate == "" || typeof(planComplDate) === "undefined"){
+									 isValid = true;					 
+								 }
+								 else{					 
+									 var isSame;
+									 var part1 = planComplDate.split('-');
+									 var part2 = planStartDate.split('-');				 
+									 planComplDate =  new Date(part1[1]+'-'+part1[0]+'-'+part1[2]);
+									 planStartDate =  new Date(part2[1]+'-'+ part2[0]+'-'+ part2[2]);				 
+							         isValid = moment(planComplDate).isAfter(planStartDate);
+							          if (!isValid){
+							        	  isValid = moment(planComplDate).isSame(planStartDate);
+							          }	
+								 }		         	          
+						          
+						          return isValid;
+						      }
+							 
+							 $scope.saveIncidentTaskInfo=function(incidentTaskData){
+								 
+								 console.log("Inside saveIncidentTaskInfo------->",incidentTaskData);
+								 
+								 $('#loadingDiv').show();
+								 assetService.saveIncidentTask(incidentTaskData)
+								 .then(function(data) {
+						    			
+						    			if(data.statusCode == 200){
+						    				$scope.successMessage = data.message;
+						    				 $scope.getSuccessMessage($scope.successMessage);
+						    				 getIncidentTasks();
+						    				//window.location.href=hostLocation+"/asset/details";
+						    				$('#taskModal').modal('hide');
+						    				$('#loadingDiv').hide();
+						    			}
+						            },
+						            function(data) {
+						            	 console.log('Error while saving asset Task Data')	
+						            	 $scope.getErrorMessage(data)
+						            	 $('#loadingDiv').hide();
+						            });
+							 }
+							
+							
+							
+							
+							
+							//End
+							
 							$scope.getIncidentSelected=function(){
+								$('#loadingDiv1').show();
 								ticketService.getSelectedTicketFromSession()
 								.then(function(data){
 									//console.log("Ticket DetailsXXXX")
@@ -139,14 +331,16 @@ chrisApp
 									if(data.statusCode == 200){
 										$scope.ticketData=angular.copy(data.object);
 										//$scope.ticketData.createdBy=$scope.sessionUser.username;
-										//$scope.getAttachments($scope.ticketData.ticketId);
-										/*if(viewMode.toUpperCase()=="EDIT"){
+										$scope.getAttachments($scope.ticketData.ticketId);
+										if(viewMode.toUpperCase()=="EDIT"){
 						    				$scope.getLinkedTicketDetails($scope.ticketData.ticketId);
-					    				}*/
+					    				}
+										var rspMappedCustomer = $.jStorage.get("selectedRSPCustomer");
+										$scope.ticketData.mappedCustomer = rspMappedCustomer.custName;
 										$scope.setSLAWidth($scope.ticketData);
 										$scope.getUserRoleStatusMap();
 										$scope.getTicketCategory();
-										//$scope.getEscalationLevel();
+										$scope.getEscalationLevel();
 										$scope.changeStatusDescription($scope.ticketData.statusDescription);
 										//$('#statusDesc').text("Description: "+ $scope.ticketData.statusDescription);
 										//Added By Supravat for Financials Requirements.
@@ -189,13 +383,334 @@ chrisApp
 											});
 										}
 										$scope.getStatus();
+										$('#loadingDiv1').hide();
 									}
 									
 								},function(data){
 									console.log(data)
+									$('#loadingDiv1').hide();
 								});
 							}
 							
+							$scope.selectLinkTicket=function(optionSelected){
+								if(optionSelected=="ZERO"){
+									$scope.optionVal=optionSelected;
+									$scope.suggestedTickets = [];
+								}
+								else if(optionSelected=="ONE"){
+									$scope.optionVal=optionSelected;
+									$scope.pullRSPSuggestedTickets();
+								}
+							}
+							$scope.pullRSPSuggestedTickets=function(){
+								var selectedTicket = $scope.ticketData;
+								ticketService.pullRSPSuggestedTickets()
+								.then(function(data){
+									console.log(data)
+									$scope.suggestedTickets = [];
+									if(data.statusCode == 200){
+										if(data.object.length>0){
+											$.each(data.object,function(key,val){
+												
+												$scope.suggestedTickets.push(val);
+											});
+											
+										}
+										if(data.object2.length>0){
+											$.each(data.object2,function(key,val){
+												$scope.suggestedTickets.push(val);
+											});
+										}
+									}
+								
+								},function(data){
+									console.log(data)
+								});
+							}
+							$scope.displayTickets=function(option){
+								$('#filterText').text(option);
+								$.each($scope.suggestedTickets,function(key,val){
+									if(val.ticketNumber.startsWith(option)){
+										$scope.searchText=option;
+										return false;
+									}
+								});
+							}
+							$scope.LinkNewTicket = function(spType, spTicket){
+								  var ticketLinked=null; 
+								  $scope.linkedTicket={};
+								  if(spTicket.ticketNumber != ""){
+								  var isDuplicateTicket=false;
+										$scope.linkedTicket.ticketNumber = spTicket.ticketNumber;
+										var linkedTicket={
+												parentTicketId:$scope.ticketData.ticketId,
+												parentTicketNumber:$scope.ticketData.ticketNumber,
+												linkedTicketId:spTicket.ticketId,
+												linkedTicketNumber:spTicket.ticketNumber,
+												linkedTicketType:spType
+										}
+										ticketLinked = linkedTicket;
+										$.each($scope.ticketData.linkedTickets,function(key,val){
+											if($scope.linkedTicket.ticketNumber == val.spLinkedTicket){
+												isDuplicateTicket =true;
+												return false;
+											}
+										});
+										console.log(ticketLinked);
+									if(!isDuplicateTicket){
+											ticketService.saveRSPLinkedTicket(ticketLinked,"EDIT")
+											.then(function(data){
+												if(data.statusCode == 200){
+												 $scope.getSuccessMessage(data.message);
+												 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId);
+												}
+											},function(data){
+												console.log(data);
+											});
+									}else{
+											$scope.errorMessage="Ticket number is already linked.";
+											 $scope.getErrorMessage($scope.errorMessage);
+									}
+								  }
+								}
+							
+
+							
+							$scope.getLinkedTicketDetails=function(linkedTicket){
+								ticketService.getRSPLinkedTickets(linkedTicket)
+								.then(function(data){
+									//console.log(data);
+									if(data.statusCode == 200){
+										 if(data.object.length>0){
+											 $scope.ticketData.linkedTickets = data.object;
+										 }else  {
+											 $scope.ticketData.linkedTickets=[];
+										 }
+									}
+								},function(data){
+									//console.log(data);
+								});
+							}
+							
+							
+							
+							
+							//Added By Supravat for Financials Requirements.
+							$scope.enabledEdit = [];
+							$scope.editCostDetails = function(index){
+								$scope.financialCostDetails[index].isEdited=true;
+								$scope.enabledEdit[index] = true;
+								$scope.isCostSaveButton= false;
+							}
+							
+							$scope.saveCostDetails = function(financialsForm){
+								$('#loadingDiv').show();
+								ticketService.saveFinalcialsCostItems($scope.financialCostDetails,"")
+								 .then(function(data){
+									 if(data.statusCode==200){
+										 $scope.getIncidentSelected();
+										 $('#loadingDiv').hide();
+										 $scope.successMessage = data.message;
+										 $scope.enabledEdit = [];
+										 $scope.getSuccessMessage($scope.successMessage);
+									 } else {
+										 $('#loadingDiv').hide();
+										 $scope.errorMessage = data.message;
+										 $scope.getErrorMessage($scope.errorMessage);
+									 }
+									
+								 },function(data){
+									 //console.log(data);
+									 $('#loadingDiv').hide();
+								 });
+								 $('#loadingDiv').hide();
+								
+							}
+							
+							$scope.deleteCostChange=function() {
+								$('#messageWindow').hide();
+								$('#successMessageDiv').hide();
+								$('#errorMessageDiv').hide();
+								var isChecked = 0;
+								angular.forEach($scope.financialCostDetails,function(value,index){
+									if(value.isDeleteCheck == true) {
+										isChecked++;
+									}
+								})
+								if(isChecked>0) {
+									if($scope.costNewRowCount>0) {
+										$scope.isCostDeleteButton= true;
+									} else {
+										$scope.isCostDeleteButton= false;
+									}
+								} else {
+									$scope.isCostDeleteButton= true;
+								}
+							}
+							
+							$scope.deleteCostFinancialItems=function(){
+								$('#confirmCostDelete').appendTo("body").modal('show');
+							}
+							
+							
+							$scope.confirmCostDelete=function(){
+								$('#loadingDiv').show();
+								ticketService.deleteFinalcialsCostItems($scope.financialCostDetails,"")
+								 .then(function(data){
+									 if(data.statusCode==200){
+										 $scope.getIncidentSelected();
+										 
+										 $scope.isCostSaveButton= true;
+										 $scope.isCostDeleteButton= true;
+										 
+										 $('#loadingDiv').hide();
+										 $('#confirmCostDelete').appendTo("body").modal('hide');				 
+										 $scope.successMessage = data.message;
+										 
+										 $scope.getSuccessMessage($scope.successMessage);
+									 } else {
+										 $('#loadingDiv').hide();
+										
+										 $scope.errorMessage = data.message;
+											$scope.getErrorMessage($scope.errorMessage);
+									 }
+									
+								 },function(data){
+									 //console.log(data);
+									 $('#loadingDiv').hide();
+								 });
+								 $('#loadingDiv').hide();
+								 
+							 }
+							 
+							 
+							$scope.addNewRow = function() {
+								$('#messageWindow').hide();
+								$('#successMessageDiv').hide();
+								$('#errorMessageDiv').hide();
+								$scope.isCostSaveButton= false;
+								$scope.costNewRowCount++;
+								$scope.financialCostDetails.push({
+									"costId":"",
+									"ticketID": $scope.ticketData.ticketId,
+									"costId" : "",
+									"costName" : "",
+									"cost" : 0.00,
+									"chargeBack" : "",
+									"billable" : ""
+								})
+							}
+
+							$scope.removeRow = function(index) {
+								//console.log("beofre",$scope.costNewRowCount);
+								$scope.costNewRowCount--;
+								$scope.financialCostDetails.splice(index, 1);
+								//console.log("After",$scope.costNewRowCount);
+								if($scope.costNewRowCount>0) {
+									$scope.isCostSaveButton= false;
+								} else {
+									$scope.isCostSaveButton= true;
+									var isChecked = 0;
+									angular.forEach($scope.financialCostDetails,function(value,index){
+										if(value.isDeleteCheck == true) {
+											isChecked++;
+										}
+									})
+									if(isChecked>0) {
+										$scope.isCostDeleteButton= false;
+									} else {
+										$scope.isCostDeleteButton= true;
+									}
+								}
+							}	
+							//Ended By Supravat.			
+							
+							$scope.getEscalationLevel=function(){
+								if(viewMode.toUpperCase()=='EDIT'){
+									$scope.escalationLevelDetails=[];
+										$.each($scope.ticketData.escalationLevelList,function(key,val){
+											var escLevelData={
+													escId:val.escId,
+													spId:val.serviceProviderId,
+													escLevelId:val.levelId,
+													escLevelDesc:val.escalationLevel,
+													escTo:val.escalationPerson,
+													escEmail:val.escalationEmail,
+													ticketNumber:$scope.ticketData.ticketNumber,
+													ticketId:$scope.ticketData.ticketId,
+													escStatus:val.status,
+											};
+											$scope.escalationLevelDetails.push(escLevelData);
+										});
+										initializeEscalateTicket();
+									}
+							}
+							
+							
+							$scope.getSelectedEscalation=function(selectedEscalation,id){
+								if($("#chkEscalation"+id).prop("checked")){
+									$scope.selectedEscalation = angular.copy(selectedEscalation)
+									$scope.selectedEscalation.ticketData=$scope.ticketData;
+								}
+								else{
+									$scope.selectedEscalation ={};
+								}
+								
+								//console.log($scope.selectedEscalation);
+							}
+							
+							$scope.escalateTicketConfirmation=function(){
+								//console.log($scope.selectedEscalation);
+								if($.isEmptyObject($scope.selectedEscalation)){
+								/*	$('#messageWindow').show();
+									$('#errorMessageDiv').show();
+									$('#errorMessageDiv').alert();*/
+									$scope.errorMessage="No Escalation level selected."
+										 $scope.getErrorMessage($scope.errorMessage);
+								}
+								else if($scope.selectedEscalation != "undefined"){
+									//console.log($scope.escalationLevelDetails);
+									$('#confirmEscalate').modal('show');
+								}
+							}
+							$scope.escalateTicket=function(){
+								//console.log($scope.selectedEscalation);
+								if($.isEmptyObject($scope.selectedEscalation)){
+									/*$('#messageWindow').show();
+									$('#errorMessageDiv').show();
+									$('#errorMessageDiv').alert();*/
+									$scope.errorMessage="No Escalation level selected."
+										 $scope.getErrorMessage($scope.errorMessage);
+								}
+								else if($scope.selectedEscalation != "undefined"){
+									//console.log($scope.escalationLevelDetails);			
+									//call API to save in DB
+									ticketService.escalateTicket($scope.selectedEscalation)
+									.then(function(data){
+										//console.log(data);
+										if(data.statusCode ==200){
+											$scope.selectedEscalation.escStatus = data.object.escalationStatus;
+											angular.forEach($scope.escalationLevelDetails, function(escalation){
+												if(escalation.escId == data.object.escId){
+													escalation.escStatus = $scope.selectedEscalation.escStatus;
+													$('#confirmEscalate').modal('hide');
+													return false;
+												}
+												
+											});
+											 $scope.getSuccessMessage("Ticket escalated successfully");
+										}
+										initializeEscalateTicket();
+										$scope.getLinkedTicketDetails($scope.ticketData.ticketId, $scope.ticketData.ticketAssignedType);
+										$scope.selectedEscalation ={};
+									},function(data){
+										//console.log(data);
+									});
+								}
+								//console.log("initialized");
+								//$scope.initializeEscalateTicket();
+								
+							}
 							$scope.setSLAWidth=function(ticketData){
 					            if(ticketData.slaPercent > 100){
 					                $scope.ticketData.width = 100;                
@@ -244,7 +759,13 @@ chrisApp
 								
 						    }
 							
-							
+							 $scope.openChatBox=function(){
+									$('#chatWindow').fadeIn();
+									$scope.chatBoxView="ON";
+							}
+							$scope.closeWindow=function(){
+								$('#chatWindow').fadeOut();
+							}
 							
 							$scope.getLoggedInUser=function(loginUser){
 								//console.log(loginUser)
@@ -1044,12 +1565,13 @@ chrisApp
 							     $scope.fileExtension = ext;
 							     $scope.indexPos=incidentImageId.charAt(incidentImageId.length-1);
 							     if($.inArray(ext, ["jpg","jpeg","JPEG", "JPG","PDF","pdf","png","PNG"]) === -1) {
-							    	 $('#messageWindow').show();
+							    	// $('#messageWindow').show();
 							    	 $scope.incidentImageModalErrorMessage="";
 							    	 $('#incidentImageModalMessageDiv').show();
-						        	 $('#errorMessageDiv').show();
-						        	 $('#errorMessageDiv').alert();
+						        	/* $('#errorMessageDiv').show();
+						        	 $('#errorMessageDiv').alert();*/
 						        	 $('#fileerrorincident').text('Supported file types to upload are jpg,  png and pdf');
+						        	 $scope.getErrorMessage("Supported file types to upload are jpg,  png and pdf");
 							          $scope.isfileselected=false;	 
 							          $('#'+incidentImageId).val('');
 							          $('#'+incidentImageId).val(null);
@@ -1093,10 +1615,8 @@ chrisApp
 							 				$('#totalSize').text("Files ( "+$scope.incidentImages.length +" ) Total Size : "+ totalSize +" KB");
 							 				if(totalSize > 1024){
 							 					$('#incidentImageModalMessageDiv').show();
-							 					 $('#messageWindow').show();
-							 					 $('#errorMessageDiv').show();
-							 		        	 $('#errorMessageDiv').alert();
 							 					$('#fileerrorincident').text("File size exceeds 1 MB");
+							 					 $scope.getErrorMessage("File size exceeds 1 MB");
 							 					$('#uploadImgBtn').attr("disabled",true)
 							 					$('#btnUpload').attr("disabled",true)
 							 				}else{
@@ -1132,7 +1652,11 @@ chrisApp
 						    		}else{
 									 $scope.ticketData.incidentImageList=$scope.incidentImages;
 									 if(mode=="EDIT"){
-										 $scope.ticketData.mode="IMAGEUPLOAD"
+										 $scope.ticketData.mode="IMAGEUPLOAD";
+											 var rspMappedCustomer = $.jStorage.get("selectedRSPCustomer");
+											$scope.ticketData.rspCustMappedCompanyCode=rspMappedCustomer.custCode;
+											$scope.ticketData.rspCustMappedCompanyName=rspMappedCustomer.custName;
+											$scope.ticketData.rspCustMappedCompanyId=rspMappedCustomer.custId;
 									     $scope.persistTicket( $scope.ticketData, "UPLOAD");
 									 }else{
 										 $('#btnUploadCancel').click();
@@ -1147,23 +1671,30 @@ chrisApp
 								  $.each($scope.incidentImages,function(key,val){
 									  totalSize =  totalSize + parseInt(val.fileSize);
 								  }); 
-								  $scope.incidentImageList.splice(indexPos,1);
+								  $.each($scope.incidentImageList,function(key,val){
+									  if(val.id==indexPos){
+										  $scope.incidentImageList.splice(indexPos,1);	
+										  return false;
+									  }
+								  });
+								//  $scope.incidentImageList.splice(indexPos,1);
 								  $.each($scope.incidentImages,function(key,val){
 									 if(val.imgPos==indexPos) {
 										 $scope.incidentImages.splice(indexPos,1);		
 										 totalSize = totalSize - val.fileSize ;
 										// $('#totalIncidentSize').text(totalIncidentImageSize+" KB");
 										 $('#totalSize').text("Files ( "+$scope.incidentImages.length +" ) Total Size : "+ totalSize +" KB");
-										 $scope.incidentImageList.splice(indexPos,1);
+										// $scope.incidentImageList.splice(indexPos,1);
 										 return false;
 									 }
 								  });
 								if(totalSize > 1024){
 									$('#incidentImageModalMessageDiv').show();
-									 $('#messageWindow').show();
+				/*					 $('#messageWindow').show();
 									 $('#errorMessageDiv').show();
 						        	 $('#errorMessageDiv').alert();
-									$('#fileerrorincident').text("File size exceeds 1 MB");
+				*/					 $('#fileerrorincident').text("File size exceeds 1 MB");
+									 $scope.getErrorMessage("File size exceeds 1 MB");
 									$('#uploadImgBtn').attr("disabled",true)
 									$('#btnUpload').attr("disabled",true)
 								}else{
@@ -1459,16 +1990,14 @@ chrisApp
 						    				}
 						    				else if(type.toUpperCase()=='UPDATE'){
 						    					//if($scope.ticketData.statusId==7){
-						    						window.location.href=hostLocation+"/serviceprovidercompany/customers";
+						    						window.location.href=hostLocation+"/serviceprovider/rsp/incident/update";
 						    					//}
 						    				}else{
 						    					if(type.toUpperCase()=='UPLOAD'){
 						    						$scope.successMessage = "Files uploaded successfully";
-						    					 	$('#messageWindow').show();
-						    	    				$('#successMessageDiv').show();
-						    	    				$('#successMessageDiv').alert();
-						    	    				$('#errorMessageDiv').hide();
-						    	    				if(data.object.attachments.length>0){
+						    						 $scope.getSuccessMessage($scope.successMessage);
+						    	    				$scope.getAttachments(ticketData.ticketId)
+						    	    			/*	if(data.object.attachments.length>0){
 						    	    					$scope.ticketData.files=[];
 						    	    					$.each(data.object.attachments,function(key,val){
 						    	    						var  fileInfo={
@@ -1481,7 +2010,7 @@ chrisApp
 						    	    					});
 						    	    				}else{
 						    	    					$scope.ticketData.files=[];
-						    	    				}
+						    	    				}*/
 						    					 }
 						    				}
 									 }
@@ -1496,5 +2025,81 @@ chrisApp
 									$('#errorMessageDiv').alert();
 								 });
 							 }
+								$scope.getAttachments=function(ticketId){
+									ticketService.getTicketAttachment($scope.ticketData.ticketId)
+									.then(function(data){
+										if(data.statusCode==200){
+											$scope.ticketData.files=[];
+											$.each(data.object.attachments,function(key,val){
+												var  fileInfo={
+														fileId:val.attachmentId,
+														fileName: val.attachmentPath.substring(val.attachmentPath.lastIndexOf("/")+1),
+														createdOn: val.createdDate,
+														filePath: val.attachmentPath
+												}
+												$scope.ticketData.files.push(fileInfo);
+											});
+										}
+									},function(data){
+										console.log(data);
+									})
+									
+								}
 
 						} ]);
+
+function initializeEscalateTicket(){
+	var scope = angular.element("#spIncidentCreateWindow").scope();
+	var escalated=false;		
+	var escalationLevelCount = scope.escalationLevelDetails.length;
+	if(escalationLevelCount > 0){			
+		
+		for(var i = 0; i <= escalationLevelCount-1; i++){				
+			//if(scope.escalationLevelDetails[i].escStatus!=null){
+			if(scope.escalationLevelDetails[i].escStatus!=null && scope.escalationLevelDetails[i].escStatus.toUpperCase() == 'ESCALATED'){					
+				$("#chkEscalation"+i).prop("disabled", true);	
+				$("#chkEscalation"+(i+1)).prop("disabled", false);
+				escalated=true;					
+				$("#chkEscalation"+i).prop("checked", false);					
+			}
+			else if(escalated){					
+				if((i) < escalationLevelCount-1){
+					$("#chkEscalation"+(i+1)).prop("disabled", true);
+				}					
+				if(scope.escalationLevelDetails[i].escStatus!=null && scope.escalationLevelDetails[i].escStatus.toUpperCase() == 'ESCALATED'){
+				if((i) == escalationLevelCount-1){
+					$("#chkEscalation"+(i+1)).prop("disabled", false);						
+				}					
+				}
+				else if(i == escalationLevelCount-1){
+					if(scope.escalationLevelDetails[i].escStatus!=null && scope.escalationLevelDetails[i-1].escStatus.toUpperCase() != 'ESCALATED'){
+						$("#chkEscalation"+i).prop("disabled", true);
+					}
+					if(scope.escalationLevelDetails[i].escStatus!=null && $scope.escalationLevelDetails[i-1].escStatus.toUpperCase() == 'ESCALATED'){
+						$("#chkEscalation"+i).prop("disabled", false);
+					}
+				}					
+				else if(scope.escalationLevelDetails[i].escStatus!=null && scope.escalationLevelDetails[i].escStatus.toUpperCase() != 'ESCALATED'){
+					if(scope.escalationLevelDetails[i].escStatus!=null && $scope.escalationLevelDetails[i-1].escStatus.toUpperCase() == 'ESCALATED'){							
+						$("#chkEscalation"+i).prop("disabled", false);
+					}
+				}
+				else if(scope.escalationLevelDetails[i].escStatus!=null && scope.escalationLevelDetails[i].escStatus.toUpperCase() != 'ESCALATED'){
+					if((i) == escalationLevelCount-1){
+						$("#chkEscalation"+i).prop("disabled", false);							
+					}						
+				}					
+			}
+			//}
+			}
+		// enable only 1st level
+		
+		if(!escalated){
+			$("#chkEscalation0").prop("disabled",false);
+			for(var i = 1; i <= escalationLevelCount-1; i++){
+				$("#chkEscalation"+i).prop("disabled", true);
+			}
+		}
+		
+	}
+};

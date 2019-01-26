@@ -37,6 +37,7 @@ public interface AssetService {
 
 	public AssetTask saveOrUpdateAssetTask(AssetTask assetTask, LoginUser loginUser) throws Exception;
 
+	public List<AssetVO> findAssetList(LoginUser loginUser, String custCompanyCode) throws Exception;
 	/*public List<AssetVO> findAssetsBySite(Long siteId) throws Exception;
 
 	

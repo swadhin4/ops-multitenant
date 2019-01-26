@@ -306,10 +306,41 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
             removeSiteAccess:removeSiteAccess,
             siteFileDownload:siteFileDownload,
             deleteFileAttached:deleteFileAttached,
-            retrieveSPAllSites:retrieveSPAllSites
+            retrieveSPAllSites:retrieveSPAllSites,
+            retrieveAssetsForRSP:retrieveAssetsForRSP,
+            getAssetInfo:getAssetInfo
         };
 		
 	 	return SiteService;
+	 	
+	 	
+	 	function getAssetInfo(assetId) {
+ 	        var def = $q.defer();
+ 	        $http.get(hostLocation+"/asset/info/"+assetId)
+ 	            .success(function(data) {
+ 	            	//console.log(data)
+ 	                def.resolve(data);
+ 	            })
+ 	            .error(function(data) {
+ 	            	console.log(data)
+ 	                def.reject(data);
+ 	            });
+ 	        return def.promise;
+ 	    }
+	 	
+	 	 function retrieveAssetsForRSP(customerCode) {
+	 	    var def = $q.defer();
+ 	        $http.get(hostLocation+"/asset/rsp/list/"+customerCode)
+ 	            .success(function(data) {
+ 	            	//console.log(data)
+ 	                def.resolve(data);
+ 	            })
+ 	            .error(function(data) {
+ 	            	console.log(data)
+ 	                def.reject(data);
+ 	            });
+ 	        return def.promise;
+	 	    }
 	 // implementation
  	    function deleteFileAttached(feature,siteId) {
  	        var def = $q.defer();
@@ -856,11 +887,60 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
         //Added By Supravat for Related Tickets Requirements.
         getRelatedTicketData:getRelatedTicketData,
 		//Ended By Supravat.
-        getTicketAttachment:getTicketAttachment
+        getTicketAttachment:getTicketAttachment,
+        pullRSPSuggestedTickets:pullRSPSuggestedTickets,
+        saveRSPLinkedTicket:saveRSPLinkedTicket,
+        getRSPLinkedTickets:getRSPLinkedTickets
         
         
     };
  	return TicketService;
+ 	
+    function getRSPLinkedTickets(parentTicketId) {
+        var def = $q.defer();
+        url=hostLocation+"/incident/rsp/linkedticket/list/"+parentTicketId
+        $http.get(url)
+            .success(function(data) {
+            	//console.log(data)
+                def.resolve(data);
+            })
+            .error(function(data) {
+            	console.log(data)
+                def.reject(data);
+            });
+        return def.promise;
+    }
+ 	
+ 	  function saveRSPLinkedTicket(linkedTicket, mode) {
+ 	        var def = $q.defer();
+ 	        url=hostLocation+"/incident/rsp/linkedticket/save/"+linkedTicket.parentTicketId+"/"+linkedTicket.linkedTicketId+
+ 	        "/"+linkedTicket.linkedTicketType+"/"+linkedTicket.linkedTicketNumber
+ 	        $http.get(url)
+ 	            .success(function(data) {
+ 	            	//console.log(data)
+ 	                def.resolve(data);
+ 	            })
+ 	            .error(function(data) {
+ 	            	console.log(data)
+ 	                def.reject(data);
+ 	            });
+ 	        return def.promise;
+ 	    }
+ 	
+ 	 // implementation
+    function pullRSPSuggestedTickets() {
+        var def = $q.defer();
+        $http.get(hostLocation+"/incident/suggestion/list")
+            .success(function(data) {
+            	//console.log(data)
+                def.resolve(data);
+            })
+            .error(function(data) {
+            	console.log(data)
+                def.reject(data);
+            });
+        return def.promise;
+    }
  	
  	 // implementation
     function getTicketAttachment(ticketId) {
