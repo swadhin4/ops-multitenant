@@ -146,23 +146,6 @@ background:#deefe5
 
 		<section class="content" style="min-height: 35px; display: none"
 			id="messageWindow">
-			<div class="row">
-				<div class="col-md-12">
-					<div class="alert alert-success alert-dismissable"
-						id="successMessageDiv"
-						style="display: none; height: 34px; white-space: nowrap;">
-						<!-- <button type="button" class="close" >x</button> -->
-						<strong>Success! </strong> {{successMessage}} <a href><span
-							class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-					</div>
-					<div class="alert alert-info alert-dismissable" id="infoMessageDiv"
-						style="display: none; height: 34px; white-space: nowrap;">
-						<!-- <button type="button" class="close" >x</button> -->
-						<strong>Info! </strong> {{InfoMessage}} <a href><span
-							class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-					</div>
-				</div>
-			</div>
 		</section>
 
 		<section class="content">
@@ -324,8 +307,7 @@ background:#deefe5
 
 					</tr>
 					<tr
-						ng-repeat="val in spCustomerIncidentList.list | filter: ticketsearch"
-						ng-class="{currentSelected:$index == selectedRow}"
+						ng-repeat="val in spCustomerIncidentList.list | filter: ticketsearch"	ng-class="{currentSelected:$index == selectedRow}"
 						ng-click="setTicketinSession(val);rowHighilited($index)">
 						<th class="todo-list">{{val.ticketNumber}} <a href
 							ng-click="previewSelectedIncidentInfo(val)"

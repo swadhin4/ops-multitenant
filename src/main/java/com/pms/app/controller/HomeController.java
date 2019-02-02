@@ -120,6 +120,7 @@ public class HomeController extends BaseController {
 				LOGGER.info("Logged in User : " + loginUser.getUsername());
 				model.addAttribute("user", loginUser);
 				if(loginUser.getUserType().equalsIgnoreCase("USER") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
+					
 					return "redirect:/user/profile";
 				}else if(loginUser.getUserType().equalsIgnoreCase("SP") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
 					return "redirect:/sp/user/profile";
@@ -127,6 +128,7 @@ public class HomeController extends BaseController {
 				else if(loginUser.getUserType().equalsIgnoreCase("EXTSP") && loginUser.getSysPassword().equalsIgnoreCase("NO")){
 					return "redirect:/user/extsp/incident/details";
 				}else{
+					session.setAttribute("usercode", loginUser.getCompany().getCompanyCode());
 					return "home";
 				}
 				}

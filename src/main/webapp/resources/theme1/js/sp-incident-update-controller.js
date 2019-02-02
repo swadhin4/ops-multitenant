@@ -1208,7 +1208,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	 }
   //Added by Supravat for Related Ticket Requirements						    
     
-    $scope.getRelatedTicketDetails = function(){
+    $scope.getRelatedTicketDetails = function(ticketFor){
     	
     	var relatedTktInputData = null;
     	var relTicketData = null;
@@ -1217,7 +1217,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
     			siteId:$scope.ticketData.siteId
     	};						    	
     	
-		ticketService.getRelatedTicketData(relatedTktInputData,"SP")
+		ticketService.getRelatedTicketData(relatedTktInputData,ticketFor)
 		 .then(function(relatedTktData){
 			 $scope.relatedTicketData = [];
 			 

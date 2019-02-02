@@ -283,7 +283,7 @@ background:#deefe5
 											<li><a href="#tickethistory" data-toggle="tab"
 												onclick="getTicketHistory()">Ticket History</a></li>
 											<!--  Added by Supravat for adding Related Tickets Tab-->
-											<li><a href="#relatedTickets" ng-click="getRelatedTicketDetails()" data-toggle="tab">Related Tickets</a>
+											<li><a href="#relatedTickets" ng-click="getRelatedTicketDetails('CUSTOMER')" data-toggle="tab">Related Tickets</a>
 											<span class="label label-warning" style="position: relative;
     top: -33px;left: 124px;">{{relatedTicketData.length || 0}}</span>
 											</li>

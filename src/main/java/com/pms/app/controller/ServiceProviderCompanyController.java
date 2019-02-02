@@ -187,20 +187,30 @@ public class ServiceProviderCompanyController extends BaseController {
 		if (loginUser != null) {
 			try {
 				session.setAttribute("ticketsBy", "CUSTOMER");
-				List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(loginUser.getCompany().getCompanyCode(),custDBName, loginUser);
-				if(!ticketList.isEmpty()){
-					response.setResponseType(custDBName);
-					response.setStatusCode(200);
-					session.setAttribute("selectedCustomerDB", custDBName);
-					response.setObject(ticketList);
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
-				}
-				else{
+				String spCode = (String) session.getAttribute("usercode");
+				if(!StringUtils.isEmpty(spCode)){
+					List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(spCode,custDBName, loginUser);
+					if(!ticketList.isEmpty()){
+						response.setResponseType(custDBName);
+						response.setStatusCode(200);
+						session.setAttribute("selectedCustomerDB", custDBName);
+						response.setObject(ticketList);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}
+					else{
+						response.setStatusCode(404);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+					}
+				}else{
 					response.setStatusCode(404);
+					response.setMessage("Registered Service Provider Code is missing");
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
 				}
+				
 			} catch (Exception e) {
 				e.printStackTrace();
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 		return responseEntity;
@@ -216,6 +226,10 @@ public class ServiceProviderCompanyController extends BaseController {
 		if (loginUser != null) {
 			try {
 				session.setAttribute("ticketsBy", ticketsBy);
+				String spCode = (String) session.getAttribute("usercode");
+				if(!StringUtils.isEmpty(spCode)){
+					loginUser.getCompany().setCompanyCode(spCode);
+				}
 				List<TicketVO> ticketList = ticketSerice.getTicketsForSP(loginUser, ticketsBy, custDBName);
 				if(!ticketList.isEmpty()){
 					response.setResponseType(custDBName);

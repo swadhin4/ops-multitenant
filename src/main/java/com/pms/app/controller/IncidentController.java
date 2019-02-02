@@ -40,6 +40,7 @@ import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.FinUpdReqBodyVO;
 import com.pms.app.view.vo.IncidentImageVO;
+import com.pms.app.view.vo.IncidentTask;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketCommentVO;
 import com.pms.app.view.vo.TicketEscalationVO;
@@ -47,7 +48,6 @@ import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Financials;
-import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -319,8 +319,8 @@ public class IncidentController extends BaseController {
 					response.setObject(savedTicketVO);
 					response.setMessage("New Incident created successfully");
 					String loginUserDB = (String) session.getAttribute("loggedInUserDB");
-					loginUser.setDbName(loginUserDB);
-					session.setAttribute("loginUser", loginUser);
+				//	loginUser.setDbName(loginUserDB);
+					//session.setAttribute("loginUser", loginUser);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 				} else if (ticketVO.getMode().equalsIgnoreCase("UPDATE")
 						&& savedTicketVO.getMessage().equalsIgnoreCase("UPDATED")) {
@@ -492,10 +492,12 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
+				
 				if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
 					logger.info("Loggedin user is Customer pointing to its DB");
 				}
 				else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+					//loginUser.setSpDbName(loginUser.getDbName());
 					logger.info("Loggedin user is RSP pointing to Customer DB : " + ticketVO.getCustomerDB() );
 					loginUser.setDbName(ticketVO.getCustomerDB());
 					session.setAttribute("selectedCustomerDB", ticketVO.getCustomerDB());
@@ -868,10 +870,15 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
+				TicketVO sessionTicket = (TicketVO) session.getAttribute("selectedTicket");
+				String custDBName = (String) session.getAttribute("selectedCustomerDB");
+				if (StringUtils.isNotEmpty(custDBName)) {
+					loginUser.setDbName(custDBName);
+				}
 				int deletedTicket = ticketSerice.deleteLinkedTicket(linkedTicketId, loginUser);
-				if (deletedTicket == 1) {
+				if (deletedTicket > 0) {
 					response.setStatusCode(200);
-					TicketVO sessionTicket = (TicketVO) session.getAttribute("selectedTicket");
+					response.setMessage("Linked Ticket has been deleted successfully.");
 					List<CustomerSPLinkedTicketVO> customerLinkedTickets = sessionTicket.getLinkedTickets();
 					boolean isAvailable = false;
 					CustomerSPLinkedTicketVO foundTicket = null;
@@ -882,11 +889,10 @@ public class IncidentController extends BaseController {
 							break;
 						}
 					}
-					boolean isRemoved = false;
 					if (isAvailable) {
-						isRemoved = customerLinkedTickets.remove(foundTicket);
+						isAvailable = customerLinkedTickets.remove(foundTicket);
 					}
-					if (isRemoved) {
+					else {
 						response.setObject(customerLinkedTickets);
 						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 					}
@@ -943,10 +949,9 @@ public class IncidentController extends BaseController {
 			} else {
 				logger.info("Escalation Level list : " + escalationLevelVOs.size());
 				try {
-					spEscalationLevel = ticketSerice.getSPEscalationLevels(ticketEscalationLevels.getEscId(), loginUser,
+					spEscalationLevel = ticketSerice.getSPEscalationLevels(savedTicketEscalation.getEscId(), loginUser,
 							ticketEscalationLevels.getTicketData().getTicketAssignedType());
-					TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
-					for (EscalationLevelVO escalatedTicket : selectedTicketVO.getEscalationLevelList()) {
+					for (EscalationLevelVO escalatedTicket : escalationLevelVOs) {
 						if (StringUtils.isNotBlank(escalatedTicket.getStatus()) 
 								&& !escalatedTicket.getEscalationEmail().equalsIgnoreCase(spEscalationLevel.getEscalationEmail())) {
 							escCCMailList.add(escalatedTicket.getEscalationEmail());
@@ -975,7 +980,7 @@ public class IncidentController extends BaseController {
 							ccEscList = StringUtils.join(escCCMailList, ',');
 							logger.info("Escalation CC List : " + ccEscList);
 							try {
-								emailService.successEscalationLevel(ticketEscalationLevels.getTicketData(), spEscLevel,
+								emailService.successEscalationLevel(selectedTicketVO, spEscLevel,
 										ccEscList, savedTicketEsc.getEscLevelDesc());
 							} catch (Exception e) {
 								logger.info("Exception while sending email", e);
@@ -1238,6 +1243,90 @@ public class IncidentController extends BaseController {
 							response.setObject(rspLinkedTickets);
 							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 						}
+					}
+				} else {
+					response.setStatusCode(204);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.EXPECTATION_FAILED);
+				}
+
+			} else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			response.setStatusCode(500);
+			response.setMessage("Exception failed.Please try again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return responseEntity;
+	}
+	
+	
+	@RequestMapping(value = "/rsp/incident/task/save", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> saveRspIncidentTask(HttpSession session,@RequestBody  IncidentTask incidentTask) {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+				String custDBName = (String) session.getAttribute("selectedCustomerDB");
+				if (StringUtils.isNotEmpty(custDBName)) {
+					loginUser.setDbName(custDBName);
+					if(selectedTicketVO.getTicketId().equals(incidentTask.getTicketId())){
+						incidentTask.setTicketNumber(selectedTicketVO.getTicketNumber());
+						IncidentTask savedIncidentTask = ticketSerice.saveRspTicketTask(incidentTask, loginUser, "RSP");
+						if(savedIncidentTask.getStatus()==200){
+							response.setStatusCode(200);
+							response.setObject(savedIncidentTask);
+							response.setMessage("Incident Task has been saved succesfully");
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}
+						else if(savedIncidentTask.getStatus()==202){
+							response.setStatusCode(200);
+							response.setObject(savedIncidentTask);
+							response.setMessage("Incident Task has been updated succesfully");
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}
+					}
+				} else {
+					response.setStatusCode(204);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.EXPECTATION_FAILED);
+				}
+
+			} else {
+				response.setStatusCode(401);
+				response.setMessage("Your current session is expired. Please login again");
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			response.setStatusCode(500);
+			response.setMessage("Exception failed.Please try again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/rsp/task/list", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> getRSPIncidentTaskList(HttpSession session)  {
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		try {
+			LoginUser loginUser = getCurrentLoggedinUser(session);
+			if (loginUser != null) {
+				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+				String custDBName = (String) session.getAttribute("selectedCustomerDB");
+				if (StringUtils.isNotEmpty(custDBName)) {
+					loginUser.setDbName(custDBName);
+					List<IncidentTask> incidentTaskList = ticketSerice.getIncidentTaskList(loginUser,
+							selectedTicketVO.getTicketId(), selectedTicketVO);
+					if(!incidentTaskList.isEmpty()){
+						response.setStatusCode(200);
+						response.setObject(incidentTaskList);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 					}
 				} else {
 					response.setStatusCode(204);

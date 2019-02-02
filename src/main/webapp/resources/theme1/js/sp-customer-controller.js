@@ -56,7 +56,7 @@ chrisApp.controller('spCustomerController',
 
 				$scope.equipmentData = {};
 				$scope.serviceData = {};
-				$scope.selectedRow = 0;
+				$scope.selectedRow = null;
 				$scope.selectedAsset = {};
 				$scope.operation = {};
 				
@@ -219,6 +219,8 @@ chrisApp.controller('spCustomerController',
 						//keep this type to show task tab or not in update incident.
 						$.jStorage.set('ticketType', ticketType);
 						//End
+						$scope.selectedRow=null;
+						 $scope.sessionTicket=null;
 						if($scope.ticketCreatedOrAssigned=="RSP"){
 							$scope.findTicketsCreated();
 						}else{

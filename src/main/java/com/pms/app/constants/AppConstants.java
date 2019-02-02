@@ -406,6 +406,25 @@ public class AppConstants {
 			+" LEFT JOIN pm_service_provider sp ON ct.assigned_to = sp.sp_id "
 			+" where  ct.id <> ? and ct.site_id = ? and ct.assigned_to = ?";
 	
+	public static final String RSP_COMPANY_RELATED_TICKETS_QUERY = "select ct.id, ct.ticket_number, ct.ticket_title, ct.status_id, "
+			+ " sts.`status`, ct.site_id,st.site_name,ct.sla_duedate, "
+			+ " ct.asset_id,ast.asset_name, ct.created_on, ct.rassigned_to, "
+			+ " sp.sp_name FROM pm_sp_tickets ct "
+			+" LEFT JOIN pm_site st ON ct.site_id = st.site_id "
+			+" LEFT JOIN pm_status sts ON ct.status_id = sts.status_id "
+			+" LEFT JOIN pm_asset ast ON ct.asset_id = ast.asset_id "
+			+" LEFT JOIN pm_sp_registered sp ON ct.rassigned_to = sp.sp_id "
+			+" where  ct.id <> ? and ct.site_id = ? and ct.rassigned_to = ?";
+	public static final String RSP_CUSTOMER_RELATED_TICKETS_QUERY = "select ct.id, ct.ticket_number, ct.ticket_title, ct.status_id, "
+			+ " sts.`status`, ct.site_id,st.site_name,ct.sla_duedate, "
+			+ " ct.asset_id,ast.asset_name, ct.created_on, ct.rassigned_to, "
+			+ " sp.sp_name FROM pm_cust_ticket ct "
+			+" LEFT JOIN pm_site st ON ct.site_id = st.site_id "
+			+" LEFT JOIN pm_status sts ON ct.status_id = sts.status_id "
+			+" LEFT JOIN pm_asset ast ON ct.asset_id = ast.asset_id "
+			+" LEFT JOIN pm_sp_registered sp ON ct.rassigned_to = sp.sp_id "
+			+" where  ct.id <> ? and ct.site_id = ? and ct.rassigned_to = ?";
+	
 	public static final String INSERT_EXT_TICKET_MAPPING_QUERY= "INSERT INTO pm_cust_sp_ticketmapping "
 			+ " (cust_ticket_id,customer_ticket_no,spticket_no,sptype,closed_flag,closed_time,created_by,"
 			+ " created_on,del_flag) VALUES (?,?,?,?,?,?,?,NOW(),0)";
@@ -417,8 +436,10 @@ public class AppConstants {
 	public static final String STATUS_CHANGED_LINKED_TICKET = "UPDATE pm_cust_sp_ticketmapping set closed_flag='CLOSED', "
 			+ "closed_time=NOW(), modified_by=?, modified_on=NOW() where id=? ";
 	
-	public static final String DELETE_LINKED_TICKET = "UPDATE pm_cust_sp_ticketmapping set del_flag=1, "
+	public static final String DELETE_CUST_LINKED_TICKET = "UPDATE pm_cust_sp_ticketmapping set del_flag=1, "
 			+ " modified_by=?, modified_on=NOW() where id=? ";
+	
+	public static final String DELETE_RSP_LINKED_TICKET = "delete from pm_rsp_ticket_mapping where id=? ";
 	
 	public static final String INSERT_TICKET_ESCALATION_QUERY = "INSERT INTO pm_ct_escalations "
 			+ " (ticket_id, ticket_number, esc_level, escalated_by,esc_id, escalated_date)"
@@ -428,7 +449,11 @@ public class AppConstants {
 			+ " (ticket_id, ticket_number, esc_level, escalated_by,resc_id, escalated_date)"
 			+ " values (?,?,?,?,?,NOW())";
 	
-	public static final String RSP_TICKET_ESCALATION_INSERT_QUERY = "INSERT INTO pm_rspt_escalations "
+	public static final String INSERT_RSP_CUSTOMER_TICKET_ESCALATION_QUERY = "INSERT INTO pm_rspt_escalations "
+			+ " (ticket_id, ticket_number, esc_level, escalated_by,esc_id, escalated_date)"
+			+ " values (?,?,?,?,?,NOW())";
+	
+	public static final String INSERT_RSP_COMPANY_TICKET_ESCALATION_QUERY = "INSERT INTO pm_rspt_escalations "
 			+ " (ticket_id, ticket_number, esc_level, escalated_by,esc_id, escalated_date)"
 			+ " values (?,?,?,?,?,NOW())";
 	
@@ -705,5 +730,14 @@ public class AppConstants {
 	public static final String ASSET_TASK_LIST_QUERY = "select * from pm_asset_task where asset_id=?";
 
 	public static final String ASSET_TASK_UPDATE_QUERY = "update pm_asset_task set task_name=?, task_desc=?, planned_start_date =? ,"
+			+ "  planned_end_date=?,task_assigned_to=?,task_status=?,res_comment=?, modified_by=?,modified_date=NOW() where task_id=?";
+	
+	public static final String INSERT_RSP_INCIDENT_TASK_QUERY = "insert into pm_rsp_incident_task(ticket_id,task_name,ticket_number,task_number, task_desc, planned_start_date,"
+			+ "  planned_end_date,task_assigned_to,task_status,res_comment,created_date, created_by)"
+			+ " values (?,?,?,?,?,?,?,?,?,?,NOW(),?)";
+	
+	public static final String RSP_INCIDENT_TASK_LIST_QUERY = "select * from pm_rsp_incident_task where ticket_id=?";
+
+	public static final String UPDATE_RSP_INCIDENT_TASK_QUERY = "update pm_rsp_incident_task set task_name=?, task_desc=?, planned_start_date =? ,"
 			+ "  planned_end_date=?,task_assigned_to=?,task_status=?,res_comment=?, modified_by=?,modified_date=NOW() where task_id=?";
 }

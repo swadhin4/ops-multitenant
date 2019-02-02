@@ -10,6 +10,7 @@ import java.util.Locale;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -390,15 +391,19 @@ public class SiteController extends BaseController {
 		logger.info("Exit SiteController .. getSelectedSite");
 		return responseEntity;
 	}
-	@RequestMapping(value = "/relatedtickets/{ticketId}/{siteId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/relatedtickets/{ticketId}/{siteId}/{ticketAssignedType}", method = RequestMethod.GET)
 	public ResponseEntity<RestResponse> getRelatedTickets(@PathVariable Long ticketId, @PathVariable Long siteId,
-			final HttpSession session) {
+			@PathVariable String ticketAssignedType,final HttpSession session) {
 		RestResponse response = new RestResponse();
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		if (loginUser != null) {
 			try {
-				List<TicketVO> relatedTicketList = ticketSerice.getRelatedTickets(ticketId, siteId, loginUser);
+				String custDBName = (String) session.getAttribute("selectedCustomerDB");
+				if (StringUtils.isNotEmpty(custDBName)) {
+					loginUser.setDbName(custDBName);
+				}
+				List<TicketVO> relatedTicketList = ticketSerice.getRelatedTickets(ticketId, siteId, loginUser, ticketAssignedType);
 				response.setStatusCode(200);
 				response.setObject(relatedTicketList);
 				response.setMessage("Related Tickets fetched");

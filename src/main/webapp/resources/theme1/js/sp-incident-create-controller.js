@@ -62,7 +62,7 @@ chrisApp
 									 
 							 }
 							  //Added by Supravat for Incident Tasks
-							 $scope.incidentTasks=[];
+							 $scope.incidentTask={};
 							
 							 $scope.ticketType = {};
 							 //End
@@ -162,36 +162,40 @@ chrisApp
 							 }
 							
 							$scope.getIncidentTasks=function(){
-								 $.jStorage.set('incidentTasks',null);
-								 var ticketId =  $scope.ticketData.ticketNumber;
-								 console.log("Inside getIncidentTasks ticketId--->",ticketId);
-								 
-								 $scope.incidentTasks = [
-						                { taskId: 1, taskName: "task1", taskDesc: "task1 desc", taskAssignedTo:"abc.com" },
-						                { taskId: 2, taskName: "task2", taskDesc: "task2 desc", taskAssignedTo:"supravat.com" }
-						               ];
-								 
-								 
-								 
-								
-								 
-								 //$scope.selectedAsset
-								 debugger
-								 console.log("$scope.incidentTasks--->",$scope.incidentTasks);
-								 
-								 $.jStorage.set('incidentTasks', $scope.incidentTasks);
+								 $.jStorage.set('incidentTask',null);
+								 var ticketNumber =  $scope.ticketData.ticketNumber;
+								 console.log("Inside getIncidentTask ticketNumber--->",ticketNumber);
+								 $scope.incidentTask.list = [];
+								 console.log("$scope.incidentTask List--->",$scope.incidentTask.list);
+								 $.jStorage.set('incidentTask', $scope.incidentTask);
 							      
-							      
-								 /*assetService.getIncidentTaskDetails(ticketId)//Need to pass incident Ticket ID
+							  ticketService.getIncidentTaskDetails($scope.ticketData.ticketId)//Need to pass incident Ticket ID
 								 .then(function(data){
 									 console.log(data);
 									if(data.statusCode == 200){
-										  $scope.incidentTasks=angular.copy(data.object);
-									      $.jStorage.set('incidentTasks', $scope.incidentTasks);
+										 if(data.object.length>0){
+											 $.each(data.object,function(key,val){
+												 var taskObject={
+														 taskId:val.taskId,
+														 taskName:val.taskName,
+														 taskNumber:val.taskNumber,
+														 ticketNumber:$scope.ticketData.ticketNumber,
+														 ticketId:$scope.ticketData.ticketId,
+														 taskDesc:val.taskDesc,
+														 planStartDate:val.planStartDate,
+														 planEndDate:val.planEndDate,
+														 taskAssignedTo:val.taskAssignedTo,
+														 resComments:val.resComments,
+														 taskStatus:val.taskStatus,
+														 createdBy:val.createdBy
+												 }
+												 $scope.incidentTask.list.push(taskObject);
+											 });
+										 }
 									} 
 								 },function(data){
 									 console.log(data);
-								 });*/
+								 });
 							
 							
 							}
@@ -199,26 +203,30 @@ chrisApp
 								 if(isCreateUpdate == 'C'){
 									 $scope.taskOperation ="CreateTask";
 									 $('#taskModal').modal('show');
-									 $scope.incidentTasks.taskId=null;
-									 $scope.incidentTasks.taskName=null;
-									 $scope.incidentTasks.taskDesc=null;
-									 $scope.incidentTasks.planStartDate=null;
-									 $scope.incidentTasks.planEndDate=null;
-									 $scope.incidentTasks.taskAssignedTo=null;
-									 $scope.incidentTasks.resComments=null;
-									 $scope.incidentTasks.taskStatus="NEW";
+									 $scope.incidentTask.taskId=null;
+									 $scope.incidentTask.taskName=null;
+									 $scope.incidentTask.taskNumber=null;
+									 $scope.incidentTask.taskDesc=null;
+									 $scope.incidentTask.planStartDate=null;
+									 $scope.incidentTask.planEndDate=null;
+									 $scope.incidentTask.taskAssignedTo=null;
+									 $scope.incidentTask.resComments=null;
+									 $scope.incidentTask.ticketId=$scope.ticketData.ticketId;
+									 $scope.incidentTask.taskStatus="NEW";
 								 }
 								 if(isCreateUpdate == 'U'){
 									 $scope.taskOperation ="UpdateTask";
-									 $scope.incidentTasks.taskId=selectedTask.taskId;
-									 $scope.incidentTasks.taskName=selectedTask.taskName;
-									 $scope.incidentTasks.taskDesc=selectedTask.taskDesc;
-									 $scope.incidentTasks.planStartDate=selectedTask.planStartDate;
-									 $scope.incidentTasks.planEndDate=selectedTask.planEndDate;
-									 $scope.incidentTasks.taskAssignedTo=selectedTask.taskAssignedTo;
-									 $scope.incidentTasks.resComments=selectedTask.resComments;
-									 $scope.incidentTasks.taskStatus=selectedTask.taskStatus;
-									 $scope.incidentTasks.taskSelectedStatus=selectedTask.taskStatus;
+									 $scope.incidentTask.taskId=selectedTask.taskId;
+									 $scope.incidentTask.taskNumber=selectedTask.taskNumber;
+									 $scope.incidentTask.taskName=selectedTask.taskName;
+									 $scope.incidentTask.taskDesc=selectedTask.taskDesc;
+									 $scope.incidentTask.planStartDate=selectedTask.planStartDate;
+									 $scope.incidentTask.planEndDate=selectedTask.planEndDate;
+									 $scope.incidentTask.taskAssignedTo=selectedTask.taskAssignedTo;
+									 $scope.incidentTask.resComments=selectedTask.resComments;
+									 $scope.incidentTask.taskStatus=selectedTask.taskStatus;
+									 $scope.incidentTask.ticketId=$scope.ticketData.ticketId;
+									 $scope.incidentTask.taskSelectedStatus=selectedTask.taskStatus;
 									 $('#taskModal').modal('show');
 								 }
 							}
@@ -228,21 +236,21 @@ chrisApp
 							$scope.saveIncidentTask =function(){
 								
 								
-								 if($scope.incidentTasks.taskId==null){
-									 $scope.incidentTasks.taskStatus=$('#taskStatus').val();
+								 if($scope.incidentTask.taskId==null){
+									 $scope.incidentTask.taskStatus=$('#taskStatus').val();
 								 }
 								 else{
-									 $scope.incidentTasks.taskStatus=$('#taskStatusUpdate').val();
+									 $scope.incidentTask.taskStatus=$('#taskStatusUpdate').val();
 								 }
-								 console.log("Save Data",$scope.incidentTasks);
-								 var planEndDate = $scope.incidentTasks.planEndDate;
-								 var planStartDate = $scope.incidentTasks.planStartDate;
+								 console.log("Save Data",$scope.incidentTask);
+								 var planEndDate = $scope.incidentTask.planEndDate;
+								 var planStartDate = $scope.incidentTask.planStartDate;
 								 if($scope.IsValidTaskDate(planEndDate,planStartDate)){
 									 
-									 if($scope.IsEmail($scope.incidentTasks.taskAssignedTo)){
+									 if($scope.IsEmail($scope.incidentTask.taskAssignedTo)){
 										 	$('#messageWindow').hide();
 						 					$('#errorMessageDiv').hide();
-						 					$scope.saveIncidentTaskInfo($scope.incidentTasks);
+						 					$scope.saveIncidentTaskInfo($scope.incidentTask);
 						 					//window.location.href=hostLocation+"/asset/details";
 									 } else {
 										 $scope.errorMessage = "Assigned To is not valid. Enter a valid Email ID.";
@@ -296,8 +304,8 @@ chrisApp
 								 
 								 console.log("Inside saveIncidentTaskInfo------->",incidentTaskData);
 								 
-								 $('#loadingDiv').show();
-								 assetService.saveIncidentTask(incidentTaskData)
+								// $('#loadingDiv').show();
+								 ticketService.saveIncidentTask(incidentTaskData)
 								 .then(function(data) {
 						    			
 						    			if(data.statusCode == 200){
@@ -306,13 +314,13 @@ chrisApp
 						    				 getIncidentTasks();
 						    				//window.location.href=hostLocation+"/asset/details";
 						    				$('#taskModal').modal('hide');
-						    				$('#loadingDiv').hide();
+						    			//	$('#loadingDiv').hide();
 						    			}
 						            },
 						            function(data) {
 						            	 console.log('Error while saving asset Task Data')	
 						            	 $scope.getErrorMessage(data)
-						            	 $('#loadingDiv').hide();
+						            	// $('#loadingDiv').hide();
 						            });
 							 }
 							
@@ -462,7 +470,7 @@ chrisApp
 											.then(function(data){
 												if(data.statusCode == 200){
 												 $scope.getSuccessMessage(data.message);
-												 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId);
+												 $scope.getLinkedTicketDetails(ticketLinked.parentTicketId, ticketLinked.linkedTicketType);
 												}
 											},function(data){
 												console.log(data);
@@ -476,7 +484,7 @@ chrisApp
 							
 
 							
-							$scope.getLinkedTicketDetails=function(linkedTicket){
+							$scope.getLinkedTicketDetails=function(linkedTicket, type){
 								ticketService.getRSPLinkedTickets(linkedTicket)
 								.then(function(data){
 									//console.log(data);
@@ -493,8 +501,28 @@ chrisApp
 							}
 							
 							
-							
-							
+							$scope.unlinkTicketConfirmation=function(index, linkedTicket){
+								$('#confirmUnlink').modal('show');
+								$scope.unlinkTicketIndex = index;
+								$scope.unlinkTktObject = angular.copy(linkedTicket);
+								
+							}
+							 $scope.unlinkTicket=function(){
+								 var linkedTicket = angular.copy($scope.unlinkTktObject);
+								 ticketService.deleteLinkedTicket(linkedTicket)
+								 .then(function(data){
+									 //console.log(data);
+									 if(data.statusCode == 200){
+										 $scope.getSuccessMessage(data.message);
+										 $('#unlinkNoBtn').click();
+										 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, linkedTicket.spType);
+									 }
+								 },function(data){
+									 console.log(data);
+									 $scope.errorMessage="Unable to to unlink the ticket ";
+									 $scope.getErrorMessage($scope.errorMessage);
+								 });
+							 }
 							//Added By Supravat for Financials Requirements.
 							$scope.enabledEdit = [];
 							$scope.editCostDetails = function(index){
@@ -624,7 +652,42 @@ chrisApp
 								}
 							}	
 							//Ended By Supravat.			
-							
+							$scope.getRelatedTicketDetails = function(ticketFor){
+						    	
+						    	var relatedTktInputData = null;
+						    	var relTicketData = null;
+						    	relatedTktInputData = {
+						    			ticketId:$scope.ticketData.ticketId,
+						    			siteId:$scope.ticketData.siteId
+						    	};						    	
+						    	
+								ticketService.getRelatedTicketData(relatedTktInputData,ticketFor)
+								 .then(function(relatedTktData){
+									 $scope.relatedTicketData = [];
+									 
+									 if(relatedTktData.statusCode==200){
+										 
+										 $.each(relatedTktData.object,function(key,val){
+												relTicketData={
+														ticketId:val.ticketId,
+														ticketNumber:val.ticketNumber,
+														title:val.ticketTitle,
+														asset:val.assetName,
+														statusId:val.statusId,
+														status:val.status,
+												};
+												$scope.relatedTicketData.push(relTicketData);
+											});
+										 
+									 } else {
+										 $scope.errorMessage = relatedTktData.message;
+										 $scope.getErrorMessage($scope.errorMessage);
+									 }
+									
+								 },function(relatedTktData){
+								 });
+								
+							}
 							$scope.getEscalationLevel=function(){
 								if(viewMode.toUpperCase()=='EDIT'){
 									$scope.escalationLevelDetails=[];
@@ -1939,9 +2002,9 @@ chrisApp
 								$scope.ticketData.assetCategoryName = $scope.assetList.selected.assetCategoryName;
 								$scope.ticketData.assetSubCategory1 = $scope.assetList.selected.assetSubCategory1;
 								$scope.ticketData.assetSubCategory2 = $('#subcomponentTypeSelect option:selected').text();
-								 $scope.ticketData.statusId=$('#statusSelect').val();
-								 $scope.ticketData.status=$('#statusSelect option:selected').text();
-								 $scope.ticketData.ticketStartTime = $('#ticketStartTime').val();
+								$scope.ticketData.statusId=$('#statusSelect').val();
+								$scope.ticketData.status=$('#statusSelect option:selected').text();
+								$scope.ticketData.ticketStartTime = $('#ticketStartTime').val();
 								 //console.log(moment($scope.ticketData.ticketStartTime, 'YYYY-MM-DD h:m:s A').format('YYYY-MM-DD HH:mm:ss'));
 								 //$scope.ticketData.ticketStartTime = moment($scope.ticketData.ticketStartTime, 'DD-MM-YYYY HH:MM').format('DD-MM-YYYY HH:MM');
 								
@@ -1950,8 +2013,14 @@ chrisApp
 								 //console.log($scope.accessSite.selected);
 								 
 								 //console.log($scope.ticketData);
-								 $scope.ticketData.mode="NEW";
-								 $scope.ticketData.rspAssignedAgent = $("#spAgentsSelect option:selected").text()
+								$scope.ticketData.mode="NEW";
+								$scope.ticketData.rspAssignedAgent = $("#spAgentsSelect option:selected").text()
+								var ticketAssignedType=$.jStorage.get('ticketType');
+								$scope.ticketData.ticketAssignedType = ticketAssignedType;
+								var rspMappedCustomer = $.jStorage.get("selectedRSPCustomer");
+								$scope.ticketData.rspCustMappedCompanyCode=rspMappedCustomer.custCode;
+								$scope.ticketData.rspCustMappedCompanyName=rspMappedCustomer.custName;
+								$scope.ticketData.rspCustMappedCompanyId=rspMappedCustomer.custId;
 								$scope.persistTicket($scope.ticketData, "NEW");
 							}
 							 $scope.updateTicket=function(){
@@ -1963,6 +2032,10 @@ chrisApp
 								 //console.log($scope.ticketData);
 								 $scope.ticketData.sla = $('#sla').val();
 								 $scope.ticketData.mode="UPDATE";
+								 var rspMappedCustomer = $.jStorage.get("selectedRSPCustomer");
+									$scope.ticketData.rspCustMappedCompanyCode=rspMappedCustomer.custCode;
+									$scope.ticketData.rspCustMappedCompanyName=rspMappedCustomer.custName;
+									$scope.ticketData.rspCustMappedCompanyId=rspMappedCustomer.custId;
 								 $scope.persistTicket($scope.ticketData, "UPDATE");
 								 
 							 }

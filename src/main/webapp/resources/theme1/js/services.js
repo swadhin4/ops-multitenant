@@ -890,11 +890,42 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
         getTicketAttachment:getTicketAttachment,
         pullRSPSuggestedTickets:pullRSPSuggestedTickets,
         saveRSPLinkedTicket:saveRSPLinkedTicket,
-        getRSPLinkedTickets:getRSPLinkedTickets
-        
+        getRSPLinkedTickets:getRSPLinkedTickets,
+        saveIncidentTask:saveIncidentTask,
+        getIncidentTaskDetails:getIncidentTaskDetails
         
     };
  	return TicketService;
+ 	
+ 	 function getIncidentTaskDetails(parentTicketId) {
+         var def = $q.defer();
+         url=hostLocation+"/incident/rsp/task/list";
+         $http.get(url)
+             .success(function(data) {
+             	//console.log(data)
+                 def.resolve(data);
+             })
+             .error(function(data) {
+             	console.log(data)
+                 def.reject(data);
+             });
+         return def.promise;
+     }
+ 	
+ // implementation
+	    function saveIncidentTask(incidentTaskObject) {
+	        var def = $q.defer();
+	        $http.post(hostLocation+"/incident/rsp/incident/task/save",incidentTaskObject)
+	            .success(function(data) {
+	            	//console.log(data)
+	                def.resolve(data);
+	            })
+	            .error(function(data) {
+	            	console.log(data)
+	                def.reject(data);
+	            });
+	        return def.promise;
+	    }
  	
     function getRSPLinkedTickets(parentTicketId) {
         var def = $q.defer();
@@ -958,10 +989,9 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
     }
  	
  	//Added By Supravat for Related Tickets Requirements.
- 	function getRelatedTicketData(relatedInputData, mode) {
+ 	function getRelatedTicketData(relatedInputData, ticketFor) {
         var def = $q.defer();
-        var url=""
-        	url=hostLocation+"/site/relatedtickets/"+relatedInputData.ticketId + "/"+relatedInputData.siteId;
+        var url=hostLocation+"/site/relatedtickets/"+relatedInputData.ticketId + "/"+relatedInputData.siteId+"/"+ticketFor;
         /*if(mode!=undefined && mode.toUpperCase()=="SP"){
         	url=hostLocation+"/sp/site/relatedtickets/"+relatedInputData.ticketId + "/"+relatedInputData.siteId;
         }else{

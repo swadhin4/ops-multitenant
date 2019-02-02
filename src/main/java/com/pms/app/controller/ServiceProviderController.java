@@ -78,6 +78,7 @@ public class ServiceProviderController extends BaseController {
 		LoginUser loginUser=getCurrentLoggedinUser(session);
 		if (loginUser!=null) {
 			model.addAttribute("mode","NEW");	
+			model.put("user", loginUser);
 			return "serviceprovider.incident.create";
 		} else {
 			return "redirect:/login";
@@ -90,6 +91,7 @@ public class ServiceProviderController extends BaseController {
 		LoginUser loginUser=getCurrentLoggedinUser(session);
 		if (loginUser!=null) {
 			model.addAttribute("mode","EDIT");	
+			model.put("user", loginUser);
 			return "serviceprovider.incident.update";
 		} else {
 			return "redirect:/login";

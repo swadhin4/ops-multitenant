@@ -754,7 +754,7 @@ public class EmailServiceImpl implements EmailService {
 		if(StringUtils.isNotBlank(ccLevelEmail)){
 		mimeMessage.setRecipients(Message.RecipientType.CC, InternetAddress.parse(ccLevelEmail));
 		}
-		mimeMessage.setSubject("Incident Number : "+ savedticketVO.getTicketNumber() +" has been escalated to level "+ escaltedlevel,"utf-8");
+		mimeMessage.setSubject("Incident Number : "+ savedticketVO.getTicketNumber() +" has been escalated to level "+ spEscalationLevel.getEscalationLevel(),"utf-8");
 
 		// Create a transport.        
 		Transport transport = session.getTransport();

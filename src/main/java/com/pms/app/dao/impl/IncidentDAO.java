@@ -39,6 +39,7 @@ import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
+import com.pms.app.view.vo.IncidentTask;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SelectedTicketVO;
 import com.pms.app.view.vo.ServiceProviderVO;
@@ -218,12 +219,19 @@ public class IncidentDAO {
 			TicketVO savedTicketVO =null;
 			try {
 				if(user.getUserType().equalsIgnoreCase("USER")){
-				savedTicketVO = insertTicketData(ticketVO,user);
+					savedTicketVO = insertTicketData(ticketVO,user);
 				}else if(user.getUserType().equalsIgnoreCase("SP")){
 					// Verify the Ticket Creator of SP company or SP Agent Id for rassignedto Column
 					ServiceProviderVO spCompany = getRegisteredSPDetails(user.getCompany().getCompanyCode());
 					ticketVO.setAssignedTo(spCompany.getServiceProviderId());
-					savedTicketVO = insertSPTicketData(ticketVO,user);
+					if(ticketVO.getTicketAssignedType().equalsIgnoreCase("RSP")){
+						savedTicketVO = insertSPTicketData(ticketVO,user);
+						savedTicketVO.setTicketAssignedType("RSP");
+					}
+					if(ticketVO.getTicketAssignedType().equalsIgnoreCase("CUSTOMER")){
+						savedTicketVO = insertSPTicketData(ticketVO,user);
+						savedTicketVO.setTicketAssignedType("CUSTOMER");
+					}
 				}
 				if(savedTicketVO.getTicketId()!=null ){
 					LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
@@ -644,9 +652,9 @@ public class IncidentDAO {
 		});
 		return ticketList;
 	}
-	public List<TicketVO> findSPRelatedTickets(Long ticketId, Long siteId, Long spId) {
+	public List<TicketVO> findSPRelatedTickets(Long ticketId, Long siteId, Long spId, final String ticketRelatedQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<TicketVO> ticketList = jdbcTemplate.query(AppConstants.SP_RELATED_TICKETS_QUERY,new Object[]{ticketId, siteId, spId}, new ResultSetExtractor<List<TicketVO>>(){
+		List<TicketVO> ticketList = jdbcTemplate.query(ticketRelatedQuery,new Object[]{ticketId, siteId, spId}, new ResultSetExtractor<List<TicketVO>>(){
 			@Override
 			public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<TicketVO> relatedTickets = new ArrayList<TicketVO>();
@@ -754,11 +762,22 @@ public class IncidentDAO {
 	
 	public int deleteLinkedTicket(Long linkedTicket, LoginUser user) throws Exception {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		int updatedRow = jdbcTemplate.update(AppConstants.DELETE_LINKED_TICKET, new PreparedStatementSetter(){
+		int updatedRow = jdbcTemplate.update(AppConstants.DELETE_CUST_LINKED_TICKET, new PreparedStatementSetter(){
 			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
 				ps.setString(1, user.getUsername());
 	            ps.setLong(2, linkedTicket);
+			}
+		});
+		return updatedRow;
+	}
+	
+	public int deleteRSPLinkedTicket(Long linkedTicket, LoginUser user) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		int updatedRow = jdbcTemplate.update(AppConstants.DELETE_RSP_LINKED_TICKET, new PreparedStatementSetter(){
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+	            ps.setLong(1, linkedTicket);
 			}
 		});
 		return updatedRow;
@@ -1160,5 +1179,83 @@ public class IncidentDAO {
 			
 		});
 		return spLinkedTickets;
+	}
+	
+	public IncidentTask saveRspIncidentTask(IncidentTask incidentTask, LoginUser user,final String incidentTaskQuery) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		KeyHolder key = new GeneratedKeyHolder();
+	    jdbcTemplate.update(new PreparedStatementCreator() {
+	      @Override
+	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
+	        final PreparedStatement ps = connection.prepareStatement(incidentTaskQuery, 
+	            Statement.RETURN_GENERATED_KEYS);
+            ps.setLong(1, incidentTask.getTicketId());
+            ps.setString(2,incidentTask.getTaskName());
+            ps.setString(3, incidentTask.getTicketNumber() );
+            ps.setString(4, incidentTask.getTaskNumber() );
+            ps.setString(5, incidentTask.getTaskDesc() );
+            ps.setDate(6,	ApplicationUtil.getSqlDate(incidentTask.getPlannedStartDate()));
+    		ps.setDate(7,   ApplicationUtil.getSqlDate(incidentTask.getPlannedComplDate()));
+    		ps.setString(8, incidentTask.getTaskAssignedTo());
+    		ps.setString(9, incidentTask.getTaskStatus());
+    		ps.setString(10, incidentTask.getResComments());
+    		ps.setString(11, user.getUsername());
+	        return ps;
+	      }
+	    }, key);
+	    LOGGER.info("Saved task details for ticket {} with task id {}.", incidentTask.getTicketNumber(), key.getKey());
+	    if(key.getKey()!=null){
+	    	incidentTask.setTaskId(key.getKey().longValue());
+	    	incidentTask.setStatus(200);
+	    }
+	    
+	    return incidentTask;
+	}
+	public List<IncidentTask> getRSPIncidentTasks(Long ticketId, final String rspIncidentTaskListQuery) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<IncidentTask> rspIncidentTaskList = jdbcTemplate.query(rspIncidentTaskListQuery,new Object[]{ticketId}, new ResultSetExtractor<List<IncidentTask>>(){
+			@Override
+			public List<IncidentTask> extractData(ResultSet rs) throws SQLException, DataAccessException {
+				List<IncidentTask> incidentTasks = new ArrayList<IncidentTask>();
+				while(rs.next()){
+					IncidentTask incidentTask = new IncidentTask();
+					incidentTask.setTaskId(rs.getLong("task_id"));
+					incidentTask.setTaskName(rs.getString("task_name"));
+					incidentTask.setTaskNumber(rs.getString("task_number"));
+					incidentTask.setTaskDesc(rs.getString("task_desc"));
+					incidentTask.setPlanStartDate(ApplicationUtil.getDateStringFromSQLDate(rs.getString("planned_start_date")));
+					incidentTask.setPlanEndDate(ApplicationUtil.getDateStringFromSQLDate(rs.getString("planned_end_date")));
+					incidentTask.setTaskAssignedTo(rs.getString("task_assigned_to"));
+					incidentTask.setTaskStatus(rs.getString("task_status"));
+					incidentTask.setCreatedDate(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_date")));
+					incidentTask.setCreatedBy(rs.getString("created_by"));
+					incidentTask.setResComments(rs.getString("res_comment"));
+					incidentTasks.add(incidentTask);
+				}
+				return incidentTasks;
+			}
+			
+		});
+		return rspIncidentTaskList;
+	}
+	public int updateRspIncidentTask(IncidentTask incidentTask, LoginUser user,
+			String updateRspIncidentTaskQuery) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int updatedRow = jdbcTemplate.update(updateRspIncidentTaskQuery,  new PreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+                ps.setString(1, incidentTask.getTaskName());
+         		ps.setString(2, incidentTask.getTaskDesc());
+         		ps.setDate(3,	ApplicationUtil.getSqlDate(incidentTask.getPlannedStartDate()));
+         		ps.setDate(4,   ApplicationUtil.getSqlDate(incidentTask.getPlannedComplDate()));
+         		ps.setString(5, incidentTask.getTaskAssignedTo());
+         		ps.setString(6, incidentTask.getTaskStatus());
+         		ps.setString(7, incidentTask.getResComments());
+         		ps.setString(8, user.getUsername());
+         		ps.setLong(9, incidentTask.getTaskId());
+            }
+
+        });
+		return updatedRow;
 	}
 }

@@ -155,23 +155,6 @@ $(function() {
 		<div  ng-controller="spIncidentCreateController" id="spIncidentCreateWindow">
 		<div style="display:none" id="loadingDiv"><div class="loader">Loading...</div></div>
 				<section class="content" style="min-height:35px;display:none" id="messageWindow">
-				<div class="row">
-					<div class="col-md-12">
-						<div class="alert alert-success alert-dismissable" id="successMessageDiv"
-							style="display: none;  height: 34px;white-space: nowrap;">
-							<!-- <button type="button" class="close" >x</button> -->
-							<strong>Success! </strong> {{successMessage}} 
-							<a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-						</div>
-						<div class="alert alert-danger alert-dismissable"
-							id="errorMessageDiv"
-							style="display: none; height: 34px; white-space: nowrap;">
-							<!-- <button type="button" class="close" >x</button> -->
-							<strong>Error! </strong> {{errorMessage}} 
-							<a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-						</div>
-					</div>
-				</div>
 			</section>
 			<section class="content">
 			<div class="box">

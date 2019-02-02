@@ -1546,7 +1546,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
     
     						//Added by Supravat for Related Ticket Requirements						    
     
-						    $scope.getRelatedTicketDetails = function(){
+						    $scope.getRelatedTicketDetails = function(ticketFor){
 						    	
 						    	var relatedTktInputData = null;
 						    	var relTicketData = null;
@@ -1555,7 +1555,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 						    			siteId:$scope.ticketData.siteId
 						    	};						    	
 						    	
-								ticketService.getRelatedTicketData(relatedTktInputData,"")
+								ticketService.getRelatedTicketData(relatedTktInputData,ticketFor)
 								 .then(function(relatedTktData){
 									 $scope.relatedTicketData = [];
 									 
@@ -2861,9 +2861,9 @@ function getTicketHistory(){
 }
 
 //Added by Supravat for Related Ticket Requirement
-function getRelatedTicketDetails(){
+function getRelatedTicketDetails(ticketFor){
 	var scope = angular.element("#incidentCreateWindow").scope();
-	scope.getRelatedTicketDetails();
+	scope.getRelatedTicketDetails(ticketFor);
 }
 //Ended by Supravat.
 

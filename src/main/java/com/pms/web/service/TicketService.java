@@ -6,6 +6,7 @@ import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.FinUpdReqBodyVO;
 import com.pms.app.view.vo.FinancialVO;
+import com.pms.app.view.vo.IncidentTask;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketCommentVO;
 import com.pms.app.view.vo.TicketEscalationVO;
@@ -13,7 +14,6 @@ import com.pms.app.view.vo.TicketHistoryVO;
 import com.pms.app.view.vo.TicketPrioritySLAVO;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Financials;
-import com.pms.jpa.entities.SPEscalationLevels;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
@@ -46,7 +46,7 @@ public interface TicketService {
 
 	public List<CustomerSPLinkedTicketVO> getAllLinkedTickets(Long custTicketId, LoginUser loginUser) throws Exception;
 	
-	public List<TicketVO> getRelatedTickets(Long ticketId, Long siteId, LoginUser loginUser) throws Exception;
+	public List<TicketVO> getRelatedTickets(Long ticketId, Long siteId, LoginUser loginUser, String ticketAssignedType) throws Exception;
 
 	public int changeLinkedTicketStatus(Long linkedTicket,  LoginUser loginUser) throws Exception;
 
@@ -87,6 +87,11 @@ public interface TicketService {
 	List<TicketVO> getCustomerSuggestedTicketForAsset(LoginUser loginUser, Long assetId) throws Exception;
 
 	public List<CustomerSPLinkedTicketVO> getRSPLinkedTickets(LoginUser loginUser, Long parentTicketId, String linkedTicketType) throws Exception;
+	
+	public IncidentTask saveRspTicketTask(IncidentTask incidentTask, LoginUser user, String ticketIncidentType) throws Exception;
+
+	public List<IncidentTask> getIncidentTaskList(LoginUser loginUser, Long ticketId, TicketVO selectedTicketVO) throws Exception;
+	
 	
 	/*public TicketVO saveOrUpdate(TicketVO customerTicket, LoginUser user, SPLoginVO savedLoginVO) throws PMSServiceException;
 

@@ -13,6 +13,7 @@ public class IncidentTask implements Serializable {
 	private Long ticketId;
 	private String ticketNumber;
 	private String taskName;
+	private String taskNumber;
 	private String taskDesc;
 	private String planStartDate;
 	private String planEndDate;
@@ -116,6 +117,12 @@ public class IncidentTask implements Serializable {
 	}
 	public void setPlannedComplDate(Date plannedComplDate) {
 		this.plannedComplDate = plannedComplDate;
+	}
+	public String getTaskNumber() {
+		return taskNumber;
+	}
+	public void setTaskNumber(String taskNumber) {
+		this.taskNumber = taskNumber;
 	}
 	public int getStatus() {
 		return status;

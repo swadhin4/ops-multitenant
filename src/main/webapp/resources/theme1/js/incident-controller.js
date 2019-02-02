@@ -193,28 +193,7 @@ chrisApp.controller('incidentController',  ['$rootScope', '$scope', '$filter','s
 				if(data.statusCode == 200){
 				$scope.ticket.list=[];
 				$.each(data.object,function(key,val){
-	    			/*	var ticket={
-	    						ticketId:val.ticketId,
-	    						ticketNumber:val.ticketNumber,
-	    						title:val.ticketTitle,
-	    						siteId:val.siteId,
-	    						siteName:val.siteName,
-	    						assetId:val.assetId,
-	    						assetName:val.assetName,
-	    						status:val.status,
-	    						createdOn:val.raisedOn,
-	    						description:val.description,
-	    						categoryId:val.categoryId,
-	    						categoryName:val.categoryName,
-	    						statusId:val.statusId,
-	    						priority:val.priorityDescription,
-	    						assignedTo:val.assignedTo,
-	    						assignedSP:val.assignedSP,
-	    						raisedBy:val.raisedBy,
-	    						slaDueDate:val.sla,
-	    						ticketStartTime:val.ticketStartTime
-	    						
-	    				};*/
+	    	
 	    				$scope.ticket.list.push(val);
 	    				//$scope.asset.selected=$scope.asset.list[0];
 	    			})

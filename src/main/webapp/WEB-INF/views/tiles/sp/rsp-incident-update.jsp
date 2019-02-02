@@ -215,21 +215,21 @@ background:#deefe5
 			id="messageWindow">
 			<div class="row">
 				<div class="col-md-12">
-					<div class="alert alert-success alert-dismissable"
+					<!-- <div class="alert alert-success alert-dismissable"
 						id="successMessageDiv"
 						style="display: none; height: 34px; white-space: nowrap;">
-						<!-- <button type="button" class="close" >x</button> -->
+						<button type="button" class="close" >x</button>
 						<strong>Success! </strong> {{successMessage}} <a href><span
 							class="messageClose" ng-click="closeMessageWindow()">X</span></a>
 					</div>
 					<div class="alert alert-danger alert-dismissable"
 						id="errorMessageDiv"
 						style="display: none; height: 34px; white-space: nowrap;">
-						<!-- <button type="button" class="close" >x</button> -->
+						<button type="button" class="close" >x</button>
 						<strong>Error! </strong> {{errorMessage}} <span
 							id="fileerrorincident"></span> <a href><span
 							class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-					</div>
+					</div> -->
 					<!-- <div class="alert alert-danger alert-dismissable" id="errorMessageDiv"
 							style="display: none;  height: 34px;white-space: nowrap;">
 							<button type="button" class="close">x</button>
@@ -297,7 +297,7 @@ background:#deefe5
 											<li><a href="#tickethistory" data-toggle="tab"
 												onclick="getTicketHistory()">Ticket History</a></li>
 											<!--  Added by Supravat for adding Related Tickets Tab-->
-											<li><a href="#relatedTickets" onclick="getRelatedTicketDetails()" data-toggle="tab">Related Tickets</a>
+											<li><a href="#relatedTickets" ng-click="getRelatedTicketDetails(ticketData.ticketAssignedType)" data-toggle="tab">Related Tickets</a>
 											<span class="label label-warning" style="position: relative;
     top: -33px;left: 110px;">{{relatedTicketData.length || 0}}</span>
 											</li>
@@ -307,7 +307,7 @@ background:#deefe5
 											
 											<li ng-show="ticketType=='RSP'"><a href="#incidentTask" ng-click="getIncidentTasks()" data-toggle="tab">Tasks</a>
 											<span class="label label-warning" style="position: relative;
-    top: -33px;left: 45px;">{{relatedTicketData.length || 0}}</span>
+    top: -33px;left: 57px;">{{incidentTask.list.length || 0}}</span>
 											</li>
 											
 											<!-- End -->
@@ -740,7 +740,7 @@ background:#deefe5
 											            <div class="info-box-content">
 											              <span class="info-box-text">{{escalation.escTo}}</span>
 											              <span class="info-box-number ng-binding">{{escalation.escEmail}}</span>
-											              <span class="badge"  ng-if="escalation.escStatus!='Escalated'" >
+											              <span class="badge"  ng-if="escalation.escStatus!='Escalated'" ng-if="ticketData.ticketAssignedType=='RSP'">
 											               <input
 															type="checkbox" id="chkEscalation{{$index}}"
 															ng-change="getSelectedEscalation(escalation,$index)"
@@ -914,8 +914,8 @@ background:#deefe5
 																<td style="vertical-align:middle;width: 60%;">
 																		<span class=" pull-right label label-success">{{ticket.linkedTicketStatus}}</span>
 																		</td>
-																<td><!-- <a href ng-click="unlinkTicketConfirmation($index,ticket)"><span class="badge bg-red pull-right" style="    font-size: 1.4em;" >
-																<i class="fa fa-unlink"></i></span></a> --></th>
+																<td><a href ng-click="unlinkTicketConfirmation($index,ticket)"><span class="badge bg-red pull-right" style="    font-size: 1.4em;" >
+																<i class="fa fa-unlink"></i></span></a></th>
 															</tr>
 															<tr  ng-if="ticketData.linkedTickets.length==0 || ticketData.linkedTickets==null ">
 																<th colspan="4" style="text-align: center">No ticket linked</th>
@@ -1312,46 +1312,53 @@ background:#deefe5
 											
 											<!-- Added By Supravat for Related Tickets Requirements. -->
 											<div class="tab-pane" id="relatedTickets">
-												<div class="box">
-													<div class="box-header with-border">
-														<h3 class="box-title">Related Tickets</h3>
-													</div>
-													<div class="box-body">
-																	<table id="financialsTable"
-																		class="table table-bordered table-hover table-condensed">
-																		<thead>
-																			<tr>
-																				<th style="width:30%;"><b>Ticket Number</b></th>
-																				<th style="width:40%;"><b>Title</b></th>
-																				<th style="width:20%;"><b>Asset</b></th>
-																				<th style="width:10%;"><b>Status</b></th>
-																			</tr>
-																		</thead>
-																		<tbody>
+																		          <div class="box">
+            <div class="box-header">
+              <h3 class="box-title">Related Tickets</h3>
 
-																			<tr ng-repeat="rowTicketData in relatedTicketData">
-																				<td><a href="" ng-click="setTicketinSession(rowTicketData)">{{rowTicketData.ticketNumber}}</a></td>
-																				<td>{{rowTicketData.title}}</td>
-																				<td>{{rowTicketData.asset}}</td>
-																				<td>{{rowTicketData.status}}</td>
-																			</tr>
+              <div class="box-tools">
+                <div class="input-group input-group-sm" style="width: 450px;">
+                  <input type="text" name="table_search" class="form-control pull-right" ng-model="ticketsearch" 
+                  placeholder="Search by incident number, asset name, site name, service provider, status">
 
-																		</tbody>
-																	</table>
-
-													</div>
-													<div class="box-footer">
-													<div class="row">
-														<div class="col-sm-4 col-xs-6">
-															<div class="description-block border-right">
-																<a class="btn btn-danger pull-left">Total Tickets :
-																	<span class="badge">{{relatedTicketData.length}}</span>
-																</a>
-															</div>
-														</div>
-													</div>
-												</div>
-												</div>
+                  <div class="input-group-btn">
+                    <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body table-responsive no-padding">
+              <table class="table table-hover">
+              <tbody style="font-size: .9em"><tr ">
+					<th style="width:12%">Ticket Number</th>
+					<th style="width:20%">Title</th>
+					<th>Asset</th>
+					<th tyle="width:10%">Status</th>
+					
+					</tr>
+                <tr ng-repeat="val in relatedTicketData | filter: ticketsearch" ng-class="{currentSelected:$index == selectedRow}" 
+               	 ng-click="rowHighilited($index)">
+                	<th class="todo-list">
+                  {{val.ticketNumber}}
+                  <a href="#" ng-click="getTicketDetails(val);" data-toggle="modal"  ><i class="fa fa-eye pull-right"></i></a>
+                  </th>
+					<td>{{val.title}}</td>
+					<td>{{val.asset}}</td>
+					<td><span class="label label-success" ng-if="val.statusId == 1">{{val.status}}</span>
+					<span class="label label-warning" ng-if="val.statusId == 2">{{val.status}}</span>
+					<span class="label label-info" ng-if="val.statusId == 3">{{val.status}}</span>
+					<span class="label label-default" ng-if="val.statusId == 4">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId == 5">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId == 6">{{val.status}}</span>
+					<span class="label label-danger" ng-if="val.statusId > 6">{{val.status}}</span>
+					
+					</td>
+					
+                </tr>
+              </tbody></table>
+            </div>
+          </div>
 											</div>
 
 											<!-- Supravat End -->
@@ -1379,27 +1386,26 @@ background:#deefe5
 														<%-- </sec:authorize> --%>
 														</div>
 													</div>
-													<div class="box-body">
+													<div class="box-body table-responsive no-padding">
 																	<table id="incidentTaskDetails"
-																		class="table table-bordered table-hover table-condensed">
-																		<thead>
-																			<tr>
-																				<th style="width:10%;"><b>Task ID</b></th>
-																				<th style="width:30%;"><b>Title</b></th>
-																				<th style="width:20%;"><b>Status</b></th>
-																				<th style="width:30%;"><b>Assigned To</b></th>
-																				<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
-																				<th style="width:10%;"><b>Action</b></th>
-																				</sec:authorize>
-																			</tr>
-																		</thead>
+																		class="table table-hover ">
 																		<tbody>
+																		<tr>
+																			<th style="width:10%;"><b>Task ID</b></th>
+																			<th style="width:30%;"><b>Title</b></th>
+																			<th style="width:20%;"><b>Status</b></th>
+																			<th style="width:30%;"><b>Assigned To</b></th>
+																			<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
+																			<th style="width:10%;"><b>Action</b></th>
+																			</sec:authorize>
+																		</tr>
+																	
 
 																			<tr
-													ng-repeat="inctask in incidentTasks"
+													ng-repeat="inctask in incidentTask.list"
 													ng-class="{currentSelected:$index == selectedTaskRow}"
 													ng-click="rowTaskHighilited($index)">
-													<td>{{inctask.taskId}}</td>
+													<td>{{inctask.taskNumber}}</td>
 													<td>{{inctask.taskName}}</td>
 													<td>{{inctask.taskStatus}}</td>
 													<td>{{inctask.taskAssignedTo}}</td>
@@ -1416,13 +1422,13 @@ background:#deefe5
 												</div>
 												
 												
-												<div class="modal right fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModal">
+			<div class="modal right fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="taskModal">
 		<div class="modal-dialog" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel2" ng-if="selectedAsset.taskId==null">Create Task</h4>
-					<h4 class="modal-title" id="myModalLabel3" ng-if="selectedAsset.taskId!=null">Update Task</h4>
+					<h4 class="modal-title" id="myModalLabel2" ng-if="incidentTask.taskId==null">Create Task</h4>
+					<h4 class="modal-title" id="myModalLabel3" ng-if="incidentTask.taskId!=null">Update Task</h4>
 				</div>
 				<div class="modal-body">
 				       <div class="box box-solid">
@@ -1438,8 +1444,8 @@ background:#deefe5
 					 <input
 						name="taskname" type="text" class="form-control"
 						maxlength="50" name="taskName" 
-						ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
-						ng-model="incidentTasks.taskName"
+						ng-disabled="incidentTask.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'"
+						ng-model="incidentTask.taskName"
 						placeholder="Enter Task Name" required>
 				</dd>
               </dl>
@@ -1448,9 +1454,9 @@ background:#deefe5
                 <dd>
 					<textarea class="form-control"
 					 rows="3"
-					 ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+					 ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'"
 					placeholder="Enter Task Description" name="taskDescription"
-					ng-model="incidentTasks.taskDesc"></textarea>
+					ng-model="incidentTask.taskDesc"></textarea>
 				</dd>
                 </dl>
                  <dl>
@@ -1464,8 +1470,8 @@ background:#deefe5
 				</div>
 				<input type="text" class="form-control pull-right dt1"
 					placeholder="Planned Start Date" id="planStartDate"
-					ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
-					ng-model="incidentTasks.planStartDate" required>
+					ng-disabled="incidentTask.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'"
+					ng-model="incidentTask.planStartDate" required>
 
 			     </div>
 			     </div>
@@ -1478,8 +1484,8 @@ background:#deefe5
 					</div>
 					<input type="text" class="form-control pull-right dt1"
 						placeholder="Completion Date" id="planComplDate"
-						ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
-						ng-model="incidentTasks.planEndDate" required>
+						ng-disabled="incidentTask.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'"
+						ng-model="incidentTask.planEndDate" required>
 
 						
 				</div>
@@ -1492,46 +1498,46 @@ background:#deefe5
                 <dd>
 					<input
 					type="text" class="form-control" name="assignTo"
-					ng-model="incidentTasks.taskAssignedTo"
-					ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+					ng-model="incidentTask.taskAssignedTo"
+					ng-disabled="incidentTask.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'"
 					placeholder="Enter Assigned To" required>
 				</dd>
                 </dl>
                  <label class="control-label">Status <i style="color:red">*</i></label>
                 <div >
 					<select ng-if="taskOperation =='CreateTask'"
-					 name="taskStatus" ng-model="incidentTasks.taskStatus"
+					 name="taskStatus" ng-model="incidentTask.taskStatus"
 					id="taskStatus" class="form-control" required>
 					<option value="NEW" selected="selected">New</option>
 					</select>
 					<select  ng-if="taskOperation =='UpdateTask'" 
 						name="taskStatusUpdate" id="taskStatusUpdate" class="form-control" 
-						ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
-						required ng-model="incidentTasks.taskStatus">
-						<option value="NEW" ng-hide="incidentTasks.taskSelectedStatus =='INPROGRESS'">New</option>
+						ng-disabled="incidentTask.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'"
+						required ng-model="incidentTask.taskStatus">
+						<option value="NEW" ng-hide="incidentTask.taskSelectedStatus =='INPROGRESS'">New</option>
 						<option value="INPROGRESS">In Progress</option>
 						<option value="CLOSED">Closed</option>
 						<option value="REJECTED">Rejected</option>
 					</select>
 				
                 </div>
-                <div ng-hide="incidentTasks.taskStatus =='NEW' || incidentTasks.taskStatus =='INPROGRESS'">
+                <div ng-hide="incidentTask.taskStatus =='NEW' || incidentTask.taskStatus =='INPROGRESS'">
 					<label class="control-label">Resolution Comment</label>
 					<textarea class="form-control" rows="3"
 						placeholder="Enter Resolution Comment"
-						ng-disabled="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'"
+						ng-disabled="incidentTask.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'"
 						name="resolutionComment"
-						ng-model="incidentTasks.resComments"></textarea>
+						ng-model="incidentTask.resComments"></textarea>
 				
                 </div>
-                 <div ng-if="incidentTasks.taskId==null" style="margin-top: 15px; margin-right: 1px;"
-                 ng-hide="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'">
+                 <div ng-if="incidentTask.taskId==null" style="margin-top: 15px; margin-right: 1px;"
+                 ng-hide="incidentTask.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'">
                  <button type="submit" class="btn btn-success">Save	changes</button>
 					<button type="reset" id="resetServiceAssetForm"
 						class="btn btn-success">RESET</button>
                  </div>
-                 <div ng-if="incidentTasks.taskId!=null" style="margin-top: 15px; margin-right: 1px;"
-                 ng-hide="incidentTasks.taskSelectedStatus =='CLOSED' || incidentTasks.taskSelectedStatus =='REJECTED'">
+                 <div ng-if="incidentTask.taskId!=null" style="margin-top: 15px; margin-right: 1px;"
+                 ng-hide="incidentTask.taskSelectedStatus =='CLOSED' || incidentTask.taskSelectedStatus =='REJECTED'">
                  <button type="submit" class="btn btn-success">Update changes</button>
                  </div>
                 </form>
@@ -1614,7 +1620,7 @@ background:#deefe5
 
 								<div class="popover-body">
 									<a class="pull-left btn-box-tool">Name:
-										{{ticketData.createdUser}} </a></br> <a class="pull-left btn-box-tool">Phone
+										{{ticketData.assignedSP}} </a></br> <a class="pull-left btn-box-tool">Phone
 										Number: {{ticketData.raisedUser}} </a>
 								</div>
 							</div>
@@ -1693,7 +1699,7 @@ background:#deefe5
 									</div>
 								</div>
 							</div> 
-							<!-- <div class="modal fade" id="confirmUnlink" role="dialog"
+							<div class="modal fade" id="confirmUnlink" role="dialog"
 								aria-labelledby="confirmDeleteLabel" aria-hidden="true"
 								data-keyboard="false" data-backdrop="static">
 								<div class="modal-dialog">
@@ -1707,14 +1713,14 @@ background:#deefe5
 											<p>Are you sure, you want to unlink this ticket ?</p>
 										</div>
 										<div class="modal-footer">
-											<button type="button" class="btn btn-default"
+											<button type="button" class="btn btn-default" id="unlinkNoBtn"
 												data-dismiss="modal">No</button>
 											<button type="button" class="btn btn-danger" id="confirm"
 												ng-click="unlinkTicket()">Yes</button>
 										</div>
 									</div>
 								</div>
-							</div> -->
+							</div>
 
 							<!-- <div class="modal fade" id="confirmClose" role="dialog"
 								aria-labelledby="confirmDeleteLabel" aria-hidden="true"

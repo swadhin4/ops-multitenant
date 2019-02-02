@@ -296,7 +296,7 @@ background:#deefe5
 											<li><a href="#tickethistory" data-toggle="tab"
 												onclick="getTicketHistory()">Ticket History</a></li>
 											<!--  Added by Supravat for adding Related Tickets Tab-->
-											<li><a href="#relatedTickets" onclick="getRelatedTicketDetails()" data-toggle="tab">Related Tickets</a>
+											<li><a href="#relatedTickets" onclick="getRelatedTicketDetails('CUSTOMER')" data-toggle="tab">Related Tickets</a>
 											<span class="label label-warning" style="position: relative;
     top: -33px;left: 110px;">{{relatedTicketData.length || 0}}</span>
 											</li>
@@ -902,7 +902,7 @@ background:#deefe5
 																		<span class=" pull-right label label-success">{{ticket.linkedTicketStatus}}</span>
 																		</td>
 																<td><a href ng-click="unlinkTicketConfirmation($index,ticket)"><span class="badge bg-red pull-right" style="    font-size: 1.4em;" >
-																<i class="fa fa-unlink"></i></span></a></th>
+																<i class="fa fa-unlink"></i></span></a></td>
 															</tr>
 														</tbody>
 													</table>
