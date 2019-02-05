@@ -675,7 +675,8 @@ public class IncidentController extends BaseController {
 		try {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
-				TicketCommentVO savedComment = ticketSerice.saveTicketComment(ticketCommentVO, loginUser);
+				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+				TicketCommentVO savedComment = ticketSerice.saveTicketComment(ticketCommentVO, loginUser, selectedTicketVO.getTicketAssignedType());
 				if (savedComment.getCommentId() != null) {
 					response.setStatusCode(200);
 					response.setObject(savedComment);
@@ -703,7 +704,8 @@ public class IncidentController extends BaseController {
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		if (loginUser != null) {
-			List<TicketCommentVO> selectedTicketComments = ticketSerice.getTicketComments(ticketId, loginUser);
+			TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+			List<TicketCommentVO> selectedTicketComments = ticketSerice.getTicketComments(ticketId, loginUser, selectedTicketVO.getTicketAssignedType());
 			if (!selectedTicketComments.isEmpty()) {
 				response.setStatusCode(200);
 				response.setObject(selectedTicketComments);

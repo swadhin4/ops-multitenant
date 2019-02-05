@@ -985,6 +985,7 @@ background:#deefe5
 											<tbody>
 												<tr
 													ng-repeat="incidentImage in incidentImageList">
+													<td>{{incidentImage.imageId}}</td>	
 													<td><input type="file"
 														id="incidentImage{{$index}}"
 														class="form-control"

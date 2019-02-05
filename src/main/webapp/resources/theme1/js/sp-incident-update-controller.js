@@ -155,14 +155,14 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 					if($scope.ticketData.statusId == 15){
 						 $("#btnSavePrimary").prop("disabled", true);
 					}
-					if($scope.ticketData.ticketComments.length>0){
+				/*	if($scope.ticketData.ticketComments.length>0){
 						 $scope.ticketData.comments =$scope.ticketData.ticketComments;
 						 $scope.ticketComments=[];
 						 $.each($scope.ticketData.comments,function(key,val){
 							  $scope.ticketComments.push(val);
 						 })
 						 
-					}
+					}*/
 					
 					if($scope.ticketData.attachments.length>0){
 						$scope.ticketData.files=[];
@@ -203,6 +203,22 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			})
 			
 		}
+		
+		 $scope.getTicketComments=function(){
+			 var ticketId = $scope.ticketData.ticketId;
+				ticketService.listComment(ticketId)
+				.then(function(data){
+					if(data.statusCode==200){
+						 $scope.ticketData.comments = data.object;
+						 $scope.ticketComments=[];
+						 $.each(data.object,function(key,val){
+							  $scope.ticketComments.push(val);
+						 })
+					}
+				},function(data){
+					console.log(data);
+				});
+		 }
 		$scope.setSLAWidth=function(ticketData){
             if(ticketData.slaPercent > 100){
                 $scope.ticketData.width = 100;                
@@ -761,7 +777,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 				 //console.log(data);
 				 if(data.statusCode == 200){
 					 $("#ticketMessage").val("");
-					 $scope.ticketComments.push(data.object);
+					 $scope.getTicketComments();
 				 }
 			 },function(data){
 				 //console.log(data);
@@ -1807,6 +1823,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		$scope.openChatBox=function(){
 				$('#chatWindow').fadeIn();
 				$scope.chatBoxView="ON";
+				$scope.getTicketComments();
 		}
 		$scope.closeWindow=function(){
 			$('#chatWindow').fadeOut();

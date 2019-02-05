@@ -369,14 +369,14 @@ chrisApp
 											
 											$('#closeCode').prop("disabled",true);
 										}
-										if(data.object.ticketComments.length>0){
+										/*if(data.object.ticketComments.length>0){
 											 $scope.ticketData.comments = data.object.ticketComments;
 											 $scope.ticketComments=[];
 											 $.each(data.object.ticketComments,function(key,val){
 												  $scope.ticketComments.push(val);
 											 })
 											 
-										}
+										}*/
 										
 										if($scope.ticketData.attachments.length>0){
 											$scope.ticketData.files=[];
@@ -399,6 +399,32 @@ chrisApp
 									$('#loadingDiv1').hide();
 								});
 							}
+							
+							$scope.addNewComment = function(){
+								//console.log("comment added");
+								$scope.CurrentDate = new Date();
+								$scope.CurrentDate = $filter('date')(new Date(), 'dd-MM-yyyy');
+								if($scope.ticketComment.comment != ""){
+									var ticketComment={
+											  ticketId:$scope.ticketData.ticketId,
+											  ticketNumber : $scope.ticketData.ticketNumber,
+											  comment:$scope.ticketComment.comment
+									}
+									
+									 ticketService.saveComment(ticketComment)
+									 .then(function(data){
+										 //console.log(data);
+										 if(data.statusCode == 200){
+											 $("#ticketMessage").val("");
+											 $scope.getTicketComments();
+										 }
+									 },function(data){
+										 //console.log(data);
+									 });
+								}
+								 
+							};
+							
 							
 							$scope.selectLinkTicket=function(optionSelected){
 								if(optionSelected=="ZERO"){
@@ -823,9 +849,27 @@ chrisApp
 						    }
 							
 							 $scope.openChatBox=function(){
-									$('#chatWindow').fadeIn();
-									$scope.chatBoxView="ON";
+								$('#chatWindow').fadeIn();
+								$scope.chatBoxView="ON";
+								 $scope.getTicketComments();
 							}
+							 
+							 $scope.getTicketComments=function(){
+								 var ticketId = $scope.ticketData.ticketId;
+									ticketService.listComment(ticketId)
+									.then(function(data){
+										if(data.statusCode==200){
+											 $scope.ticketData.comments = data.object;
+											 $scope.ticketComments=[];
+											 $.each(data.object,function(key,val){
+												  $scope.ticketComments.push(val);
+											 })
+										}
+									},function(data){
+										console.log(data);
+									});
+							 }
+							 
 							$scope.closeWindow=function(){
 								$('#chatWindow').fadeOut();
 							}
@@ -1654,6 +1698,7 @@ chrisApp
 						    $scope.onFileUploadReader=function(e){
 						    	$('#loadingDiv').show();
 						    	var fileUrl = e.target.result;
+						    	var uniqueImageNumber=(new Date().getTime()).toString(36);
 						    	var fileSize = Math.round((e.total / 1024)) ;
 						 		var incidentImage={
 									fileName:$scope.ticketData.ticketNumber,
@@ -1662,7 +1707,8 @@ chrisApp
 									imgPos:$scope.indexPos,
 									base64ImageString:e.target.result,
 									fileExtension: $scope.fileExtension,
-									fileSize : fileSize
+									fileSize : fileSize,
+									imageId:uniqueImageNumber
 								}
 						 		$('#imgsize'+$scope.indexPos).text(fileSize+" KB");
 						 		ticketService.addImage(incidentImage)
@@ -1702,10 +1748,10 @@ chrisApp
 						    	
 						    	if($scope.incidentImages.length>0){
 						    		 var totalSize=0;
-						   		  $.each($scope.incidentImages,function(key,val){
-						   			  totalSize =  totalSize + parseInt(val.fileSize);
-						   			$('#totalIncidentSize').text(totalSize+" KB");
-						   		  });
+							   		  $.each($scope.incidentImages,function(key,val){
+							   			  totalSize =  totalSize + parseInt(val.fileSize);
+							   			$('#totalIncidentSize').text(totalSize+" KB");
+							   		  });
 						    		
 						    		if(totalSize > 1024){
 						    			 $('#messageWindow').show();
@@ -1716,16 +1762,18 @@ chrisApp
 									 $scope.ticketData.incidentImageList=$scope.incidentImages;
 									 if(mode=="EDIT"){
 										 $scope.ticketData.mode="IMAGEUPLOAD";
-											 var rspMappedCustomer = $.jStorage.get("selectedRSPCustomer");
-											$scope.ticketData.rspCustMappedCompanyCode=rspMappedCustomer.custCode;
-											$scope.ticketData.rspCustMappedCompanyName=rspMappedCustomer.custName;
-											$scope.ticketData.rspCustMappedCompanyId=rspMappedCustomer.custId;
-									     $scope.persistTicket( $scope.ticketData, "UPLOAD");
+										 var rspMappedCustomer = $.jStorage.get("selectedRSPCustomer");
+										 $scope.ticketData.rspCustMappedCompanyCode=rspMappedCustomer.custCode;
+										 $scope.ticketData.rspCustMappedCompanyName=rspMappedCustomer.custName;
+										 $scope.ticketData.rspCustMappedCompanyId=rspMappedCustomer.custId;
+										 $scope.persistTicket( $scope.ticketData, "UPLOAD");
 									 }else{
 										 $('#btnUploadCancel').click();
 									 }
 										 
 						    		}
+								 }else{
+									 $scope.getErrorMessage("No Image added");
 								 }
 						    }
 						    

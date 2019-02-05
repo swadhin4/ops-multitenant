@@ -296,14 +296,14 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 						
 						$('#closeCode').prop("disabled",true);
 					}
-					if(data.object.ticketComments.length>0){
+					/*if(data.object.ticketComments.length>0){
 						 $scope.ticketData.comments = data.object.ticketComments;
 						 $scope.ticketComments=[];
 						 $.each(data.object.ticketComments,function(key,val){
 							  $scope.ticketComments.push(val);
 						 })
 						 
-					}
+					}*/
 					
 					if($scope.ticketData.attachments.length>0){
 						$scope.ticketData.files=[];
@@ -324,6 +324,23 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				console.log(data)
 			});
 		}
+		
+		 $scope.getTicketComments=function(){
+			 var ticketId = $scope.ticketData.ticketId;
+				ticketService.listComment(ticketId)
+				.then(function(data){
+					if(data.statusCode==200){
+						 $scope.ticketData.comments = data.object;
+						 $scope.ticketComments=[];
+						 $.each(data.object,function(key,val){
+							  $scope.ticketComments.push(val);
+						 })
+					}
+				},function(data){
+					console.log(data);
+				});
+		 }
+		 
 		
 		$scope.setSLAWidth=function(ticketData){
             if(ticketData.slaPercent > 100){
@@ -1143,7 +1160,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 				 //console.log(data);
 				 if(data.statusCode == 200){
 					 $("#ticketMessage").val("");
-					 $scope.ticketComments.push(data.object);
+					 $scope.getTicketComments();
 				 }
 			 },function(data){
 				 //console.log(data);
@@ -1526,10 +1543,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 		  });
 			if(totalSize > 1024){
 					$('#incidentImageModalMessageDiv').show();
-/*					 $('#messageWindow').show();
-					 $('#errorMessageDiv').show();
-		        	 $('#errorMessageDiv').alert();
-*/					 $('#fileerrorincident').text("File size exceeds 1 MB");
+					 $('#fileerrorincident').text("File size exceeds 1 MB");
 					 $scope.getErrorMessage("File size exceeds 1 MB");
 					$('#uploadImgBtn').attr("disabled",true)
 					$('#btnUpload').attr("disabled",true)
@@ -2435,6 +2449,8 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 	 $scope.openChatBox=function(){
 			$('#chatWindow').fadeIn();
 			$scope.chatBoxView="ON";
+			var ticketId = $scope.ticketData.ticketId;
+			$scope.getTicketComments();
 	}
 	$scope.closeWindow=function(){
 		$('#chatWindow').fadeOut();

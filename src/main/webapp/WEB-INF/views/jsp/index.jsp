@@ -39,6 +39,7 @@
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/controller.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/register-controller.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/services.js"></c:url>'></script>
+<script src="http://messaging-public.realtime.co/js/2.1.0/ortc.js"></script>
 <style>
 	@media (min-width: 1200px){
 

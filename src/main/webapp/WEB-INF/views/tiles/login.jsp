@@ -53,7 +53,7 @@
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/login-controller.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/services.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/service-provider-service.js"></c:url>'></script>
-
+<script src="http://messaging-public.realtime.co/js/2.1.0/ortc.js"></script>
 <style type="text/css">
 
 .nav nav-tabs>li>a {
@@ -210,6 +210,9 @@ a, a:hover, a:active {
                     </div>
                 </div>
 
+            </div>
+            <div class="container">
+            	<div id="adwindow"></div>
             </div>
          </div>
 		</div>

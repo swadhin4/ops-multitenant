@@ -531,13 +531,13 @@ public class IncidentDAO {
 		});
 		return ticketAttachments;
 	}
-	public TicketComment saveTicketComment(TicketComment ticketComment, LoginUser user) {
+	public TicketComment saveTicketComment(TicketComment ticketComment, LoginUser user, final String insertTicketCommentQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_TICKET_COMMENT_QUERY, 
+	        final PreparedStatement ps = connection.prepareStatement(insertTicketCommentQuery, 
 	            Statement.RETURN_GENERATED_KEYS);
 	        ps.setLong(1, ticketComment.getTicketId());
 	        ps.setString(2, ticketComment.getCustTicketNumber());
@@ -551,9 +551,9 @@ public class IncidentDAO {
 		return ticketComment;
 	}
 	
-	public List<TicketCommentVO> getTicketComments(Long ticketId){
+	public List<TicketCommentVO> getTicketComments(Long ticketId,  final String listTicketCommentQuery){
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<TicketCommentVO> ticketComments = jdbcTemplate.query(AppConstants.TICKET_COMMENTS,new Object[]{ticketId}, new ResultSetExtractor<List<TicketCommentVO>>(){
+		List<TicketCommentVO> ticketComments = jdbcTemplate.query(listTicketCommentQuery,new Object[]{ticketId}, new ResultSetExtractor<List<TicketCommentVO>>(){
 			@Override
 			public List<TicketCommentVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<TicketCommentVO> comments = new ArrayList<TicketCommentVO>();

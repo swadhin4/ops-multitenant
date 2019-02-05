@@ -38,9 +38,9 @@ public interface TicketService {
 
 	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser, final TicketVO ticketVO) throws Exception;
 
-	public TicketCommentVO saveTicketComment(TicketCommentVO ticketCommentVO, LoginUser loginUser) throws Exception;
+	public TicketCommentVO saveTicketComment(TicketCommentVO ticketCommentVO, LoginUser loginUser, String ticketAssignedType) throws Exception;
 
-	public List<TicketCommentVO> getTicketComments(Long ticketId, LoginUser loginUser) throws Exception;
+	public List<TicketCommentVO> getTicketComments(Long ticketId, LoginUser loginUser, String ticketAssignedType) throws Exception;
 
 	public List<TicketHistoryVO> getTicketHistory(String ticketNumber, LoginUser loginUser) throws Exception;
 

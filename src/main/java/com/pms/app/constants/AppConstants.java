@@ -358,6 +358,11 @@ public class AppConstants {
 
 	public  static final String INSERT_TICKET_COMMENT_QUERY = "INSERT into pm_cust_ticket_comment(ticket_id,custticket_number,comment, created_by, created_date) "
 			+ " values(?,?,?,?,NOW())";
+	
+	public  static final String INSERT_RSP_TICKET_COMMENT_QUERY = "INSERT into pm_rsp_ticket_comment(ticket_id,custticket_number,comment, created_by, created_date) "
+			+ " values(?,?,?,?,NOW())";
+	
+	public static final String RSP_TICKET_COMMENTS = "select * from pm_rsp_ticket_comment where ticket_id=?";
 
 	public static final String TICKET_COMMENTS = "select * from pm_cust_ticket_comment where ticket_id=?";
 

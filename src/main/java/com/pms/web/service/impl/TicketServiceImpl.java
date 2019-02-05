@@ -576,8 +576,8 @@ public class TicketServiceImpl implements TicketService {
 			
 		}
 		
-		List<TicketCommentVO> ticketComments = getTicketComments(ticketVO.getTicketId(), loginUser);
-		ticketVO.setTicketComments(ticketComments);
+		//List<TicketCommentVO> ticketComments = getTicketComments(ticketVO.getTicketId(), loginUser);
+		//ticketVO.setTicketComments(ticketComments);
 		ticketVO.setClosedBy(selectedTicket.getClosed_by());
 		ticketVO.setClosedOn(selectedTicket.getClosed_on());
 		
@@ -656,13 +656,23 @@ public class TicketServiceImpl implements TicketService {
 	}
 	
 	@Override
-	public TicketCommentVO saveTicketComment(TicketCommentVO ticketCommentVO, LoginUser user) throws Exception {
+	public TicketCommentVO saveTicketComment(TicketCommentVO ticketCommentVO, LoginUser user, String ticketAssignedType) throws Exception {
 			TicketComment ticketComment = new TicketComment();
 			ticketComment.setCreatedBy(user.getUsername());
 			ticketComment.setCustTicketNumber(ticketCommentVO.getTicketNumber());
 			ticketComment.setTicketId(ticketCommentVO.getTicketId());
 			ticketComment.setComment(ticketCommentVO.getComment());
-			ticketComment = getIncidentDAO(user.getDbName()).saveTicketComment(ticketComment, user);
+			
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				 if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+					 ticketComment = getIncidentDAO(user.getDbName()).saveTicketComment(ticketComment, user, AppConstants.INSERT_RSP_TICKET_COMMENT_QUERY);
+				 }
+				 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+					 ticketComment = getIncidentDAO(user.getDbName()).saveTicketComment(ticketComment, user, AppConstants.INSERT_TICKET_COMMENT_QUERY);
+				 }
+			}else{
+				ticketComment = getIncidentDAO(user.getDbName()).saveTicketComment(ticketComment, user, AppConstants.INSERT_TICKET_COMMENT_QUERY);
+			}
 			
 			if(ticketComment.getCommentId()!=null){
 				ticketCommentVO.setTicketNumber(ticketComment.getCustTicketNumber());
@@ -678,8 +688,18 @@ public class TicketServiceImpl implements TicketService {
 	}
 	
 	@Override
-	public List<TicketCommentVO> getTicketComments(Long ticketId, LoginUser user) {
-		List<TicketCommentVO> commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId);
+	public List<TicketCommentVO> getTicketComments(Long ticketId, LoginUser user, String ticketAssignedType) {
+		List<TicketCommentVO> commentListVO = new ArrayList<TicketCommentVO>();
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			 if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+				commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId, AppConstants.RSP_TICKET_COMMENTS);
+			 }
+			 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+				 commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId, AppConstants.TICKET_COMMENTS);
+			 }
+		}else{
+			commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId, AppConstants.TICKET_COMMENTS);
+		}
 		return commentListVO == null?Collections.emptyList():commentListVO;
 	}
 
