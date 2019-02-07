@@ -845,7 +845,9 @@ public class IncidentController extends BaseController {
 					response.setStatusCode(200);
 					TicketVO ticketVO = (TicketVO) session.getAttribute("selectedTicket");
 					ticketVO.getLinkedTickets().clear();
-					ticketVO.setLinkedTickets(ticketVO.getLinkedTickets());
+					List<CustomerSPLinkedTicketVO> linkedTickets = ticketSerice.getAllLinkedTickets(ticketVO.getTicketId(),
+							loginUser);
+					ticketVO.setLinkedTickets(linkedTickets);
 					session.setAttribute("selectedTicket", ticketVO);
 					response.setObject(ticketVO);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);

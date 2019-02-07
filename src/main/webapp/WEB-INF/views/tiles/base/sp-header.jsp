@@ -120,7 +120,14 @@
     padding-left: 15px;
     padding-right: 15px;
 }
-
+ .alert-fixed-top{
+   		position: fixed;
+        top: 0px;
+        left: 14%;
+    	width: 68%;
+	    height: 45px;
+        z-index: 9999 !important;
+}
 
 .loader,
         .loader:after {
@@ -210,6 +217,29 @@ function removeLoader(){
       <span class="logo-lg"><img src="${contextPath}/resources/img/sigma.png" style="width: 100%; margin-top: 0px;"></span>
     </a>
     <nav class="navbar navbar-static-top">
+       <div id="infoDiv" class="alert alert-info alert-fixed-top"
+		style="display: none;">
+		<button type="button" class="close" data-dismiss="modal"
+			onclick="$('.alert').hide()"  style="font-size: 30px; padding:2px">x</button>
+		<strong style="text-align: center;"><h4 style="color: white;    margin-top: 10px;"
+				id="infoMessage"></h4></strong>
+	  </div>
+    
+    	     <div id="errorDiv" class="alert alert-error alert-fixed-top"
+		style="display: none;">
+		<button type="button" class="close" data-dismiss="modal"
+			onclick="$('.alert').hide()"  style="font-size: 30px; padding:2px">x</button>
+		<strong style="text-align: center;"><h4 style="color: white; margin-top: 10px;"
+				id="errorMessage"></h4></strong>
+	  </div>
+
+	<div id="successDiv"
+		class="alert alert-success alert-fixed-top" style="display: none;">
+		<button type="button" class="close" data-dismiss="modal"
+			onclick="$('.alert').hide()" style="font-size: 30px; padding:2px">x</button>
+		<strong style="text-align: center;"><h4 style="color: white; margin-top: 10px;"
+				id="successMessage"></h4></strong>
+	</div>
 		<a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
         <span class="sr-only">Toggle navigation</span>
         <span class="icon-bar"></span>
@@ -220,9 +250,9 @@ function removeLoader(){
       
       <div >
         <ul class="nav navbar-nav">
-        <li class="dropdown notifications-menu">
+      <!--   <li class="dropdown notifications-menu">
         <a><span >For support enquiries contact: info@sigmasurge.com</span></a>
-        </li>
+        </li> -->
         </ul>
         </div>
       <div class="navbar-custom-menu">

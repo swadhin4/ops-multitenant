@@ -1219,9 +1219,6 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			}
 			if(!isDuplicateTicket){
 				if(ticketLinked.linkedTicketNo == null){
-					/*$('#messageWindow').show();
-					$('#errorMessageDiv').show();
-					$('#errorMessageDiv').alert();*/
 					$scope.errorMessage="Please enter the link ticket number";
 					 $scope.getErrorMessage($scope.errorMessage);
 				}else{
@@ -1241,9 +1238,6 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			}else{
 					$scope.linkedTicket.ticketNumber = null;
 					$("#linkedTicket").val("");
-				/*	$('#messageWindow').show();
-					$('#errorMessageDiv').show();
-					$('#errorMessageDiv').alert();*/
 					$scope.errorMessage="Ticket number is already linked.";
 					 $scope.getErrorMessage($scope.errorMessage);
 			}
@@ -1319,7 +1313,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			/*$('#messageWindow').show();
 			$('#errorMessageDiv').show();
 			$('#errorMessageDiv').alert();*/
-			$scope.errorMessage="At a time select 1 opened linked ticket to close the status."
+			$scope.errorMessage="Select 1 option from the list "
 				 $scope.getErrorMessage($scope.errorMessage);
 				
 		}
@@ -1641,7 +1635,6 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 										 //console.log(data);
 										 $('#loadingDiv').hide();
 									 });
-									 $('#loadingDiv').hide();
 									
 								}
 								
@@ -1697,7 +1690,6 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 										 //console.log(data);
 										 $('#loadingDiv').hide();
 									 });
-									 $('#loadingDiv').hide();
 									 
 								 }
 								 

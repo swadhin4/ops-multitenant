@@ -700,10 +700,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 				 //console.log(data);
 				 if(data.statusCode == 200){
 					 	$scope.successMessage = data.message;
-					 	$('#messageWindow').show();
-	    				$('#successMessageDiv').show();
-	    				$('#successMessageDiv').alert();
-	    				$('#errorMessageDiv').hide();
+					 	 $scope.getSuccessMessage($scope.successMessage);
 	    				 $scope.incidentImageList=[];
     					 $scope.incidentImages=[];
     					 $('#totalIncidentSize').text("0KB");
@@ -712,10 +709,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	    				}else{*/
 	    					if(type.toUpperCase()=='UPLOAD'){
 	    						$scope.successMessage = "Files uploaded successfully";
-	    					 	$('#messageWindow').show();
-	    	    				$('#successMessageDiv').show();
-	    	    				$('#successMessageDiv').alert();
-	    	    				$('#errorMessageDiv').hide();
+	    						 $scope.getSuccessMessage($scope.successMessage);
 	    	    				if(data.object.attachments.length>0){
 	    	    					$scope.ticketData.files=[];
 	    	    					$.each(data.object.attachments,function(key,val){
@@ -737,10 +731,8 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			 },function(data){
 				//console.log(data); 
 				$('#loadingDiv').hide();
-				$('#messageWindow').show();
-				$('#successMessageDiv').hide();
-				$('#errorMessageDiv').show();
-				$('#errorMessageDiv').alert();
+				$scope.errorMessage="Error while updating the ticket";
+				 $scope.getErrorMessage($scope.errorMessage);
 			 });
 		 }
 
@@ -789,6 +781,7 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	$scope.LinkNewTicket = function(spType, spTicket){
 		  var ticketLinked=null; 
 		  var isDuplicateTicket=false;
+		  if(spTicket.ticketNumber != ""){
 			if(spType=="EXT"){
 				if($scope.linkedTicket.ticketNumber != "" ||  $scope.linkedTicket.ticketNumber != null){	
 					var linkedTicket={
@@ -810,10 +803,8 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			}
 			if(!isDuplicateTicket){
 				if(ticketLinked.linkedTicketNo == null){
-					$('#messageWindow').show();
-					$('#errorMessageDiv').show();
-					$('#errorMessageDiv').alert();
 					$scope.errorMessage="Please enter the link ticket number";
+					 $scope.getErrorMessage($scope.errorMessage);
 				}else{
 					ticketService.linkTicket(ticketLinked)
 					.then(function(data){
@@ -828,12 +819,15 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 					});
 				}
 			}else{
-				 $scope.linkedTicket.ticketNumber = null;
-				$('#messageWindow').show();
-				$('#errorMessageDiv').show();
-				$('#errorMessageDiv').alert();
+				$scope.linkedTicket.ticketNumber = null;
+				$("#linkedTicket").val("");
 				$scope.errorMessage="Ticket number is already linked.";
+				 $scope.getErrorMessage($scope.errorMessage);
 			}
+		  }else{
+				$scope.errorMessage="Please enter the link ticket number";
+				 $scope.getErrorMessage($scope.errorMessage);
+		  }
 		}
 	
 
@@ -845,8 +839,11 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			if(data.statusCode == 200){
 			 if(spType=="EXT"){	
 				 $("#linkedTicket").val("");
+				 $scope.ticketData.linkedTickets=[];
 				 if(data.object.linkedTickets.length>0){
-					 $scope.ticketData.linkedTickets = data.object.linkedTickets;
+					  $.each(data.object.linkedTickets,function(key,val){
+						  $scope.ticketData.linkedTickets.push(val);
+					  });
 					 var valueId = parseInt($("#statusSelect").val());
 					 //Enable save button if status is Logged and linked ticket is available.
 					 if(valueId == 2){
@@ -870,68 +867,11 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	
 	
 	
-/*	
-	$scope.LinkNewTicket = function(){
-		if($scope.linkedTicket.ticketNumber != ""){
-			var linkedTicket={
-					parentTicketId:$scope.ticketData.ticketId,
-					parentTicketNo:$scope.ticketData.ticketNumber,
-					linkedTicketNo:$scope.linkedTicket.ticketNumber
-			}
-			ticketService.linkTicket(linkedTicket,"sp")
-			.then(function(data){
-				//console.log(data);
-				if(data.statusCode == 200){
-				//console.log("Linked ticket added");
-				 $("#linkedTicket").val("");
-				 $scope.getLinkedTicketDetails(linkedTicket.parentTicketId);
-				}
-			},function(data){
-				//console.log(data);
-			});
-			
-		}
-		 
-	};
-	
-
-	
-	$scope.getLinkedTicketDetails=function(linkedTicket){
-		ticketService.getLinkedTickets(linkedTicket,"sp")
-		.then(function(data){
-			//console.log(data);
-			if(data.statusCode == 200){
-			 $("#linkedTicket").val("");
-			 if(data.object.linkedTickets.length>0){
-				 $scope.ticketData.linkedTickets = data.object.linkedTickets;
-				 var valueId = parseInt($("#statusSelect").val());
-				 //Enable save button if status is Logged and linked ticket is available.
-				 if(valueId == 2){
-					 $("#btnSavePrimary").prop("disabled", false);
-				 }
-			 }
-			 else if(data.object.linkedTickets.length == 0){
-				 var valueId = parseInt($("#statusSelect").val());
-				 //Enable save button if status is Logged and linked ticket is available.
-				 if(valueId == 2){
-					 $("#btnSavePrimary").prop("disabled", true);
-				 }
-				
-			 }
-			 
-			}
-		},function(data){
-			//console.log(data);
-		});
-	}*/
-	
 	$scope.closeLinkedTicketConfirmation=function(){
 		//console.log($scope.selectedEscalation);
 		if($scope.selectedLinkedTicketDetails.length ==0 ){
-			$('#messageWindow').show();
-			$('#errorMessageDiv').show();
-			$('#errorMessageDiv').alert();
-			$scope.errorMessage="At a time select 1 opened linked ticket to close the status."
+			$scope.errorMessage="Select 1 option from the list "
+				 $scope.getErrorMessage($scope.errorMessage);
 		}
 		else if($scope.selectedLinkedTicketDetails.length > 0){
 			//console.log($scope.escalationLevelDetails);
@@ -1027,29 +967,6 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			//console.log(data)
 		});
 		
-/*		$scope.ticketHistoryDetail={
-			'ticketId':'INC001222',
-			'ticketStartDate':'15-7-2017',
-			'ticketCloseDate':'20-7-2017',
-			'history' : [{ 'date': "20-7-2017",
-	            'name': "Ranjan Nayak",
-	            'description': "closed the ticket "
-	        },
-	        {   'date': "17-7-2017",
-	            'name': "Malay Panigrahi",
-	            'description': "changes status from WIP to Fixed "
-	        },			
-	        {   'date': "16-7-2017",
-	            'name': "Swadhin Mohanta",
-	            'description': "changes status from Logged to WIP "
-	        },
-	        {
-	            'date': "16-7-2017",
-	            'name': "shibasish mohanty",
-	            'description': "changes status from Raised to Logged "	            
-	        }	        
-	        ]
-		}*/
 		
 	}
 	
@@ -1086,11 +1003,9 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	     $scope.fileExtension = ext;
 	     $scope.indexPos=incidentImageId.charAt(incidentImageId.length-1);
 	     if($.inArray(ext, ["jpg","jpeg","JPEG", "JPG","PDF","pdf","png","PNG"]) === -1) {
-	    	 $('#messageWindow').show();
 	    	 $scope.incidentImageModalErrorMessage="";
-        	 $('#errorMessageDiv').show();
-        	 $('#errorMessageDiv').alert();
         	 $('#fileerrorincident').text('Supported file types to upload are jpg,  png and pdf');
+        	 $scope.getErrorMessage("Supported file types to upload are jpg,  png and pdf");
               $scope.isfileselected=false;	 
               $('#'+incidentImageId).val('');
               $('#'+incidentImageId).val(null);
@@ -1103,10 +1018,8 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			     if(fileSize > 1024){
 			    	 $scope.incidentImageModalErrorMessage="";
 			    	 $scope.errorMessage="";
-			    	 $('#messageWindow').show();
 			    	 $('#fileerrorincident').text('File size exceeds Max limit ( 1 MB )');
-		        	 $('#errorMessageDiv').show();
-		        	 $('#errorMessageDiv').alert();
+			    	 $scope.getErrorMessage("File size exceeds Max limit ( 1 MB )");
 		        	 $('#'+incidentImageId).val('');
 		             $('#'+incidentImageId).val(null);
 		             $scope.isfileselected=false;
@@ -1148,10 +1061,8 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 	 				};
 	 				$('#totalSize').text("Files ( "+$scope.incidentImages.length +" ) Total Size : "+ totalSize +" KB");
 	 				if(totalSize > 1024){
-	 					$('#messageWindow').show();
-	 					$('#errorMessageDiv').show();
-	 		        	 $('#errorMessageDiv').alert();
-	 					$('#fileerrorincident').text("File size exceeds 1 MB");
+	 		        	$('#fileerrorincident').text("File size exceeds 1 MB");
+	 					 $scope.getErrorMessage("File size exceeds 1 MB");
 	 					$('#uploadImgBtn').attr("disabled",true)
 	 				}else{
 	 					$('#messageWindow').hide();
@@ -1193,10 +1104,8 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		  });
 		  $('#totalSize').text("Files ( "+$scope.incidentImages.length +" ) Total Size : "+ totalSize +" KB");
 		  if(totalSize > 1024){
-				$('#messageWindow').show();
-				$('#errorMessageDiv').show();
-	        	 $('#errorMessageDiv').alert();
 				$('#fileerrorincident').text("File size exceeds 1 MB");
+				 $scope.getErrorMessage("File size exceeds 1 MB");
 				$('#uploadImgBtn').attr("disabled",true)
 			}else{
 				$('#messageWindow').hide();
@@ -1251,11 +1160,9 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 						$scope.relatedTicketData.push(relTicketData);
 					});
 				 
-			 } else {
-				 $('#messageWindow').show();
-				 $('#errorMessageDiv').show();
-				 $('#errorMessageDiv').alert();
+			 }  else {
 				 $scope.errorMessage = relatedTktData.message;
+				 $scope.getErrorMessage($scope.errorMessage);
 			 }
 			
 		 },function(relatedTktData){
@@ -1293,23 +1200,17 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 				 $('#loadingDiv').hide();
 				 $scope.successMessage = data.message;
 				 $scope.enabledEdit = [];
-				 $('#messageWindow').show();
-				 $('#successMessageDiv').show();
-				 $('#successMessageDiv').alert();
-				 $('#errorMessageDiv').hide();
+				 $scope.getSuccessMessage($scope.successMessage);
 			 } else {
 				 $('#loadingDiv').hide();
-				 $('#messageWindow').show();
-				 $('#errorMessageDiv').show();
-				 $('#errorMessageDiv').alert();
 				 $scope.errorMessage = data.message;
+				 $scope.getErrorMessage($scope.errorMessage);
 			 }
 			
 		 },function(data){
 			// console.log(data);
 			 $('#loadingDiv').hide();
 		 });
-		 $('#loadingDiv').hide();
 		
 	}
 	
@@ -1352,24 +1253,16 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 				 $('#loadingDiv').hide();
 				 $('#confirmCostDelete').appendTo("body").modal('hide');				 
 				 $scope.successMessage = data.message;
-				 
-				 $('#messageWindow').show();
-				 $('#successMessageDiv').show();
-				 $('#successMessageDiv').alert();
-				 $('#errorMessageDiv').hide();
+				 $scope.getSuccessMessage($scope.successMessage);
 			 } else {
-				 $('#loadingDiv').hide();
-				 $('#messageWindow').show();
-				 $('#errorMessageDiv').show();
-				 $('#errorMessageDiv').alert();
 				 $scope.errorMessage = data.message;
+					$scope.getErrorMessage($scope.errorMessage);
 			 }
 			
 		 },function(data){
 			// console.log(data);
 			 $('#loadingDiv').hide();
 		 });
-		 $('#loadingDiv').hide();
 		 
 	 }
 	 
@@ -1781,22 +1674,23 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			 ticketService.changeLinkedTicketStatus(linkedTicket)
 			 .then(function(data){
 				 if(data.statusCode==200){
-					 if(data.object.linkedTickets>0){
+					/* if(data.object.linkedTickets>0){
 						 $scope.ticketData.linkedTickets = data.object.linkedTickets
-					 }
-					 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, linkedTicket.spType);
+					 }*/
+					 $('#confirmBtnNO').click();
+					 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, "EXT");
 					 $scope.selectedLinkedTicketDetails = [];
-					 $('#confirmClose').modal('hide');
 				 }
 			 },function(data){
 				 //console.log(data);
 			 });
 		 }else if($scope.selectedLinkedTicketDetails.length ==0 ){
 			 //alert("At a time single ticket status can be closed")
-			 	$('#messageWindow').show();
+			 	/*$('#messageWindow').show();
 				$('#errorMessageDiv').show();
-				$('#errorMessageDiv').alert();
-				$scope.errorMessage="At a time select 1 opened linked ticket to close the status."
+				$('#errorMessageDiv').alert();*/
+				$scope.errorMessage="Select 1 opened linked ticket to close the status."
+					$scope.getErrorMessage($scope.errorMessage);
 		 }
 	 }
 	 
@@ -1808,12 +1702,14 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 			 if(data.statusCode == 200){
 				 $scope.ticketData.linkedTickets =  data.object;
 				 for(key in linkedTicket){
-						if(key=="selected" && $scope.selectedLinkedTicket.selected==false){
+						if(key=="selected" && linkedTicket.selected==true && $scope.selectedLinkedTicket.selected==linkedTicket.selected){
 							$scope.selectedLinkedTicketDetails.pop($scope.selectedLinkedTicket);
+							$scope.getLinkedTicketDetails($scope.ticketData.ticketId, linkedTicket.spType);
+							 $('#confirmUnlinkNoBtn').click();
+							return false;
 						}
 					}
-				 $scope.getLinkedTicketDetails($scope.ticketData.ticketId, linkedTicket.spType);
-				 $('#confirmUnlink').modal('hide');
+				 
 			 }
 		 },function(data){
 			 //console.log(data);
@@ -1865,6 +1761,18 @@ chrisApp.controller('spIncidentUpdateController',  ['$rootScope', '$scope', '$fi
 		$scope.changeStatusDescription=function(description){
 			$scope.ticketData.statusDescription=description;
 			$('#statusDesc').text("Description: "+ description);
+		}
+		
+		 $scope.getSuccessMessage=function(msg){
+			 $('#successDiv').show();
+			 $('#successDiv').alert();
+			 $('#successMessage').text(msg);
+		}
+		
+		$scope.getErrorMessage=function(msg){
+			 $('#errorDiv').show();
+			 $('#errorDiv').alert();
+			 $('#errorMessage').text(msg);
 		}
 			 
 }]);

@@ -261,7 +261,7 @@ background:#deefe5
 										<ul class="nav nav-tabs">
 											<li class="active"><a href="#primaryinfo"
 												data-toggle="tab">Primary Details</a></li>
-											<li><a href="#linkedticket" data-toggle="tab">External Service provider 
+											<li><a href="#linkedticket" ng-click="getLinkedTicketDetails(ticketData.ticketId, ticketData.ticketAssignedType)" data-toggle="tab">External Service provider 
 													Ticket</a>
 										<span class="label label-warning" style="position: relative;
         top: -33px; left: 217px">{{ticketData.linkedTickets.length || 0}}</span></a>			
@@ -1631,10 +1631,10 @@ background:#deefe5
 											<p>Are you sure, you want to unlink this ticket ?</p>
 										</div>
 										<div class="modal-footer">
-											<button type="button" class="btn btn-default"
+											<button type="button" class="btn btn-default" id="confirmUnlinkNoBtn"
 												data-dismiss="modal">No</button>
-											<button type="button" class="btn btn-danger" id="confirm"
-												ng-click="unlinkTicket()">Yes</button>
+											<a  href class="btn btn-danger" id="confirm"
+												ng-click="unlinkTicket()">Yes</a>
 										</div>
 									</div>
 								</div>
@@ -1654,7 +1654,7 @@ background:#deefe5
 											<p>Are you sure you want to close the linked ticket ?</p>
 										</div>
 										<div class="modal-footer">
-											<button type="button" class="btn btn-default"
+											<button type="button" class="btn btn-default" id="confirmBtnNO"
 												data-dismiss="modal">No</button>
 											<button type="button" class="btn btn-danger" id="confirm"
 												ng-click="closeLinkedTicket()">Yes</button>

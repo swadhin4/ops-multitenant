@@ -211,7 +211,7 @@ $(function() {
                	 ng-click="setTicketinSession(val);rowHighilited($index)">
                 	<th class="todo-list">
                   {{val.ticketNumber}}
-                  <a href="#" ng-click="previewSelectedIncidentInfo(val)" data-toggle="modal"  ><i class="fa fa-eye pull-right"></i></a>
+                  <a href="#" ng-click="getTicketDetails(val)" data-toggle="modal"  ><i class="fa fa-eye pull-right"></i></a>
                   </th>
 					<td>{{val.siteName}}</td>
 					<td>{{val.assetName}}</td>
@@ -271,28 +271,28 @@ $(function() {
 
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-					<h4 class="modal-title" id="myModalLabel2">{{sessionTicket.ticketNumber}} - Overview</h4>
-					<span class="badge" style="background-color: #cfe4e2;color:#000"><i class="fa fa-flag" aria-hidden="true" style="color:red;"></i> {{sessionTicket.status}}</span>
+					<h4 class="modal-title" id="myModalLabel2">{{selectedTicket.ticketNumber}} - Overview</h4>
+					<span class="badge" style="background-color: #cfe4e2;color:#000"><i class="fa fa-flag" aria-hidden="true" style="color:red;"></i> {{selectedTicket.status}}</span>
 				</div>
 				<div class="modal-body">
 				       <div class="box box-solid">
             <div class="box-header with-border">
               <i class="fa fa-text-width"></i>
-              <h3 class="box-title">{{sessionTicket.ticketTitle}}</h3>
+              <h3 class="box-title">{{selectedTicket.ticketTitle}}</h3>
             </div>
             <!-- /.box-header -->
             <div class="box-body">
               <dl>
                 <dt>Description</dt>
-                <dd>{{sessionTicket.description}}</dd>
+                <dd>{{selectedTicket.description}}</dd>
               </dl>
             </div>
           </div>
-								<div class="box box-widget widget-user" ng-if="sessionTicket.ticketNumber != null">
+								<div class="box box-widget widget-user" ng-if="selectedTicket.ticketNumber != null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
             <div class="widget-user-header bg-aqua-active">
-              <h3 class="widget-user-username">Site : {{sessionTicket.siteName}}</h3>
-              <h5 class="widget-user-desc">Owner : {{sessionTicket.siteOwner}}</h5>
+              <h3 class="widget-user-username">Site : {{selectedTicket.siteName}}</h3>
+              <h5 class="widget-user-desc">Owner : {{selectedTicket.siteOwner}}</h5>
             </div>
            <!--  <div class="widget-user-image">
               <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
@@ -302,19 +302,19 @@ $(function() {
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Contact Name</h5>
-                    <span class="description-text">{{sessionTicket.assignedSP}}</span>
+                    <span class="description-text">{{selectedTicket.assignedSP}}</span>
                   </div>
                 </div>
                  <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Site Number</h5>
-                    <span class="description-text">{{sessionTicket.siteContact}}</span>
+                    <span class="description-text">{{selectedTicket.siteContact}}</span>
                   </div>
                 </div>
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Email</h5>
-                    <span class="description-text">{{sessionTicket.email}}</span>
+                    <span class="description-text">{{selectedTicket.email}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
@@ -322,11 +322,11 @@ $(function() {
               <!-- /.row -->
             </div>
           </div>
-          						<div class="box box-widget widget-user" ng-if="sessionTicket.ticketNumber != null">
+          						<div class="box box-widget widget-user" ng-if="selectedTicket.ticketNumber != null">
             <!-- Add the bg color to the header using any of the bg-* classes -->
             <div class="widget-user-header bg-green-active">
-              <h3 class="widget-user-username">Asset : {{sessionTicket.assetName}}</h3>
-              <h5 class="widget-user-desc">Code : {{sessionTicket.assetCode}}</h5>
+              <h3 class="widget-user-username">Asset : {{selectedTicket.assetName}}</h3>
+              <h5 class="widget-user-desc">Code : {{selectedTicket.assetCode}}</h5>
             </div>
            <!--  <div class="widget-user-image">
               <img class="img-circle" src="../dist/img/user1-128x128.jpg" alt="User Avatar">
@@ -336,7 +336,7 @@ $(function() {
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Service Provider</h5>
-                    <span class="description-text">{{sessionTicket.assignedSP}}</span>
+                    <span class="description-text">{{selectedTicket.assignedSP}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
@@ -344,14 +344,14 @@ $(function() {
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
                     <h5 class="description-header">Commissioned On</h5>
-                    <span class="description-text">{{sessionTicket.assetCommissionedDate}}</span>
+                    <span class="description-text">{{selectedTicket.assetCommissionedDate}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
                 <div class="col-sm-4 border-right">
                   <div class="description-block">
                  <h5 class="description-header">Sub Category</h5>
-                    <span class="description-text">{{sessionTicket.assetSubCategory1}}</span>
+                    <span class="description-text">{{selectedTicket.assetSubCategory1}}</span>
                   </div>
                   <!-- /.description-block -->
                 </div>
@@ -366,13 +366,13 @@ $(function() {
 
             <div class="info-box-content">
               <span class="info-box-text">SLA ( % )</span>
-              <span class="info-box-number">{{sessionTicket.slaPercent}}</span>
+              <span class="info-box-number">{{selectedTicket.slaPercent}}</span>
               <div class="progress">
                <div class="progress-bar"
-				ng-class="{'progress-bar-danger': sessionTicket.slaPercent >=100, 'progress-bar-warning': sessionTicket.slaPercent>75 && sessionTicket.slaPercent<100, 'progress-bar-info': sessionTicket.slaPercent>0 && sessionTicket.slaPercent<75}"
+				ng-class="{'progress-bar-danger': selectedTicket.slaPercent >=100, 'progress-bar-warning': selectedTicket.slaPercent>75 && selectedTicket.slaPercent<100, 'progress-bar-info': selectedTicket.slaPercent>0 && selectedTicket.slaPercent<75}"
 				role="progressbar"
 				ng-style="{width: sessionTicket.width+'%'}">
-				 <span class="progress-text">SLA(%) {{sessionTicket.slaPercent}} </span>
+				 <span class="progress-text">SLA(%) {{selectedTicket.slaPercent}} </span>
 				</div>
               <span class="progress-description">
                     50% Increase in 30 Days

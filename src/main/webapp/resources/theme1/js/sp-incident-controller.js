@@ -258,19 +258,20 @@ chrisApp.controller('spIncidentController',  ['$rootScope', '$scope', '$filter',
 	     
 	     
 		 //console.log("allticket retrived");
-		 
 		 $scope.getTicketDetails=function(ticket){
-			//console.log(ticket);
-			$scope.selectedTicket=angular.copy(ticket);
-			$scope.ticketData=angular.copy(ticket);
-			/*ticketService.retrieveTicketDetails(ticket)
-			.then(function(data){
-				//console.log(data);
-			},function(data){
-				
-			});*/
-		}
-
+				$scope.selectedTicket={};
+				ticketService.retrieveTicketDetails(ticket)
+				.then(function(data){
+					console.log(data);
+					if(data.statusCode==200){
+						$scope.selectedTicket = data.object
+						$scope.ticketData=angular.copy($scope.selectedTicket);
+						$scope.previewSelectedIncidentInfo($scope.selectedTicket);
+					}
+				},function(data){
+					console.log(data);
+				});
+			}
 	
 			 
 }]);

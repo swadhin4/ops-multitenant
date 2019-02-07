@@ -1062,7 +1062,7 @@ public class TicketServiceImpl implements TicketService {
 
 	@Override
 	public boolean deleteFinanceCostById(Long costId, LoginUser user, String ticketAssignedType) throws Exception {
-		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType()) && 
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType()) || 
 				user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_EXTSP.getUserType())){
 			return getIncidentDAO(user.getDbName()).deleteFinanceCostById(costId,user, AppConstants.DELETE_TICKET_FINANCE_BY_ID);
 		}

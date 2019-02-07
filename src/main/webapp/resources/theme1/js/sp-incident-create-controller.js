@@ -2166,7 +2166,26 @@ chrisApp
 									})
 									
 								}
-
+								
+								
+								 $scope.getTicketDetails=function(ticket){
+										$scope.selectedTicket={};
+										ticketService.retrieveTicketDetails(ticket)
+										.then(function(data){
+											console.log(data);
+											if(data.statusCode==200){
+												$scope.selectedTicket = data.object
+												 $scope.previewSelectedIncidentInfo($scope.selectedTicket);
+											}
+										},function(data){
+											console.log(data);
+										});
+									}
+								 
+								 $scope.previewSelectedIncidentInfo=function(ticket){
+									 $('#previewIncidentModal').modal('show');
+								 }
+										
 						} ]);
 
 function initializeEscalateTicket(){
