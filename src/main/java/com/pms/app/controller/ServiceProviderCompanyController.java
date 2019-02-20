@@ -21,9 +21,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
+import com.pms.app.view.vo.RSPExternalCustomerVO;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
+import com.pms.jpa.entities.Country;
+import com.pms.jpa.entities.Region;
+import com.pms.web.service.RSPMangedService;
 import com.pms.web.service.ServiceProviderService;
 import com.pms.web.service.TicketService;
 import com.pms.web.util.RestResponse;
@@ -41,6 +45,9 @@ public class ServiceProviderCompanyController extends BaseController {
 	@Autowired
 	private TicketService ticketSerice;
 	
+	@Autowired
+	private RSPMangedService rspManagedService;
+	
 	@RequestMapping(value = "/customers", method = RequestMethod.GET)
 	public String userDetails(final Locale locale, final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
@@ -48,6 +55,18 @@ public class ServiceProviderCompanyController extends BaseController {
 		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
 			model.put("user", loginUser);
 			return "serviceprovider.customers";
+		} else {
+			return "redirect:/login";
+		}
+	}
+	
+	@RequestMapping(value = "/externalcustomers", method = RequestMethod.GET)
+	public String userDetailsExt(final Locale locale, final ModelMap model, final HttpServletRequest request,
+			final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			model.put("user", loginUser);
+			return "serviceprovider.externalcustomers";
 		} else {
 			return "redirect:/login";
 		}
@@ -244,6 +263,133 @@ public class ServiceProviderCompanyController extends BaseController {
 				
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+		}
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/regions", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> listAllRegions(final HttpSession session) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		List<Region> regions = null;
+		if (loginUser != null) {
+				try {
+				regions = rspManagedService.getRegionList(loginUser);
+				if(!regions.isEmpty()){
+					response.setStatusCode(200);
+					response.setObject(regions);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+				logger.error("Exception getting region list", e);
+			}
+		}
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/country/region/{regionId}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> listCountryByRegions(final HttpSession session, @PathVariable(value = "regionId") Long regionId) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		List<Country> countryList = null;
+		if (loginUser != null) {
+				try {
+					countryList = rspManagedService.getCountryList(loginUser, regionId);
+				if(!countryList.isEmpty()){
+					response.setStatusCode(200);
+					response.setObject(countryList);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+				logger.error("Exception getting country list", e);
+			}
+		}
+		return responseEntity;
+	}
+	
+	
+	@RequestMapping(value = "/save/ext/customer", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> saveExternalCustomer(final Locale locale, final ModelMap model,
+			@RequestBody final RSPExternalCustomerVO externalCustomerVO, final HttpSession session) {
+		logger.info("Inside ServiceProviderCompanyController .. saveExternalCustomer");
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		RSPExternalCustomerVO savedExtCustomer=null;
+		if(loginUser!=null){
+			try {
+
+				logger.info("Create New External ServiceProvider : "+ externalCustomerVO);
+				savedExtCustomer = rspManagedService.saveExternalCustomer(externalCustomerVO,loginUser);
+				if(savedExtCustomer.getStatus()==200){
+					response.setStatusCode(200);
+					response.setObject(savedExtCustomer);
+					response.setMessage("External Customer saved successfully.");
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+					if(response.getStatusCode()==200){/*
+						final RSPExternalCustomerVO savedSP = savedExtCustomer;
+						TaskExecutor theExecutor = new SimpleAsyncTaskExecutor();
+						theExecutor.execute(new Runnable() {
+							@Override
+							public void run() {
+								logger.info("Email thread started : " + Thread.currentThread().getName());
+								try {
+									emailService.successSaveSPEmail(savedSP, loginUser);
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+						});
+					*/}
+				}
+			} catch (Exception e) {
+				logger.info("Exception while creating external customer", e);
+					response.setStatusCode(500);
+					response.setMessage("Error occured while saving  external customer ");
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
+			}
+			
+
+			
+		}
+		else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		logger.info("Exit ServiceProviderCompanyController .. saveExternalCustomer");
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/ext/customer/list", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> getExternalCustomers(final HttpSession session) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		List<RSPExternalCustomerVO> customerList = null;
+		if (loginUser != null) {
+				try {
+					customerList = rspManagedService.getExternalCustomers(loginUser);
+				if(!customerList.isEmpty()){
+					response.setStatusCode(200);
+					response.setObject(customerList);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+				logger.error("Exception getting customerList", e);
 			}
 		}
 		return responseEntity;

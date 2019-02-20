@@ -8,11 +8,14 @@ chrisApp.controller('spCustomerController',
 				'companyService',
 				'registrationService',
 				'authService',
+				'serviceProviderService',
+				'regionService',
+				'countryService',
 				'siteService',
 				'ticketService',
 				function($rootScope, $scope, $filter, $location,
 						userService,  companyService,
-						registrationService, authService, siteService,ticketService) {
+						registrationService,authService, serviceProviderService, regionService, countryService, siteService,ticketService) {
 
 				$scope.spCustomerList = {
 					selected : {},
@@ -65,7 +68,9 @@ chrisApp.controller('spCustomerController',
 			      $scope.selectedRow = row;    
 			    }
 				
-				
+				$scope.regionList=[];
+				$scope.countryList=[];
+				$scope.extCustServiceProvider={};
 				//
 
 				angular.element(document).ready(function() {
@@ -136,6 +141,263 @@ chrisApp.controller('spCustomerController',
 					$scope.getAssetDetails(val);
 					$('#previewAssetModal').modal('show');
 				}
+				//Ext Customer
+				$scope.addEditExtCustomer=function(val,isAddEdit){
+					//$scope.getAssetDetails(val);
+					console.log("addEditExtCustomer",isAddEdit);
+					if(isAddEdit == 'Add'){
+						$scope.getEscalationLevel();
+						$scope.extCustServiceProvider={};
+						$scope.extCustServiceProvider.slaListVOList=[];
+						$scope.extCustServiceProvider.escalationLevelList=[];
+						$scope.getRegionList('ADD');
+					} else {
+						$scope.extCustServiceProvider=val;
+						$scope.getRegionList('EDIT');
+						$scope.priorities =[];
+						var priorityList=['Critical', 'High', 'Medium', 'Low'];
+						var description=['Operation is completely down','Operation is partially interrupted', 'Performance degraded','General service request'];
+						
+						/*var i = 1;
+						$.each($scope.selectedServiceProvider.slaListVOList,function(key,val){
+							
+							var slaPriorities={
+									slaId:val.slaId,
+									priority:priorityList[i-1],
+									description:description[i-1],
+									duration:val.duration,
+									unit:val.unit
+									
+							}
+							$scope.priorities.push(slaPriorities);
+							i=i+1
+						});
+						
+						
+						$scope.escalationLevels = [];
+						$.each($scope.selectedServiceProvider.escalationLevelList,function(key,val){
+							var escalation={
+									escId:val.escId,
+									contact:val.escalationPerson,
+									email:val.escalationEmail
+							}
+							$scope.escalationLevels.push(escalation);
+						});
+						
+						var maxLevel = 4;
+						var currentLevel =$scope.escalationLevels.length;
+						var requiredCount = maxLevel - currentLevel;
+						if($scope.escalationLevels.length<=4){
+							for(var i=0;i<=requiredCount-1;i++){
+								var escalation={
+										escId:null,
+										contact:null,
+										email:null
+								}
+								$scope.escalationLevels.push(escalation);
+							}
+						}
+						*/
+					}
+					$scope.getPriorities();
+					$('#addEditExtCustomerModal').modal('show');
+				}
+				$scope.onlyNumbers = /^\d+$/;
+				$scope.filterValue = function($event){
+			        if(isNaN(String.fromCharCode($event.keyCode))){
+			            $event.preventDefault();
+			        }
+				};
+				
+				$scope.getEscalationLevel=function(){
+					$scope.escalationLevels =[];
+					$scope.escalationValues =[];
+					var escalations=["Level 1", "Level 2", "Level 3", "Level 4"];
+					for(var i=1;i<=4;i++){
+						var escalation={
+								escId:null,
+								level:escalations[i-1],
+								contact:null,
+								email:null,
+						}
+						$scope.escalationLevels.push(escalation);
+					}
+				}
+				
+				
+				
+				$scope.saveExtCustomerform=function(saveExtCustform){
+					console.log("saveExtCustomerform",saveExtCustform);
+					$scope.extCustServiceProvider.slaListVOList=[];
+					$scope.extCustServiceProvider.escalationLevelList=[];
+					$.each($scope.priorities,function(key,val){
+						var finalPriorityObject={
+								slaId:val.slaId,
+								priorityId:val.pId,
+								ticketPriority:{
+									priorityId:val.pId,
+									priority:val.priority
+								},
+								priority:val.priority,
+								duration:val.duration,
+								unit:val.unit
+						}
+						$scope.extCustServiceProvider.slaListVOList.push(finalPriorityObject);
+					})
+					
+					$.each($scope.escalationLevels,function(key,val){
+					 if(val.contact!=null && val.email!=null){	
+						var finalEscalationObject={
+								escId:val.escId,
+								escalationLevel:key+1,
+								escalationPerson:val.contact,
+								escalationEmail:val.email
+						}
+						$scope.extCustServiceProvider.escalationLevelList.push(finalEscalationObject);
+					 }
+					});
+					
+					
+					$scope.saveExtCustServiceProvider($scope.extCustServiceProvider);
+				}
+				
+				$scope.saveExtCustServiceProvider=function(spData){
+					console.log("saveExtCustCustomer",spData);
+					$('#loadingDiv').show();
+					serviceProviderService.saveRSPExternalCustomer(spData)
+					.then(function(data) {
+		    			if(data.statusCode == 200){
+		    				 $scope.successMessage = data.message;
+		    				 $scope.getSuccessMessage($scope.successMessage);
+		    				 $('#loadingDiv').hide();
+		    			}else{
+		    				$scope.modalErrorMessage = data.message;
+		    				 $scope.getErrorMessage($scope.modalErrorMessage);
+		    				$('#loadingDiv').hide();
+		    			}
+		            },
+		            function(data) {
+		                console.log('Unable to save Service Provider Ext Customer')
+		                $scope.modalErrorMessage = data.message;
+		                $scope.getErrorMessage($scope.modalErrorMessage);
+						$('#loadingDiv').hide();
+		            });
+				}
+				
+				
+				
+				
+				$scope.previewSelectedExtCustomer=function(val){
+					console.log("previewSelectedExtCustomer",val);
+					$scope.extCustServiceProvider=val;
+					//$('#addEditExtCustomerModal').modal('show');
+				}
+				
+				
+				
+				$scope.getRegionList=function(operation){
+					$('#loadingDiv').show();
+					regionService.findRSPRegions()
+		    		.then(function(data) {
+		    			$scope.regionList=[];
+		    			$("#regionSelect").empty();
+		    			if(data.statusCode==200){
+		    				$.each(data.object,function(key,val){
+			    				var region={
+			    					regionId:val.regionId,
+			    					regionCode:val.regionCode,
+			    					regionName:val.regionName
+			    				}
+			    				$scope.regionList.push(region);
+			    			});
+		    			}
+		    			
+		    			$('#loadingDiv').hide();
+		    			var options = $("#regionSelect");
+						options.append($("<option />").val(0).text("Select Region"));
+						$.each($scope.regionList,function() {
+							options.append($("<option />").val(	this.regionId).text(this.regionName));
+						});
+						if(operation == 'ADD'){
+							$("#regionSelect option[value='0']").attr('selected','selected');
+						}else{
+							$("#regionSelect option[value='"+$scope.extCustServiceProvider.regionId+"']").attr('selected','selected');
+							var region={
+									regionId:$scope.extCustServiceProvider.regionId,
+									regionName:$scope.extCustServiceProvider.regionName
+							}
+							$scope.getRegionCountry(region);
+						}
+		            },
+		            function(data) {
+		                console.log('Error in getting region list')
+		                $('#loadingDiv').hide();
+		            }); 	
+				}
+				
+				$scope.getRegionCountry=function(region){
+					$scope.getCountryListBy(region);
+				}
+				$scope.getCountryListBy=function(region){
+					$('#loadingDiv').show();
+					regionService.getCountryByRegion(region)
+		    		.then(function(data) {
+		    			
+		    			$scope.countryList=[];
+		    			$("#countrySelect").empty();
+		    			if(data.statusCode==200){
+			    			$.each(data.object,function(key,val){
+			    				$scope.countryList.push(val);
+			    			});
+			    			var options = $("#countrySelect");
+							options.append($("<option />").val(0).text("Select Country"));
+							$.each($scope.countryList,function() {
+								options.append($("<option />").val(	this.countryId).text(this.countryName));
+							});
+							if($scope.extCustServiceProvider!=null){
+								$("#countrySelect option").each(function() {
+									if ($(this).val() == $scope.extCustServiceProvider.countryId) {
+										$(this).attr('selected', 'selected');
+									return false;
+									}
+							 	});
+								//$scope.extCustServiceProvider.country = $scope.extCustServiceProvider.country;
+							}
+		    			}
+						$('#loadingDiv').hide();
+						
+		            },
+		            function(data) {
+		                console.log('Error in getting list')
+		                $('#loadingDiv').hide();
+		            });
+				}
+				$scope.setServiceProviderCountry=function(selectedCountry){
+					$scope.extCustServiceProvider.country = selectedCountry;
+				}
+				
+				
+				
+				$scope.getPriorities=function(){
+					$scope.priorities =[];
+					$scope.priorityValues =[];
+					var priorityList=['Critical', 'High', 'Medium', 'Low'];
+					var description=['Operation is completely down','Operation is partially interrupted', 'Performance degraded','General service request'];
+					for(var i=1;i<=4;i++){
+						var priority={
+								slaId:null,
+								pId:i,
+								priority:priorityList[i-1],
+								description:description[i-1],
+								duration:null,
+								unit:null,
+								
+						}
+						$scope.priorities.push(priority);
+					}
+				}
+				
+				//Ext Customer
 				
 				$scope.setTicketinSession=function(ticket){
 					var connectedDB = $scope.selectedCustList[0].custDBName;
@@ -246,7 +508,64 @@ chrisApp.controller('spCustomerController',
 						$scope.siteList=[];
 						$scope.getAssetData();
 					}
+					if($scope.pageViewFor=="CUSTOMERS"){
+						$scope.spCustomerIncidentList.list=[];
+						$scope.siteList=[];
+						$scope.assetList=[];
+						$scope.getExternalCustomerData();
+					}
 				}
+				
+				$scope.displayExternalCustomerView=function(viewType){
+					$scope.pageViewFor = viewType;
+					console.log("displayExternalCustomerView--->",viewType);
+					if($scope.pageViewFor=="INCIDENTS"){
+						//$scope.checkTicketsAssignedOrCreated($scope.ticketCreatedOrAssigned);
+						$scope.extCustList=[];
+					}
+					else if($scope.pageViewFor=="SITES"){
+						$scope.spCustomerIncidentList.list=[];
+						$scope.assetList=[];
+						$scope.extCustList=[];
+						//$scope.getSiteData();
+					}
+					if($scope.pageViewFor=="ASSETS"){
+						$scope.spCustomerIncidentList.list=[];
+						$scope.siteList=[];
+						$scope.extCustList=[];
+						//$scope.getAssetData();
+					}
+					//
+					if($scope.pageViewFor=="CUSTOMERS"){
+						$scope.spCustomerIncidentList.list=[];
+						$scope.siteList=[];
+						$scope.assetList=[];
+						$scope.getExternalCustomerData();
+					}
+					//
+				}
+				
+				//
+				$scope.getExternalCustomerData =function(){
+					$('#loadingDiv').show();
+					serviceProviderService.retrieveExternalCustomerRSP()
+						.then(function(data) {
+		    			console.log(data)
+		    				$scope.extCustList=[];
+		    				if(data.statusCode==200){
+		    					$.each(data.object,function(key,val){
+		    						$scope.extCustList.push(val);
+		    					});
+		    				}
+		    				$('#loadingDiv').hide();
+						},
+    				 function(data) {
+						console.log(data);	
+	    				$('#loadingDiv').hide();
+ 		            });
+				
+			    }
+				//
 				$scope.getSpCustomerList=function(){
 					$('#loadingDiv').show();
 					userService.getSPCustomerList().then(function(data) {
@@ -678,8 +997,37 @@ chrisApp.controller('spCustomerController',
 				}*/
 				
 			//End
+				$scope.validateDropDownValues=function(e, i, dropDownId){
+					 if(dropDownId.toUpperCase() == "REGIONSELECT"){
+						 var region={
+								 regionId:parseInt($("#regionSelect").val()),
+								 regionName:$("#regionSelect option:selected").text()
+						 }
+						 $scope.extCustServiceProvider.region = region;
+						 $scope.getCountryListBy(region);
+					 }	 
+					 else if(dropDownId.toUpperCase() == "COUNTRYSELECT"){
+						 var country={
+								 countryId:parseInt($("#countrySelect").val()),
+								 countryName:$("#countrySelect option:selected").text()
+						 }
+						 $scope.extCustServiceProvider.countryId = country.countryId;
+						 $scope.extCustServiceProvider.countryName = country.countryName;
+					 }	 
+					 
+				}	
 				
+				 $scope.getSuccessMessage=function(msg){
+					 $('#successDiv').show();
+					 $('#successDiv').alert();
+					 $('#successMessage').text(msg);
+				}
 				
+				$scope.getErrorMessage=function(msg){
+					 $('#errorDiv').show();
+					 $('#errorDiv').alert();
+					 $('#errorMessage').text(msg);
+				}
 		} 
 	]);
 

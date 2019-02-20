@@ -12,9 +12,41 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
  			getSelectedServiceProvider:getSelectedServiceProvider,
  			resetServiceProviderPassword:resetServiceProviderPassword,
  			getSPAgents:getSPAgents,
- 			grantOrRevokeAcess:grantOrRevokeAcess
+ 			grantOrRevokeAcess:grantOrRevokeAcess,
+ 			saveRSPExternalCustomer:saveRSPExternalCustomer,
+ 			retrieveExternalCustomerRSP:retrieveExternalCustomerRSP
         };
  		return ServiceProviderService;
+ 		
+ 		function retrieveExternalCustomerRSP(){
+			  var def = $q.defer();
+		        $http.get(hostLocation+"/serviceprovidercompany/ext/customer/list")
+		            .success(function(data) {
+		            	//console.log(data)
+		                def.resolve(data);
+		            })
+		            .error(function(data) {
+		            	console.log(data)
+		                def.reject(data);
+		            });
+		        return def.promise;
+		}
+ 		
+ 	// implementation
+ 	    function saveRSPExternalCustomer(extCustomer) {
+ 	        var def = $q.defer();
+ 	        $http.post(hostLocation+"/serviceprovidercompany/save/ext/customer",extCustomer)
+ 	            .success(function(data) {
+ 	            	//console.log(data)
+ 	                def.resolve(data);
+ 	            })
+ 	            .error(function(data) {
+ 	            	console.log(data)
+ 	                def.reject(data);
+ 	            });
+ 	        return def.promise;
+ 	    }
+ 	    
  		
  		function grantOrRevokeAcess(spId, accessValue){
 			  var def = $q.defer();
@@ -177,6 +209,8 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
 chrisApp.factory('regionService',  ['$http', '$q',function ($http, $q) {
  		var RegionService = {
  			findAllRegions:findAllRegions,
+ 			findRSPRegions:findRSPRegions,
+ 			getCountryByRegion:getCountryByRegion
         };
  		return RegionService;
  	// implementation
@@ -193,5 +227,31 @@ chrisApp.factory('regionService',  ['$http', '$q',function ($http, $q) {
  	            });
  	        return def.promise;
  	    }
+ 	    
+ 	   function findRSPRegions() {
+	        var def = $q.defer();
+	        $http.get(hostLocation+"/serviceprovidercompany/regions")
+	            .success(function(data) {
+	                def.resolve(data);
+	            })
+	            .error(function(data) {
+	                def.reject(data);
+	            });
+	        return def.promise;
+	    }
+ 	   
+ 	  function getCountryByRegion(region) {
+	        var def = $q.defer();
+	        $http.get(hostLocation+"/serviceprovidercompany/country/region/"+region.regionId)
+	            .success(function(data) {
+	            	//console.log(data)
+	                def.resolve(data);
+	            })
+	            .error(function(data) {
+	            	console.log(data)
+	                def.reject(data);
+	            });
+	        return def.promise;
+	    }
 		
 }]);

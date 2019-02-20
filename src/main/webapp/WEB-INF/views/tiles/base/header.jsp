@@ -443,6 +443,13 @@ function removeLoader(){
 	          </a>
 	        </li>
         </sec:authorize>
+        <sec:authorize access="hasAnyRole('ROLE_SP_AGENT','ROLE_SP_OPS_MANAGER')">
+	         <li>
+	          <a href="${contextPath}/serviceprovidercompany/externalcustomers" ><i class="fa fa-user-plus" aria-hidden="true" data-toggle="tooltip" data-placement="right"  id="extCustomers"></i>
+	             <span>External Customers</span>
+	          </a>
+	        </li>
+        </sec:authorize>
         <sec:authorize access="hasAnyRole('ROLE_SITE_STAFF','ROLE_MAINTENANCE_STAFF','ROLE_OPS_MANAGER')">
         <li>
           <a href="${contextPath}/site/details" ><i class="fa fa-sitemap" aria-hidden="true" data-toggle="tooltip" data-placement="right"  id="site"></i>
