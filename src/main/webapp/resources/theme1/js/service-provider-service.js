@@ -14,10 +14,37 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
  			getSPAgents:getSPAgents,
  			grantOrRevokeAcess:grantOrRevokeAcess,
  			saveRSPExternalCustomer:saveRSPExternalCustomer,
- 			retrieveExternalCustomerRSP:retrieveExternalCustomerRSP
+ 			retrieveExternalCustomerRSP:retrieveExternalCustomerRSP,
+ 			getExtCustSLAList:getExtCustSLAList,
+ 			updateExtCustSLA:updateExtCustSLA
         };
  		return ServiceProviderService;
  		
+ 		 function updateExtCustSLA(extCustomer) {
+  	        var def = $q.defer();
+  	        $http.post(hostLocation+"/serviceprovidercompany/update/ext/customer/sla",extCustomer)
+  	            .success(function(data) {
+  	            	//console.log(data)
+  	                def.resolve(data);
+  	            })
+  	            .error(function(data) {
+  	            	console.log(data)
+  	                def.reject(data);
+  	            });
+  	        return def.promise;
+  	    }
+ 		function getExtCustSLAList(extCust){
+			  var def = $q.defer();
+		        $http.get(hostLocation+"/serviceprovidercompany/ext/customer/sla/list/"+extCust.customerId)
+		            .success(function(data) {
+		                def.resolve(data);
+		            })
+		            .error(function(data) {
+		            	console.log(data)
+		                def.reject(data);
+		            });
+		        return def.promise;
+		}
  		function retrieveExternalCustomerRSP(){
 			  var def = $q.defer();
 		        $http.get(hostLocation+"/serviceprovidercompany/ext/customer/list")

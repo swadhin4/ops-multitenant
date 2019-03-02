@@ -23,9 +23,9 @@ public class DistrictDAO {
 		ConnectionManager.getInstance(userConfig);
 	}
 
-	public DistrictVO findByCountryId(Long countryId, String username) {
+	public DistrictVO findByCountryId(Long countryId, String username, final String districtQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		DistrictVO distrcitVO =  jdbcTemplate.query(AppConstants.USER_DISTRICT_QUERY, new Object[]{countryId}, new ResultSetExtractor<DistrictVO>() {
+		DistrictVO distrcitVO =  jdbcTemplate.query(districtQuery, new Object[]{countryId}, new ResultSetExtractor<DistrictVO>() {
 			@Override
 			public DistrictVO extractData(ResultSet rs) throws SQLException, DataAccessException {
 				DistrictVO districtVO = new DistrictVO();

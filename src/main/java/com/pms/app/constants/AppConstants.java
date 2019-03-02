@@ -58,6 +58,9 @@ public class AppConstants {
 	public static final String USER_DISTRICT_QUERY = "SELECT dist.district_id,dist.district_name from pm_district dist "
 			+ " INNER JOIN pm_company com ON com.country_id = dist.country_id WHERE com.company_id=?";
 	
+	public static final String SP_DISTRICT_QUERY = "SELECT dist.district_id,dist.district_name from pm_district dist "
+			+ " INNER JOIN sp_company com ON com.country_id = dist.country_id WHERE com.sp_cid=?";
+	
 	public static final String USER_AREA_QUERY = "SELECT ar.area_id, ar.area_name from pm_area ar "
 			+ " INNER JOIN pm_district dist ON dist.district_id = ar.dist_id WHERE ar.dist_id=?";
 	
@@ -74,7 +77,7 @@ public class AppConstants {
 			+ " ,:siteEmail,:elecId,:siteNumber1,:siteNumber2,:salesArea,:createdBy,0)";
 	
 	public static final String SITE_DETAILS_QUERY = "select s.site_id, s.site_name, s.site_code, s.site_owner,s.elec_id_no,"
-			+ " s.brand_id, s.brand_name, d.district_name, a.area_name, c.cluster_name,s.contact_name, s.email, "
+			+ " s.brand_id, s.brand_name,s.district_id, d.district_name,s.area_id, a.area_name,s.cluster_id, c.cluster_name,s.contact_name, s.email, "
 			+ " s.primary_contact_number, s.alt_contact_number, s.site_address1, s.site_address2, s.site_address3, s.site_address4, "
 			+ " s.latitude, s.longitude, s.site_number1, s.site_number2, s.attachment_path, s.sales_area_size  from pm_site s "
 			+ " left JOIN pm_district d on s.district_id=d.district_id  left JOIN pm_area a on a.area_id=s.area_id "

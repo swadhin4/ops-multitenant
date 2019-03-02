@@ -88,7 +88,7 @@ public class SiteController extends BaseController {
 	}
 	@RequestMapping(value = "/list", method = RequestMethod.GET,produces="application/json")
 	public ResponseEntity<List<CreateSiteVO>> listAllSites(HttpSession session) {
-		logger.info("Inside TestController -- ListAllSites");
+		logger.info("Inside SiteController -- ListAllSites");
 		List<CreateSiteVO> sitesList = null;
 		try {
 			LoginUser user= getCurrentLoggedinUser(session);
@@ -105,7 +105,30 @@ public class SiteController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		logger.info("Exit TestController -- ListAllSites");
+		logger.info("Exit SiteController -- ListAllSites");
+		return new ResponseEntity<List<CreateSiteVO>>(sitesList, HttpStatus.OK);
+	}
+	
+	@RequestMapping(value = "/ext/customer/list/{extCustId}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<List<CreateSiteVO>> listAllSites(HttpSession session, @PathVariable(value="extCustId") Long extCustId) {
+		logger.info("Inside SiteController -- ListAllSites");
+		List<CreateSiteVO> sitesList = null;
+		try {
+			LoginUser user= getCurrentLoggedinUser(session);
+			if(user!=null){
+				//SiteServiceImpl siteService = new SiteServiceImpl();
+				sitesList = siteService.getExtCustSiteList(user,extCustId);
+				if (sitesList.isEmpty()) {
+					return new ResponseEntity(HttpStatus.NO_CONTENT);
+					// You many decide to return HttpStatus.NOT_FOUND
+				}else{
+					Collections.sort(sitesList, CreateSiteVO.COMPARE_BY_SITENAME);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		logger.info("Exit SiteController -- ListAllSites");
 		return new ResponseEntity<List<CreateSiteVO>>(sitesList, HttpStatus.OK);
 	}
 
@@ -178,7 +201,7 @@ public class SiteController extends BaseController {
 				response.setStatusCode(200);
 				response.setObject(savedSiteVO);
 				response.setMessage("New site created successfully");
-				if(!createSiteVO.getSiteLicense().isEmpty()){
+				if(createSiteVO.getSiteLicense()!=null && !createSiteVO.getSiteLicense().isEmpty()){
 					List<Integer> savedLicenseRecords = siteService.saveSiteLicense(createSiteVO.getSiteLicense(), savedSiteVO.getSiteId(), loginUser);
 					if(!savedLicenseRecords.isEmpty()){
 						logger.info("New License created "+ savedLicenseRecords.get(0));
@@ -190,9 +213,9 @@ public class SiteController extends BaseController {
 				if(!createSiteVO.getSiteOperation().isEmpty() && !createSiteVO.getSiteDelivery().isEmpty()){
 					int recordsOperatingTimingsInserted = siteService.saveSiteOperatingTimings(createSiteVO, savedSiteVO.getSiteId(), loginUser, "ADD");
 				}else{
-					logger.info("No Submter added for the site : "+ savedSiteVO.getSiteName());
+					logger.info("No Operating times added for the site : "+ savedSiteVO.getSiteName());
 				}
-				if(!createSiteVO.getSiteSubmeter().isEmpty()){
+				if(createSiteVO.getSiteSubmeter()!=null && !createSiteVO.getSiteSubmeter().isEmpty()){
 					int recordsSubmeterInserted = siteService.saveSiteSubmeter(createSiteVO.getSiteSubmeter(), savedSiteVO.getSiteId(), loginUser,"ADD");
 				}else{
 					logger.info("No Submter added for the site : "+ savedSiteVO.getSiteName());
@@ -203,7 +226,7 @@ public class SiteController extends BaseController {
 				response.setStatusCode(200);
 				response.setObject(savedSiteVO);
 				response.setMessage("Site updated successfully");
-				if(!createSiteVO.getSiteLicense().isEmpty()){
+				if(createSiteVO.getSiteLicense()!=null && !createSiteVO.getSiteLicense().isEmpty()){
 					if(createSiteVO.getLicenseAttachments().size()>0){
 						for(UploadFile uploadFile: createSiteVO.getLicenseAttachments()){
 							for(SiteLicenceVO siteLicenceVO : createSiteVO.getSiteLicense()){
@@ -226,7 +249,7 @@ public class SiteController extends BaseController {
 				}else{
 					logger.info("No Submter added for the site : "+ savedSiteVO.getSiteName());
 				}
-				if(!createSiteVO.getSiteSubmeter().isEmpty()){
+				if(createSiteVO.getSiteSubmeter()!=null && !createSiteVO.getSiteSubmeter().isEmpty()){
 					int recordsSubmeterInserted = siteService.saveSiteSubmeter(createSiteVO.getSiteSubmeter(), savedSiteVO.getSiteId(), loginUser, "UPDATE");
 				}else{
 					logger.info("No Submter added for the site : "+ savedSiteVO.getSiteName());
@@ -239,7 +262,7 @@ public class SiteController extends BaseController {
 	
 	@RequestMapping(value = "/district/api/country/{countryId}", method = RequestMethod.GET,produces="application/json")
 	public ResponseEntity<RestResponse> listAllDistricts(@PathVariable(value="countryId") final Long countryId, final HttpSession session) {
-		logger.info("Inside DistrictController .. listAllDistricts");
+		logger.info("Inside SiteController .. listAllDistricts");
 		List<DistrictVO> districtList = null;
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
@@ -265,13 +288,13 @@ public class SiteController extends BaseController {
 			}
 		}
 
-		logger.info("Exit DistrictController .. listAllDistricts");
+		logger.info("Exit SiteController .. listAllDistricts");
 		return responseEntity;
 	}
 	
 	@RequestMapping(value = "/v1/area/{districtId}", method = RequestMethod.GET,produces="application/json")
 	public ResponseEntity<RestResponse> listAllAreas(@PathVariable(value="districtId") final Long districtId, final HttpSession session) {
-		logger.info("Inside DistrictController .. listAllAreas");
+		logger.info("Inside SiteController .. listAllAreas");
 		RestResponse response = new RestResponse();
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		LoginUser loginUser = getCurrentLoggedinUser(session);
@@ -291,7 +314,7 @@ public class SiteController extends BaseController {
 			e.printStackTrace();
 		}
 		}
-		logger.info("Exit DistrictController .. listAllAreas");
+		logger.info("Exit SiteController .. listAllAreas");
 		return responseEntity;
 	}
 	

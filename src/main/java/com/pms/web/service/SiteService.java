@@ -36,4 +36,7 @@ public interface SiteService {
 
 	public List<CreateSiteVO> getSiteListForCompany(LoginUser user, String custcompCode) throws Exception;
 
+
+	public List<CreateSiteVO> getExtCustSiteList(LoginUser user, Long extCustId) throws Exception;
+
 }

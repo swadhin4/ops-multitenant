@@ -46,7 +46,7 @@
 <script type="text/javascript"
 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
 <script type="text/javascript"
-	src='<c:url value="/resources/theme1/js/sp-customer-controller.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
+	src='<c:url value="/resources/theme1/js/sp-ext-customer-controller.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/service-provider-service.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
 
 <script type="text/javascript"
@@ -145,14 +145,10 @@
 
 <div class="content-wrapper">
 	<c:set var="contextPath" value="${pageContext.request.contextPath}"></c:set>
-	<div ng-controller="spCustomerController" id="incidentWindow">
+	<div ng-controller="spExtCustomerController" id="incidentWindow">
 		<div style="display: none" id="loadingDiv">
 			<div class="loader">Loading...</div>
 		</div>
-
-		<section class="content" style="min-height: 35px; display: none"
-			id="messageWindow"></section>
-
 		<section class="content">
 			<div class="row">
 				<div class="col-md-12">
@@ -204,33 +200,28 @@
 
 							</div>
 						</div>
+						<div class="row">
+						<div class="box-tools pull-right">
+						<div class="col-md-12">
+						<a class="btn btn-success  pull-right" ng-click="addEditExtCustomer(val,'Add')"
+							style="margin-right: 5px;"><span
+							class="fa fa-hand-o-down"></span> Add Customer 
+						</a>
+						</div>
+					   </div>
+						</div>	
 						<div class="row dropdown">
-							<div class="col-xs-12">
-								<div class="box">
+							<div class="col-xs-6" >
+								<div class="box" ng-show="extCustList.length>0 ">
 									<div class="box-header">
-										<div class="row"
-											ng-show="extCustList.length > 0">
-
-											<div class="box-tools dropdown pull-right">
-
-												<a class="btn btn-success dropdown-toggle pull-right"
-													style="margin-right: 5px;" data-toggle="dropdown"><span
-													class="fa fa-hand-o-down"></span> Action<span class="caret"></span>
-												</a>
-												<ul class="dropdown-menu" role="menu">
-													<li><a ng-click="addEditExtCustomer(val,'Add')"> <i
-															class="fa fa-plus" arial-hidden="true"></i> Create
-															Customer
-													</a></li>
-												</ul>
+										<div class="row">
+											<div class="col-md-12">
+											<h3 class="box-title">Customer List</h3>
 											</div>
-
 										</div>
 									</div>
-
 									<div class="box-body table-responsive no-padding">
-										<table class="table table-hover"
-											ng-show="extCustList.length>0 ">
+										<table class="table table-hover">
 											<tbody style="font-size: .9em">
 												<tr">
 													<th style="width: 20%">Customer Name</th>
@@ -243,7 +234,7 @@
 												</tr>
 												<tr ng-repeat="val in extCustList | filter: ticketsearch"
 													ng-class="{currentSelected:$index == selectedRow}"
-													ng-click="rowHighilited($index)">
+													ng-click="rowHighilited($index); getExtCustPriorities(val);">
 													<th class="todo-list">{{val.companyName}}</th>
 													<td>{{val.companyCode}}</td>
 													<td>{{val.countryName}}</td>
@@ -259,13 +250,67 @@
 									</div>
 								</div>
 							</div>
+							<div class="col-xs-6">
+								<div class="box" ng-show="selectedExtCust.selectedSlaListVOList.length>0">
+								<div class="box-header">
+										<div class="row">
+											<div class="col-md-12">
+											<h3 class="box-title">SLA List</h3>
+											</div>
+										</div>
+									</div>
+									<div class="box-body table-responsive no-padding" >
+										<table class="table table-responsive table-sm">
+											<tbody>
+												<tr>
+													<th class="col-md-7">Priority</th>
+													<th class="col-md-2">Duration</th>
+													<th class="col-md-3">Unit</th>
+
+												</tr>
+												<tr ng-repeat="val in selectedExtCust.selectedSlaListVOList">
+													<td class="reqDiv required">{{$index +
+														1}}-{{val.priority}} [{{val.description}}]<span
+														class="control-label"></span>
+													</td>
+													<td><input name="slaId" placeholder=""
+														class="form-control" type="hidden" id="slaId{{$index}}"
+														ng-model="val.slaId"> 
+														<input name="Duration"
+														placeholder="" class="form-control" type="text"
+														ng-keypress="filterValue($event)" maxlength="3"
+														ng-pattern="onlyNumbers" id="duration{{$index}}"
+														required ng-model="val.duration"></td>
+													<td><select name="Unit"
+														class="form-control selectpicker" ng-model="val.unit"
+														required>
+															<option value="">Select Unit</option>
+															<option value="hours">Hours</option>
+															<option value="days">Calendar Days</option>
+													</select></td>
+
+												</tr>
+											</tbody>
+										</table>
+										<div class="form-group">
+											<label for="description">Further SLA details and
+												comments</label>
+											<textarea class="form-control" id="slaDescription" readonly
+												name="slaDescription" placeholder="SLA Description"
+												ng-model="extCustServiceProvider.slaDescription"></textarea>
+										</div>
+								</div>
+								<div class="box-footer pull-right">
+									<button type="button" ng-click="updateExternalCustSLA(extCustServiceProvider)" class="btn btn-success">UPDATE SLA</button>
+								</div>
+							</div>
 						</div>
 					</div>
 
 				</div>
 
 			</div>
-
+		</div>
 
 			<div class="modal right fade" id="addEditExtCustomerModal"
 				tabindex="-1" role="dialog"
@@ -338,14 +383,14 @@
 								<div class="box-body">
 									<input  name="secondaryContactEmail"  placeholder="Secondary Contact Email" 
 									 ng-model="extCustServiceProvider.secondaryContactEmail" class="form-control"  
-									 type="email" required>
+									 type="email" >
 								</div>
 
 								<div class="box-header with-border">
 									<h3 class="box-title">Primary Contact Number</h3>
 								</div>
 								<div class="box-body">
-									<input name="primaryContactNumber" placeholder="Primary Contact Number" class="form-control"  maxlength="11"
+									<input name="primaryContactNumber" placeholder="Primary Contact Number" class="form-control"  maxlength="11" required
 										type="text" ng-model="extCustServiceProvider.primaryContactNumber" ng-keypress="filterValue($event)" ng-pattern="onlyNumbers">
 								</div>
 
@@ -356,23 +401,28 @@
 									<input name="secondaryContactNumber" placeholder="Secondary Contact Number" class="form-control"  maxlength="11"
 										type="text" ng-model="extCustServiceProvider.secondaryContactNumber" ng-keypress="filterValue($event)" ng-pattern="onlyNumbers">
 								</div>
+								
+								<div class="form-group">
+									<label for="description">Further SLA details and
+										comments</label>
+									<textarea class="form-control" id="slaDescription1"
+										name="slaDescription" placeholder="SLA Description"
+										ng-model="extCustServiceProvider.slaDescription"></textarea>
+								</div>
 							</div>
-
-							<div class="box box-solid">
+					   		<div class="box box-solid" >
 								<div class="row">
-									<div class="box-body">
+									<div class="box-body" ng-if="priorities.length>0">
 										<div class="col-md-12">
 											<div class="form-group">
 												<table class="table table-responsive table-sm">
-													<thead>
+													<tbody>
 														<tr>
-															<th class="col-md-5">Priority</th>
+															<th class="col-md-6">Priority</th>
 															<th class="col-md-2">Duration</th>
-															<th class="col-md-5">Unit</th>
+															<th class="col-md-4">Unit</th>
 
 														</tr>
-													</thead>
-													<tbody>
 														<tr ng-repeat="val in priorities">
 															<td class="reqDiv required">{{$index +
 																1}}-{{val.priority}} [{{val.description}}]<span
@@ -392,28 +442,19 @@
 																	<option value="hours">Hours</option>
 																	<option value="days">Calendar Days</option>
 															</select></td>
-
 														</tr>
 													</tbody>
 												</table>
 											</div>
-											<div class="form-group">
-												<label for="description">Further SLA details and
-													comments</label>
-												<textarea class="form-control" id="slaDescription"
-													name="slaDescription" placeholder="SLA Description"
-													ng-model="extCustServiceProvider.slaDescription"></textarea>
-											</div>
-											<div class="box-body pull-right" style="margin-bottom:10px;">
-												<button type="submit" class="btn btn-success">SAVE CHANGES</button>
-												<button type="reset" id="resetAddEditExtCustform" class="btn btn-success">RESET</button>
-											</div>
 										</div>
-
 									</div>
+									<div class="box-footer pull-right" style="margin-bottom:10px;">
+											<button type="submit" class="btn btn-success">SAVE CHANGES</button>
+											<button type="reset" id="resetAddEditExtCustform" class="btn btn-success">RESET</button>
+										</div>
 								</div>
 							
-							</div>
+							</div> 
 								
 								
 						</div>					

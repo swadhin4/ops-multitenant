@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.RSPExternalCustomerVO;
+import com.pms.app.view.vo.RSPExternalSLADetailVO;
 import com.pms.app.view.vo.SPUserVo;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UserVO;
@@ -61,12 +62,47 @@ public class ServiceProviderCompanyController extends BaseController {
 	}
 	
 	@RequestMapping(value = "/externalcustomers", method = RequestMethod.GET)
-	public String userDetailsExt(final Locale locale, final ModelMap model, final HttpServletRequest request,
+	public String getExternalCustomers(final Locale locale, final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
 			model.put("user", loginUser);
 			return "serviceprovider.externalcustomers";
+		} else {
+			return "redirect:/login";
+		}
+	}
+	
+	@RequestMapping(value = "/externalcustomers/sites", method = RequestMethod.GET)
+	public String getExternalCustomersSites(final Locale locale, final ModelMap model, final HttpServletRequest request,
+			final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			model.put("user", loginUser);
+			return "sp.externalcustomers.sites";
+		} else {
+			return "redirect:/login";
+		}
+	}
+	@RequestMapping(value = "/externalcustomers/sites/assets", method = RequestMethod.GET)
+	public String getExternalCustomersAssets(final Locale locale, final ModelMap model, final HttpServletRequest request,
+			final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			model.put("user", loginUser);
+			return "sp.externalcustomers.assets";
+		} else {
+			return "redirect:/login";
+		}
+	}
+	
+	@RequestMapping(value = "/externalcustomers/incidents", method = RequestMethod.GET)
+	public String getExternalCustomersIncidents(final Locale locale, final ModelMap model, final HttpServletRequest request,
+			final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			model.put("user", loginUser);
+			return "sp.externalcustomers.incidents";
 		} else {
 			return "redirect:/login";
 		}
@@ -328,7 +364,7 @@ public class ServiceProviderCompanyController extends BaseController {
 		if(loginUser!=null){
 			try {
 
-				logger.info("Create New External ServiceProvider : "+ externalCustomerVO);
+				logger.info("Save External ServiceProvider : "+ externalCustomerVO);
 				savedExtCustomer = rspManagedService.saveExternalCustomer(externalCustomerVO,loginUser);
 				if(savedExtCustomer.getStatus()==200){
 					response.setStatusCode(200);
@@ -352,11 +388,29 @@ public class ServiceProviderCompanyController extends BaseController {
 						});
 					*/}
 				}
+				else if (savedExtCustomer.getStatus()==202){
+					response.setStatusCode(200);
+					response.setObject(savedExtCustomer);
+					response.setMessage("External Customer updated successfully.");
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+				}
+				else{
+					response.setStatusCode(204);
+					response.setMessage("Duplicate Customer found with primary email : "+ externalCustomerVO.getPrimaryContactEmail());
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.EXPECTATION_FAILED);
+				}
 			} catch (Exception e) {
-				logger.info("Exception while creating external customer", e);
 					response.setStatusCode(500);
-					response.setMessage("Error occured while saving  external customer ");
-					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
+					if(e.getLocalizedMessage().contains("Duplicate")){
+						logger.info("Duplicate Customer found with primary email : "+ externalCustomerVO.getPrimaryContactEmail());
+						response.setStatusCode(204);
+						response.setMessage("Duplicate Customer found with company code : "+ externalCustomerVO.getCompanyCode());
+						responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.EXPECTATION_FAILED);
+					}else{
+						logger.info("Error occured while saving  external customer", e);
+						response.setMessage("Error occured while saving  external customer ");
+						responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+					}
 			}
 			
 
@@ -379,11 +433,15 @@ public class ServiceProviderCompanyController extends BaseController {
 		List<RSPExternalCustomerVO> customerList = null;
 		if (loginUser != null) {
 				try {
+					loginUser.setDbName(loginUser.getSpDbName());
 					customerList = rspManagedService.getExternalCustomers(loginUser);
 				if(!customerList.isEmpty()){
 					response.setStatusCode(200);
 					response.setObject(customerList);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}else{
+					response.setStatusCode(404);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -392,6 +450,77 @@ public class ServiceProviderCompanyController extends BaseController {
 				logger.error("Exception getting customerList", e);
 			}
 		}
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/ext/customer/sla/list/{extCustId}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> getExternalCustomerSLA(final HttpSession session, @PathVariable(value="extCustId") Long extCustId) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		List<RSPExternalSLADetailVO> customerSLAList = null;
+		if (loginUser != null) {
+				try {
+					customerSLAList = rspManagedService.getExternalCustomerSLA(loginUser, extCustId);
+				if(!customerSLAList.isEmpty()){
+					response.setStatusCode(200);
+					response.setObject(customerSLAList);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+				}else{
+					response.setStatusCode(404);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				response.setStatusCode(500);
+				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+				logger.error("Exception getting customerList", e);
+			}
+		}
+		return responseEntity;
+	}
+	
+
+	@RequestMapping(value = "/update/ext/customer/sla", method = RequestMethod.POST, produces = "application/json")
+	public ResponseEntity<RestResponse> updateExtCustSLA(final Locale locale, final ModelMap model,
+			@RequestBody final RSPExternalCustomerVO externalCustomerVO, final HttpSession session) {
+		logger.info("Inside ServiceProviderCompanyController .. updateExtCustSLA");
+		RestResponse response = new RestResponse();
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		RSPExternalCustomerVO savedExtCustomer=null;
+		if(loginUser!=null){
+			try {
+
+				logger.info("Update External ServiceProvider SLA: "+ externalCustomerVO);
+				savedExtCustomer = rspManagedService.updateExtCustSLA(externalCustomerVO,loginUser);
+				if(savedExtCustomer.getStatus()==200){
+					response.setStatusCode(200);
+					response.setObject(savedExtCustomer);
+					response.setMessage("SLA Details updated for customer : "+ externalCustomerVO.getCompanyName());
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
+				}
+				else{
+					response.setStatusCode(204);
+					response.setMessage("Unable to update the sla details");
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.EXPECTATION_FAILED);
+				}
+			} catch (Exception e) {
+					response.setStatusCode(500);
+						logger.info("Error occured while saving  external customer", e);
+						response.setMessage("Error occured while saving  external customer ");
+						responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+			
+
+			
+		}
+		else {
+			response.setStatusCode(401);
+			response.setMessage("Your current session is expired. Please login again");
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
+		}
+		logger.info("Exit ServiceProviderCompanyController .. updateExtCustSLA");
 		return responseEntity;
 	}
 }

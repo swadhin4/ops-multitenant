@@ -4,10 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -16,6 +14,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -24,16 +23,12 @@ import org.springframework.util.StringUtils;
 
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
-import com.pms.app.constants.AppConstants;
 import com.pms.app.constants.RSPCustomerConstants;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.RSPExternalCustomerVO;
 import com.pms.app.view.vo.RSPExternalSLADetailVO;
-import com.pms.app.view.vo.SiteLicenceVO;
-import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Country;
 import com.pms.jpa.entities.Region;
-import com.pms.web.util.ApplicationUtil;
 
 @Repository
 public class RSPManagedDAO {
@@ -102,7 +97,11 @@ public class RSPManagedDAO {
             ps.setString(4, externalCustomerVO.getPrimaryContactEmail());
             ps.setString(5, externalCustomerVO.getSecondaryContactEmail());
             ps.setLong(6, Long.parseLong(externalCustomerVO.getPrimaryContactNumber()));
-            ps.setLong(7, Long.parseLong(externalCustomerVO.getSecondaryContactNumber()));
+            if(!StringUtils.isEmpty(externalCustomerVO.getSecondaryContactNumber())){
+            	ps.setLong(7, Long.parseLong(externalCustomerVO.getSecondaryContactNumber()));
+            }else{
+            	ps.setLong(7, Types.NULL);
+            }
             ps.setString(8, externalCustomerVO.getSlaDescription());
             ps.setString(9, user.getUsername());
 	        return ps;
@@ -115,31 +114,49 @@ public class RSPManagedDAO {
 
 	public int saveOrUpdateExternalCustomerSLAList(List<RSPExternalSLADetailVO> slaListVOList, LoginUser loginUser, String mode, Long externalCustomerId) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		String query = "";
+		int recordData=0;
 		if(mode.equalsIgnoreCase("ADD")){
-			query = RSPCustomerConstants.INSERT_EXTERNAL_CUSTOMER_SLA_LIST;
-		}
-		else{
-			query = RSPCustomerConstants.UPDATE_EXTERNAL_CUSTOMER_SLA_LIST; 
-		}
-        int[] insertedRows = jdbcTemplate.batchUpdate(query,new BatchPreparedStatementSetter() {
-                    @Override
-                    public void setValues(PreparedStatement ps, int i) throws SQLException {
-                    	RSPExternalSLADetailVO externalCustSLA = slaListVOList.get(i);
-                    	ps.setLong(1, externalCustomerId);
-                        ps.setLong(2, externalCustSLA.getPriorityId());
-                        ps.setInt(3, externalCustSLA.getDuration());
-                        ps.setString(4, externalCustSLA.getUnit());
-                        ps.setString(5, loginUser.getUsername());
-                        
-                    }
+			final String query = RSPCustomerConstants.INSERT_EXTERNAL_CUSTOMER_SLA_LIST;
+		    int[] insertedRows = jdbcTemplate.batchUpdate(query,new BatchPreparedStatementSetter() {
+	            @Override
+	            public void setValues(PreparedStatement ps, int i) throws SQLException {
+	            	RSPExternalSLADetailVO externalCustSLA = slaListVOList.get(i);
+	            	ps.setLong(1, externalCustomerId);
+	                ps.setLong(2, externalCustSLA.getPriorityId());
+	                ps.setInt(3, externalCustSLA.getDuration());
+	                ps.setString(4, externalCustSLA.getUnit());
+	                ps.setString(5, loginUser.getUsername());
+	                
+	            }
 
-                    @Override
-                    public int getBatchSize() {
-                        return slaListVOList.size();
-                    }
-       });
-        return insertedRows.length;
+	            @Override
+	            public int getBatchSize() {
+	                return slaListVOList.size();
+	            }
+	       });
+		    recordData = insertedRows.length;
+		}
+		else if(mode.equalsIgnoreCase("UPDATE")){
+			final String query  = RSPCustomerConstants.UPDATE_EXTERNAL_CUSTOMER_SLA_LIST;
+		    int[] updatedRows = jdbcTemplate.batchUpdate(query,new BatchPreparedStatementSetter() {
+	            @Override
+	            public void setValues(PreparedStatement ps, int i) throws SQLException {
+	            	RSPExternalSLADetailVO externalCustSLA = slaListVOList.get(i);
+	                ps.setInt(1, externalCustSLA.getDuration());
+	                ps.setString(2, externalCustSLA.getUnit());
+	                ps.setLong(3, externalCustSLA.getSlaId());
+	                ps.setLong(4, externalCustomerId);
+	            }
+
+	            @Override
+	            public int getBatchSize() {
+	                return slaListVOList.size();
+	            }
+	       });
+		    recordData = updatedRows.length;
+		}
+    
+        return recordData;
 	}
 
 	public List<RSPExternalCustomerVO> getExternalCustomers() {
@@ -163,6 +180,7 @@ public class RSPManagedDAO {
 						rspExternalCustomerVO.setRegionName(rs.getString("region_name"));
 						rspExternalCustomerVO.setSecondaryContactEmail(rs.getString("s_email"));
 						rspExternalCustomerVO.setSecondaryContactNumber(rs.getString("s_contact_no"));
+						rspExternalCustomerVO.setSlaDescription(rs.getString("sla_desc"));
 						custList.add(rspExternalCustomerVO);
 						}
 						return custList;
@@ -170,5 +188,76 @@ public class RSPManagedDAO {
 				});
 		LOGGER.info("Exit RSPManagedDAO .. getExternalCustomers");
 		return customerList;
+	}
+
+	public List<RSPExternalSLADetailVO> getExternalCustomerSLA(Long extCustId) {
+		LOGGER.info("Inside RSPManagedDAO .. getExternalCustomerSLA");
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<RSPExternalSLADetailVO> slaList = jdbcTemplate.query(RSPCustomerConstants.RSP_EXTERNAL_CUSTOMER_SLA_LIST_QUERY, new Object[]{extCustId},
+				new ResultSetExtractor<List<RSPExternalSLADetailVO>>() {
+					@Override
+					public List<RSPExternalSLADetailVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<RSPExternalSLADetailVO> custSLAList = new ArrayList<RSPExternalSLADetailVO>();
+						while (rs.next()) {
+						RSPExternalSLADetailVO rspExternalSLAVO = new RSPExternalSLADetailVO();
+						rspExternalSLAVO.setSlaId(rs.getLong("sla_id"));
+						rspExternalSLAVO.setPriorityId(rs.getLong("priority_id"));
+						rspExternalSLAVO.setPriority(rs.getString("description"));
+						rspExternalSLAVO.setUnit(rs.getString("unit"));
+						rspExternalSLAVO.setDuration(rs.getInt("duration"));
+						custSLAList.add(rspExternalSLAVO);
+						}
+						return custSLAList;
+					}
+				});
+		LOGGER.info("Exit RSPManagedDAO .. getExternalCustomerSLA");
+		return slaList;
+	}
+
+	public int updateExternalCustomer(RSPExternalCustomerVO externalCustomerVO, LoginUser loginUser) {
+			JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+	        int updatedRow = jdbcTemplate.update(RSPCustomerConstants.UPDATE_RSP_EXTERNAL_CUSTOMER_QUERY, new PreparedStatementSetter() {
+	            @Override
+	            public void setValues(PreparedStatement ps) throws SQLException {
+	        		ps.setString(1, externalCustomerVO.getCountryName());
+	        		ps.setString(2, externalCustomerVO.getCompanyCode());
+	        		ps.setLong(3, externalCustomerVO.getCountryId());
+	        		ps.setString(4, externalCustomerVO.getPrimaryContactEmail());
+	        		ps.setString(5, externalCustomerVO.getSecondaryContactEmail() );
+	        		ps.setLong(6, Long.parseLong(externalCustomerVO.getPrimaryContactNumber()));
+	        		if(StringUtils.isEmpty(externalCustomerVO.getSecondaryContactNumber())){
+	        			ps.setLong(7,Types.NULL);
+	        		}
+	        		else{
+	        			ps.setLong(7,Long.parseLong(externalCustomerVO.getSecondaryContactNumber()));
+	        		}
+	        		ps.setString(8, externalCustomerVO.getSlaDescription());
+	        		ps.setLong(9, externalCustomerVO.getCustomerId());
+	            }
+
+	        });
+			return updatedRow;
+	           
+	    }
+
+	public RSPExternalCustomerVO getExternalCustomer(RSPExternalCustomerVO externalCustomerVO, LoginUser loginUser) {
+		LOGGER.info("Inside RSPManagedDAO .. getExternalCustomer");
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		RSPExternalCustomerVO savedCustomer = jdbcTemplate.query(RSPCustomerConstants.SELECT_RSP_EXTERNAL_CUSTOMER_QUERY, new Object[]{externalCustomerVO.getCompanyCode(), externalCustomerVO.getPrimaryContactEmail()},
+				new ResultSetExtractor<RSPExternalCustomerVO>() {
+					@Override
+					public RSPExternalCustomerVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+						RSPExternalCustomerVO rspExternalSLAVO = new RSPExternalCustomerVO();
+						if(rs.next()) {
+							rspExternalSLAVO.setCustomerId(rs.getLong("cust_cid"));
+							rspExternalSLAVO.setCompanyName(rs.getString("cust_name"));
+							rspExternalSLAVO.setCompanyCode(rs.getString("cust_code"));
+							rspExternalSLAVO.setPrimaryContactEmail(rs.getString("p_email"));
+						}
+						return rspExternalSLAVO;
+					}
+				});
+		LOGGER.info("Exit RSPManagedDAO .. getExternalCustomer");
+		return savedCustomer;
 	}
 }

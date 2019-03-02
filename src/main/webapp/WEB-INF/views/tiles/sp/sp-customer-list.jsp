@@ -156,7 +156,8 @@ background:#deefe5
 						<div class="box-header with-border">
 								<div class="row">
 								<div class="col-md-3">
-										<select name="spCustomerListSelect" id="spCustomerListSelect" ng-model="isCustomerSelected.spCustomerListSelect" ng-dropdown required
+										<select name="spCustomerListSelect" id="spCustomerListSelect" 
+											ng-model="isCustomerSelected.spCustomerListSelect" ng-dropdown required
 											class="form-control" onchange="angular.element(this).scope().getSelectionOption(this, event, 'spCustomerListSelect')"
 											required>
 										</select>
@@ -164,8 +165,8 @@ background:#deefe5
 								<div class="col-md-3">
 									<div class="funkyradio">
 										<div class="funkyradio-primary">
-											<input type="radio" name="radioHeader" id="radio4" ng-model="pageViewFor" value="INCIDENTS" 
-											ng-change="displayCustomerView(pageViewFor)"/> <label
+											<input type="radio" name="radioHeader" id="radio4" ng-model="rspPageViewFor" value="INCIDENTS" 
+											ng-change="displayCustomerView(rspPageViewFor)"/> <label
 												for="radio4"   >
 												Incidents 
 												</label> 
@@ -175,8 +176,8 @@ background:#deefe5
 								<div class="col-md-3">
 									<div class="funkyradio">
 										<div class="funkyradio-primary">
-											<input type="radio" name="radioHeader" id="radio5" ng-model="pageViewFor" value="SITES" 
-											ng-change="displayCustomerView(pageViewFor)"/> <label
+											<input type="radio" name="radioHeader" id="radio5" ng-model="rspPageViewFor" value="SITES" 
+											ng-change="displayCustomerView(rspPageViewFor)"/> <label
 												for="radio5" >Sites</label>
 										</div>
 									</div>
@@ -184,8 +185,8 @@ background:#deefe5
 								<div class="col-md-3">
 									<div class="funkyradio">
 										<div class="funkyradio-primary">
-											<input type="radio" name="radioHeader" id="radio6" ng-model="pageViewFor" value="ASSETS" 
-											ng-change="displayCustomerView(pageViewFor)"/> <label
+											<input type="radio" name="radioHeader" id="radio6" ng-model="rspPageViewFor" value="ASSETS" 
+											ng-change="displayCustomerView(rspPageViewFor)"/> <label
 												for="radio6" >Assets</label>
 										</div>
 									</div>

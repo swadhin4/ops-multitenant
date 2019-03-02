@@ -13,6 +13,7 @@ import com.pms.app.exception.RequiredFieldException;
 import com.pms.app.exception.Validator;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.RSPExternalCustomerVO;
+import com.pms.app.view.vo.RSPExternalSLADetailVO;
 import com.pms.jpa.entities.Country;
 import com.pms.jpa.entities.Region;
 import com.pms.web.service.RSPMangedService;
@@ -54,7 +55,27 @@ public class RSPManagedServiceImpl implements RSPMangedService {
 			 
 		 }
 		 else if(externalCustomerVO.getCustomerId()!=null){
-			 
+			 logger.info("Updating External Customer for :"+ loginUser.getUserType());
+			 boolean isValid=validateEntity(externalCustomerVO);
+			 if(isValid){
+				 RSPExternalCustomerVO savedCustomer =  getRspManagedDAO(loginUser.getDbName()).getExternalCustomer(externalCustomerVO, loginUser);
+				 if(savedCustomer.getCustomerId()!=null &&  savedCustomer.getCustomerId().equals(externalCustomerVO.getCustomerId())){
+					 int updatedRow = getRspManagedDAO(loginUser.getDbName()).updateExternalCustomer(externalCustomerVO, loginUser);
+					 if(updatedRow>0){
+						 externalCustomerVO.setStatus(202);
+						 logger.info("External Customer Details Updated");
+					 }
+				 }else  if(savedCustomer.getCustomerId()==null){
+					 int updatedRow = getRspManagedDAO(loginUser.getDbName()).updateExternalCustomer(externalCustomerVO, loginUser);
+					 if(updatedRow>0){
+						 externalCustomerVO.setStatus(202);
+						 logger.info("External Customer Details Updated");
+					 }
+				 }else  {
+						 externalCustomerVO.setStatus(204);
+						 logger.info("Duplicate External Customer Details found");
+				 }
+			 }
 		 }
 		return externalCustomerVO;
 	}
@@ -72,6 +93,19 @@ public class RSPManagedServiceImpl implements RSPMangedService {
 	@Override
 	public List<RSPExternalCustomerVO> getExternalCustomers(LoginUser loginUser) throws Exception {
 		return  getRspManagedDAO(loginUser.getDbName()).getExternalCustomers();
+	}
+	@Override
+	public List<RSPExternalSLADetailVO> getExternalCustomerSLA(LoginUser loginUser, Long extCustId) throws Exception {
+		return getRspManagedDAO(loginUser.getDbName()).getExternalCustomerSLA(extCustId);
+	}
+	@Override
+	public RSPExternalCustomerVO updateExtCustSLA(RSPExternalCustomerVO externalCustomerVO, LoginUser loginUser)
+			throws Exception {
+		int recordsUpdated = getRspManagedDAO(loginUser.getDbName()).saveOrUpdateExternalCustomerSLAList(externalCustomerVO.getSlaListVOList(), loginUser, "UPDATE", externalCustomerVO.getCustomerId());
+		if(recordsUpdated>0){
+			externalCustomerVO.setStatus(200);
+		}
+		return externalCustomerVO;
 	}
 
 }

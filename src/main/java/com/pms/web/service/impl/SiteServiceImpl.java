@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pms.app.constants.UserType;
 import com.pms.app.dao.impl.SiteDAO;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
@@ -44,10 +45,23 @@ public class SiteServiceImpl implements SiteService{
 	@Override
 	public List<CreateSiteVO> getSiteList(LoginUser user) throws Exception {
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
-		List<CreateSiteVO> siteList = siteDAO.getSiteList(user.getUsername());
+		List<CreateSiteVO> siteList = new ArrayList<CreateSiteVO>();
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+			siteList = siteDAO.getSiteList(user.getUsername());
+		}
 		return siteList;
 	}
 
+	@Override
+	public List<CreateSiteVO> getExtCustSiteList(LoginUser user, Long extCustId) throws Exception {
+		SiteDAO siteDAO=getSiteDAO(user.getDbName());
+		List<CreateSiteVO> siteList = new ArrayList<CreateSiteVO>();
+		 if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			siteList = siteDAO.getExtCustUserSiteList(user.getUsername(), extCustId);
+		}
+		return siteList;
+	}
+	
 	@Override
 	public List<CreateSiteVO> getSiteListForCompany(LoginUser user, String custCode) throws Exception {
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
@@ -68,7 +82,19 @@ public class SiteServiceImpl implements SiteService{
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
 		CreateSiteVO savedSiteVO = null;
 		if(siteVO.getSiteId()==null){
-			savedSiteVO = siteDAO.saveSite(siteVO, user);
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+				savedSiteVO = siteDAO.saveSite(siteVO, user);
+			}
+			else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				savedSiteVO = siteDAO.saveRSPExternalCustomerSite(siteVO, user);
+				if(savedSiteVO.getSiteId()!=null){
+					LOGGER.info("Updating RSP external customer site access");
+					int updatedRow = siteDAO.updateRSPUserExtCustSiteAccess(user, savedSiteVO.getSiteId());		
+					if(updatedRow>0){
+						LOGGER.info("External Customer Site access updated for user :" + user.getUsername());
+					}
+				}
+			}
 			String siteFileAttachment = getSiteFileAttachment(savedSiteVO, user);
 			if(!StringUtils.isEmpty(siteFileAttachment)){
 				siteVO.setFileInput(siteFileAttachment);
@@ -152,7 +178,13 @@ public class SiteServiceImpl implements SiteService{
 		if(siteId!=null){
 			//siteOperation = siteDAO.insertSiteOperatingBatch(siteId,createSiteVO.getSiteOperation(), user);
 			//siteDelivery=siteDAO.insertSiteDeliveryBatch(siteId,createSiteVO.getSiteDelivery(), user);
-			siteOperation = siteDAO.saveOrUpdateOeratingTimings(siteId,createSiteVO.getSiteOperation(),createSiteVO.getSiteDelivery(), user, mode);
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+				siteOperation = siteDAO.saveOrUpdateOeratingTimings(siteId,createSiteVO.getSiteOperation(),createSiteVO.getSiteDelivery(), user, mode);
+			}
+			else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				siteOperation = siteDAO.saveOrUpdateOeratingTimings(siteId,createSiteVO.getSiteOperation(),createSiteVO.getSiteDelivery(), user, mode);
+			}
+			
 		}
 		return siteOperation+siteDelivery;
 	}
@@ -194,7 +226,24 @@ public class SiteServiceImpl implements SiteService{
 	@Override
 	public CreateSiteVO findSiteBySiteId(Long siteId, LoginUser user) throws Exception {
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
-		CreateSiteVO savedSiteVO = siteDAO.getSiteDetails(siteId);
+		CreateSiteVO savedSiteVO =null;
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			savedSiteVO  = siteDAO.getSiteDetails(siteId);
+			List<SiteOperationVO> salesTimeList = siteDAO.getSiteSalesTimings(siteId);
+			if(!salesTimeList.isEmpty()){
+				savedSiteVO.setSiteOperation(salesTimeList);
+			}else{
+				LOGGER.info("No Sales timing found for selected Site :" + savedSiteVO.getSiteName());
+			}
+			List<SiteDeliveryVO> deliveryTimeList = siteDAO.getSiteDeliveryTimings(siteId);
+			if(!deliveryTimeList.isEmpty()){
+				savedSiteVO.setSiteDelivery(deliveryTimeList);
+			}else{
+				LOGGER.info("No Delivery timing found for selected Site :" + savedSiteVO.getSiteName());
+			}
+		}
+		else{
+			savedSiteVO  = siteDAO.getSiteDetails(siteId);
 		List<SiteLicenceVO> licenseList = siteDAO.getSiteLicense(siteId);
 		if(!licenseList.isEmpty()){
 			savedSiteVO.setSiteLicense(licenseList);
@@ -220,6 +269,7 @@ public class SiteServiceImpl implements SiteService{
 		}else{
 			LOGGER.info("No Submeter details found for selected Site :" + savedSiteVO.getSiteName());
 		}
+		}
 		return savedSiteVO;
 	}
 
@@ -234,7 +284,16 @@ public class SiteServiceImpl implements SiteService{
 		SiteDAO siteDAO=getSiteDAO(user.getDbName());
 		CreateSiteVO savedSiteVO = null;
 		if(siteVO.getSiteId()!=null){
-			savedSiteVO = siteDAO.saveSite(siteVO, user);
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+				savedSiteVO = siteDAO.saveSite(siteVO, user);
+			}
+			else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				int updatedRow = siteDAO.updateRSPExternalCustomerSite(siteVO, user);
+				if(updatedRow>0){
+					savedSiteVO = siteVO;
+					savedSiteVO.setStatus(200);
+				}
+			}
 			String siteFileAttachment = getSiteFileAttachment(siteVO, user);
 			if(!StringUtils.isEmpty(siteFileAttachment)){
 				siteVO.setFileInput(siteFileAttachment);

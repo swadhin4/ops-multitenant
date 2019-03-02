@@ -308,7 +308,8 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
             deleteFileAttached:deleteFileAttached,
             retrieveSPAllSites:retrieveSPAllSites,
             retrieveAssetsForRSP:retrieveAssetsForRSP,
-            getAssetInfo:getAssetInfo
+            getAssetInfo:getAssetInfo,
+            retrieveAllExtCustomerSites:retrieveAllExtCustomerSites
         };
 		
 	 	return SiteService;
@@ -419,6 +420,22 @@ chrisApp.factory("siteService", ['$http', '$q',function ($http, $q) {
         function retrieveAllSites() {
             var def = $q.defer();
             $http.get(hostLocation+"/site/list")
+                .success(function(data) {
+                	//console.log(data)
+                    def.resolve(data);
+                })
+                .error(function(data) {
+                	console.log(data)
+                    def.reject(data);
+                });
+            return def.promise;
+        }
+        
+
+	    // implementation
+        function retrieveAllExtCustomerSites(custId) {
+            var def = $q.defer();
+            $http.get(hostLocation+"/site/ext/customer/list/"+custId)
                 .success(function(data) {
                 	//console.log(data)
                     def.resolve(data);

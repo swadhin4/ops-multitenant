@@ -1,4 +1,4 @@
-chrisApp.controller('spCustomerController',
+chrisApp.controller('spExtCustomerController',
 			[
 				'$rootScope',
 				'$scope',
@@ -79,7 +79,7 @@ chrisApp.controller('spCustomerController',
 					 $scope.sessionTicket=null;
 					$scope.getLoggedInUserAccess();	
 					$scope.ticketCreatedOrAssigned="CUSTOMER";
-					$scope.rspPageViewFor="INCIDENTS";
+					$scope.pageViewFor="CUSTOMERS";
 					$('#incidentDetails').on('click', 'tbody tr',function(){
 						 $('#incidentDetails tbody > tr').removeClass('currentSelected');
 						  $(this).addClass('currentSelected');
@@ -187,12 +187,12 @@ chrisApp.controller('spCustomerController',
 				}
 				
 				$scope.getExtCustPriorities=function(selectedCust){
-					$scope.extCustServiceProvider=selectedCust;
+					$scope.selectedExtCust=selectedCust;
 					serviceProviderService.getExtCustSLAList(selectedCust)
 					.then(function(data){
 						console.log(data);
 						if(data.statusCode==200){
-							$scope.extCustServiceProvider.slaListVOList=[];
+							$scope.selectedExtCust.selectedSlaListVOList=[];
 							var description=['Operation is completely down','Operation is partially interrupted', 'Performance degraded','General service request'];
 							$.each(data.object,function(key,val){
 								var priority={
@@ -204,7 +204,7 @@ chrisApp.controller('spCustomerController',
 										unit:val.unit,
 										
 								}
-								$scope.extCustServiceProvider.slaListVOList.push(priority);
+								$scope.selectedExtCust.selectedSlaListVOList.push(priority);
 							})
 						}
 					},function(data){
@@ -256,20 +256,6 @@ chrisApp.controller('spCustomerController',
 						}
 						$scope.extCustServiceProvider.slaListVOList.push(finalPriorityObject);
 					})
-					
-				/*	$.each($scope.escalationLevels,function(key,val){
-					 if(val.contact!=null && val.email!=null){	
-						var finalEscalationObject={
-								escId:val.escId,
-								escalationLevel:key+1,
-								escalationPerson:val.contact,
-								escalationEmail:val.email
-						}
-						$scope.extCustServiceProvider.escalationLevelList.push(finalEscalationObject);
-					 }
-					});*/
-					
-					
 					$scope.saveExtCustServiceProvider($scope.extCustServiceProvider);
 				}
 				
@@ -298,9 +284,10 @@ chrisApp.controller('spCustomerController',
 				}
 				
 				$scope.updateExternalCustSLA=function(selectedCustomer){
-					console.log("saveExtCustCustomerSLA",selectedCustomer);
+					console.log("saveExtCustCustomerSLA",$scope.selectedExtCust);
 					$('#loadingDiv').show();
-					serviceProviderService.updateExtCustSLA(selectedCustomer)
+					$scope.selectedExtCust.slaListVOList = $scope.selectedExtCust.selectedSlaListVOList;
+					serviceProviderService.updateExtCustSLA($scope.selectedExtCust)
 					.then(function(data) {
 		    			if(data.statusCode == 200){
 		    				 $scope.successMessage = data.message;
@@ -501,7 +488,8 @@ chrisApp.controller('spCustomerController',
 			    				$scope.siteData ={};
 			    				$scope.sessionUser=angular.copy(data.object);
 			    				$scope.siteData.company=$scope.sessionUser.company;
-			    				$scope.getSpCustomerList();
+			    				
+			    				$scope.displayExternalCustomerView($scope.pageViewFor);
 			    			}
 			            },
 			            function(data) {
@@ -528,24 +516,6 @@ chrisApp.controller('spCustomerController',
 					
 				}
 				
-				$scope.displayCustomerView=function(viewType){
-					$scope.rspPageViewFor = viewType;
-					if($scope.rspPageViewFor=="INCIDENTS"){
-						$scope.checkTicketsAssignedOrCreated($scope.ticketCreatedOrAssigned);
-						
-					}
-					else if($scope.rspPageViewFor=="SITES"){
-						$scope.spCustomerIncidentList.list=[];
-						$scope.assetList=[];
-						$scope.getSiteData();
-					}
-					else if($scope.rspPageViewFor=="ASSETS"){
-						$scope.spCustomerIncidentList.list=[];
-						$scope.siteList=[];
-						$scope.getAssetData();
-					}
-				}
-			/*	
 				$scope.displayExternalCustomerView=function(viewType){
 					$scope.pageViewFor = viewType;
 					console.log("displayExternalCustomerView--->",viewType);
@@ -564,21 +534,21 @@ chrisApp.controller('spCustomerController',
 						$scope.extCustServiceProvider.slaListVOList=[];
 						window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers/sites"
 					}
-					if($scope.pageViewFor=="ASSETS"){
+					else if($scope.pageViewFor=="ASSETS"){
 						$scope.spCustomerIncidentList.list=[];
 						$scope.siteList=[];
 						$scope.extCustList=[];
 						$scope.extCustServiceProvider.slaListVOList=[];
 						window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers/sites/assets"
 					}
-					if($scope.pageViewFor=="CUSTOMERS"){
+					else if($scope.pageViewFor=="CUSTOMERS"){
 						$scope.spCustomerIncidentList.list=[];
 						$scope.siteList=[];
 						$scope.assetList=[];
 						$scope.getExternalCustomerData();
 					}
-				}*/
-				/*$scope.getExternalCustomerData =function(){
+				}
+				$scope.getExternalCustomerData =function(){
 					$('#loadingDiv').show();
 					serviceProviderService.retrieveExternalCustomerRSP()
 						.then(function(data) {
@@ -597,8 +567,11 @@ chrisApp.controller('spCustomerController',
 						console.log(data);	
 	    				$('#loadingDiv').hide();
  		            });
+				}
 				
-			    }*/
+				
+				
+				
 				//
 				$scope.getSpCustomerList=function(){
 					$('#loadingDiv').show();

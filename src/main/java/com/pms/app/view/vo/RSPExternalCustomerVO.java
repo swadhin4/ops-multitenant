@@ -18,9 +18,7 @@ public class RSPExternalCustomerVO implements Serializable{
 	private String primaryContactEmail;
 	@Required
 	private String primaryContactNumber;
-	@Required
 	private String secondaryContactEmail;
-	@Required
 	private String secondaryContactNumber;
 	private Long regionId;
 	private String regionName;
