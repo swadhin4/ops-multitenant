@@ -55,6 +55,9 @@ public class Asset implements Serializable {
 	@Column(name = "sp_id")
 	private Long serviceProviderId;
 	
+	@Column(name = "ext_cust_id")
+	private Long extCustId;
+	
 	private String spType;
 
 	@Column(name = "date_commissioned")
@@ -310,6 +313,14 @@ public class Asset implements Serializable {
 
 	public void setVersion(int version) {
 		this.version = version;
+	}
+
+	public Long getExtCustId() {
+		return extCustId;
+	}
+
+	public void setExtCustId(Long extCustId) {
+		this.extCustId = extCustId;
 	}
 
 }

@@ -25,26 +25,17 @@
 <link rel="stylesheet"
 	href='<c:url value="/resources/theme1/css/responsive.bootstrap.min.css"></c:url>' />
 
-<link rel="stylesheet"
-	href='<c:url value="/resources/theme1/css/optionbtn.css"></c:url>' />
-<script type="text/javascript"
-	src='<c:url value="/resources/theme1/js/jquery.dataTables.min.js"></c:url>'></script>
-<script type="text/javascript"
-	src='<c:url value="/resources/theme1/js/dataTables.bootstrap.min.js "></c:url>'></script>
-<script type="text/javascript"
-	src='<c:url value="/resources/theme1/js/dataTables.responsive.min.js"></c:url>'></script>
-<script type="text/javascript"
-	src='<c:url value="/resources/theme1/js/responsive.bootstrap.min.js"></c:url>'></script>
+<link rel="stylesheet" 	href='<c:url value="/resources/theme1/css/optionbtn.css"></c:url>' />
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery.dataTables.min.js"></c:url>'></script>
+<script type="text/javascript"	src='<c:url value="/resources/theme1/js/dataTables.bootstrap.min.js "></c:url>'></script>
+<script type="text/javascript"	src='<c:url value="/resources/theme1/js/dataTables.responsive.min.js"></c:url>'></script>
+<script type="text/javascript"	src='<c:url value="/resources/theme1/js/responsive.bootstrap.min.js"></c:url>'></script>
 
 
-<link rel="stylesheet"
-	href='<c:url value="/resources/theme1/css/incident-modal.css"></c:url>' />
-<link rel="stylesheet"
-	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
-<link rel="stylesheet"
-	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
-<script type="text/javascript"
-	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/incident-modal.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/angucomplete-alt.css"></c:url>'>
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
+<script type="text/javascript"	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/ext-site-controller.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/site-service.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/asset-service.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
@@ -373,8 +364,6 @@ $(function(){
 	        $('.slider-delEndTime').val(hours2 + ':' + minutes2);
 	    }
 	});
-	
-	
 });
 function validate_tab(thisform) {          
     
@@ -449,14 +438,15 @@ function validate_tab(thisform) {
 
 							</div>
 						</div>
-						<div class="row" id="createSiteWindow" style="display:none">
+						
+						<div class="row target" id="createSiteWindow" style="display:none">
 						  <form  name="createsiteform" ng-submit="saveSiteForm(createsiteform)">
 						<div class="col-md-2 col-sm-6 col-xs-12">
           <div class="info-box">
             <span class="info-box-icon bg-red"><i class="fa fa-building middle" data-original-title="" title=""></i></span>
 
             <div class="info-box-content">
-             <a href ng-click="findAllSites()"> <span class="info-box-number ng-binding">{{siteData.customer.companyName}}</span></a>
+             <a href ng-click="findAllSites()"> <span class="info-box-number ng-binding">{{siteData.customer.customerName}}</span></a>
             </div>
           </div>
         </div>
@@ -785,7 +775,7 @@ function validate_tab(thisform) {
 				</div>
 				</form>
 					     </div>
-							<div class="row" id="siteView">
+							<div class="row target" id="siteView" >
 						<div class="col-md-6">
 						<div class="box">
 							<div class="box-header with-border">
@@ -895,8 +885,8 @@ function validate_tab(thisform) {
 									</button>
 
 									<ul class="dropdown-menu" role="menu">
-										<li> <a href="${contextPath}/asset/equipment/create">  <span class="fa fa-plus" aria-hidden="true"></span>Add Equipment</a></li>
-										<li> <a href="${contextPath}/asset/service/create"> <span  class="fa fa-plus" aria-hidden="true"></span>Add Service</a></li>
+										<li> <a href="${contextPath}/asset/equipment/externalcustomer/add">  <span class="fa fa-plus" aria-hidden="true"></span>Add Equipment</a></li>
+										<li> <a href="${contextPath}/asset/service/externalcustomer/add"> <span  class="fa fa-plus" aria-hidden="true"></span>Add Service</a></li>
 										<li>  <a href data-toggle="modal" ng-click="viewAssetForSelectedSite()" ><span  class="fa fa-eye" aria-hidden="true"></span>View Asset</a></li>
 										<li ng-if="siteList.length> 0"><a href  style="margin-right: 5px;" data-toggle="modal" ng-click="manageUserAccess(selectedSite)">
 									 		<span class="fa fa-user"></span> Manage User Access </a></li>

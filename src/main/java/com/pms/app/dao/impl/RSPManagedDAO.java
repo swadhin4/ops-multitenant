@@ -91,7 +91,7 @@ public class RSPManagedDAO {
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
 	        final PreparedStatement ps = connection.prepareStatement(RSPCustomerConstants.SAVE_RSP_EXTERNAL_CUSTOMER_QUERY, 
 	            Statement.RETURN_GENERATED_KEYS);
-	        ps.setString(1, externalCustomerVO.getCompanyName());
+	        ps.setString(1, externalCustomerVO.getCustomerName());
 	    	ps.setString(2, externalCustomerVO.getCompanyCode());
             ps.setLong(3, externalCustomerVO.getCountryId());
             ps.setString(4, externalCustomerVO.getPrimaryContactEmail());
@@ -107,7 +107,7 @@ public class RSPManagedDAO {
 	        return ps;
 	      }
 	    }, key);
-	    LOGGER.info("Saved  External Customer {} with Customer ID {}.", externalCustomerVO.getCompanyName(), key.getKey());
+	    LOGGER.info("Saved  External Customer {} with Customer ID {}.", externalCustomerVO.getCustomerName(), key.getKey());
 	    externalCustomerVO.setCustomerId(key.getKey().longValue());
 	    return externalCustomerVO;
 	}
@@ -170,7 +170,7 @@ public class RSPManagedDAO {
 						while (rs.next()) {
 						RSPExternalCustomerVO rspExternalCustomerVO = new RSPExternalCustomerVO();
 						rspExternalCustomerVO.setCustomerId(rs.getLong("cust_cid"));
-						rspExternalCustomerVO.setCompanyName(rs.getString("cust_name"));
+						rspExternalCustomerVO.setCustomerName(rs.getString("cust_name"));
 						rspExternalCustomerVO.setCompanyCode(rs.getString("cust_code"));
 						rspExternalCustomerVO.setPrimaryContactEmail(rs.getString("p_email"));
 						rspExternalCustomerVO.setPrimaryContactNumber(String.valueOf(rs.getLong("p_contact_no")));
@@ -219,7 +219,7 @@ public class RSPManagedDAO {
 	        int updatedRow = jdbcTemplate.update(RSPCustomerConstants.UPDATE_RSP_EXTERNAL_CUSTOMER_QUERY, new PreparedStatementSetter() {
 	            @Override
 	            public void setValues(PreparedStatement ps) throws SQLException {
-	        		ps.setString(1, externalCustomerVO.getCountryName());
+	        		ps.setString(1, externalCustomerVO.getCustomerName());
 	        		ps.setString(2, externalCustomerVO.getCompanyCode());
 	        		ps.setLong(3, externalCustomerVO.getCountryId());
 	        		ps.setString(4, externalCustomerVO.getPrimaryContactEmail());
@@ -250,7 +250,7 @@ public class RSPManagedDAO {
 						RSPExternalCustomerVO rspExternalSLAVO = new RSPExternalCustomerVO();
 						if(rs.next()) {
 							rspExternalSLAVO.setCustomerId(rs.getLong("cust_cid"));
-							rspExternalSLAVO.setCompanyName(rs.getString("cust_name"));
+							rspExternalSLAVO.setCustomerName(rs.getString("cust_name"));
 							rspExternalSLAVO.setCompanyCode(rs.getString("cust_code"));
 							rspExternalSLAVO.setPrimaryContactEmail(rs.getString("p_email"));
 						}
@@ -259,5 +259,19 @@ public class RSPManagedDAO {
 				});
 		LOGGER.info("Exit RSPManagedDAO .. getExternalCustomer");
 		return savedCustomer;
+	}
+
+	public int updateFurtherSLA(Long customerId, String slaDescription) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		  int updatedRow = jdbcTemplate.update(RSPCustomerConstants.UPDATE_EXTERNAL_CUSTOMER_SLA_DESCRIPTION, new PreparedStatementSetter() {
+	            @Override
+	            public void setValues(PreparedStatement ps) throws SQLException {
+	        		ps.setString(1,slaDescription);
+	        		ps.setLong(2, customerId);
+	            }
+
+	        });
+			return updatedRow;
+		
 	}
 }

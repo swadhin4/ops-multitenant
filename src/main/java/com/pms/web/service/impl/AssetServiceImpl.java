@@ -65,7 +65,18 @@ public class AssetServiceImpl implements AssetService {
 		LOGGER.info("Inside AssetServiceImpl .. findAllAsset");
 		LOGGER.info("Getting Asset List for logged in user : " + user.getFirstName() + "" + user.getLastName());
 		SiteDAO siteDAO = getSiteDAO(user.getDbName());
-		List<CreateSiteVO> siteList = siteDAO.getSiteList(user.getUsername());
+		List<CreateSiteVO> siteList = null;
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			 if(!StringUtils.isEmpty(viewtype)){
+				 siteList = siteDAO.getExtCustUserSiteList(user.getUsername(), Long.parseLong(viewtype));
+			 }else{
+				 throw new Exception("Please select the customer");
+			 }
+			 
+		}else{
+			 siteList = siteDAO.getSiteList(user.getUsername());
+		}
+		
 		Set<Long> siteIdList = new HashSet<Long>();
 		for (CreateSiteVO siteVO : siteList) {
 			siteIdList.add(siteVO.getSiteId());
@@ -80,11 +91,17 @@ public class AssetServiceImpl implements AssetService {
 	@Override
 	public AssetVO findAssetById(LoginUser user, Long assetid) {
 		LOGGER.info("Inside AssetServiceImpl .. findAssetById");
-		AssetVO assetVO = getAssetDAO(user.getDbName()).getAssetDetails(assetid);
-		List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());
-		if(!taskList.isEmpty()){
-			assetVO.setTaskList(taskList);
+		AssetVO assetVO = null;
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			assetVO = getAssetDAO(user.getDbName()).getExtCustAssetDetails(assetid);
+		}else{
+			assetVO = getAssetDAO(user.getDbName()).getAssetDetails(assetid);
+			List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());
+			if(!taskList.isEmpty()){
+				assetVO.setTaskList(taskList);
+			}
 		}
+		
 		LOGGER.info("Exit AssetServiceImpl .. findAssetById");
 		return assetVO;
 	}
@@ -311,6 +328,7 @@ public class AssetServiceImpl implements AssetService {
 			asset.setCategoryId(assetVO.getCategoryId());
 			asset.setSubCategoryId1(assetVO.getSubCategoryId1());
 			asset.setSpType(assetVO.getSpType());
+			asset.setExtCustId(assetVO.getExtCustId());
 			savedAssetList.add(asset);
 
 			/*
@@ -342,10 +360,21 @@ public class AssetServiceImpl implements AssetService {
 
 		}
 		try {
-			int insertedRows = getAssetDAO(user.getDbName()).saveAssetInBatch(savedAssetList, assetVO, user);
-			if(insertedRows>0){
-				assetVOList.add(assetVO);
+			int rspExtCustInserted=0;
+			int rspCustInserted=0;
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				rspExtCustInserted = getAssetDAO(user.getDbName()).saveExtCustAssetInBatch(savedAssetList, assetVO, user);
+				if(rspExtCustInserted>0){
+					assetVOList.add(assetVO);
+				}
 			}
+			else{
+				rspCustInserted = getAssetDAO(user.getDbName()).saveAssetInBatch(savedAssetList, assetVO, user);
+				if(rspCustInserted>0){
+					assetVOList.add(assetVO);
+				}
+			}
+			
 		} catch (Exception e) {
 			assetVOList.clear();
 			e.printStackTrace();
@@ -355,7 +384,13 @@ public class AssetServiceImpl implements AssetService {
 
 	private List<AssetVO> updateAssetsforMultipleSites(Asset savedAsset, AssetVO assetVO, LoginUser user,
 			List<AssetVO> assetVOList) {
-		AssetVO savedAssetVO = getAssetDAO(user.getDbName()).getAssetDetails(assetVO.getAssetId());
+		AssetVO savedAssetVO = null;
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			savedAssetVO = getAssetDAO(user.getDbName()).getExtCustAssetDetails(assetVO.getAssetId());
+		}else{
+			savedAssetVO= getAssetDAO(user.getDbName()).getAssetDetails(assetVO.getAssetId());
+		}
+		
 		Asset asset = new Asset();
 		if (savedAsset == null) {
 			LOGGER.info("New Asset code is updating for asset : " + assetVO.getAssetName() + " and site :"+ assetVO.getSiteId());
@@ -453,10 +488,18 @@ public class AssetServiceImpl implements AssetService {
 			asset.setDocumentPath(assetVO.getDocumentPath());
 		}
 		try {
-			int i = getAssetDAO(user.getDbName()).updateAsset(asset, assetVO, user);
-			if(i>0){
-			assetVOList.add(assetVO);
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				int i = getAssetDAO(user.getDbName()).updateExtCustAsset(asset, assetVO, user);
+				if(i>0){
+					assetVOList.add(assetVO);
+				}
+			}else{
+				int i = getAssetDAO(user.getDbName()).updateAsset(asset, assetVO, user);
+				if(i>0){
+					assetVOList.add(assetVO);
+				}
 			}
+			
 		} catch (Exception e) {
 			assetVOList.clear();
 			e.printStackTrace();

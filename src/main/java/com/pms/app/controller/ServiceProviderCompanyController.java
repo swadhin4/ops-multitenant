@@ -84,7 +84,9 @@ public class ServiceProviderCompanyController extends BaseController {
 			return "redirect:/login";
 		}
 	}
-	@RequestMapping(value = "/externalcustomers/sites/assets", method = RequestMethod.GET)
+	
+	
+	@RequestMapping(value = "/externalcustomers/assets", method = RequestMethod.GET)
 	public String getExternalCustomersAssets(final Locale locale, final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
@@ -396,15 +398,15 @@ public class ServiceProviderCompanyController extends BaseController {
 				}
 				else{
 					response.setStatusCode(204);
-					response.setMessage("Duplicate Customer found with primary email : "+ externalCustomerVO.getPrimaryContactEmail());
+					response.setMessage("Duplicate Customer found ");
 					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.EXPECTATION_FAILED);
 				}
 			} catch (Exception e) {
 					response.setStatusCode(500);
 					if(e.getLocalizedMessage().contains("Duplicate")){
-						logger.info("Duplicate Customer found with primary email : "+ externalCustomerVO.getPrimaryContactEmail());
+						logger.info("Duplicate Customer found ");
 						response.setStatusCode(204);
-						response.setMessage("Duplicate Customer found with company code : "+ externalCustomerVO.getCompanyCode());
+						response.setMessage("Duplicate Customer found ");
 						responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.EXPECTATION_FAILED);
 					}else{
 						logger.info("Error occured while saving  external customer", e);
@@ -497,7 +499,7 @@ public class ServiceProviderCompanyController extends BaseController {
 				if(savedExtCustomer.getStatus()==200){
 					response.setStatusCode(200);
 					response.setObject(savedExtCustomer);
-					response.setMessage("SLA Details updated for customer : "+ externalCustomerVO.getCompanyName());
+					response.setMessage("SLA Details updated for customer : "+ externalCustomerVO.getCustomerName());
 					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
 				}
 				else{

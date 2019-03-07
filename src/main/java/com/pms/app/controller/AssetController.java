@@ -96,6 +96,50 @@ public class AssetController extends BaseController {
 			return "redirect:/login";
 		}
 	}
+	@RequestMapping(value = "/equipment/externalcustomer/{mode}", method = RequestMethod.GET)
+	public String externalCustomerEquipmentCreate(@PathVariable(value="mode") String mode, final ModelMap model,
+			final HttpServletRequest request, final HttpSession session) {
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.put("user", loginUser);
+			if(loginUser.getSysPassword().equalsIgnoreCase("YES")){
+				return "redirect:/user/profile";
+			}else{
+				if(mode.equalsIgnoreCase("add")){
+					model.put("mode", "NEW");
+				}
+				else if(mode.equalsIgnoreCase("EDIT")){
+					model.put("mode", "EDIT");
+				}
+				return "ext.asset.equipment";
+			}
+		} else {
+			return "redirect:/login";
+		}
+	}
+	
+	@RequestMapping(value = "/service/externalcustomer/{mode}", method = RequestMethod.GET)
+	public String externalCustomerServiceCreate(@PathVariable(value="mode") String mode, final ModelMap model,
+			final HttpServletRequest request, final HttpSession session) {
+		LoginUser loginUser=getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.put("user", loginUser);
+			if(loginUser.getSysPassword().equalsIgnoreCase("YES")){
+				return "redirect:/user/profile";
+			}else{
+				if(mode.equalsIgnoreCase("ADD")){
+					model.put("mode", "NEW");
+				}
+				else if(mode.equalsIgnoreCase("EDIT")){
+					model.put("mode", "EDIT");
+				}
+				session.setAttribute("imageList", null);
+				return "ext.asset.service";
+			}
+		} else {
+			return "redirect:/login";
+		}
+	}
 	
 	@RequestMapping(value = "/service/create", method = RequestMethod.GET)
 	public String serviceCreate(final Locale locale, final ModelMap model,
@@ -264,7 +308,7 @@ public class AssetController extends BaseController {
 				responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
 			}
 		} catch (Exception e) {
-			logger.info("Exception in getting asset list response", e);
+			logger.info("Exception in getting asset list response", e.getLocalizedMessage());
 			response.setStatusCode(500);
 			response.setMessage("Exception occurred while getting asset list");
 			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);

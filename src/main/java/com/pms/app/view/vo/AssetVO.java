@@ -54,6 +54,10 @@ public class AssetVO {
 
 	private String serviceProviderName;
 	
+	private Long extCustId;
+	
+	private String extCustName;
+	
 	private String spCode;
 	
 	private String spType;
@@ -422,6 +426,22 @@ public class AssetVO {
 
 	public void setTaskList(List<AssetTask> taskList) {
 		this.taskList = taskList;
+	}
+
+	public Long getExtCustId() {
+		return extCustId;
+	}
+
+	public void setExtCustId(Long extCustId) {
+		this.extCustId = extCustId;
+	}
+
+	public String getExtCustName() {
+		return extCustName;
+	}
+
+	public void setExtCustName(String extCustName) {
+		this.extCustName = extCustName;
 	}
 
 	@Override

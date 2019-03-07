@@ -235,7 +235,7 @@
 												<tr ng-repeat="val in extCustList | filter: ticketsearch"
 													ng-class="{currentSelected:$index == selectedRow}"
 													ng-click="rowHighilited($index); getExtCustPriorities(val);">
-													<th class="todo-list">{{val.companyName}}</th>
+													<th class="todo-list">{{val.customerName}}</th>
 													<td>{{val.companyCode}}</td>
 													<td>{{val.countryName}}</td>
 													<td>{{val.primaryContactEmail}}</td>
@@ -295,7 +295,7 @@
 										<div class="form-group">
 											<label for="description">Further SLA details and
 												comments</label>
-											<textarea class="form-control" id="slaDescription" readonly
+											<textarea class="form-control" id="slaDescription" 
 												name="slaDescription" placeholder="SLA Description"
 												ng-model="extCustServiceProvider.slaDescription"></textarea>
 										</div>
@@ -334,7 +334,7 @@
 									<h3 class="box-title">Customer Name</h3>
 								</div>
 								<div class="box-body">
-									<input name="companyName" ng-model="extCustServiceProvider.companyName"
+									<input name="companyName" ng-model="extCustServiceProvider.customerName"
 										placeholder="Company Name" class="form-control" type="text"
 										required maxlength="50">
 								</div>
@@ -402,13 +402,6 @@
 										type="text" ng-model="extCustServiceProvider.secondaryContactNumber" ng-keypress="filterValue($event)" ng-pattern="onlyNumbers">
 								</div>
 								
-								<div class="form-group">
-									<label for="description">Further SLA details and
-										comments</label>
-									<textarea class="form-control" id="slaDescription1"
-										name="slaDescription" placeholder="SLA Description"
-										ng-model="extCustServiceProvider.slaDescription"></textarea>
-								</div>
 							</div>
 					   		<div class="box box-solid" >
 								<div class="row">
@@ -447,6 +440,13 @@
 												</table>
 											</div>
 										</div>
+										<div class="form-group">
+									<label for="description">Further SLA details and
+										comments</label>
+									<textarea class="form-control" id="slaDescription1"
+										name="slaDescription" placeholder="SLA Description"
+										ng-model="extCustServiceProvider.slaDescription"></textarea>
+								</div>
 									</div>
 									<div class="box-footer pull-right" style="margin-bottom:10px;">
 											<button type="submit" class="btn btn-success">SAVE CHANGES</button>

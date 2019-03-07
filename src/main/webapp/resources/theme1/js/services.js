@@ -10,6 +10,7 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
 	            getLoggedInUser:getLoggedInUser,
 	            registerUser:registerUser,
 	            getUserSiteAccess:getUserSiteAccess,
+	            getExternalCustSites:getExternalCustSites,
 	            getUsersBySiteAccess:getUsersBySiteAccess,
 	            changePassword:changePassword,
 	            enableOrDisableUser:enableOrDisableUser,
@@ -232,6 +233,21 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
         function getUserSiteAccess(){
         	 var def = $q.defer();
         	  $http.get(hostLocation+"/site/list")
+           //  $http.get(hostLocation+"/user/site/access")
+                 .success(function(data) {
+                 	//console.log(data)
+                     def.resolve(data);
+                 })
+                 .error(function() {
+                     def.reject("Failed to get user site access list");
+                 });
+             return def.promise;
+        }
+        
+
+        function getExternalCustSites(extCustomer){
+        	 var def = $q.defer();
+        	  $http.get(hostLocation+"/site/ext/customer/list/"+extCustomer.customerId)
            //  $http.get(hostLocation+"/user/site/access")
                  .success(function(data) {
                  	//console.log(data)

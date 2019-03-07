@@ -539,7 +539,7 @@ chrisApp.controller('spExtCustomerController',
 						$scope.siteList=[];
 						$scope.extCustList=[];
 						$scope.extCustServiceProvider.slaListVOList=[];
-						window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers/sites/assets"
+						window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers/assets"
 					}
 					else if($scope.pageViewFor=="CUSTOMERS"){
 						$scope.spCustomerIncidentList.list=[];

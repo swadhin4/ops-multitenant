@@ -88,11 +88,20 @@
 		<put-attribute name="title" value="Profile" />
 		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-external-customer-site-list.jsp" />
 	</definition>
-<!-- 		<definition name="sp.externalcustomers.assets" extends="sp.user.definition">
+		<definition name="sp.externalcustomers.assets" extends="sp.user.definition">
 		<put-attribute name="title" value="Profile" />
-		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-external-customer-assest-list.jsp" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-external-asset-list.jsp" />
 	</definition>
 	
+	<definition name="ext.asset.equipment" extends="sp.user.definition">
+		<put-attribute name="title" value="Profile" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/ext-equipment-create.jsp" />
+	</definition>
+	<definition name="ext.asset.service" extends="sp.user.definition">
+		<put-attribute name="title" value="Profile" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/ext-service-create.jsp" />
+	</definition>
+	<!-- 
 	</definition>
 		<definition name="sp.externalcustomers.incidents" extends="sp.user.definition">
 		<put-attribute name="title" value="Profile" />

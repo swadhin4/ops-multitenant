@@ -2,12 +2,10 @@ package com.pms.web.service.impl;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import com.pms.app.dao.impl.RSPManagedDAO;
 import com.pms.app.exception.RequiredFieldException;
 import com.pms.app.exception.Validator;
@@ -99,11 +97,16 @@ public class RSPManagedServiceImpl implements RSPMangedService {
 		return getRspManagedDAO(loginUser.getDbName()).getExternalCustomerSLA(extCustId);
 	}
 	@Override
+	@Transactional
 	public RSPExternalCustomerVO updateExtCustSLA(RSPExternalCustomerVO externalCustomerVO, LoginUser loginUser)
 			throws Exception {
 		int recordsUpdated = getRspManagedDAO(loginUser.getDbName()).saveOrUpdateExternalCustomerSLAList(externalCustomerVO.getSlaListVOList(), loginUser, "UPDATE", externalCustomerVO.getCustomerId());
 		if(recordsUpdated>0){
 			externalCustomerVO.setStatus(200);
+			int slaUpdated = getRspManagedDAO(loginUser.getDbName()).updateFurtherSLA(externalCustomerVO.getCustomerId(), externalCustomerVO.getSlaDescription());
+			if(slaUpdated>0){
+				externalCustomerVO.setStatus(200);
+			}
 		}
 		return externalCustomerVO;
 	}

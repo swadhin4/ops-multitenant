@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.RSPCustomerConstants;
 import com.pms.app.view.vo.AssetTask;
 import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.LoginUser;
@@ -54,7 +55,7 @@ public class AssetDAO {
 	public List<AssetVO> findBySiteIdIn(Set<Long> siteIdList, String viewType) {
 		NamedParameterJdbcTemplate jdbcTemplate = new NamedParameterJdbcTemplate(ConnectionManager.getDataSource());
 		MapSqlParameterSource parameters = new MapSqlParameterSource();
-		parameters.addValue("siteIds", siteIdList);
+		//parameters.addValue("siteIds", siteIdList);
 		parameters.addValue("siteIds", siteIdList);
 		/*if(viewType.equalsIgnoreCase("RSP")){
 			parameters.addValue("viewType", "RSP");
@@ -123,6 +124,18 @@ public class AssetDAO {
 		return assetVO;
 	}
 
+	public AssetVO getExtCustAssetDetails(Long assetId) {
+		LOGGER.info("AssetDAO -- getAssetDetails -- Getting Asset details for selected asset : " + assetId);
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		AssetVO assetVO = jdbcTemplate.query(RSPCustomerConstants.ASSET_DETAILS_QUERY, new Object[] { assetId },
+				new ResultSetExtractor<AssetVO>() {
+					@Override
+					public AssetVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+						return getAssetDetails(rs);
+					}
+				});
+		return assetVO;
+	}
 	public List<AssetCategory> findAssetCategories() {
 		LOGGER.info("Inside AssetDAO .. findAssetCategories");
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
@@ -251,6 +264,15 @@ public class AssetDAO {
 				assetVO.setServiceProviderId(rs.getLong("sp_id"));
 				assetVO.setSpType("EXT");
 				assetVO.setSpHelpDeskEmail(rs.getString("help_desk_email"));
+				assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name"))==true?null:rs.getString("sp_name"));
+			}
+			
+			else if(!StringUtils.isEmpty(rs.getString("sp_type")) && rs.getString("sp_type").equalsIgnoreCase("EXTCUST")){
+				assetVO.setServiceProviderId(rs.getLong("rsp_id"));
+				//assetVO.setExtCustId(rs.getLong("cust_id"));
+				//assetVO.setExtCustName(rs.getString("cust_name"));
+				assetVO.setSpType("EXTCUST");
+				assetVO.setSpHelpDeskEmail(rs.getString("rsp_help_deskemail"));
 				assetVO.setServiceProviderName(StringUtils.isEmpty(rs.getString("sp_name"))==true?null:rs.getString("sp_name"));
 			}
 			
@@ -410,7 +432,41 @@ public class AssetDAO {
 		return updatedRow;
            
     }
+	public int updateExtCustAsset(Asset asset ,AssetVO assetVO, LoginUser user)
+            throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int updatedRow = jdbcTemplate.update(RSPCustomerConstants.ASSET_UPDATE_QUERY, new PreparedStatementSetter() {
+            @Override
+            public void setValues(PreparedStatement ps) throws SQLException {
+            		ps.setString(1, StringUtils.isEmpty(asset.getAssetCode())==true?null:asset.getAssetCode());
+            		ps.setLong(2, asset.getSiteId());
+            		ps.setString(3, StringUtils.isEmpty(asset.getAssetName())==true?null:asset.getAssetName());
+            		ps.setString(4, asset.getAssetDescription());
+            		ps.setString(5, StringUtils.isEmpty(asset.getModelNumber())==true?null:asset.getModelNumber());
+            		ps.setLong(6, asset.getCategoryId());
+            		ps.setString(7, asset.getContent());
+            		ps.setLong(8,  asset.getLocationId());
+            		ps.setString(9, StringUtils.isEmpty(asset.getImagePath())==true?null:asset.getImagePath());
+            		ps.setString(10, StringUtils.isEmpty(asset.getDocumentPath())==true?null:asset.getDocumentPath());
+            		ps.setDate(11,ApplicationUtil.getSqlDate(asset.getDateCommissioned()));
+            		ps.setDate(12, null==asset.getDateDeComissioned()?null:ApplicationUtil.getSqlDate(asset.getDateDeComissioned()));
+            		ps.setString(13, asset.getIsAssetElectrical());
+            		ps.setString(14, asset.getIsPWSensorAttached());
+            		if(StringUtils.isEmpty(asset.getPwSensorNumber())){
+            			ps.setNull(15,  Types.NULL);
+            		}
+            		else{
+            			ps.setString(15,  asset.getPwSensorNumber());
+            		}
+            		ps.setLong(16, asset.getSubCategoryId1());
+            		ps.setString(17,user.getUsername());
+            		ps.setLong(18, asset.getAssetId());
+            }
 
+        });
+		return updatedRow;
+           
+    }
 	public int deleteAsset(Long assetId) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		  int updatedRow = jdbcTemplate.update(AppConstants.ASSET_DELETE_QUERY, new PreparedStatementSetter() {
@@ -564,6 +620,45 @@ public class AssetDAO {
 
         });
 		return updatedRow;
-           
+    }
+	
+	
+	public int saveExtCustAssetInBatch(List<Asset> assetList,AssetVO assetVO, LoginUser user)
+            throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+        int[] insertedRows = jdbcTemplate.batchUpdate(RSPCustomerConstants.ASSET_CREATE_QUERY, 
+                new BatchPreparedStatementSetter() {
+
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    	Asset asset = assetList.get(i);
+                    		ps.setString(1, StringUtils.isEmpty(asset.getAssetName())==true?null:asset.getAssetName());
+                    		ps.setString(2, StringUtils.isEmpty(asset.getAssetCode())==true?null:asset.getAssetCode());
+                    		ps.setString(3, StringUtils.isEmpty(asset.getModelNumber())==true?null:asset.getModelNumber());
+                    		ps.setLong(4,  asset.getLocationId());
+                    		ps.setLong(5, asset.getCategoryId());
+                    		ps.setLong(6, asset.getSubCategoryId1());
+                    		ps.setLong(7, user.getCompany().getCompanyId());
+                    		ps.setString(8, "EXTCUST");
+                    		ps.setString(9, StringUtils.isEmpty(asset.getImagePath())==true?null:asset.getImagePath());
+                    		ps.setString(10, StringUtils.isEmpty(asset.getDocumentPath())==true?null:asset.getDocumentPath());
+                    		ps.setDate(11,ApplicationUtil.getSqlDate(asset.getDateCommissioned()));
+                    		ps.setDate(12, null==asset.getDateDeComissioned()?null:ApplicationUtil.getSqlDate(asset.getDateDeComissioned()));
+                    		ps.setString(13, asset.getContent());
+                    		ps.setLong(14, asset.getSiteId());
+                    		ps.setString(15, asset.getIsAssetElectrical());
+                    		ps.setString(16, asset.getIsPWSensorAttached());
+                    		ps.setString(17,  asset.getPwSensorNumber());
+                    		ps.setString(18, asset.getAssetDescription());
+                    		ps.setString(19, user.getUsername());
+                    		
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return assetList.size();
+                    }
+                });
+        return insertedRows.length;
     }
 }

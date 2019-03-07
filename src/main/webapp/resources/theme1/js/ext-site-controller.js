@@ -192,12 +192,15 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 			console.log("displayExternalCustomerView--->",viewType);
 			if($scope.pageViewFor=="SITES"){
 				console.log($scope.extCustomer);
-				
-				//$scope.getAllSites();
-				
 			}
 			else if($scope.pageViewFor=="CUSTOMERS"){
+				$('#siteView').hide();
 				window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers"
+			}
+			
+			else if($scope.pageViewFor=="ASSETS"){
+				$('#siteView').hide();
+				window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers/assets"
 			}
 		}
 		
@@ -217,9 +220,20 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 					options.append($("<option />").val("0").text(
 					"Select Customer"));
 					$.each($scope.extCustList,function() {
-						options.append($("<option />").val(	this.customerId).text(	this.companyName));
+						options.append($("<option />").val(	this.customerId).text(	this.customerName));
 					});
-					
+					 var externalCust = $.jStorage.get('selectedExtCustomer');
+					 if(externalCust==null){
+						 
+					 }else{
+						 $("#extCustSelect option").each(function() {
+								if ($(this).val() == externalCust.customerId) {
+									$(this).attr('selected', 'selected');
+									return false;
+								}
+						 	});
+						 $scope.getCustomerSelected("0", "e", extCustSelect);
+					 }
     				$('#loadingDiv').hide();
 				},
 			 function(data) {
@@ -234,9 +248,10 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 			if(custId=="0"){
 				
 			}else{
-				$scope.extCustomer.companyId=custId;
-				$scope.extCustomer.companyName=custName
+				$scope.extCustomer.customerId=custId;
+				$scope.extCustomer.customerName=custName
 			}
+			$.jStorage.set('selectedExtCustomer',$scope.extCustomer);
 			$scope.getAllSites();
 			console.log($scope.extCustomer);
 		}
@@ -1265,10 +1280,10 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 		
 		$scope.findAllSites=function(){
 			$('#loadingDiv').show();
-			$('#createSiteWindow').fadeOut();
-			$('#siteView').fadeIn();
+			$('#createSiteWindow').hide( "slide", { direction: "left"  }, 500 );
+			 $("#siteView").show( "slide", { direction: "right"  }, 500 );
 			var selectedCustomer = $scope.extCustomer;
-			siteService.retrieveAllExtCustomerSites(selectedCustomer.companyId)
+			siteService.retrieveAllExtCustomerSites(selectedCustomer.customerId)
 			.then(function(data) {
     			//console.log(data)
     				$scope.siteList=[];
@@ -1481,8 +1496,11 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
   		  	$scope.getDistrictByCountry($scope.sessionUser);
 			$scope.getBrand();
 			$scope.siteData.customer=$scope.extCustomer;
-			$('#createSiteWindow').fadeIn();
+			//$('#createSiteWindow').fadeIn();
 			$('#siteView').fadeOut();
+			 $("#createSiteWindow").show( "slide", { direction: "left"  }, 500 );
+	       //  $("#siteView").show( "slide", {direction: "up" }, 2000 );
+	         //$("#createSiteWindow").hide();
 			$scope.resetSiteOperationTab();
 		}
   	    $scope.getSelectedDistrict=function(district){
@@ -1624,7 +1642,7 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 	    	});
 
 	    	$scope.siteData.operator = $scope.extCustomer;
-	    	$scope.siteData.companyId=parseInt($scope.extCustomer.companyId);
+	    	$scope.siteData.companyId=parseInt($scope.extCustomer.customerId);
 	    	var finalSiteObj = {
 	    			siteData: $scope.siteData,
 	    			//siteLicense:$scope.licenseDetails,
@@ -1878,8 +1896,8 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 		 $scope.updateSiteModal = function(selectedSite) {
 			 $scope.operation ="EDIT";
 			 $scope.siteData = angular.copy($scope.selectedSite);
-			 	$('#createSiteWindow').fadeIn();
 				$('#siteView').fadeOut();
+				 $("#createSiteWindow").show( "slide", { direction: "left"  }, 500 );
 				$scope.siteData.customer=$scope.extCustomer;
 			    $scope.siteData.siteAddress1 = selectedSite.siteAddress1;
 				$scope.siteData.siteAddress2 = selectedSite.siteAddress2;

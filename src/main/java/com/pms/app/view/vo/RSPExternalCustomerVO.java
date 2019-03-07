@@ -11,7 +11,7 @@ public class RSPExternalCustomerVO implements Serializable{
 	private static final long serialVersionUID = -611333737320816640L;
 	private Long customerId;
 	@Required
-	private String companyName;
+	private String customerName;
 	@Required
 	private String companyCode;
 	@Required
@@ -34,11 +34,12 @@ public class RSPExternalCustomerVO implements Serializable{
 	public void setCustomerId(Long customerId) {
 		this.customerId = customerId;
 	}
-	public String getCompanyName() {
-		return companyName;
+	
+	public String getCustomerName() {
+		return customerName;
 	}
-	public void setCompanyName(String companyName) {
-		this.companyName = companyName;
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
 	}
 	public String getCompanyCode() {
 		return companyCode;
@@ -114,7 +115,7 @@ public class RSPExternalCustomerVO implements Serializable{
 	}
 	@Override
 	public String toString() {
-		return "RSPExternalCustomerVO [customerId=" + customerId + ", companyName=" + companyName + ", companyCode="
+		return "RSPExternalCustomerVO [customerId=" + customerId + ", customerName=" + customerName + ", companyCode="
 				+ companyCode + ", primaryContactEmail=" + primaryContactEmail + ", primaryContactNumber="
 				+ primaryContactNumber + ", secondaryContactEmail=" + secondaryContactEmail
 				+ ", secondaryContactNumber=" + secondaryContactNumber + ", regionId=" + regionId + ", regionName="
