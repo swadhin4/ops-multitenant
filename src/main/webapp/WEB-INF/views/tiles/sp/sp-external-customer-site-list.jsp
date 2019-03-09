@@ -391,7 +391,7 @@ function validate_tab(thisform) {
 			<div class="row">
 				<div class="col-md-12">
 					<div class="box" >
-						<div class="box-header with-border">
+						<div class="box-header with-border" id="siteoptiondiv">
 							<div class="row">
 								<div class="col-md-3">
 									<div class="funkyradio">
@@ -442,24 +442,24 @@ function validate_tab(thisform) {
 						<div class="row target" id="createSiteWindow" style="display:none">
 						  <form  name="createsiteform" ng-submit="saveSiteForm(createsiteform)">
 						<div class="col-md-2 col-sm-6 col-xs-12">
-          <div class="info-box">
-            <span class="info-box-icon bg-red"><i class="fa fa-building middle" data-original-title="" title=""></i></span>
-
-            <div class="info-box-content">
-             <a href ng-click="findAllSites()"> <span class="info-box-number ng-binding">{{siteData.customer.customerName}}</span></a>
+          <div class="box-body box-profile">
+          <a href="" ng-click="findAllSites()" title="View All Sites"> <i class="fa fa-th-list"
+									aria-hidden="true"></i></a>
+              <img class="profile-user-img img-responsive img-circle" src="/resources/img/swadhin.jpg" alt="User profile picture">
+              <h3 class="profile-username text-center ng-binding">
+              {{siteData.customer.customerName}}</h3>
             </div>
-          </div>
         </div>
-								<div class="col-md-10">
-					   	 	    <div class="nav-tabs-custom">
-           					 <ul class="nav nav-tabs" style="background-color: rgba(60, 141, 188, 0.34);">
-							<li class="active">
-				       		 <a  href="#siteDetailsTab" data-toggle="tab" aria-expanded="true" id="siteViewLink" class="ctab"><b>Site Details</b></a>
-							</li>
-							<li><a href="#siteContactsTab" data-toggle="tab" aria-expanded="true" id="siteContactLink" class="ctab"><b>Site Contacts</b></a>
-							</li>
-				  			<li><a href="#operationTab" data-toggle="tab" aria-expanded="true" id="siteOperationLink" class="ctab"><b>Site Operation info</b></a>
-							</li>
+				<div class="col-md-10">
+	   	 	    <div class="nav-tabs-custom">
+       					 <ul class="nav nav-tabs" style="background-color: rgba(60, 141, 188, 0.34);">
+			<li class="active">
+       		 <a  href="#siteDetailsTab" data-toggle="tab" aria-expanded="true" id="siteViewLink" class="ctab"><b>Site Details</b></a>
+			</li>
+			<li><a href="#siteContactsTab" data-toggle="tab" aria-expanded="true" id="siteContactLink" class="ctab"><b>Site Contacts</b></a>
+			</li>
+  			<li><a href="#operationTab" data-toggle="tab" aria-expanded="true" id="siteOperationLink" class="ctab"><b>Site Operation info</b></a>
+			</li>
             </ul>
             <div class="tab-content">
                 <div class="tab-pane active" id="siteDetailsTab">
@@ -888,8 +888,6 @@ function validate_tab(thisform) {
 										<li> <a href="${contextPath}/asset/equipment/externalcustomer/add">  <span class="fa fa-plus" aria-hidden="true"></span>Add Equipment</a></li>
 										<li> <a href="${contextPath}/asset/service/externalcustomer/add"> <span  class="fa fa-plus" aria-hidden="true"></span>Add Service</a></li>
 										<li>  <a href data-toggle="modal" ng-click="viewAssetForSelectedSite()" ><span  class="fa fa-eye" aria-hidden="true"></span>View Asset</a></li>
-										<li ng-if="siteList.length> 0"><a href  style="margin-right: 5px;" data-toggle="modal" ng-click="manageUserAccess(selectedSite)">
-									 		<span class="fa fa-user"></span> Manage User Access </a></li>
 									 	<li><a href  style="margin-right: 5px;" data-toggle="modal" ng-click="updateSiteModal(selectedSite)">
 									 		<span class="fa fa-edit"></span>Edit Site</a></li>
 										<!-- <li><a href data-toggle="modal" >Add an Equipment</a></li>
@@ -940,7 +938,7 @@ function validate_tab(thisform) {
 													 <input type="hidden" id="siteImg" value="${contextPath}/selected/file/download?keyname={{selectedSite.fileInput}}">
 												 <div class="col-md-12">
 												 	<div id="noimage" ng-if="selectedSite.fileInput==null">
-												 	 <img src="${contextPath}/resources/theme1/img/no-available-image.png" style="width:50%"></img>
+												 	 <img src="${contextPath}/resources/theme1/img/no-available-image.png" style="width:30%"></img>
 												 	</div>
 												 	<%-- <div id="noimage" ng-if="selectedSite.fileInput!=null">
 												 	 <img src="${contextPath}/selected/file/download?keyname={{selectedSite.fileInput}}" style="width:50%"></img>
@@ -964,7 +962,7 @@ function validate_tab(thisform) {
 							<div class="box-header with-border">
 								<h3 class="box-title"><i class="fa fa-bars" aria-hidden="true"></i> Contact Information</h3>
 							<div class="box-tools pull-right">
-							<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
+							<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 								<div class="btn-group pull-right">
 									<a href="" class="btn btn-info" style="margin-right: 5px;" title="Edit contact information"
 									data-toggle="modal" ng-click="viewTabSelected(selectedSite,'siteContactLink')">
@@ -1012,7 +1010,7 @@ function validate_tab(thisform) {
 							<div class="box-header with-border">
 								<h3 class="box-title">Operation Timings</h3>
 							<div class="box-tools pull-right">
-							<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
+							<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 								<a href="" class="btn btn-info" style="margin-right: 5px;" title="Edit Operation timings"
 									data-toggle="modal" ng-click="viewTabSelected(selectedSite,'siteOperationLink')">
 									<span class="fa fa-edit fa-2x" style="font-size: 1.0em;"></span></a>
@@ -1032,36 +1030,23 @@ function validate_tab(thisform) {
 							  <tr ng-repeat="timing in selectedSite.SalesOperation">
 								<td>{{timing.days}}</td>
 								<td ng-if="timing.from == '00:00' && timing.to == '00:00'">
-								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
+								<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 								<a href data-toggle="modal" ng-click="updateSiteModal(selectedSite)">
-								<span class="label label-warning">{{timing.from}} - {{timing.to}}</span></a>
-								</sec:authorize>
-								<sec:authorize access="hasAnyRole('ROLE_SITE_STAFF')">
-								<a href data-toggle="modal" >
 								<span class="label label-warning">{{timing.from}} - {{timing.to}}</span></a>
 								</sec:authorize>
 								</td>
 								<td ng-if="timing.from == '00:00' && timing.to != '00:00'">
-								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
+								<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 								<a href data-toggle="modal" ng-click="updateSiteModal(selectedSite)">
 								<span class="label label-danger">
 								<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{timing.from}} - {{timing.to}} </span></a>
 								</sec:authorize>
-								<sec:authorize access="hasAnyRole('ROLE_SITE_STAFF')">
-								<a href data-toggle="modal" >
-								<span class="label label-warning">{{timing.from}} - {{timing.to}} </span></a>
-								</sec:authorize>
-								
 								</td>	
 								<td ng-if="timing.from != '00:00' && timing.to == '00:00'">
-								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
+								<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 								<a href data-toggle="modal" ng-click="updateSiteModal(selectedSite)">
 								<span class="label label-danger">
 								<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>{{timing.from}} - {{timing.to}} </span></a>
-								</sec:authorize>
-								<sec:authorize access="hasAnyRole('ROLE_SITE_STAFF')">
-								<a href data-toggle="modal" >
-								<span class="label label-warning">{{timing.from}} - {{timing.to}} </span></a>
 								</sec:authorize>
 								</td>
 								
@@ -1089,36 +1074,23 @@ function validate_tab(thisform) {
 							  <tr ng-repeat="timing in selectedSite.DeliveryOperation">
 									<td>{{timing.days}}</td>
 								<td ng-if="timing.from == '00:00' && timing.to == '00:00'">
-								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
+								<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 								<a href data-toggle="modal" ng-click="updateSiteModal(selectedSite)">
-								<span class="label label-warning">{{timing.from}} - {{timing.to}}</span></a>
-								</sec:authorize>
-								<sec:authorize access="hasAnyRole('ROLE_SITE_STAFF')">
-								<a href data-toggle="modal" >
 								<span class="label label-warning">{{timing.from}} - {{timing.to}}</span></a>
 								</sec:authorize>
 								</td>
 								<td ng-if="timing.from == '00:00' && timing.to != '00:00'">
-								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
+								<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 								<a href data-toggle="modal" ng-click="updateSiteModal(selectedSite)">
 								<span class="label label-danger">
 								<i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{timing.from}} - {{timing.to}} </span></a>
 								</sec:authorize>
-								<sec:authorize access="hasAnyRole('ROLE_SITE_STAFF')">
-								<a href data-toggle="modal" >
-								<span class="label label-warning">{{timing.from}} - {{timing.to}} </span></a>
-								</sec:authorize>
-								
 								</td>	
 								<td ng-if="timing.from != '00:00' && timing.to == '00:00'">
-								<sec:authorize access="hasAnyRole('ROLE_MAINTENANCE_STAFF', 'ROLE_OPS_MANAGER')">
+								<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 								<a href data-toggle="modal" ng-click="updateSiteModal(selectedSite)">
 								<span class="label label-danger">
 								<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>{{timing.from}} - {{timing.to}} </span></a>
-								</sec:authorize>
-								<sec:authorize access="hasAnyRole('ROLE_SITE_STAFF')">
-								<a href data-toggle="modal" >
-								<span class="label label-warning">{{timing.from}} - {{timing.to}} </span></a>
 								</sec:authorize>
 								</td>
 								

@@ -115,8 +115,8 @@ $(document).ready(function()  {
 	 
 	 
 	 $(".dt1").datepicker({
-        format:"dd-mm-yyyy"
-    })
+	        format:"dd-mm-yyyy"
+	    })
     
 	/* $('siteSelect').multiselect();
 	 $('serviceSiteSelect').multiselect();  */	 
@@ -245,7 +245,7 @@ $(document).ready(function()  {
 								<div class="input-group-addon">
 									<i class="fa fa-calendar"></i>
 								</div>
-								<input type="text" class="form-control pull-right dt1"
+								<input type="text" class="form-control pull-right dt1" placeholder="DD-MM-YYYY"
 									id="commissionDate" ng-model="serviceData.commisionedDate" required>
 							</div>
 						</div>

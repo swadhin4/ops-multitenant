@@ -468,7 +468,7 @@ public class AssetController extends BaseController {
 						}
 				}else{
 					response.setStatusCode(204);
-					response.setMessage("Asset code already exists for selected site");
+					response.setMessage("Asset details unable to save or update. Please try again");
 					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
 				}
 

@@ -116,8 +116,8 @@ $(function() {
 	 }); 
 
 	 $(".dt1").datepicker({
-         format:"dd-mm-yyyy"
-     })
+	        format:"dd-mm-yyyy"
+	    })
 	
 	$('.toggle-on').removeAttr('style');
 	 $('.toggle-off').removeAttr('style');

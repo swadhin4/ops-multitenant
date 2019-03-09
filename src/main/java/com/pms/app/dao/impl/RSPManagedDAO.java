@@ -100,7 +100,7 @@ public class RSPManagedDAO {
             if(!StringUtils.isEmpty(externalCustomerVO.getSecondaryContactNumber())){
             	ps.setLong(7, Long.parseLong(externalCustomerVO.getSecondaryContactNumber()));
             }else{
-            	ps.setLong(7, Types.NULL);
+            	ps.setNull(7, Types.NULL);
             }
             ps.setString(8, externalCustomerVO.getSlaDescription());
             ps.setString(9, user.getUsername());

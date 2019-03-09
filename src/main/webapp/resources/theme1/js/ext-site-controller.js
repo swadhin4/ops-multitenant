@@ -1282,6 +1282,7 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 			$('#loadingDiv').show();
 			$('#createSiteWindow').hide( "slide", { direction: "left"  }, 500 );
 			 $("#siteView").show( "slide", { direction: "right"  }, 500 );
+			 $('#siteoptiondiv').show( "slide", { direction: "right"  }, 500 );
 			var selectedCustomer = $scope.extCustomer;
 			siteService.retrieveAllExtCustomerSites(selectedCustomer.customerId)
 			.then(function(data) {
@@ -1499,6 +1500,7 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 			//$('#createSiteWindow').fadeIn();
 			$('#siteView').fadeOut();
 			 $("#createSiteWindow").show( "slide", { direction: "left"  }, 500 );
+			 $('#siteoptiondiv').fadeOut();
 	       //  $("#siteView").show( "slide", {direction: "up" }, 2000 );
 	         //$("#createSiteWindow").hide();
 			$scope.resetSiteOperationTab();

@@ -965,7 +965,10 @@ chrisApp.controller('equipmentcreateController',
 		      }
 			
 						 
-			 $scope.saveAssetEquipment=function(){				 	          
+			 $scope.saveAssetEquipment=function(){	
+				 if($scope.selectedSiteRows.length==0){
+					 $scope.getErrorMessage("Please select at least 1 site");
+				 }else{
 				 if($scope.operation=="NEW" && $scope.selectedSite == null){
 					 $scope.equipmentData.sites = [];
 					 $scope.accessSite.selected = $scope.selectedSiteRows;
@@ -1011,40 +1014,29 @@ chrisApp.controller('equipmentcreateController',
 						 $scope.equipmentData.assetDoc = assetDoc;
 						 if( $scope.equipmentData.assetImage.size > 100){
 							 $scope.errorMessage="File size exceeds Max limit (100KB).";
-							/* $('#messageWindow').show();
-				                $('#errorMessageDiv').show();
-			    				$('#errorMessageDiv').alert();*/	
 			    				$scope.getErrorMessage( $scope.errorMessage);
 			                  $scope.isfileselected=false;
 			                  return false;
 			             }
 						 if( $scope.equipmentData.assetDoc.size > 100){
 							 $scope.errorMessage="File size exceeds Max limit (100KB).";
-						/*	 $('#messageWindow').show();
-				                $('#errorMessageDiv').show();
-			    				$('#errorMessageDiv').alert();*/
 			    				$scope.getErrorMessage( $scope.errorMessage);
 			            	
 			                  $scope.isfileselected=false;
 			                  return false;
-			             }else{
+			             }
+						 
+						 else{
 			            	 $scope.saveAssetInfo($scope.equipmentData);
 			             }
 	   				
 	    				
 		          }
 		          else{
-		        	  /*$scope.equipmentModalErrorMessage = "Decommission date should be after Commission date";
-		                $('#equipmentModalMessageDiv').show();
-	    				$('#equipmentModalMessageDiv').alert();	*/		
-		        	  
 		        	  $scope.errorMessage = "Decommission date should be after Commission date";
-		        /*	  $('#messageWindow').show();
-		                $('#errorMessageDiv').show();
-	    				$('#errorMessageDiv').alert();*/	
 	    				$scope.getErrorMessage( $scope.errorMessage);
-		          }		          
-				 
+		            }		          
+				 }
 			 }
 			 
 			 

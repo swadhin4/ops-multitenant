@@ -72,22 +72,29 @@ a, a:hover, a:active {
 .form-group.last {
  margin-bottom:0px;
 }
+
+#imageDiv { 
+ background: url('/resources/img/mockup.jpg') no-repeat center center fixed; 
+ -webkit-background-size: cover;
+ -moz-background-size: cover;
+ -o-background-size: cover;
+ background-size: cover;
+}
 </style>
 </head>
-<body>
+<body id="imageDiv">
 <c:set var="contextPath" value="${pageContext.request.contextPath}"></c:set>
-	<div  style="background-color: #fff;width:97%">
+	<div  style="width:97%">
 		<div  ng-controller="loginController">
-		<div class="row">
-		 <div class="container register" >
-                <div class="row">
-                    <div class="col-md-4 register-left">
-                        <%--  <img src="${contextPath}/resources/theme1/img/logo_white.png" alt=""/><br> --%>
-                         <img src="${contextPath}/resources/img/logo.png" alt="" style="width: 50%;"><br>
+					<div class="row" >
+					<div class="col-md-5 register-left">
+                         <img src="${contextPath}/resources/img/logo.png" alt="" style="width: 22%;"><br>
                  		 <img src="${contextPath}/resources/img/sigma.png" alt="" style="width: 60%;">
                        
                     </div>
-                    <div class="col-md-8 register-right">
+                    </div>
+                    <div class="row" >
+                    <div class="col-md-5 register-right">
                     <div class="nav-tabs-custom">
                         <ul class="nav nav-tabs">
                             <li class="active">
@@ -184,11 +191,7 @@ a, a:hover, a:active {
                         </div>
                     </div>
                 </div>
-
-            </div>
          </div>
 		</div>
-	</div>
-      
 </body>
 <html>

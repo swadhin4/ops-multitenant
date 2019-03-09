@@ -14,12 +14,17 @@
 
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/bootstrap-toggle.min.css"></c:url>' />
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap-toggle.min.js"></c:url>'></script>
-<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' />
+<%-- 
+<link rel="stylesheet" media="screen"	href='<c:url value="/resources/theme1/css/bootstrap-datetimepicker-standalone.css"></c:url>' />
+<link rel="stylesheet" media="screen" 	href='<c:url value="/resources/theme1/css/bootstrap-datetimepicker.css"></c:url>' />
 
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/select2.min.css"></c:url>' /> --%>
 
 <%-- <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.min.js"></c:url>'></script>
+
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/select2.full.js"></c:url>'></script> --%>
+<link rel="stylesheet" media="screen" 	href='<c:url value="/resources/css/bootstrap-datetimepicker.min.css"></c:url>' />
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/moment.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap-toggle.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap-datetimepicker.js"></c:url>'></script>
@@ -115,18 +120,10 @@ tr td {
 
 $(document).ready(function()  {
 	$('input').attr('autocomplete', 'off');
-	
-	 $('.toggle-on').removeAttr('style');
-	 $('.toggle-off').removeAttr('style');
-	 
 	 
 	 $(".dt1").datepicker({
         format:"dd-mm-yyyy"
-    })
-    
-	/* $('siteSelect').multiselect();
-	 $('serviceSiteSelect').multiselect();  */	 
-	
+     })
  })
   
 </script>
@@ -219,39 +216,7 @@ $(document).ready(function()  {
 								</select>
 								<input type="hidden" ng-model="repairType.selected" >
 						</div>
-					<!-- 	<div class="col-xs-4">
-						<label class="control-label">Customer</label> 
-						<label class="control-label">{{accessSite.selected.customer.customerName}}</label> 
-							  <input name="sp_type" id="rsp" value="RSP" ng-model="spType" type="radio" ng-change="populateServiceProvider(spType)" /><b>Registered SP</b>&nbsp;&nbsp;&nbsp;
-				                <input name="sp_type" id="ext" value="EXT" ng-model="spType" type="radio" ng-change="populateServiceProvider(spType)" /><b>External SP</b>
-							<select
-							ng-options="val as val.name for val in serviceProvider.list"
-								class="form-control" ng-model="serviceProvider.selected" required>
-							</select>
-							<select	name="spSelect" id="spSelect"	class="form-control" 
-							onchange="validateDropdownValues('spSelect','E')">
-							</select> 
-							<input type="hidden" ng-model="serviceProvider.selected">
-						</div> -->
-					
 					</div>
-					<br>
-					<div class="row">
-					
-						
-						
-						
-						
-						<!-- <div class="col-xs-5 required">
-								<label class="control-label">SubComponent Type</label> 
-								<select name="subrepairtypeSelect" id="subrepairtypeSelect" class="form-control" required tabindex="5"
-								onchange="validateDropdownValues('subrepairtypeSelect','E')">
-									
-								</select>
-								<input type="hidden" ng-model="subrepairType.selected" >
-						</div> -->
-					</div>
-					
 										
 					<div class="row">
 						<div class="col-xs-4" >

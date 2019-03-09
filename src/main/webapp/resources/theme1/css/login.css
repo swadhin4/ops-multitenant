@@ -6,7 +6,8 @@
 .register-left{
     text-align: center;
     color: #fff;
-    margin-top: 4%;
+    margin-top: 0%;
+    background: #000000d9;;
 }
 .register-left input{
     border: none;
@@ -21,12 +22,12 @@
     cursor: pointer;
 }
 .register-right{
-    background: #f8f9fa;
-    border-top-left-radius: 10% 50%;
-    border-bottom-left-radius: 10% 50%;
+    background: #000000d9;
+     border-top-left-radius: 10% 50%;
+    border-bottom-left-radius: 10% 50%; 
 }
 .register-left img{
-    margin-top: 15%;
+    margin-top: 1%;
     margin-bottom: 5%;
     width: 25%;
     -webkit-animation: mover 2s infinite  alternate;

@@ -843,6 +843,9 @@ chrisApp.controller('servicecreateController',
 			 
 			 
 			 $scope.saveAssetService =function(){
+				 if($scope.selectedSiteRows.length==0){
+					 $scope.getErrorMessage("Please select at least 1 site");
+				 }else{
 				 if($scope.operation=="NEW" && $scope.selectedSite == null){
 				 	$scope.serviceData.sites = [];
 				 	 $scope.accessSite.selected = $scope.selectedSiteRows;
@@ -904,7 +907,7 @@ chrisApp.controller('servicecreateController',
 		                $('#errorMessageDiv').show();
 	    				$('#errorMessageDiv').alert();	
 		          }		     
-				
+				 }
 			 }
 			
 			 

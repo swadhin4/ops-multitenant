@@ -274,7 +274,7 @@ $(document).ready(function()  {
 									</sec:authorize>
 									</div>
 								</div>
-							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;height:70%">
+							<div class="box-body" style="overflow-y:auto;overflow-x:hidden;height:59%">
 								<div class="row">
 								<div class="col-md-12">
 									 <div class="table-responsive">

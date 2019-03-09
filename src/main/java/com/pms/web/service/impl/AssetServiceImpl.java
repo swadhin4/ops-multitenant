@@ -94,6 +94,10 @@ public class AssetServiceImpl implements AssetService {
 		AssetVO assetVO = null;
 		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
 			assetVO = getAssetDAO(user.getDbName()).getExtCustAssetDetails(assetid);
+			List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());
+			if(!taskList.isEmpty()){
+				assetVO.setTaskList(taskList);
+			}
 		}else{
 			assetVO = getAssetDAO(user.getDbName()).getAssetDetails(assetid);
 			List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());

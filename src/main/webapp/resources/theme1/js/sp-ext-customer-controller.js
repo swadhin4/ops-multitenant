@@ -268,6 +268,7 @@ chrisApp.controller('spExtCustomerController',
 		    				 $scope.successMessage = data.message;
 		    				 $scope.getSuccessMessage($scope.successMessage);
 		    				 $scope.getExternalCustomerData();
+		    				 $('#extCloseBtn').click();
 		    				 $('#loadingDiv').hide();
 		    			}else{
 		    				$scope.modalErrorMessage = data.message;

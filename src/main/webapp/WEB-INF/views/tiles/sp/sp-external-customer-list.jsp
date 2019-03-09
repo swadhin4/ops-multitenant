@@ -224,8 +224,8 @@
 										<table class="table table-hover">
 											<tbody style="font-size: .9em">
 												<tr">
-													<th style="width: 20%">Customer Name</th>
-													<th style="width: 10%">Customer Code</th>
+													<th style="width: 20%">Name</th>
+													<th style="width: 10%">Code</th>
 													<th style="width: 20%">Country</th>
 													<th style="width: 20%">Primary Email</th>
 													<th style="width: 20%">Primary Phone</th>
@@ -241,9 +241,9 @@
 													<td>{{val.primaryContactEmail}}</td>
 													<td>{{val.primaryContactNumber}}</td>
 													<td><a href ng-click="addEditExtCustomer(val,'EDIT')"
-														data-toggle="modal"> <i class="fa fa-edit"></i></a> <a
+														data-toggle="modal"> <i class="fa fa-edit"></i></a> <!-- <a
 														href ng-click="previewSelectedExtCustomer(val)"
-														data-toggle="modal"> <i class="fa fa-eye"></i></a></td>
+														data-toggle="modal"> <i class="fa fa-eye"></i></a> --></td>
 												</tr>
 											</tbody>
 										</table>
@@ -269,8 +269,9 @@
 
 												</tr>
 												<tr ng-repeat="val in selectedExtCust.selectedSlaListVOList">
-													<td class="reqDiv required">{{$index +
-														1}}-{{val.priority}} [{{val.description}}]<span
+													<td class="reqDiv required">
+													<span class="badge">{{$index +
+														1}}</span> {{val.priority}} {{val.description}}<span
 														class="control-label"></span>
 													</td>
 													<td><input name="slaId" placeholder=""
@@ -295,9 +296,9 @@
 										<div class="form-group">
 											<label for="description">Further SLA details and
 												comments</label>
-											<textarea class="form-control" id="slaDescription" 
-												name="slaDescription" placeholder="SLA Description"
-												ng-model="extCustServiceProvider.slaDescription"></textarea>
+											<textarea class="form-control" id="slaDescriptionV" 
+												name="slaDescriptionV" placeholder="SLA Description"
+												ng-model="selectedExtCust.slaDescription"></textarea>
 										</div>
 								</div>
 								<div class="box-footer pull-right">
@@ -320,7 +321,7 @@
 					<form  name="saveExtCustform" ng-submit="saveExtCustomerform(saveExtCustform)">
 						<div class="modal-header">
 							<button type="button" class="close" data-dismiss="modal"
-								aria-label="Close">
+								aria-label="Close" id="extCloseBtn">
 								<span aria-hidden="true">&times;</span>
 							</button>
 							<h4 class="modal-title" id="myModalLabel3">External Customer</h4>

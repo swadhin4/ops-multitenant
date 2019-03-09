@@ -119,8 +119,8 @@ $(document).ready(function()  {
 	 
 	 
 	 $(".dt1").datepicker({
-        format:"dd-mm-yyyy"
-    })
+	        format:"DD-MM-YYYY"
+	    })
     
 	/* $('siteSelect').multiselect();
 	 $('serviceSiteSelect').multiselect();  */	 
