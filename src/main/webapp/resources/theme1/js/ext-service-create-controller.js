@@ -843,7 +843,7 @@ chrisApp.controller('servicecreateController',
 			 
 			 
 			 $scope.saveAssetService =function(){
-				 if($scope.selectedSiteRows.length==0){
+				 if( $scope.operation=="NEW" && $scope.selectedSiteRows.length ){
 					 $scope.getErrorMessage("Please select at least 1 site");
 				 }else{
 				 if($scope.operation=="NEW" && $scope.selectedSite == null){
@@ -858,7 +858,7 @@ chrisApp.controller('servicecreateController',
 					 $scope.serviceData.sites.push($scope.selectedSite.siteId);
 				 }
 				 else if($scope.operation=="EDIT"){
-						 $scope.serviceData.sites.push($scope.selectedAsset.siteId);
+						 $scope.serviceData.sites.push($scope.selectedSite.siteId);
 					 }
 				
 				 if($scope.IsValidDate($scope.serviceData.deCommissionedDate,$scope.serviceData.commisionedDate)){

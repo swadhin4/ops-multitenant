@@ -966,7 +966,7 @@ chrisApp.controller('equipmentcreateController',
 			
 						 
 			 $scope.saveAssetEquipment=function(){	
-				 if($scope.selectedSiteRows.length==0){
+				 if( $scope.operation=="NEW" && $scope.selectedSiteRows.length ){
 					 $scope.getErrorMessage("Please select at least 1 site");
 				 }else{
 				 if($scope.operation=="NEW" && $scope.selectedSite == null){
@@ -980,7 +980,7 @@ chrisApp.controller('equipmentcreateController',
 					 $scope.equipmentData.sites.push($scope.selectedSite.siteId);
 				 } else if($scope.operation=="EDIT"){
 					 $scope.equipmentData.sites=[];
-					 $scope.equipmentData.sites.push($scope.selectedAsset.siteId);
+					 $scope.equipmentData.sites.push($scope.selectedSite.siteId);
 				 }
 		          if($scope.IsValidDate($scope.equipmentData.deCommissionedDate,$scope.equipmentData.commisionedDate)){
 		        	  $('#messageWindow').hide();
