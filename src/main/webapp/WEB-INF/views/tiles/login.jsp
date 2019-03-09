@@ -13,6 +13,31 @@
 
 <link rel="icon" type="image/png" sizes="16x16" href='<c:url value="/resources/img/favicon/favicon-16x16.png"></c:url>' />
 
+<%-- 
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/bootstrap.min.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/bootstrap-toggle.min.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/font-awesome-4.7.0/css/font-awesome.min.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/ripples.min.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/main.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/responsive.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/animate.min.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/style.css"></c:url>' />
+
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/login.css"></c:url>' />
+
+
+
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/tether.min.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap.min.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap-toggle.min.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/ripples.min.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/material.min.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/wow.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery.mmenu.min.all.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/count-to.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery.inview.min.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/classie.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery.nav.js"></c:url>'></script> --%>
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/bootstrap/css/bootstrap4.1.1.min.css"></c:url>' />
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/login.css"></c:url>' />
 <%-- <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery-2.1.4.min.js"></c:url>'></script> --%>
@@ -185,6 +210,9 @@ a, a:hover, a:active {
                     </div>
                 </div>
 
+            </div>
+            <div class="container">
+            	<div id="adwindow"></div>
             </div>
          </div>
 		</div>
