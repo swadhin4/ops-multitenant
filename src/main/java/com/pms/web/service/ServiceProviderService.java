@@ -2,6 +2,7 @@ package com.pms.web.service;
 
 import java.util.List;
 
+import com.pms.app.exception.PMSDBException;
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.SPUserVo;
@@ -39,7 +40,7 @@ public interface ServiceProviderService {
 
 	List<CustomerVO> getAllCustomers(LoginUser loginUser) throws Exception;
 
-	public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser loginUser);
+	public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser loginUser) throws PMSDBException;
 
 	public List<Region> findAllRegions(LoginUser loginUser) throws Exception;
 

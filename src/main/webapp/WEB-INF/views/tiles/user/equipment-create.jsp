@@ -119,7 +119,7 @@ $(document).ready(function()  {
 	 
 	 
 	 $(".dt1").datepicker({
-	        format:"DD-MM-YYYY"
+	        format:"dd-mm-yyyy"
 	    })
     
 	/* $('siteSelect').multiselect();

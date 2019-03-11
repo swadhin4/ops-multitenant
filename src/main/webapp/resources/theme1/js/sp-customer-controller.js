@@ -531,6 +531,8 @@ chrisApp.controller('spCustomerController',
 				$scope.displayCustomerView=function(viewType){
 					$scope.rspPageViewFor = viewType;
 					if($scope.rspPageViewFor=="INCIDENTS"){
+						$scope.assetList=[];
+						$scope.siteList=[];
 						$scope.checkTicketsAssignedOrCreated($scope.ticketCreatedOrAssigned);
 						
 					}
@@ -616,6 +618,7 @@ chrisApp.controller('spCustomerController',
 										custDBName : val.custDBName,
 										countryName : val.countryName,
 										spCode:val.spCode
+										//spCode:val.customerCode
 									}
 									$scope.spCustomerList.list.push(custList);
 								});
@@ -637,12 +640,7 @@ chrisApp.controller('spCustomerController',
 
 				}
 				$scope.getSelectionOption = function(cCode, e,spCustomerListSelect) {
-					// this array will store selected customer list
-					// details.
 						$scope.selectedCustList = [];
-						/*if ($.fn.DataTable.isDataTable("#incidentDetails")) {
-							  $('#incidentDetails').DataTable().clear().destroy();
-						}*/
 						for (var i = 0; i < $scope.spCustomerList.list.length; i++) {
 							if ($scope.spCustomerList.list[i].custCode === cCode.value) {
 								$scope.selectedCustList.push($scope.spCustomerList.list[i]);
@@ -663,7 +661,16 @@ chrisApp.controller('spCustomerController',
 						$.jStorage.set("selectedRSPCustomer", $scope.selectedCustList[0]);
 						$.jStorage.set("selectedCustomer", $scope.spCustomerList.selected);
 						$.jStorage.set("selectedCustomerCode", $scope.selectedCustList[0].custCode);
-						$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
+						serviceProviderService.setCustomerInfo($scope.selectedCustList[0].custDBName)
+						.then(function(data){
+							if(data.statusCode==200){
+								$scope.displayCustomerView($scope.rspPageViewFor);
+							}
+						},function(data){
+							console.log(data);
+						})
+						
+						//$scope.getSPCustomerIncidents($scope.selectedCustList[0].spCode,$scope.selectedCustList[0].custDBName);
 					} else {
 						$scope.selectedCustList = [];
 						console.log("ELseeeeeeeeeeeeeeee111111--->",$scope.selectedCustList.length);
@@ -701,6 +708,7 @@ chrisApp.controller('spCustomerController',
 					}
 				},function(data) {
 					console.log('Unable to change the status of the user');
+					$scope.getErrorMessage("No tickets available for the customer");
 				});
 				}
 				$scope.findTicketsCreated=function(){
@@ -721,8 +729,8 @@ chrisApp.controller('spCustomerController',
 						}
 					},function(data){
 						console.log(data);
-						$('#messageWindow').hide();
-						$('#infoMessageDiv').hide();
+						$scope.spCustomerIncidentList.list=[];
+						$scope.getErrorMessage("No tickets available for the company");
 						$('#loadingDiv').hide();
 					});
 					
@@ -744,9 +752,7 @@ chrisApp.controller('spCustomerController',
 			    				 function(data) {
 			 		                //console.log(data)
 			 		                	$scope.InfoMessage="No sites assigned to the user."
-		 							$('#messageWindow').show();
-		 		    				$('#infoMessageDiv').show();
-		 		    				$('#infoMessageDiv').alert();
+			 		                		$scope.siteList=[];
 		 		    				$('#loadingDiv').hide();
 			 		            });
 				}

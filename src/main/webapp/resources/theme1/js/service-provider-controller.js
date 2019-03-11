@@ -186,7 +186,6 @@ chrisApp.controller('serviceProviderController',  ['$rootScope', '$scope', '$fil
 			$('#loadingDiv').show();
 			serviceProviderService.saveServiceProvider(spData)
 			.then(function(data) {
-    			
     			if(data.statusCode == 200){
     				$scope.successMessage = data.message;
     				 $scope.getSuccessMessage($scope.successMessage);

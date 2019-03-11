@@ -492,7 +492,7 @@ $(document).ready(function()  {
 					 <input
 						name="taskname" type="text" class="form-control"
 						maxlength="50" name="taskName" 
-						ng-disabled="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'"
+						ng-disabled="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'"
 						ng-model="selectedAsset.taskName"
 						placeholder="Enter Task Name" required>
 				</dd>
@@ -502,7 +502,7 @@ $(document).ready(function()  {
                 <dd>
 					<textarea class="form-control"
 					 rows="3"
-					 ng-disabled="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'"
+					ng-disabled="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'"
 					placeholder="Enter Task Description" name="taskDescription"
 					ng-model="selectedAsset.taskDesc"></textarea>
 				</dd>
@@ -518,7 +518,7 @@ $(document).ready(function()  {
 				</div>
 				<input type="text" class="form-control pull-right dt1"
 					placeholder="Planned Start Date" id="planStartDate"
-					ng-disabled="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'"
+					ng-disabled="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'"
 					ng-model="selectedAsset.planStartDate" required>
 
 			     </div>
@@ -532,7 +532,7 @@ $(document).ready(function()  {
 					</div>
 					<input type="text" class="form-control pull-right dt1"
 						placeholder="Completion Date" id="planComplDate"
-						ng-disabled="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'"
+						ng-disabled="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'"
 						ng-model="selectedAsset.planEndDate" required>
 
 						
@@ -547,7 +547,7 @@ $(document).ready(function()  {
 					<input
 					type="text" class="form-control" name="assignTo"
 					ng-model="selectedAsset.taskAssignedTo"
-					ng-disabled="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'"
+					ng-disabled="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'"
 					placeholder="Enter Assigned To" required>
 				</dd>
                 </dl>
@@ -556,36 +556,36 @@ $(document).ready(function()  {
 					<select ng-if="taskOperation =='CreateTask'"
 					 name="taskStatus" ng-model="selectedAsset.taskStatus"
 					id="taskStatus" class="form-control" required>
-					<option value="NEW" selected="selected">New</option>
+					<option value="New" selected="selected">New</option>
 					</select>
 					<select  ng-if="taskOperation =='UpdateTask'" 
 						name="taskStatusUpdate" id="taskStatusUpdate" class="form-control" 
-						ng-disabled="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'"
+						ng-disabled="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'"
 						required ng-model="selectedAsset.taskStatus">
-						<option value="NEW" ng-hide="selectedAsset.taskSelectedStatus =='INPROGRESS'">New</option>
-						<option value="INPROGRESS">In Progress</option>
-						<option value="CLOSED">Closed</option>
-						<option value="REJECTED">Rejected</option>
+						<option value="New" ng-hide="selectedAsset.taskSelectedStatus =='In Progress'">New</option>
+						<option value="In Progress">In Progress</option>
+						<option value="Closed">Closed</option>
+						<option value="Rejected">Rejected</option>
 					</select>
 				
                 </div>
-                <div ng-hide="selectedAsset.taskStatus =='NEW' || selectedAsset.taskStatus =='INPROGRESS'">
+                <div ng-hide="selectedAsset.taskStatus =='New' || selectedAsset.taskStatus =='In Progress'">
 					<label class="control-label">Resolution Comment</label>
 					<textarea class="form-control" rows="3"
 						placeholder="Enter Resolution Comment"
-						ng-disabled="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'"
+						ng-disabled="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'"
 						name="resolutionComment"
 						ng-model="selectedAsset.resComments"></textarea>
 				
                 </div>
                  <div ng-if="selectedAsset.taskId==null" style="margin-top: 15px; margin-right: 1px;"
-                 ng-hide="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'">
+                 ng-hide="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'">
                  <button type="submit" class="btn btn-success">Save	changes</button>
 					<button type="reset" id="resetServiceAssetForm"
 						class="btn btn-success">RESET</button>
                  </div>
                  <div ng-if="selectedAsset.taskId!=null" style="margin-top: 15px; margin-right: 1px;"
-                 ng-hide="selectedAsset.taskSelectedStatus =='CLOSED' || selectedAsset.taskSelectedStatus =='REJECTED'">
+                 ng-hide="selectedAsset.taskSelectedStatus =='Closed' || selectedAsset.taskSelectedStatus =='Rejected'">
                  <button type="submit" class="btn btn-success">Update changes</button>
                  </div>
                 </form>

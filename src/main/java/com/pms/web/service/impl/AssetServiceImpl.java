@@ -92,13 +92,13 @@ public class AssetServiceImpl implements AssetService {
 	public AssetVO findAssetById(LoginUser user, Long assetid) {
 		LOGGER.info("Inside AssetServiceImpl .. findAssetById");
 		AssetVO assetVO = null;
-		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && user.getDbName().equalsIgnoreCase(user.getSpDbName())){
 			assetVO = getAssetDAO(user.getDbName()).getExtCustAssetDetails(assetid);
 			List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());
 			if(!taskList.isEmpty()){
 				assetVO.setTaskList(taskList);
 			}
-		}else{
+ 		}else{
 			assetVO = getAssetDAO(user.getDbName()).getAssetDetails(assetid);
 			List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());
 			if(!taskList.isEmpty()){

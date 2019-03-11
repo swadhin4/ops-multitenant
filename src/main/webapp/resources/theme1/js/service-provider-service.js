@@ -16,10 +16,24 @@ chrisApp.factory('serviceProviderService',  ['$http', '$q',function ($http, $q) 
  			saveRSPExternalCustomer:saveRSPExternalCustomer,
  			retrieveExternalCustomerRSP:retrieveExternalCustomerRSP,
  			getExtCustSLAList:getExtCustSLAList,
- 			updateExtCustSLA:updateExtCustSLA
+ 			updateExtCustSLA:updateExtCustSLA,
+ 			setCustomerInfo:setCustomerInfo
         };
  		return ServiceProviderService;
  		
+ 		function setCustomerInfo(custInfo) {
+  	        var def = $q.defer();
+  	        $http.get(hostLocation+"/serviceprovidercompany/set/customer/"+custInfo)
+  	            .success(function(data) {
+  	            	//console.log(data)
+  	                def.resolve(data);
+  	            })
+  	            .error(function(data) {
+  	            	console.log(data)
+  	                def.reject(data);
+  	            });
+  	        return def.promise;
+  	    }
  		 function updateExtCustSLA(extCustomer) {
   	        var def = $q.defer();
   	        $http.post(hostLocation+"/serviceprovidercompany/update/ext/customer/sla",extCustomer)

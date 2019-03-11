@@ -278,7 +278,22 @@ public class SPUserDAO {
 		 	serviceProviderVO.setServiceProviderId(key.getKey().longValue());
 		 	return serviceProviderVO;
 		}
-	
+	public ServiceProviderVO getUniqueServiceProvider(ServiceProviderVO serviceProviderVO,LoginUser user ) {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		ServiceProviderVO uniqueSP = jdbcTemplate.query(AppConstants.EXT_SP_USER_DETAIL_QUERY, new Object[]{serviceProviderVO.getEmail(), user.getCompany().getCompanyId()}, new ResultSetExtractor<ServiceProviderVO>() {
+			@Override
+			public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
+				ServiceProviderVO sp= new ServiceProviderVO();
+				if (rs.next()) {
+					sp.setServiceProviderId(rs.getLong("sp_id"));
+					sp.setName(rs.getString("sp_name"));
+					sp.setCode(rs.getString("sp_code"));
+                }
+			 return sp;
+			}
+		});
+		return uniqueSP;
+	}
 	
 	public int updateServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser user) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.exception.PMSDBException;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
@@ -249,13 +250,12 @@ public class ServiceProviderController extends BaseController {
 		ServiceProviderVO savedServiceProvider =null;
 		if(loginUser!=null){
 			try {
-
 				logger.info("Create New ServiceProvider : "+ serviceProviderVO);
 				savedServiceProvider = serviceProviderService.saveServiceProvider(serviceProviderVO,loginUser);
 				if(savedServiceProvider.getStatus()==200){
 					response.setStatusCode(200);
 					response.setObject(savedServiceProvider);
-					response.setMessage(savedServiceProvider.getMessage());
+					response.setMessage("Service provider created successfully");
 					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
 					if(response.getStatusCode()==200 && savedServiceProvider.getOption().equalsIgnoreCase("CREATED")){
 						final ServiceProviderVO savedSP = savedServiceProvider;
@@ -275,14 +275,19 @@ public class ServiceProviderController extends BaseController {
 					}
 				}else{
 					response.setStatusCode(204);
-					response.setMessage(savedServiceProvider.getMessage());
+					response.setMessage("Unable to save or update service provider");
 					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
 				}
+			}catch (PMSDBException e) {
+				logger.info(e.getLocalizedMessage());
+				response.setStatusCode(202);
+				response.setMessage(e.getLocalizedMessage());
+				responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.EXPECTATION_FAILED);
 			} catch (Exception e) {
 				logger.info("Exception while creating service provider", e);
 					response.setStatusCode(500);
 					response.setMessage("Error occured while saving service provider ");
-					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.NOT_FOUND);
+					responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 			
 

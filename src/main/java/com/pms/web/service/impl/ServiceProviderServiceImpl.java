@@ -21,6 +21,7 @@ import com.pms.app.dao.impl.DistrictDAO;
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
 import com.pms.app.dao.impl.TenantsDAO;
+import com.pms.app.exception.PMSDBException;
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.LoginUser;
@@ -138,7 +139,7 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return serviceProviderDAOImpl.getCustomersBySPID(String.valueOf(loginUser.getUserId()), loginUser.getCompany().getCompanyCode());
 	}
 	@Override
-	public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser loginUser) {
+	public ServiceProviderVO saveServiceProvider(ServiceProviderVO serviceProviderVO, LoginUser loginUser) throws PMSDBException {
 		final SPUserDAO spDAO = getSPUserDAO(loginUser.getDbName());
 		ServiceProviderVO savedSP = new ServiceProviderVO();
 		if(serviceProviderVO.getServiceProviderId()==null){
@@ -153,8 +154,9 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 			serviceProviderVO.setSpUserName("SP-00"+loginUser.getCompany().getCompanyId()+newSPId);
 			final String rawPassword = RandomUtils.randomAlphanumeric(6);
 			serviceProviderVO.setAccessKey(rawPassword);
-			savedSP = spDAO.saveServiceProvider(serviceProviderVO, loginUser);
-			if(savedSP.getServiceProviderId()!=null){
+			savedSP = spDAO.getUniqueServiceProvider(serviceProviderVO, loginUser);
+			if(savedSP.getServiceProviderId()==null){
+				savedSP = spDAO.saveServiceProvider(serviceProviderVO, loginUser);
 				int escalationRecored = 	spDAO.saveEscalalationLevels( savedSP, serviceProviderVO.getEscalationLevelList(), loginUser, AppConstants.INSERT_SP_ESCALATIONS_QUERY);
 				int slaRecored =	spDAO.saveSLADetails( savedSP, serviceProviderVO.getSlaListVOList(), loginUser, AppConstants.INSERT_SP_SLA_QUERY);
 				if(escalationRecored > 0  && slaRecored > 0){
@@ -166,6 +168,8 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 						savedSP.setTenantMapped(true);
 					}
 				}
+			}else{
+				throw new PMSDBException("202", "Duplicate company email exists");
 			}
 		}else{
 			if(StringUtils.isNotEmpty(serviceProviderVO.getSpDbName()) && StringUtils.isNotEmpty(serviceProviderVO.getAccessGranted())){

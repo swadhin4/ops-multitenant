@@ -236,8 +236,8 @@ background:#deefe5
 					   <div class="col-xs-12">
 					    <div class="box">
 				<div class="box-header">
-				<div class="row" ng-show="isCustomerSelected.spCustomerListSelect.length > 0 && spCustomerIncidentList.list.length>0 ">
-				<div class="col-md-3">
+				<div class="row" ng-show="isCustomerSelected.spCustomerListSelect.length > 0  ">
+				<div class="col-md-3" ng-if="rspPageViewFor == 'INCIDENTS'">
 					<div class="funkyradio">
 						<div class="funkyradio-primary">
 							<input type="radio" name="radio" id="radio3"
@@ -248,7 +248,7 @@ background:#deefe5
 						</div>
 					</div>
 				</div>
-				<div class="col-md-3">
+				<div class="col-md-3"  ng-if="rspPageViewFor == 'INCIDENTS'">
 					<div class="funkyradio">
 						<div class="funkyradio-primary">
 							<input type="radio" name="radio" id="radio2"
@@ -259,7 +259,7 @@ background:#deefe5
 					</div>
 				</div>
 
-				<div class="box-tools dropdown pull-right">
+				<div class="box-tools dropdown pull-right" ng-if="rspPageViewFor == 'INCIDENTS'">
 					<div class="input-group input-group-sm" style="width: 450px;">
 						<input type="text" name="table_search"
 							class="form-control pull-right" ng-model="ticketsearch"
@@ -288,7 +288,7 @@ background:#deefe5
 					<%-- <a href="${webContextPath}/serviceprovider/rsp/incident/create" class="btn btn-primary pull-right " >Create Ticket </a></li> --%>
 				  </div>
 				  <div class="col-md-5">
-					<h3 class="box-title">List of Tickets created by {{ticketCreatedOrAssigned}}</h3>
+					<h3 class="box-title" ng-if="spCustomerIncidentList.list.length>0">List of Tickets created by {{ticketCreatedOrAssigned}}</h3>
 					</div>
 					
 				</div>
@@ -649,11 +649,7 @@ background:#deefe5
 															class="label label-warning">{{timing.from}} -
 																{{timing.to}}</span>
 														</a>
-													</sec:authorize> <sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
-														<a href data-toggle="modal"> <span
-															class="label label-warning">{{timing.from}} -
-																{{timing.to}}</span></a>
-													</sec:authorize>
+													</sec:authorize> 
 												</td>
 												<td ng-if="timing.from == '00:00' && timing.to != '00:00'">
 													<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
@@ -664,11 +660,7 @@ background:#deefe5
 																{{timing.from}} - {{timing.to}}
 														</span>
 														</a>
-													</sec:authorize> <sec:authorize access="hasAnyRole('ROLE_SITE_STAFF')">
-														<a href data-toggle="modal"> <span
-															class="label label-warning">{{timing.from}} -
-																{{timing.to}} </span></a>
-													</sec:authorize>
+													</sec:authorize> 
 
 												</td>
 												<td ng-if="timing.from != '00:00' && timing.to == '00:00'">
@@ -680,11 +672,7 @@ background:#deefe5
 																- {{timing.to}}
 														</span>
 														</a>
-													</sec:authorize> <sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
-														<a href data-toggle="modal"> <span
-															class="label label-warning">{{timing.from}} -
-																{{timing.to}} </span></a>
-													</sec:authorize>
+													</sec:authorize> 
 												</td>
 
 												<td ng-if="timing.from != '00:00' && timing.to != '00:00'">
@@ -718,12 +706,7 @@ background:#deefe5
 															<span class="label label-warning">{{timing.from}}
 																- {{timing.to}}</span>
 														</a>
-													</sec:authorize> <sec:authorize
-														access="hasAnyRole('ROLE_SP_AGENT')">
-														<a href data-toggle="modal"> <span
-															class="label label-warning">{{timing.from}}
-																- {{timing.to}}</span></a>
-													</sec:authorize>
+														</sec:authorize> 
 												</td>
 												<td
 													ng-if="timing.from == '00:00' && timing.to != '00:00'">
@@ -737,12 +720,7 @@ background:#deefe5
 																{{timing.to}}
 														</span>
 														</a>
-													</sec:authorize> <sec:authorize
-														access="hasAnyRole('ROLE_SP_AGENT')">
-														<a href data-toggle="modal"> <span
-															class="label label-warning">{{timing.from}}
-																- {{timing.to}} </span></a>
-													</sec:authorize>
+													</sec:authorize> 
 
 												</td>
 												<td
@@ -757,12 +735,7 @@ background:#deefe5
 																{{timing.to}}
 														</span>
 														</a>
-													</sec:authorize> <sec:authorize
-														access="hasAnyRole('ROLE_SP_AGENT')">
-														<a href data-toggle="modal"> <span
-															class="label label-warning">{{timing.from}}
-																- {{timing.to}} </span></a>
-													</sec:authorize>
+													</sec:authorize> 
 												</td>
 
 												<td

@@ -60,7 +60,22 @@ public class ServiceProviderCompanyController extends BaseController {
 			return "redirect:/login";
 		}
 	}
-	
+	@RequestMapping(value = "/set/customer/{dbName}", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<RestResponse> setRspSelectedCustomerDBName(final HttpServletRequest request,
+			final HttpSession session, @PathVariable(value = "dbName") String custDBName) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			session.setAttribute("selectedCustomerDB", custDBName);
+			response.setStatusCode(200);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+		} else {
+			response.setStatusCode(404);
+			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_ACCEPTABLE);
+		}
+		return responseEntity;
+	}
 	@RequestMapping(value = "/externalcustomers", method = RequestMethod.GET)
 	public String getExternalCustomers(final Locale locale, final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
@@ -246,11 +261,11 @@ public class ServiceProviderCompanyController extends BaseController {
 				session.setAttribute("ticketsBy", "CUSTOMER");
 				String spCode = (String) session.getAttribute("usercode");
 				if(!StringUtils.isEmpty(spCode)){
-					List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(spCode,custDBName, loginUser);
+					List<TicketVO> ticketList = serviceProviderService.getCustomerTickets(spcode,custDBName, loginUser);
 					if(!ticketList.isEmpty()){
 						response.setResponseType(custDBName);
 						response.setStatusCode(200);
-						session.setAttribute("selectedCustomerDB", custDBName);
+						//session.setAttribute("selectedCustomerDB", custDBName);
 						response.setObject(ticketList);
 						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 					}

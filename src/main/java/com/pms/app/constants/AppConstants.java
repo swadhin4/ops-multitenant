@@ -559,6 +559,9 @@ public class AppConstants {
 	public static final String EXT_SP_USER_DETAIL_QUERY = "	select s.sp_id, s.sp_username, s.sp_email, s.sp_name,s.access_key, s.customer_id, pc.company_name, pc.company_code"
 			+ " from pm_service_provider s left outer join pm_company pc on pc.company_id=s.customer_id"
 			+ " where s.sp_username= ?";
+	
+	public static final String EXT_UNIQUE_SP_USER_DETAIL_QUERY = "select s.sp_id, s.sp_username from pm_service_provider where sp_email=? and customer_id=? ";
+
 
 	public static final String EXT_SP_CREATE_QUERY = "insert into pm_service_provider (sp_username, sp_name,sp_code, country_id, sp_desc, sp_email,customer_id,"
 			+ "created_date, created_by,help_desk_number, help_desk_email,access_key,sla_description) values (?,?,?,?,?,?,?,NOW(),?,?,?,?,?)";

@@ -561,7 +561,7 @@ chrisApp.controller('assetController',
 					 $scope.selectedAsset.planEndDate=null;
 					 $scope.selectedAsset.taskAssignedTo=null;
 					 $scope.selectedAsset.resComments=null;
-					 $scope.selectedAsset.taskStatus="NEW";
+					 $scope.selectedAsset.taskStatus="New";
 				 }
 				 else if(isCreateUpdate == 'U'){
 					 $scope.taskOperation ="UpdateTask";
