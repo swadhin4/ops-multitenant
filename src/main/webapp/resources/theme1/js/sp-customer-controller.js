@@ -515,7 +515,7 @@ chrisApp.controller('spCustomerController',
 						$scope.assetList=[];
 						$scope.ticketCreatedOrAssigned=ticketType;
 						//keep this type to show task tab or not in update incident.
-						$.jStorage.set('ticketType', ticketType);
+						//$.jStorage.set('ticketType', ticketType);
 						//End
 						$scope.selectedRow=null;
 						 $scope.sessionTicket=null;
@@ -709,6 +709,7 @@ chrisApp.controller('spCustomerController',
 				},function(data) {
 					console.log('Unable to change the status of the user');
 					$scope.getErrorMessage("No tickets available for the customer");
+					$scope.spCustomerIncidentList.list=[];
 				});
 				}
 				$scope.findTicketsCreated=function(){

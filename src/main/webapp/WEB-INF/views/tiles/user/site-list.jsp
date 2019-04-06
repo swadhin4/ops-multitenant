@@ -392,32 +392,6 @@ $(function() {
 <c:set var="contextPath" value="${pageContext.request.contextPath}"></c:set>
 		<div  ng-controller="siteController" id="siteWindow">
 		<div style="display:none" id="loadingDiv"><div class="loader">Loading...</div></div>
-			<section class="content" style="min-height: 35px; display: none"
-				id="messageWindow">
-				<div class="row">
-					<div class="col-md-12">
-						<div class="alert alert-success alert-dismissable"
-							id="successMessageDiv"
-							style="display: none; height: 34px; white-space: nowrap;">
-							<!-- <button type="button" class="close" >x</button> -->
-							<strong>Success! </strong> {{successMessage}} 
-							<a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-						</div>
-						<div class="alert alert-info alert-dismissable"
-							id="infoMessageDiv"
-							style="display: none; height: 34px; white-space: nowrap;">
-							<!-- <button type="button" class="close" >x</button> -->
-							<strong>Info! </strong> {{InfoMessage}} 
-							<a href><span class="messageClose" ng-click="closeMessageWindow()">X</span></a>
-						</div>
-						<div class="alert alert-danger alert-dismissable" id="errorMessageDiv"
-							style="display: none;  height: 34px;white-space: nowrap;">
-							<button type="button" class="close">x</button>
-							<strong>Error! </strong> {{errorMessage}} <span class="messageClose" ng-click="closeMessageWindow()">X</span>
-						</div>
-					</div>
-				</div>
-			</section>	
 			<section class="content">
 				<div class="row">
 				<div class="col-md-6">
@@ -1692,7 +1666,9 @@ $(function() {
 			</div>
 			
 		</div>	
-		</div>
 		</section>
 		</div>
-		</div>
+		 </div>
+    <!-- END WRAPPER -->
+
+  </div>

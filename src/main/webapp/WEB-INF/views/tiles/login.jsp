@@ -125,6 +125,7 @@ a, a:hover, a:active {
                         <div class="tab-content">
                             <div class="tab-pane active" id="home" >
                                 <h3 class="register-heading">Login as Registered User </h3>
+                                ${message}
                                 <div class="row register-form">
                                     <div class="col-md-12">
                                        <form name="loginForm" class="form-horizontal"  method="post" action="${contextPath}/j_spring_security_check">

@@ -479,9 +479,9 @@ public class AssetDAO {
 	}
 
 	
-	public List<AssetVO> findAssetBySiteId(Long siteId, LoginUser user) {
+	public List<AssetVO> findAssetBySiteId(Long siteId, LoginUser user, final String assetListQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<AssetVO> assetList =  jdbcTemplate.query(AppConstants.SITE_ASSET_LIST_QUERY, new Object[] { siteId }, new ResultSetExtractor<List<AssetVO>>() {
+		List<AssetVO> assetList =  jdbcTemplate.query(assetListQuery, new Object[] { siteId }, new ResultSetExtractor<List<AssetVO>>() {
 			@Override
 			public List<AssetVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<AssetVO> assetList = new ArrayList<AssetVO>();

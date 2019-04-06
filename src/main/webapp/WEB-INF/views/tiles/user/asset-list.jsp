@@ -252,14 +252,12 @@ $(document).ready(function()  {
 										<div class="table-responsive">
 												<table id="example1"
 													class="table table-bordered">
-													<thead>
+													</tbody>
 														<tr>
 															<th>Name</th>
 															<th>Category</th>
 															<th>Site</th>
 														</tr>
-													</thead>
-													<tbody>
 														<tr ng-repeat="asset in asset.list | filter: searchAsset | orderBy :'assetName'"
 															ng-class="{currentSelected:asset.assetId == selectedRow}" 
 															ng-click="rowHighilited(asset, $index)" >
@@ -348,6 +346,7 @@ $(document).ready(function()  {
 										
 										<ul class="dropdown-menu" role="menu">
 										<li> <a href ng-click="openAssetPage()"  ng-if="asset.list.length>0">  <span class="fa fa-edit" aria-hidden="true"></span>Edit</a></li>
+										<li> <a href ng-click="isDelete(i, s)"  ng-if="asset.list.length>0">  <span class="fa fa-trash" aria-hidden="true"></span>Delete</a></li>
 										<li> <a href="${contextPath}/incident/details/create"> <span  class="fa fa-plus" aria-hidden="true"></span>Create Incident</a></li>
 										<li> <a href ng-click="openAssetTaskPage('C', selectedAsset)"  ng-if="asset.list.length>0">  <span class="fa fa-tasks" aria-hidden="true"></span>Create Task</a></li>
 									</ul>
@@ -473,15 +472,13 @@ $(document).ready(function()  {
 								<div class="col-md-12">
 									<div class="table-responsive">
 										<table id="taskDeatils" class="table table-bordered">
-											<thead>
+											<tbody>
 												<tr>
 													<th>Task ID</th>
 													<th>Task Name</th>
 													<th>Status</th>
 													<th>Action</th>
 												</tr>
-											</thead>
-											<tbody>
 												<tr
 													ng-repeat="task in selectedAsset.taskList | filter: searchAssetTask | orderBy :'taskName'"
 													ng-class="{currentSelected:$index == selectedTaskRow}"
@@ -515,32 +512,22 @@ $(document).ready(function()  {
 										<div class="description-block border-right">
 											
 										</div>
-										<!-- /.description-block -->
 									</div>
-									<!-- /.col -->
-									
-									<!-- /.col -->
 									<div class="col-sm-4 col-xs-6">
-										<div class="description-block">
-										
-										<span class="pull-right" >
-									Mark for deletion <input id="toggledelete" type="checkbox" class="toggleYesNo form-control" 
-										data-width="70" 
-										data-toggle="toggle" data-size="small"
-										data-off="Active" data-on="Delete" data-onstyle="danger" data-offstyle="success"
-										onchange="angular.element(this).scope().isDelete(this, event )"> </span>
+										<div class="description-block border-right">
+											<a href class="btn btn-success" ng-if="selectedAsset.delFlag == 0 ">Asset Status<span class="badge">Active</span></a>
+											<a href class="btn btn-danger" ng-if="selectedAsset.delFlag == 1 ">Asset Status <span class="badge">Deactive</span></a>
 										</div>
-									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 					
-	 <div class="modal fade" style="position: absolute" id="confirmDelete" data-dismiss="modal" data-keyboard="false" data-backdrop="static" data-toggle="modal" role="dialog" aria-labelledby="confirmDeleteLabel" aria-hidden="true"> 
+	 <div class="modal fade" id="confirmDelete" data-dismiss="modal" data-keyboard="false" data-backdrop="static" data-toggle="modal" role="dialog" aria-labelledby="confirmDeleteLabel" aria-hidden="true"> 
   <div class="modal-dialog"> 
     <div class="modal-content"> 
       <div class="modal-header"> 
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>  
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" id="confirmDelbtn" >&times;</button>  
         <h4 class="modal-title">Delete Asset / Service</h4> 
       </div> 
       <div class="modal-body"> 

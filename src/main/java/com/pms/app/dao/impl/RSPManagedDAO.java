@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -23,12 +24,15 @@ import org.springframework.util.StringUtils;
 
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
+import com.pms.app.constants.AppConstants;
 import com.pms.app.constants.RSPCustomerConstants;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.RSPExternalCustomerVO;
 import com.pms.app.view.vo.RSPExternalSLADetailVO;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Country;
 import com.pms.jpa.entities.Region;
+import com.pms.web.util.ApplicationUtil;
 
 @Repository
 public class RSPManagedDAO {
@@ -273,5 +277,36 @@ public class RSPManagedDAO {
 	        });
 			return updatedRow;
 		
+	}
+	
+	public List<TicketVO> getExtCustomericketsBySPcode(String spcode, Long extCustId) throws Exception {
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		List<TicketVO> ticketVOs = jdbcTemplate.query(RSPCustomerConstants.EXT_CUSTOMER_TICKETS_QUERY,
+				new Object[] { spcode , extCustId }, new ResultSetExtractor<List<TicketVO>>() {
+					@Override
+					public List<TicketVO> extractData(ResultSet rs) throws SQLException, DataAccessException {
+						List<TicketVO> ticketVOList = new ArrayList<TicketVO>();
+						while (rs.next()) {
+							TicketVO ticketVO = new TicketVO();
+							ticketVO.setTicketId(rs.getLong("id"));
+							ticketVO.setTicketNumber(rs.getString("ticket_number"));
+							ticketVO.setTicketTitle(rs.getString("ticket_title"));
+							ticketVO.setSiteId(rs.getLong("site_id"));
+							ticketVO.setSiteName(rs.getString("site_name"));
+							ticketVO.setAssetId(rs.getLong("asset_id"));
+							ticketVO.setAssetName(rs.getString("asset_name"));
+							ticketVO.setRaisedOn(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("created_on")));
+							ticketVO.setSla(ApplicationUtil.makeDateStringFromSQLDate(rs.getString("sla_duedate")));
+							ticketVO.setAssignedSP(rs.getString("sp_name"));
+							ticketVO.setStatusId(rs.getLong("status_id"));
+							ticketVO.setStatus(rs.getString("status"));
+							ticketVO.setRaisedBy(rs.getString("created_by"));
+
+							ticketVOList.add(ticketVO);
+						}
+						return ticketVOList;
+					}
+				});
+		return ticketVOs == null ? Collections.emptyList() : ticketVOs;
 	}
 }

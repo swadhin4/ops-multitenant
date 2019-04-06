@@ -423,4 +423,9 @@ public class UserServiceImpl implements UserService {
 		 getUserDAO(user.getDbName()).revokeAccess(accessId);
 	}
 
+	@Override
+	public UserModel getTicketCreationUser( LoginUser user, String raisedBy) {
+		return getUserDAO(user.getDbName()).getExtUserDetails(raisedBy);
+	}
+
 }

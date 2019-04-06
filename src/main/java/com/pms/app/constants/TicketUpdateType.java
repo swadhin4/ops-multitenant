@@ -13,8 +13,10 @@ public enum TicketUpdateType {
 	
 	UPDATE_BY_RSP_FOR_CUSTOMER_TICKET("CUSTOMER"),
 	
-	UPDATE_BY_RSP_FOR_COMPANY_TICKET("RSP")
-	;
+	UPDATE_BY_RSP_FOR_COMPANY_TICKET("RSP"),
+	
+	UPDATE_BY_RSP_FOR_EXTCUST_TICKET("EXTCUST");
+	
 
 	private final String updateType;
 

@@ -255,7 +255,7 @@ background:#deefe5
 								<div class="col-md-3">
 						 <span class="badge">{{ticketData.mappedCustomer}}</span>
        					 </div>
-						<div class="col-md-3">
+					<%-- 	<div class="col-md-3">
 						<a  href="${contextPath}/serviceprovider/rsp/incident/update" data-toggle="tooltip" data-original-title="Refresh"> 
 						 <span  style="font-size:12px;" >
 						 <i class="fa fa-refresh fa-2x" style="margin-right: 17px;" aria-hidden="true"></i>
@@ -264,10 +264,18 @@ background:#deefe5
        					 </div>
 						<div class="col-md-6 round hollow text-center">
 						<a href ng-click="openChatBox();" id="addClass" class="pull-right" ><span class="glyphicon glyphicon-comment"></span>&nbsp;Add Worknote </a>
-						 <!--<a  href ng-click="openChatBox();" data-toggle="tooltip" data-original-title="Incident work notes">						  
-						 <span class="pull-right" style="font-size:20px;"> <i class="glyphicon glyphicon-comment" aria-hidden="true">Add Worknote</i></span>
-       				 	</a>-->
-       				 	</div>
+       				 	</div> --%>
+       				 		<div class="col-md-3">
+						<a  href="${contextPath}/serviceprovider/rsp/incident/update" data-toggle="tooltip" data-original-title="Refresh"> 
+						 <span  style="font-size:12px; margin-right:40px" >
+						 <i class="fa fa-refresh fa-2x" aria-hidden="true"></i>
+       					 </span>
+       					 </a>
+       					 </div>
+						<div class="col-md-6">
+						<a href ng-click="openChatBox();" id="addClass" class="pull-right" >
+						<i class="fa fa-comments fa-2x" aria-hidden="true"></i></a>
+							</div>
 							</div>
 						</div>
 						<div class="box-body" style="height:450px">
@@ -1562,7 +1570,7 @@ background:#deefe5
 								<div class="col-md-6" id="chatWindow" style="display: none">
 									<div class="box">
 										<div
-											style="z-index:9;width: 30%; position: fixed; bottom: 13px; right: 0px; margin: 0; background-color: #dbdcdc">
+											style="z-index:9;width: 30%; position: fixed; bottom: 0px; right: 0px; margin: 0; background-color: #dbdcdc">
 											<div class="box-header with-border">
 												<h3 class="box-title" style="color: #000">Work Notes</h3>
 												<div class="box-tools pull-right">
@@ -1604,7 +1612,7 @@ background:#deefe5
 												<div class="row">
 													<div class="col-sm-12">
 														<input type="text" name="ticketMessage" id="ticketMessage"
-															ng-model="ticketComment.comment" style="height: 50px"
+															ng-model="ticketComment.comment" style="height: 50px;  border-radius: 20px;"
 															placeholder="Type Message ..." class="form-control"
 															ng-enter="addNewComment()">
 													</div>

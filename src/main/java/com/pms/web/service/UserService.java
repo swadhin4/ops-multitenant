@@ -15,6 +15,7 @@ import com.pms.app.view.vo.UserVO;
 import com.pms.jpa.entities.Role;
 import com.pms.jpa.entities.RoleStatus;
 import com.pms.jpa.entities.User;
+import com.pms.jpa.entities.UserModel;
 import com.pms.jpa.entities.UserSiteAccess;
 import com.pms.web.service.security.AuthorizedUserDetails;
 import com.pms.web.util.RestResponse;
@@ -53,9 +54,6 @@ public interface UserService {
 
 	int checkUserAvailibility(String email)  throws Exception ;
 
-
-	
-
 	RestResponse updateProfile(AppUserVO appUserVO, LoginUser user) throws Exception;
 
 	List<RoleStatus> getRoleStatus(LoginUser user) throws Exception;
@@ -75,4 +73,6 @@ public interface UserService {
 	boolean assignUserToSite(Long userId, Long siteId, LoginUser loginUser);
 
 	void removeUserAccessFromSite(Long accessId, LoginUser loginUser);
+
+	UserModel getTicketCreationUser(LoginUser user, final String raisedBy);
 }

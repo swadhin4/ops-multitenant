@@ -51,8 +51,10 @@ import com.pms.jpa.entities.Financials;
 import com.pms.jpa.entities.Status;
 import com.pms.jpa.entities.TicketAttachment;
 import com.pms.jpa.entities.TicketCategory;
+import com.pms.jpa.entities.UserModel;
 import com.pms.web.service.EmailService;
 import com.pms.web.service.TicketService;
+import com.pms.web.service.UserService;
 import com.pms.web.util.RestResponse;
 
 import io.swagger.annotations.Api;
@@ -74,6 +76,9 @@ public class IncidentController extends BaseController {
 	private TicketService ticketSerice;
 	@Autowired
 	private EmailService emailService;
+	
+	@Autowired
+	private UserService userService;
 
 	@RequestMapping(value = "/details", method = RequestMethod.GET)
 	public String incidentDetails(final Locale locale, final ModelMap model, final HttpServletRequest request,
@@ -267,8 +272,7 @@ public class IncidentController extends BaseController {
 		LoginUser loginUser = getCurrentLoggedinUser(session);
 		if (loginUser != null) {
 			try {
-				TicketPrioritySLAVO ticketPrioritySLAVO = ticketSerice.getTicketPriority(spId, categoryId, sptype,
-						loginUser);
+				TicketPrioritySLAVO ticketPrioritySLAVO = ticketSerice.getTicketPriority(spId, categoryId, sptype,loginUser);
 				if (ticketPrioritySLAVO.getPriorityId() != null) {
 					response.setStatusCode(200);
 					response.setObject(ticketPrioritySLAVO);
@@ -454,7 +458,7 @@ public class IncidentController extends BaseController {
 						selectedTicket  = ticketSerice.getSelectedTicket(ticketId, loginUser);
 					}
 					else if(ticketsOf.equalsIgnoreCase("RSP")){
-						selectedTicket  = ticketSerice.getRSPCreatedSelectedTicket(ticketId, loginUser);
+						selectedTicket  = ticketSerice.getRSPCreatedSelectedTicket(ticketId, loginUser, ticketsOf);
 					}
 				}
 				else{
@@ -496,13 +500,15 @@ public class IncidentController extends BaseController {
 				if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
 					logger.info("Loggedin user is Customer pointing to its DB");
 				}
-				else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && !ticketVO.getTicketAssignedType().equalsIgnoreCase("EXTCUST")){
 					//loginUser.setSpDbName(loginUser.getDbName());
 					logger.info("Loggedin user is RSP pointing to Customer DB : " + ticketVO.getCustomerDB() );
 					loginUser.setDbName(ticketVO.getCustomerDB());
 					session.setAttribute("selectedCustomerDB", ticketVO.getCustomerDB());
 				}
-				
+				else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && ticketVO.getTicketAssignedType().equalsIgnoreCase("EXTCUST")){
+					logger.info("Loggedin user is RSP pointing to own DB : " + loginUser.getDbName() );
+				}
 				/*if (loginUser.getUserType().equalsIgnoreCase("SP")) {
 					loginUser.setDbName(ticketVO.getCustomerDB());
 					session.setAttribute("selectedCustomerDB", ticketVO.getCustomerDB());
@@ -565,7 +571,7 @@ public class IncidentController extends BaseController {
 						logger.info("Getting selected ticket from RSP DB");
 							if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())) {
 								loginUser.setDbName(custDBName);
-								selectedTicketVO = ticketSerice.getRSPCreatedSelectedTicket(selectedTicketVO.getTicketId(),	loginUser);
+								selectedTicketVO = ticketSerice.getRSPCreatedSelectedTicket(selectedTicketVO.getTicketId(),	loginUser, TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType());
 								selectedTicketVO = getSelectedTicketEscalations(loginUser, selectedTicketVO);
 								selectedTicketVO.setTicketAssignedType(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType());
 								List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),	loginUser, selectedTicketVO.getTicketAssignedType());
@@ -578,6 +584,20 @@ public class IncidentController extends BaseController {
 								List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),	loginUser, selectedTicketVO.getTicketAssignedType());
 								selectedTicketVO.setFinancialList(finacialsList);
 							}
+						}else {
+						logger.info("Getting selected ticket from RSP External Customer ");
+							if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())) {
+								selectedTicketVO = ticketSerice.getRSPCreatedSelectedTicket(selectedTicketVO.getTicketId(),	loginUser, TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType());
+								UserModel extUser = userService.getTicketCreationUser(loginUser, selectedTicketVO.getRaisedBy());
+								if(extUser!=null){
+									selectedTicketVO.setCreatedUser(extUser.getFirstName() + " " +  extUser.getLastName());
+									selectedTicketVO.setRaisedUser(extUser.getPhoneNo());
+								}
+								//selectedTicketVO = getSelectedTicketEscalations(loginUser, selectedTicketVO);
+								selectedTicketVO.setTicketAssignedType(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType());
+								//List<Financials> finacialsList = ticketSerice.findFinanceByTicketId(selectedTicketVO.getTicketId(),	loginUser, selectedTicketVO.getTicketAssignedType());
+								//selectedTicketVO.setFinancialList(finacialsList);
+							} 
 						}
 					}
 					
@@ -604,8 +624,8 @@ public class IncidentController extends BaseController {
 
 	private TicketVO getSelectedTicketEscalations(LoginUser loginUser, TicketVO selectedTicketVO) throws Exception {
 		List<EscalationLevelVO> escalationLevelVOs = selectedTicketVO.getEscalationLevelList();
-		if (escalationLevelVOs.isEmpty()) {
-
+		if (selectedTicketVO.getEscalationLevelList().isEmpty()) {
+			logger.info("No Escalation Levels ");
 		} else {
 			List<EscalationLevelVO> finalEscalationList = new ArrayList<EscalationLevelVO>();
 			for (EscalationLevelVO escalationVO : escalationLevelVOs) {
@@ -1276,6 +1296,24 @@ public class IncidentController extends BaseController {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
 				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
+				if(selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())){
+					if(selectedTicketVO.getTicketId().equals(incidentTask.getTicketId())){
+						incidentTask.setTicketNumber(selectedTicketVO.getTicketNumber());
+						IncidentTask savedIncidentTask = ticketSerice.saveRspTicketTask(incidentTask, loginUser, "EXTCUST");
+						if(savedIncidentTask.getStatus()==200){
+							response.setStatusCode(200);
+							response.setObject(savedIncidentTask);
+							response.setMessage("Incident Task has been saved succesfully");
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}
+						else if(savedIncidentTask.getStatus()==202){
+							response.setStatusCode(200);
+							response.setObject(savedIncidentTask);
+							response.setMessage("Incident Task has been updated succesfully");
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}
+					}
+				}else{
 				String custDBName = (String) session.getAttribute("selectedCustomerDB");
 				if (StringUtils.isNotEmpty(custDBName)) {
 					loginUser.setDbName(custDBName);
@@ -1299,7 +1337,7 @@ public class IncidentController extends BaseController {
 					response.setStatusCode(204);
 					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.EXPECTATION_FAILED);
 				}
-
+			 }
 			} else {
 				response.setStatusCode(401);
 				response.setMessage("Your current session is expired. Please login again");
@@ -1322,21 +1360,28 @@ public class IncidentController extends BaseController {
 			LoginUser loginUser = getCurrentLoggedinUser(session);
 			if (loginUser != null) {
 				TicketVO selectedTicketVO = (TicketVO) session.getAttribute("selectedTicket");
-				String custDBName = (String) session.getAttribute("selectedCustomerDB");
-				if (StringUtils.isNotEmpty(custDBName)) {
-					loginUser.setDbName(custDBName);
-					List<IncidentTask> incidentTaskList = ticketSerice.getIncidentTaskList(loginUser,
-							selectedTicketVO.getTicketId(), selectedTicketVO);
+				if(selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())){
+					List<IncidentTask> incidentTaskList = ticketSerice.getIncidentTaskList(loginUser,selectedTicketVO.getTicketId(), selectedTicketVO);
 					if(!incidentTaskList.isEmpty()){
 						response.setStatusCode(200);
 						response.setObject(incidentTaskList);
 						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
 					}
-				} else {
-					response.setStatusCode(204);
-					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.EXPECTATION_FAILED);
+				}else{
+					String custDBName = (String) session.getAttribute("selectedCustomerDB");
+					if (StringUtils.isNotEmpty(custDBName)) {
+						loginUser.setDbName(custDBName);
+						List<IncidentTask> incidentTaskList = ticketSerice.getIncidentTaskList(loginUser,selectedTicketVO.getTicketId(), selectedTicketVO);
+						if(!incidentTaskList.isEmpty()){
+							response.setStatusCode(200);
+							response.setObject(incidentTaskList);
+							responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+						}
+					} else {
+						response.setStatusCode(204);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.EXPECTATION_FAILED);
+					}
 				}
-
 			} else {
 				response.setStatusCode(401);
 				response.setMessage("Your current session is expired. Please login again");

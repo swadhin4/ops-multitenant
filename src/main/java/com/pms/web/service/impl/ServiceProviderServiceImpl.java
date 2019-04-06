@@ -17,6 +17,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.UserType;
 import com.pms.app.dao.impl.DistrictDAO;
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
@@ -273,7 +274,6 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 	public List<TicketVO> getCustomerTickets(String spcode, String custDBName, LoginUser user) throws Exception {
 		final ServiceProviderDAOImpl serviceProviderDAOImpl = getServiceProviderDAOImpl(custDBName);
 		List<TicketVO> tickets = serviceProviderDAOImpl.getCustomerTicketsBySPcode(spcode, user.getUserId());
-
 		return tickets;
 	}
 	@Override
@@ -297,7 +297,12 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 	}
 	@Override
 	public List<UserVO> findALLActiveSPUsers(String customerCode, LoginUser loginUser) throws Exception {
-		List<UserVO> userList =  getSPUserDAO(loginUser.getSpDbName()).getAllActiveUsers(customerCode, loginUser.getUserRoles().get(0).getRole().getRoleId());
+		List<UserVO> userList =null;
+		if(customerCode.equalsIgnoreCase("SPUSERS") && loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			userList =  getSPUserDAO(loginUser.getDbName()).getSPAgentUsers(loginUser);
+		}else{
+			userList =  getSPUserDAO(loginUser.getSpDbName()).getAllActiveUsers(customerCode, loginUser.getUserRoles().get(0).getRole().getRoleId());
+		}
 		return userList==null?Collections.emptyList():userList;
 	}
 	@Override

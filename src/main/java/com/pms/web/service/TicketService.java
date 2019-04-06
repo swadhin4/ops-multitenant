@@ -34,7 +34,7 @@ public interface TicketService {
 
 	public TicketVO getSelectedTicket(Long ticketId,LoginUser loginUser) throws Exception;
 	
-	public TicketVO getRSPCreatedSelectedTicket(Long ticketId,LoginUser loginUser) throws Exception;
+	public TicketVO getRSPCreatedSelectedTicket(Long ticketId,LoginUser loginUser, String operationType) throws Exception;
 
 	public List<TicketAttachment> findByTicketId(Long ticketId, LoginUser loginUser, final TicketVO ticketVO) throws Exception;
 

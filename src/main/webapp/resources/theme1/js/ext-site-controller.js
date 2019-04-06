@@ -190,7 +190,11 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 		$scope.displayExternalCustomerView=function(viewType){
 			$scope.pageViewFor = viewType;
 			console.log("displayExternalCustomerView--->",viewType);
-			if($scope.pageViewFor=="SITES"){
+			
+			if($scope.pageViewFor=="INCIDENTS"){
+				window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers/incidents";
+			}
+			else if($scope.pageViewFor=="SITES"){
 				console.log($scope.extCustomer);
 			}
 			else if($scope.pageViewFor=="CUSTOMERS"){
@@ -485,121 +489,6 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 					});
 		}
 		
-		/* $scope.addEquipment=function(){
-			 $scope.equipmentData={};
-			 $scope.equipmentData.sites=[];
-			 $('#resetAssetForm').click();
-			 $("#categorySelect option").each(function() {
-					if ($(this).val() == "") {
-						$(this).attr('selected', 'selected');
-						 $scope.assetCategory.selected=null;
-						return false;
-					}
-			 	});
-		 	
-		 	$("#locationSelect option").each(function() {
-				if ($(this).val() == "") {
-					$(this).attr('selected', 'selected');
-					 $scope.assetLocation.selected=null;
-					return false;
-				}
-			});
-		 	
-		 	$("#spSelect option").each(function() {
-				if ($(this).val() == "") {
-					$(this).attr('selected', 'selected');
-					 $scope.serviceProvider.selected=null;
-					return false;
-				}
-			});
-			 $scope.accessSite.selected={};
-			 $("#siteSelect option").each(function(){
-			 		if($(this).val() == ""){
-			 			$(this).attr('selected', 'selected');
-			 			 $scope.accessSite.selected=null;
-						return false;
-			 		}
-			 	});
-		 	$("#siteSelect option").each(function(){
-		 		if($(this).val() == $scope.accessSite.siteId){
-		 			$(this).attr('selected', 'selected');
-		 			$scope.accessSite.selected.siteId = $scope.accessSite.siteId;
-					return false;
-		 		}
-		 	});
-		 	
-		 	
-			 	$("#drpIsAsset option").each(function(){
-		 		if($(this).val() == ""){
-		 			$(this).attr('selected', 'selected');
-		 			$scope.equipmentData.isAssetElectrical=null;
-					return false;
-		 		}
-		 	});
-		 	
-		 	$("#drpIsPowersensor option").each(function(){
-		 		if($(this).val() == ""){
-		 			$(this).attr('selected', 'selected');
-		 			$scope.equipmentData.isPWSensorAttached=null;
-					return false;
-		 		}
-		 	});
-		 	
-		 	$scope.getServiceProviders($scope.sessionUser.company);
-			$scope.retrieveAssetCategories();
-			$scope.getAssetLocations();
-		 	$scope.populateSelectedSite();
-		 	
-			 $('#equipmentModal').modal('show');
-			 $('#assetModalLabel').text("Add new Asset");
-		 }*/
-		 
-		/* $scope.addService=function(){
-			 $scope.serviceData={};
-			 $scope.serviceData.sites=[];
-			 $('#resetServiceAssetForm').click();
-				$("#categorySelect option").each(function() {
-					if ($(this).val() == "") {
-						$(this).attr('selected', 'selected');
-						 $scope.assetCategory.selected=null;
-						return false;
-					}
-			 	});
-		 	
-		 	$("#locationSelect option").each(function() {
-				if ($(this).val() == "") {
-					$(this).attr('selected', 'selected');
-					 $scope.assetLocation.selected=null;
-					return false;
-				}
-			});
-		 	
-		 	$("#spSelect option").each(function() {
-				if ($(this).val() == "") {
-					$(this).attr('selected', 'selected');
-					 $scope.serviceProvider.selected=null;
-					return false;
-				}
-			});
-		 	
-		
-		 	
-		 	$("#siteSelect option").each(function(){
-		 		if($(this).val() == ""){
-		 			$(this).attr('selected', 'selected');
-		 			 $scope.accessSite.selected=null;
-					return false;
-		 		}
-		 	});
-		 	
-		 	$scope.getServiceProviders($scope.sessionUser.company);
-			$scope.retrieveAssetCategories();
-			$scope.getAssetLocations();
-		 	$scope.populateSelectedSite();
-		 	
-			 $('#serviceModal').modal('show');
-			 $('#assetServiceModalLabel').text("Add new Asset");
-		 }*/
 		
 		 $scope.retrieveAssetCategories=function(){
 			 $('#loadingDiv').show();

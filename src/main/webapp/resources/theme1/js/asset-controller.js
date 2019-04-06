@@ -1376,40 +1376,41 @@ chrisApp.controller('assetController',
 			 $scope.isDelete=function(event,state){
 				 //console.log(event);
 				 $scope.equipmentData.isDelete = 0;
-				 
-				 if(state.target.checked){
+				 $('#confirmDelete').modal('show');
+				/* if(state.target.checked){
 					 $('#confirmDelete').appendTo("body").modal('show');
-				 }
-				 else{
+				 }*/
+				/* else{
 					 if($scope.selectedAsset.assetType == 'E'){
 						 $scope.equipmentData.isDelete = 0;
 					 }
 					 else if($scope.selectedAsset.assetType == 'S'){
 						 $scope.serviceData.isDelete = 0;
 					 }
-					 $('#confirmDelete').appendTo("body").modal('hide');
-				 }
+					 $('#confirmDelete').modal('hide');
+				 }*/
 				 
 			 }
 			 
 			 $scope.confirmDelete=function(){
 				 assetService.deleteAsset($scope.selectedAsset)
 				 .then(function(data){
-					  
+					  console.log(data);
 					 if(data.statusCode==200){
 						 if($scope.selectedAsset.assetType == 'E'){
 							 $scope.equipmentData.isDelete = data.object.delFlag;
-							 $('#confirmDelete').appendTo("body").modal('hide');
+							 $('#confirmDelbtn').click();
 						 }
 						 else if($scope.selectedAsset.assetType == 'S'){
 							 $scope.serviceData.isDelete = data.object.delFlag;
-							 $('#confirmDelete').appendTo("body").modal('hide');
+							 $('#confirmDelbtn').click();
 						 }
+						 $scope.getSuccessMessage("Asset has been deleted successfully");
 						 $scope.getAllAsset("ALL");
 					 }
 					
 				 },function(data){
-					  
+					  console.log(data);
 				 });
 				 
 			 }

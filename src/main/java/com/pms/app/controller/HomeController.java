@@ -62,7 +62,7 @@ public class HomeController extends BaseController {
 		}
 		}catch(PMSTechnicalException pmse) {
 			LOGGER.error(pmse.getMessage());
-			return "redirect:/login";
+			return "redirect:/login?status="+pmse.getMessage();
 		}catch(Exception e){
 			e.printStackTrace();
 			return "index";
@@ -70,7 +70,21 @@ public class HomeController extends BaseController {
 		return "index";
 	}
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String login(final Locale locale, final ModelMap model,final HttpServletRequest request) {
+	public String loginPage(final Locale locale, final ModelMap model,
+			final HttpServletRequest request, @RequestParam(value="status") String status) {
+		if(StringUtils.isEmpty(status)){
+			model.put("message", "");
+		}
+		return "login";
+	}
+	@RequestMapping(value = "/login/{message}", method = RequestMethod.GET)
+	public String login(final Locale locale, final ModelMap model,
+			final HttpServletRequest request, @PathVariable(value="message") String message) {
+		if(StringUtils.isEmpty(message)){
+			model.put("message", "");
+		}else{
+			model.put("message", "Invalid Username or password");
+		}
 		/*model.put("message", "Invalid Username or password");
 		model.put("user", 0);*/
 		return "login";
@@ -123,7 +137,7 @@ public class HomeController extends BaseController {
 					
 					return "redirect:/user/profile";
 				}else if(loginUser.getUserType().equalsIgnoreCase("SP") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
-					return "redirect:/sp/user/profile";
+					return "redirect:/user/profile";
 				}
 				else if(loginUser.getUserType().equalsIgnoreCase("EXTSP") && loginUser.getSysPassword().equalsIgnoreCase("NO")){
 					return "redirect:/user/extsp/incident/details";

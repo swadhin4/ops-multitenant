@@ -11,12 +11,12 @@
 <meta http-equiv='cache-control' content='no-cache'>
 <meta http-equiv='expires' content='0'>
 <meta http-equiv='pragma' content='no-cache'>
- <script type="text/javascript" src='<c:url value="/resources/theme1/chart/loader.js"></c:url>'></script>
+<%--  <script type="text/javascript" src='<c:url value="/resources/theme1/chart/loader.js"></c:url>'></script>
  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.3.0/bootbox.min.js"></script>
  
- <script type="text/javascript" src='<c:url value="/resources/theme1/js/dashboard.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
  
-
+  --%>
+<script type="text/javascript" src='<c:url value="/resources/theme1/js/dashboard.js?n=${System.currentTimeMillis()  + UUID.randomUUID().toString()}"></c:url>'></script>
 <style>
 .tree, .tree ul {
     margin:-9px;

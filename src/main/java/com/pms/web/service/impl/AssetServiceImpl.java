@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.RSPCustomerConstants;
 import com.pms.app.constants.UserType;
 import com.pms.app.dao.impl.AssetDAO;
 import com.pms.app.dao.impl.SiteDAO;
@@ -116,10 +117,18 @@ public class AssetServiceImpl implements AssetService {
 		List<AssetVO> rspAssignedAssetList = new ArrayList<AssetVO>();
 		List<AssetVO> customerAssetList = new ArrayList<AssetVO>();
 		synchronized (siteId) {
-			assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user);
+			if(user.getSpDbName().equalsIgnoreCase(user.getDbName())){
+				assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user, RSPCustomerConstants.RSP_EXT_CUST_ASSET_LIST_QUERY  );
+			}
+			else{
+				assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user, AppConstants.SITE_ASSET_LIST_QUERY);
+			}
 			for(AssetVO asset: assetList){
 				if(asset.getSpType().equalsIgnoreCase("RSP") && 
 						user.getCompany().getCompanyCode().equalsIgnoreCase(asset.getSpCode())){
+					rspAssignedAssetList.add(asset);
+				}
+				else if(asset.getSpType().equalsIgnoreCase("EXTCUST") && user.getCompany().getCompanyCode().equalsIgnoreCase(asset.getSpCode())){
 					rspAssignedAssetList.add(asset);
 				}else{
 					customerAssetList.add(asset);
@@ -129,13 +138,14 @@ public class AssetServiceImpl implements AssetService {
 		if(user.getUserType().equalsIgnoreCase("USER")){
 			LOGGER.info("Listing Assets for Customer of both EXTERNAL and REGISTERED for Site id : "+ siteId);
 			LOGGER.info("Asset assigned to registered SP : "+ rspAssignedAssetList.size());
-			LOGGER.info("Asset assigned to Externa SP : "+ customerAssetList.size());
+			LOGGER.info("Asset assigned to External SP : "+ customerAssetList.size());
 			for(AssetVO asset: rspAssignedAssetList){
 				customerAssetList.add(asset);
 			}
 			LOGGER.info("Total Assets for Customer : "+ customerAssetList.size());
 			return customerAssetList == null?Collections.emptyList():customerAssetList;
-		}else{
+		}
+		else{
 			LOGGER.info("Asset assigned to registered SP : "+ rspAssignedAssetList.size());
 			return rspAssignedAssetList == null?Collections.emptyList():rspAssignedAssetList;
 		}

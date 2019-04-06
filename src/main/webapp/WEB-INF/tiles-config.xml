@@ -92,7 +92,19 @@
 		<put-attribute name="title" value="Profile" />
 		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-external-asset-list.jsp" />
 	</definition>
+		<definition name="sp.externalcustomers.incidents" extends="sp.user.definition">
+		<put-attribute name="title" value="Profile" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-external-customer-incident-list.jsp" />
+	</definition>
 	
+	<definition name="sp.externalcustomer.incident.create" extends="sp.user.definition">
+		<put-attribute name="title" value="Profile" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-external-customer-incident-create.jsp" />
+	</definition>
+	<definition name="sp.externalcustomer.incident.update" extends="sp.user.definition">
+		<put-attribute name="title" value="Profile" />
+		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-external-customer-incident-update.jsp" />
+	</definition>
 	<definition name="ext.asset.equipment" extends="sp.user.definition">
 		<put-attribute name="title" value="Profile" />
 		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/ext-equipment-create.jsp" />
@@ -101,12 +113,8 @@
 		<put-attribute name="title" value="Profile" />
 		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/ext-service-create.jsp" />
 	</definition>
-	<!-- 
-	</definition>
-		<definition name="sp.externalcustomers.incidents" extends="sp.user.definition">
-		<put-attribute name="title" value="Profile" />
-		<put-attribute name="body" value="/WEB-INF/views/tiles/sp/sp-external-customer-incident-list.jsp" />
-	</definition> -->
+
+
 	
 	
 	<definition name="site.details" extends="user.definition">

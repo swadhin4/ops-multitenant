@@ -22,7 +22,7 @@ chrisApp.factory("userService", ['$http', '$q',function ($http, $q) {
 	            updateSPUserCustomers:updateSPUserCustomers,
 	            getSPCustomerList:getSPCustomerList,
 	            getSPCustomerTicketList: getSPCustomerTicketList,
-	            getSPIncidentCreatedList:getSPIncidentCreatedList
+	            getSPIncidentCreatedList:getSPIncidentCreatedList,
 	        };
 	 	
 	 	return UserService;
@@ -925,11 +925,27 @@ chrisApp.factory("ticketService", ['$http', '$q',function ($http, $q) {
         saveRSPLinkedTicket:saveRSPLinkedTicket,
         getRSPLinkedTickets:getRSPLinkedTickets,
         saveIncidentTask:saveIncidentTask,
-        getIncidentTaskDetails:getIncidentTaskDetails
+        getIncidentTaskDetails:getIncidentTaskDetails,
+        getExtCustTickets:getExtCustTickets
         
     };
  	return TicketService;
  	
+ 	
+ 	  // implementation
+    function getExtCustTickets(customerId) {
+        var def = $q.defer();
+        var url=hostLocation+"/serviceprovidercompany/ext/customer/incident/list/"+customerId;
+        $http.get(url)
+            .success(function(data) {
+                def.resolve(data);
+            })
+            .error(function(data) {
+            	console.log(data)
+                def.reject(data);
+            });
+        return def.promise;
+    }
  	 function getIncidentTaskDetails(parentTicketId) {
          var def = $q.defer();
          url=hostLocation+"/incident/rsp/task/list";

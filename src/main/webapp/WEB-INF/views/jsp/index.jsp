@@ -16,13 +16,16 @@
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/responsive.css"></c:url>' /> --%>
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/animate.min.css"></c:url>' />
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/AdminLTE.min.css"></c:url>' />
-<%-- <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/style.css"></c:url>' /> --%>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/4.0.2/bootstrap-material-design.css" rel="stylesheet">
+<link href="https://ducthanhnguyen.github.io/MaterialAdminLTE/dist/css/MaterialAdminLTE.min.css" rel="stylesheet">
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/materialize.min.css"></c:url>' />
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/skins/skin-black-light.min.css"></c:url>' />
 
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery-2.1.4.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/angular.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/tether.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/bootstrap.min.js"></c:url>'></script>
+<script type="text/javascript" 	src='<c:url value="/resources/theme1/js/materialize.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/ripples.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/material.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/wow.js"></c:url>'></script>

@@ -89,4 +89,73 @@ public class RSPCustomerConstants {
 			+ " LEFT JOIN pm_asset_location pal ON "
 			+ " pa.location_id=pal.location_id LEFT JOIN pm_site ps ON pa.site_id=ps.site_id "
 			+ " WHERE pa.asset_id=?";
+	
+	public static final String EXT_CUSTOMER_TICKETS_QUERY = "select pct.id, pct.ticket_number,pct.site_id,pct.asset_id,pct.ticket_title,pct.created_on,pct.created_by,pct.sla_duedate, "
+			+ " pct.status_id,prs.sp_cname sp_name,ps.site_name,pa.asset_name,pst.status from pm_cust_ticket pct "
+			+ " left join sp_company prs on prs.sp_cid=pct.rassigned_to "
+			+ "  left join pm_site ps on pct.site_id=ps.site_id "
+			+ " left join pm_asset pa on pct.asset_id=pa.asset_id "
+			+ " left join sp_ext_customers sec on  sec.cust_cid=ps.operator_id "
+			+ " left join pm_status pst on pct.status_id=pst.status_id where prs.sp_code=? and sec.cust_cid=?";
+	
+	public static final String RSP_USER_LIST_QUERY = " select su.user_id,su.first_name,su.last_name,su.email_id from sp_users su ";
+	
+	public static final String RSP_EXT_CUST_ASSET_LIST_QUERY="select ps.asset_id, ps.asset_code, ps.asset_name, pc.asset_type, "
+			+ " ps.sp_type, ps.rsp_id, spc.sp_cname rsp_name, spc.sp_code, "
+			+ " sec.p_email help_desk_email, pc.category_id, pc.category_name,pas.subcategory1_id, pas.asset_subcategory1 "
+			+ " from pm_asset ps left OUTER join pm_asset_category pc on pc.category_id=ps.category_id "
+			+ " LEFT OUTER JOIN pm_asset_subcategory1 pas ON pas.subcategory1_id = ps.subcategory1_id"
+		 	+ " LEFT JOIN sp_company spc on spc.sp_cid=ps.rsp_id "
+		 	+ " LEFT JOIN pm_site psite on ps.site_id=psite.site_id "
+		 	+ " LEFT JOIN sp_ext_customers sec on sec.cust_cid=psite.operator_id "
+			+ " where ps.site_id = ? ";
+	
+	public static final String TICKET_PRIORITY_RSP_EXTCUST_SLA_QUERY = "select ps.settings_id, ps.category_id, ptc.id, ptc.ticket_category, ptp.priority_id, "
+			+ " ptp.description, psp.cust_cid sp_id, psp.cust_name sp_name, pss.duration, pss.unit from pm_ct_priority_settings ps "
+			+ " left outer join pm_ticket_category ptc on ptc.id = ps.category_id "
+			+ " left outer join pm_ticket_priority ptp on ptp.priority_id = ps.priority_id "
+			+ " left outer join sp_ext_cust_sla pss on pss.priority_id=ps.priority_id "
+			+ " left outer join sp_ext_customers psp on psp.cust_cid=pss.ext_cust_id where pss.ext_cust_id=? and ptc.id=?";
+	
+	public static final String LAST_SP_EXTCUST_INCIDENT_NUMBER_QUERY="select id from pm_cust_ticket order by id desc limit 1";
+	
+	public static final String INSERT_SP_EXTCUST_TICKET_QUERY = "insert into pm_cust_ticket(ticket_number, ticket_title,ticket_desc, status_id,ticket_category,"
+			+ " site_id,asset_id,asset_category_id,asset_subcategory1_id,asset_subcategory2_id,priority,rassigned_to, assigned_agent, "
+			+ " ticket_starttime, created_by, created_on) values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,NOW())";
+	
+	public static final String RSP_EXTCUST_TICKET_SELECTED_QUERY = "SELECT "
+			+" ct.id, ct.ticket_number, ct.ticket_title, "
+			+" ct.ticket_desc, "
+			+" ct.status_id,sts.`status`,sts.description, "
+			+" ct.ticket_category as ticket_category_id,tc.ticket_category, "
+			+" ct.site_id,st.site_name,st.site_number1,st.site_number2,st.primary_contact_number,"
+			+ " st.site_address1,st.site_address2,st.site_address3,st.site_address4,st.post_code, st.site_owner, st.email,"
+			+" ct.asset_id,ast.asset_name,ast.asset_code,ast.model_number,ast.date_commissioned, "
+			+" ct.asset_category_id,ac.category_name, "
+			+" ct.asset_subcategory1_id,ac1.asset_subcategory1, "
+			+" ct.asset_subcategory2_id,ac2.subcategory2_name, "
+			+" ct.priority, ct.sla_duedate, ct.ticket_starttime, "
+			+" ct.service_restoration_ts, ct.close_code,clc.closed_code_desc,"
+			+" ct.is_rootcause_resolved, ct.close_note, ct.rassigned_to,ct.assigned_agent, sp.sp_cname rsp_name, "
+			+" ct.closed_by, ct.closed_on,  ct.created_by,  ct.created_on  FROM pm_cust_ticket ct "
+			+" LEFT JOIN pm_site st ON ct.site_id = st.site_id "
+			+" LEFT JOIN pm_asset ast ON ct.asset_id = ast.asset_id "
+			+" LEFT JOIN pm_asset_category ac ON ct.asset_category_id = ac.category_id "
+			+" LEFT JOIN pm_asset_subcategory1 ac1 ON ct.asset_subcategory1_id = ac1.subcategory1_id "
+			+" LEFT JOIN pm_asset_subcategory2 ac2 ON ct.asset_subcategory2_id = ac2.subcategory2_id "
+			+" LEFT JOIN pm_ticket_category tc ON ct.ticket_category = tc.id "
+			+" LEFT JOIN pm_status sts ON ct.status_id = sts.status_id "
+			+" LEFT JOIN sp_company sp ON ct.rassigned_to = sp.sp_cid "
+			+" LEFT JOIN pm_closecode clc ON ct.close_code = clc.closed_code "
+			+" WHERE ct.id = ?";
+	
+	public static final String RSP_EXT_CUSTOMER_RELATED_TICKETS_QUERY = "select ct.id, ct.ticket_number, ct.ticket_title, ct.status_id, "
+			+ " sts.`status`, ct.site_id,st.site_name,ct.sla_duedate, "
+			+ " ct.asset_id,ast.asset_name, ct.created_on, ct.rassigned_to, "
+			+ " sp.sp_cname sp_name FROM pm_cust_ticket ct "
+			+" LEFT JOIN pm_site st ON ct.site_id = st.site_id "
+			+" LEFT JOIN pm_status sts ON ct.status_id = sts.status_id "
+			+" LEFT JOIN pm_asset ast ON ct.asset_id = ast.asset_id "
+			+" LEFT JOIN sp_company sp ON ct.rassigned_to = sp.sp_cid "
+			+" where  ct.id <> ? and ct.site_id = ? and ct.rassigned_to = ?";
 }

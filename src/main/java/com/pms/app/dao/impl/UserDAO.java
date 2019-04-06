@@ -399,5 +399,24 @@ public class UserDAO {
 			      }
 			      });
 	}
+
+	public UserModel getExtUserDetails(String raisedBy) {
+		final UserModel savedUser = new UserModel();
+		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
+		return jdbcTemplate.query(AppConstants.SP_USER_ROLE_QUERY, new Object[]{raisedBy}, new ResultSetExtractor<UserModel>() {
+			@Override
+			public UserModel extractData(ResultSet rs) throws SQLException, DataAccessException {
+				if (rs.next()) {
+                	savedUser.setUserId(rs.getLong("user_id"));
+                	savedUser.setFirstName(rs.getString("first_name"));
+                	savedUser.setLastName(rs.getString("last_name"));
+                	savedUser.setEmailId(rs.getString("email_id"));
+                	savedUser.setEnabled(rs.getInt("enabled"));
+                	savedUser.setPhoneNo(rs.getLong("phone"));
+                }
+                return savedUser;
+			}
+		});
+	}
 	
 }

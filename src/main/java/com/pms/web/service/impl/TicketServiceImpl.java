@@ -36,6 +36,7 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.RSPCustomerConstants;
 import com.pms.app.constants.TicketUpdateType;
 import com.pms.app.constants.UserType;
 import com.pms.app.dao.impl.IncidentDAO;
@@ -178,7 +179,7 @@ public class TicketServiceImpl implements TicketService {
 		if(customerTicket.getTicketId()==null && customerTicket.getMode().equalsIgnoreCase("NEW")){
 			incidentVO = customerTicket;
 			String ticketNumber=null;
-			Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated(loginUser.getUserType());
+			Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated(loginUser.getUserType(), customerTicket.getTicketAssignedType());
 			Long newIncidentNumber =null;
 			if(lastIncidentNumber == 0){
 				newIncidentNumber = 1l;
@@ -189,17 +190,20 @@ public class TicketServiceImpl implements TicketService {
 			if(loginUser.getUserType().equalsIgnoreCase("USER")){
 				ticketNumber = "IN" +  String.format("%08d", newIncidentNumber);
 			}
-			else if(loginUser.getUserType().equalsIgnoreCase("SP")){
+			else if(loginUser.getUserType().equalsIgnoreCase("SP") && !customerTicket.getTicketAssignedType().equalsIgnoreCase("EXTCUST")){
 				 ticketNumber = "SP" +  String.format("%08d", newIncidentNumber);
+			}
+			else if(loginUser.getUserType().equalsIgnoreCase("SP") && customerTicket.getTicketAssignedType().equalsIgnoreCase("EXTCUST")){
+				 ticketNumber = "EXT" +  String.format("%07d", newIncidentNumber);
 			}
 			LOGGER.info("Ticket Number Generated for {} is {}  "+ loginUser.getUserType() , ticketNumber);
 			incidentVO.setTicketNumber(ticketNumber);
+			
 			CreateSiteVO site = getSiteDAO(loginUser.getDbName()).getSiteDetails(incidentVO.getSiteId());
 			incidentVO.setSite(site);
 			incidentVO.setTicketStartTime(ApplicationUtil.makeSQLDateFromString(customerTicket.getTicketStartTime()));
 			//Change the logic if the incident is created by Customer or Registered Service Provider
 			incidentVO = getIncidentDAO(loginUser.getDbName()).saveOrUpdateIncident(incidentVO, loginUser);
-			
 			if(incidentVO.getMessage().equalsIgnoreCase("CREATED")  ){
 				LOGGER.info("Creating Incident Folder for : " +  incidentVO.getTicketNumber());
 				if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) &&
@@ -209,7 +213,7 @@ public class TicketServiceImpl implements TicketService {
 					incidentVO.setRspCustMappedCompanyCode(customerTicket.getRspCustMappedCompanyCode());
 				}else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && 
 						customerTicket.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
-					incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser);
+					incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser, TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType());
 					incidentVO.setRspCustMappedCompanyId(customerTicket.getRspCustMappedCompanyId());
 					incidentVO.setRspCustMappedCompanyName(customerTicket.getRspCustMappedCompanyName());
 					incidentVO.setRspCustMappedCompanyCode(customerTicket.getRspCustMappedCompanyCode());
@@ -220,9 +224,11 @@ public class TicketServiceImpl implements TicketService {
 			}
 		}else if(customerTicket.getTicketId()!=null && customerTicket.getMode().equalsIgnoreCase("UPDATE")){
 			if(loginUser.getUserType().equalsIgnoreCase("SP") && customerTicket.getTicketAssignedType().equalsIgnoreCase("RSP")){
-				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser);
+				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser, "RSP");
 			}else if(loginUser.getUserType().equalsIgnoreCase("SP") && customerTicket.getTicketAssignedType().equalsIgnoreCase("CUSTOMER")){
 				incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
+			}else if(loginUser.getUserType().equalsIgnoreCase("SP") && customerTicket.getTicketAssignedType().equalsIgnoreCase("EXTCUST")){
+				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser,customerTicket.getTicketAssignedType());
 			}else{
 				incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
 			}
@@ -241,14 +247,14 @@ public class TicketServiceImpl implements TicketService {
 			incidentVO.setServiceProvider(serviceProvider);*/
 			if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) &&
 					customerTicket.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
-				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser);
+				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser, TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType());
 				incidentVO.setRspCustMappedCompanyId(customerTicket.getRspCustMappedCompanyId());
 				incidentVO.setRspCustMappedCompanyName(customerTicket.getRspCustMappedCompanyName());
 				incidentVO.setRspCustMappedCompanyCode(customerTicket.getRspCustMappedCompanyCode());
 			}else if(loginUser.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && 
 					customerTicket.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
 				incidentVO = getSelectedTicket(customerTicket.getTicketId(), loginUser);
-				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser);
+				incidentVO = getRSPCreatedSelectedTicket(customerTicket.getTicketId(), loginUser, TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType());
 				incidentVO.setRspCustMappedCompanyId(customerTicket.getRspCustMappedCompanyId());
 				incidentVO.setRspCustMappedCompanyName(customerTicket.getRspCustMappedCompanyName());
 				incidentVO.setRspCustMappedCompanyCode(customerTicket.getRspCustMappedCompanyCode());
@@ -291,11 +297,15 @@ public class TicketServiceImpl implements TicketService {
 			 incidentFolderLocation = createIncidentFolder(incidentVO.getTicketNumber(), spSiteCompany) ;
 			}
 			if(user!=null){
-				if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && !incidentVO.getTicketAssignedType().equalsIgnoreCase("EXTCUST") ){
 					LOGGER.info("RSP Mapped Customer Code to Create Folder : "+ incidentVO.getRspCustMappedCompanyCode());
 					 user.getCompany().setCompanyId(incidentVO.getRspCustMappedCompanyId());
 					 user.getCompany().setCompanyName(incidentVO.getRspCustMappedCompanyName());
 					 user.getCompany().setCompanyCode(incidentVO.getRspCustMappedCompanyCode());
+					incidentFolderLocation = createIncidentFolder(incidentVO.getTicketNumber(),user.getCompany()) ;
+				}
+				else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && incidentVO.getTicketAssignedType().equalsIgnoreCase("EXTCUST") ){
+					LOGGER.info("RSP Externa Customer to Create Folder : "+ incidentVO.getRspCustMappedCompanyCode());
 					incidentFolderLocation = createIncidentFolder(incidentVO.getTicketNumber(),user.getCompany()) ;
 				}
 				else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
@@ -480,12 +490,12 @@ public class TicketServiceImpl implements TicketService {
 	
 	@Override
 	@Transactional
-	public TicketVO getRSPCreatedSelectedTicket(Long ticketId, LoginUser loginUser) throws Exception {
+	public TicketVO getRSPCreatedSelectedTicket(Long ticketId, LoginUser loginUser, final String operationType) throws Exception {
 		LOGGER.info("Getting ticket details for RSP created by RSP ");
 		SelectedTicketVO selectedTicket = null;
 		TicketVO ticketVO = new TicketVO();
 		List<String> addressList = new ArrayList<String>(4);
-		selectedTicket= getIncidentDAO(loginUser.getDbName()).getRSPSelectedTicket(ticketId);
+		selectedTicket= getIncidentDAO(loginUser.getDbName()).getRSPSelectedTicket(ticketId, operationType);
 		ticketVO.setTicketId(selectedTicket.getId()); 
 	/*	if(StringUtils.isEmpty(loginUser.getSpDbName())){
 			LOGGER.info("Getting RSP User details for the ticket created ");
@@ -571,7 +581,7 @@ public class TicketServiceImpl implements TicketService {
 			ticketVO.setTicketAssignedType("RSP");
 			ticketVO.setAssignedTo(selectedTicket.getRassigned_to());
 			ticketVO.setAssignedSP(selectedTicket.getRsp_name());
-			List<EscalationLevelVO> escalationLevelVOs = getTicketEscalationList(selectedTicket.getRassigned_to(), loginUser, AppConstants.RSP_ESCALATIONS_QUERY);
+			List<EscalationLevelVO> escalationLevelVOs = null;// getTicketEscalationList(selectedTicket.getRassigned_to(), loginUser, AppConstants.RSP_ESCALATIONS_QUERY);
 			ticketVO.setEscalationLevelList(escalationLevelVOs);
 			
 		}
@@ -670,6 +680,9 @@ public class TicketServiceImpl implements TicketService {
 				 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
 					 ticketComment = getIncidentDAO(user.getDbName()).saveTicketComment(ticketComment, user, AppConstants.INSERT_TICKET_COMMENT_QUERY);
 				 }
+				 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())){
+					 ticketComment = getIncidentDAO(user.getDbName()).saveTicketComment(ticketComment, user, AppConstants.INSERT_TICKET_COMMENT_QUERY);
+				 }
 			}else{
 				ticketComment = getIncidentDAO(user.getDbName()).saveTicketComment(ticketComment, user, AppConstants.INSERT_TICKET_COMMENT_QUERY);
 			}
@@ -695,6 +708,9 @@ public class TicketServiceImpl implements TicketService {
 				commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId, AppConstants.RSP_TICKET_COMMENTS);
 			 }
 			 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_CUSTOMER_TICKET.getUpdateType())){
+				 commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId, AppConstants.TICKET_COMMENTS);
+			 }
+			 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())){
 				 commentListVO = getIncidentDAO(user.getDbName()).getTicketComments(ticketId, AppConstants.TICKET_COMMENTS);
 			 }
 		}else{
@@ -842,6 +858,9 @@ public class TicketServiceImpl implements TicketService {
 			 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
 				 customerTicketList = getIncidentDAO(loginUser.getDbName()).findSPRelatedTickets(ticketId, siteId, loginUser.getCompany().getCompanyId(), AppConstants.RSP_COMPANY_RELATED_TICKETS_QUERY);
 			 }
+			 else if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())){
+				 customerTicketList = getIncidentDAO(loginUser.getDbName()).findSPRelatedTickets(ticketId, siteId, loginUser.getCompany().getCompanyId(), RSPCustomerConstants.RSP_EXT_CUSTOMER_RELATED_TICKETS_QUERY);
+			 }
 		}
 		return customerTicketList == null?Collections.emptyList():customerTicketList;
 	}
@@ -900,7 +919,9 @@ public class TicketServiceImpl implements TicketService {
 		 else  if(spType.equalsIgnoreCase("RSP")){
 			 savedTicketEscVO = getIncidentDAO(user.getDbName()).findByTicketIdAndEscLevelId(ticketId, escId, AppConstants.TICKET_BY_RSP_ESCID);
 		 }
-		 
+		 else  if(spType.equalsIgnoreCase("EXTCUST")){
+			 savedTicketEscVO = getIncidentDAO(user.getDbName()).findByTicketIdAndEscLevelId(ticketId, escId, AppConstants.TICKET_BY_RSP_ESCID);
+		 }
 		savedTicketEscVO.setEscalationStatus("Escalated");
 		return savedTicketEscVO;
 	}
@@ -1138,7 +1159,7 @@ public class TicketServiceImpl implements TicketService {
 	@Override
 	public IncidentTask saveRspTicketTask(IncidentTask incidentTask, LoginUser user, String ticketIncidentType) throws Exception {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-		if (!StringUtils.isEmpty(incidentTask.getPlanStartDate())) {
+		if (!StringUtils.isEmpty(incidentTask.getPlanStartDate()) && !StringUtils.isEmpty(incidentTask.getPlanEndDate())) {
 			Date startDate;
 			Date endDate;
 			try {
@@ -1146,24 +1167,36 @@ public class TicketServiceImpl implements TicketService {
 				endDate = formatter.parse(incidentTask.getPlanEndDate());
 				incidentTask.setPlannedStartDate(startDate);
 				incidentTask.setPlannedComplDate(endDate);
+				if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+					if(ticketIncidentType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+						if(incidentTask.getTaskId()==null){
+							incidentTask.setTaskNumber("INCTK-"+RandomUtils.randomIntger(7));
+							incidentTask = getIncidentDAO(user.getDbName()).saveRspIncidentTask(incidentTask, user, AppConstants.INSERT_RSP_INCIDENT_TASK_QUERY);
+						}
+						else if(incidentTask.getTaskId()!=null){
+							int updatedRows = getIncidentDAO(user.getDbName()).updateRspIncidentTask(incidentTask, user, AppConstants.UPDATE_RSP_INCIDENT_TASK_QUERY);
+							if(updatedRows>0){
+								incidentTask.setStatus(202);
+							}
+						}
+					}else if(ticketIncidentType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())){
+						if(incidentTask.getTaskId()==null){
+							incidentTask.setTaskNumber("EXTINCTK-"+RandomUtils.randomIntger(7));
+							incidentTask = getIncidentDAO(user.getDbName()).saveRspIncidentTask(incidentTask, user, AppConstants.INSERT_RSP_INCIDENT_TASK_QUERY);
+						}
+						else if(incidentTask.getTaskId()!=null){
+							int updatedRows = getIncidentDAO(user.getDbName()).updateRspIncidentTask(incidentTask, user, AppConstants.UPDATE_RSP_INCIDENT_TASK_QUERY);
+							if(updatedRows>0){
+								incidentTask.setStatus(202);
+							}
+						}
+					}
+				}
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
 		}
-		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
-			if(ticketIncidentType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
-				if(incidentTask.getTaskId()==null){
-					incidentTask.setTaskNumber("INCTK-"+RandomUtils.randomIntger(7));
-					incidentTask = getIncidentDAO(user.getDbName()).saveRspIncidentTask(incidentTask, user, AppConstants.INSERT_RSP_INCIDENT_TASK_QUERY);
-				}
-				else if(incidentTask.getTaskId()!=null){
-					int updatedRows = getIncidentDAO(user.getDbName()).updateRspIncidentTask(incidentTask, user, AppConstants.UPDATE_RSP_INCIDENT_TASK_QUERY);
-					if(updatedRows>0){
-						incidentTask.setStatus(202);
-					}
-				}
-			}
-		}
+		
 		return incidentTask;
 	}
 
@@ -1173,6 +1206,8 @@ public class TicketServiceImpl implements TicketService {
 		List<IncidentTask> incidentTaskList = new ArrayList<IncidentTask>();
 		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
 			if(selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_COMPANY_TICKET.getUpdateType())){
+				incidentTaskList = getIncidentDAO(user.getDbName()).getRSPIncidentTasks(ticketId, AppConstants.RSP_INCIDENT_TASK_LIST_QUERY);
+			}else if (selectedTicketVO.getTicketAssignedType().equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())){
 				incidentTaskList = getIncidentDAO(user.getDbName()).getRSPIncidentTasks(ticketId, AppConstants.RSP_INCIDENT_TASK_LIST_QUERY);
 			}
 		}

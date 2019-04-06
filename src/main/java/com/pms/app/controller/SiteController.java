@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.constants.TicketUpdateType;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.DistrictVO;
 import com.pms.app.view.vo.LoginUser;
@@ -422,9 +423,13 @@ public class SiteController extends BaseController {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		if (loginUser != null) {
 			try {
-				String custDBName = (String) session.getAttribute("selectedCustomerDB");
-				if (StringUtils.isNotEmpty(custDBName)) {
-					loginUser.setDbName(custDBName);
+				if(ticketAssignedType.equalsIgnoreCase(TicketUpdateType.UPDATE_BY_RSP_FOR_EXTCUST_TICKET.getUpdateType())){
+					logger.info("Getting related tickets for External Customer ");
+				}else{
+					String custDBName = (String) session.getAttribute("selectedCustomerDB");
+					if (StringUtils.isNotEmpty(custDBName)) {
+						loginUser.setDbName(custDBName);
+					}
 				}
 				List<TicketVO> relatedTicketList = ticketSerice.getRelatedTickets(ticketId, siteId, loginUser, ticketAssignedType);
 				response.setStatusCode(200);

@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.pms.app.exception.PMSServiceException;
+import com.pms.app.exception.PMSTechnicalException;
 import com.pms.app.view.vo.CustomerVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.RSPExternalCustomerVO;
@@ -87,7 +89,49 @@ public class ServiceProviderCompanyController extends BaseController {
 			return "redirect:/login";
 		}
 	}
-	
+	@RequestMapping(value = "/ext/customer/incident/create", method = RequestMethod.GET)
+	public String createExtCustomerIncident(final Locale locale, final ModelMap model, final HttpServletRequest request,
+			final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			model.put("user", loginUser);
+			model.put("mode", "NEW");
+			model.put("assetVO", null);
+			session.setAttribute("imageList", null);
+			return "sp.externalcustomer.incident.create";
+		} else {
+			return "redirect:/login";
+		}
+	}
+
+	@RequestMapping(value = "/ext/customer/incident/update", method = RequestMethod.GET)
+	public String incidentDetailsUpdate(final ModelMap model,
+			final HttpServletRequest request, final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser!=null) {
+			model.put("savedsp", loginUser);
+			model.put("user", loginUser);
+				model.put("mode", "EDIT");
+				return "sp.externalcustomer.incident.update";
+		} else {
+			return "redirect:/";
+		}
+	}
+	@RequestMapping(value = "/externalcustomers/incidents", method = RequestMethod.GET)
+	public String getExternalCustomersIncidents(final Locale locale, final ModelMap model, final HttpServletRequest request,
+			final HttpSession session) {
+		try{
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			model.put("user", loginUser);
+			return "sp.externalcustomers.incidents";
+		} else {
+			return "redirect:/login";
+		}
+		}catch(PMSTechnicalException e){
+			return "redirect:/login";
+		}
+	}
 	@RequestMapping(value = "/externalcustomers/sites", method = RequestMethod.GET)
 	public String getExternalCustomersSites(final Locale locale, final ModelMap model, final HttpServletRequest request,
 			final HttpSession session) {
@@ -108,18 +152,6 @@ public class ServiceProviderCompanyController extends BaseController {
 		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
 			model.put("user", loginUser);
 			return "sp.externalcustomers.assets";
-		} else {
-			return "redirect:/login";
-		}
-	}
-	
-	@RequestMapping(value = "/externalcustomers/incidents", method = RequestMethod.GET)
-	public String getExternalCustomersIncidents(final Locale locale, final ModelMap model, final HttpServletRequest request,
-			final HttpSession session) {
-		LoginUser loginUser = getCurrentLoggedinUser(session);
-		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
-			model.put("user", loginUser);
-			return "sp.externalcustomers.incidents";
 		} else {
 			return "redirect:/login";
 		}
@@ -538,6 +570,34 @@ public class ServiceProviderCompanyController extends BaseController {
 			responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.UNAUTHORIZED);
 		}
 		logger.info("Exit ServiceProviderCompanyController .. updateExtCustSLA");
+		return responseEntity;
+	}
+	
+	@RequestMapping(value = "/ext/customer/incident/list/{extCustId}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> getExternalCustomerIncidents(final HttpSession session, @PathVariable(value="extCustId") Long extCustId) {
+		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
+		RestResponse response = new RestResponse();
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		List<TicketVO> ticketVOList = null;
+		if (loginUser != null) {
+				try {
+					session.setAttribute("ticketsBy", "EXTCUST");
+					ticketVOList = rspManagedService.getExternalCustomerIncidents(loginUser, extCustId);
+					if(!ticketVOList.isEmpty()){
+						response.setStatusCode(200);
+						response.setObject(ticketVOList);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.OK);
+					}else{
+						response.setStatusCode(404);
+						responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.NOT_FOUND);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					response.setStatusCode(500);
+					responseEntity = new ResponseEntity<RestResponse>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+					logger.error("Exception getting customerList", e);
+				}
+		}
 		return responseEntity;
 	}
 }

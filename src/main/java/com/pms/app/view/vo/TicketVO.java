@@ -2,6 +2,7 @@ package com.pms.app.view.vo;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.pms.jpa.entities.Financials;
@@ -327,7 +328,7 @@ public class TicketVO implements Serializable{
 		this.assignedSPEmail = assignedSPEmail;
 	}
 	public List<EscalationLevelVO> getEscalationLevelList() {
-		return escalationLevelList;
+		return escalationLevelList==null?Collections.emptyList():escalationLevelList;
 	}
 	public void setEscalationLevelList(List<EscalationLevelVO> escalationLevelList) {
 		this.escalationLevelList = escalationLevelList;

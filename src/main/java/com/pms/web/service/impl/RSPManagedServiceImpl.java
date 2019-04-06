@@ -1,17 +1,20 @@
 package com.pms.web.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.pms.app.dao.impl.RSPManagedDAO;
 import com.pms.app.exception.RequiredFieldException;
 import com.pms.app.exception.Validator;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.RSPExternalCustomerVO;
 import com.pms.app.view.vo.RSPExternalSLADetailVO;
+import com.pms.app.view.vo.TicketVO;
 import com.pms.jpa.entities.Country;
 import com.pms.jpa.entities.Region;
 import com.pms.web.service.RSPMangedService;
@@ -109,6 +112,12 @@ public class RSPManagedServiceImpl implements RSPMangedService {
 			}
 		}
 		return externalCustomerVO;
+	}
+	@Override
+	@Transactional
+	public List<TicketVO> getExternalCustomerIncidents(LoginUser loginUser, Long extCustId) throws Exception {
+		List<TicketVO> extCustTickets = getRspManagedDAO(loginUser.getDbName()).getExtCustomericketsBySPcode(loginUser.getCompany().getCompanyCode(), extCustId);
+		return extCustTickets == null?Collections.emptyList():extCustTickets;
 	}
 
 }

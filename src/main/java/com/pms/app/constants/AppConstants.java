@@ -32,7 +32,7 @@ public class AppConstants {
 			+ " where u.company_id=pc.company_id  and u.user_id=ur.user_id and u.email_id =  ?";
 	
 	public static final String SP_USER_ROLE_QUERY ="select u.user_id, u.first_name, u.last_name, u.email_id, u.password,u.enabled, "
-			+ " r.role_id, r.role_name, r.role_desc, u.sys_password,u.phone, pc.sp_cid,pc.sp_code, pc.sp_cname "
+			+ " r.role_id, r.role_name, r.role_desc, u.sys_password,u.phone, pc.sp_cid ,pc.sp_code, pc.sp_cname "
 			+ " from sp_users u inner join sp_user_role ur  INNER join sp_role r on ur.role_id=r.role_id "
 			+ " inner  join sp_company pc where u.sp_id=pc.sp_cid and u.user_id=ur.user_id and u.email_id =  ?";
 	
@@ -751,4 +751,5 @@ public class AppConstants {
 
 	public static final String UPDATE_RSP_INCIDENT_TASK_QUERY = "update pm_rsp_incident_task set task_name=?, task_desc=?, planned_start_date =? ,"
 			+ "  planned_end_date=?,task_assigned_to=?,task_status=?,res_comment=?, modified_by=?,modified_date=NOW() where task_id=?";
+
 }

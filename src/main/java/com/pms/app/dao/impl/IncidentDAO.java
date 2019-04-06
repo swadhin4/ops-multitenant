@@ -37,6 +37,7 @@ import org.springframework.stereotype.Repository;
 import com.mysql.jdbc.Statement;
 import com.pms.app.config.ConnectionManager;
 import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.RSPCustomerConstants;
 import com.pms.app.view.vo.CustomerSPLinkedTicketVO;
 import com.pms.app.view.vo.EscalationLevelVO;
 import com.pms.app.view.vo.IncidentTask;
@@ -134,8 +135,11 @@ public class IncidentDAO {
 	public TicketPrioritySLAVO getSPSLADetails(Long serviceProviderID, Long ticketCategoryId, String spType, String userType) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		String spTicketPriorityQuery=null;
-		if(userType.equalsIgnoreCase("SP")){
+		if(userType.equalsIgnoreCase("SP") && !spType.equalsIgnoreCase("EXTCUST")){
 			spTicketPriorityQuery = AppConstants.TICKET_PRIORITY_RSP_SLA_QUERY;
+		}
+		else if(userType.equalsIgnoreCase("SP") && spType.equalsIgnoreCase("EXTCUST")){
+			spTicketPriorityQuery = RSPCustomerConstants.TICKET_PRIORITY_RSP_EXTCUST_SLA_QUERY;
 		}
 		else if(userType.equalsIgnoreCase("USER") && spType.equalsIgnoreCase("RSP")){
 			spTicketPriorityQuery = AppConstants.TICKET_PRIORITY_RSP_SLA_QUERY;
@@ -190,13 +194,16 @@ public class IncidentDAO {
 	  });
 		return ticketStatusList;
 	}
-	public Long getLastIncidentCreated(String criteriea) {
+	public Long getLastIncidentCreated(String criteriea, String ticketAssignedType) {
 		String lastIncidentQuery=null;
 		if(criteriea.equalsIgnoreCase("USER")){
 			lastIncidentQuery = AppConstants.LAST_INCIDENT_NUMBER_QUERY;
 		}
-		else if(criteriea.equalsIgnoreCase("SP")){
+		else if(criteriea.equalsIgnoreCase("SP") && !ticketAssignedType.equalsIgnoreCase("EXTCUST")){
 			lastIncidentQuery = AppConstants.LAST_SP_INCIDENT_NUMBER_QUERY;
+		}
+		else if(criteriea.equalsIgnoreCase("SP") && ticketAssignedType.equalsIgnoreCase("EXTCUST")){
+			lastIncidentQuery = RSPCustomerConstants.LAST_SP_EXTCUST_INCIDENT_NUMBER_QUERY;
 		}
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		Long lastTicketId = jdbcTemplate.query(lastIncidentQuery, new ResultSetExtractor<Long>() {
@@ -220,18 +227,23 @@ public class IncidentDAO {
 			try {
 				if(user.getUserType().equalsIgnoreCase("USER")){
 					savedTicketVO = insertTicketData(ticketVO,user);
-				}else if(user.getUserType().equalsIgnoreCase("SP")){
+				}else if(user.getUserType().equalsIgnoreCase("SP") && !ticketVO.getTicketAssignedType().equalsIgnoreCase("EXTCUST")){
 					// Verify the Ticket Creator of SP company or SP Agent Id for rassignedto Column
 					ServiceProviderVO spCompany = getRegisteredSPDetails(user.getCompany().getCompanyCode());
 					ticketVO.setAssignedTo(spCompany.getServiceProviderId());
 					if(ticketVO.getTicketAssignedType().equalsIgnoreCase("RSP")){
-						savedTicketVO = insertSPTicketData(ticketVO,user);
+						savedTicketVO = insertSPTicketData(ticketVO,user, AppConstants.INSERT_SP_TICKET_QUERY, "SP");
 						savedTicketVO.setTicketAssignedType("RSP");
 					}
 					if(ticketVO.getTicketAssignedType().equalsIgnoreCase("CUSTOMER")){
-						savedTicketVO = insertSPTicketData(ticketVO,user);
+						savedTicketVO = insertSPTicketData(ticketVO,user, AppConstants.INSERT_SP_TICKET_QUERY, "SP");
 						savedTicketVO.setTicketAssignedType("CUSTOMER");
 					}
+				}
+				else if(user.getUserType().equalsIgnoreCase("SP") && ticketVO.getTicketAssignedType().equalsIgnoreCase("EXTCUST")){
+						ticketVO.setAssignedTo(ticketVO.getAssignedTo());
+						savedTicketVO = insertSPTicketData(ticketVO,user, RSPCustomerConstants.INSERT_SP_EXTCUST_TICKET_QUERY, "EXTCUST");
+						savedTicketVO.setTicketAssignedType("EXTCUST");
 				}
 				if(savedTicketVO.getTicketId()!=null ){
 					LOGGER.info("Incident created for "+  user.getUsername() + "/ Incident : "+ ticketVO.getTicketNumber() +" with ID : "+ ticketVO.getTicketId());
@@ -258,6 +270,11 @@ public class IncidentDAO {
 					else if(user.getUserType().equalsIgnoreCase("SP") && ticketVO.getTicketAssignedType().equalsIgnoreCase("CUSTOMER")){
 						savedTicketVO = updateTicketData(ticketVO,user);
 					}
+					else if(user.getUserType().equalsIgnoreCase("SP") && ticketVO.getTicketAssignedType().equalsIgnoreCase("EXTCUST")){
+						ticketVO.setAssignedTo(ticketVO.getAssignedTo());
+						savedTicketVO = updateTicketData(ticketVO,user);
+						savedTicketVO.setTicketAssignedType("EXTCUST");
+				}
 				if(savedTicketVO.getTicketId()!=null ){
 					LOGGER.info("Status of the incident updated to : " +  ticketVO.getStatus());
 					LOGGER.info("Incident Modified by : " +  ticketVO.getModifiedBy());
@@ -281,13 +298,13 @@ public class IncidentDAO {
 
 	}
 	
-	private TicketVO insertSPTicketData(TicketVO ticketVO, LoginUser user) {
+	private TicketVO insertSPTicketData(TicketVO ticketVO, LoginUser user, final String ticketCreationQuery, final String ticketType) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		KeyHolder key = new GeneratedKeyHolder();
 	    jdbcTemplate.update(new PreparedStatementCreator() {
 	      @Override
 	      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-	        final PreparedStatement ps = connection.prepareStatement(AppConstants.INSERT_SP_TICKET_QUERY, 
+	        final PreparedStatement ps = connection.prepareStatement(ticketCreationQuery, 
 	            Statement.RETURN_GENERATED_KEYS);
 	    	ps.setString(1, ticketVO.getTicketNumber());
             ps.setString(2, ticketVO.getTicketTitle());
@@ -309,7 +326,7 @@ public class IncidentDAO {
 	    }, key);
 	    LOGGER.info("Saved customer ticket {} with id {}.", ticketVO.getTicketNumber(), key.getKey());
 	    ticketVO.setTicketId(key.getKey().longValue());
-	    String updateSLa = updateSlaDueDate(ticketVO.getTicketNumber(), ticketVO.getDuration(), ticketVO.getUnit(), "SP");
+	    String updateSLa = updateSlaDueDate(ticketVO.getTicketNumber(), ticketVO.getDuration(), ticketVO.getUnit(), ticketType);
 	    ticketVO.setSla(updateSLa);
 	    return ticketVO;
 	}
@@ -507,9 +524,14 @@ public class IncidentDAO {
 		SelectedTicketVO selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(AppConstants.TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
 		return selectedTicketVO;
 	}
-	public SelectedTicketVO getRSPSelectedTicket(Long ticketId ) {
+	public SelectedTicketVO getRSPSelectedTicket(Long ticketId, final String ticketAssignedType ) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		SelectedTicketVO selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(AppConstants.RSP_TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
+		SelectedTicketVO selectedTicketVO = null;
+		if(ticketAssignedType.equalsIgnoreCase("EXTCUST")){
+			selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(RSPCustomerConstants.RSP_EXTCUST_TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
+		}else{
+			selectedTicketVO = (SelectedTicketVO) jdbcTemplate.queryForObject(AppConstants.RSP_TICKET_SELECTED_QUERY, new Object[] { ticketId }, new BeanPropertyRowMapper(SelectedTicketVO.class));
+		}
 		return selectedTicketVO;
 	}
 	public List<TicketAttachment> getTicketAttachments(Long ticketId, final String ticketAttachmentQuery) {
@@ -1258,4 +1280,5 @@ public class IncidentDAO {
         });
 		return updatedRow;
 	}
+	
 }
