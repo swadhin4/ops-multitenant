@@ -384,8 +384,6 @@ chrisApp.controller('assetController',
 		    				$scope.asset.list=[];
 			    			$.each(data.object,function(key,val){
 			    				$scope.asset.list.push(val);
-			    				$('#messageWindow').hide();
-			    				$('#infoMessageDiv').hide();
 			    				$('#loadingDiv').hide();
 			    			})
 			    			$scope.rowHighilited($scope.asset.list[0], 0);
@@ -393,9 +391,6 @@ chrisApp.controller('assetController',
 		    			  }
 	    					else{
 		    				  $scope.InfoMessage="No assets available for the user"
-									$('#messageWindow').show();
-				    				$('#infoMessageDiv').show();
-				    				$('#infoMessageDiv').alert();
 				    				$('#loadingDiv').hide();
 		    			  	}
 		    			}
@@ -404,9 +399,6 @@ chrisApp.controller('assetController',
 			            function(data) {
 			                console.log('Unable to get asset list')
 			                	$scope.InfoMessage="No assets available for the user"
-								$('#messageWindow').show();
-			    				$('#infoMessageDiv').show();
-			    				$('#infoMessageDiv').alert();
 			    				$('#loadingDiv').hide();
 			            });
 				 }
@@ -567,6 +559,7 @@ chrisApp.controller('assetController',
 					 $scope.taskOperation ="UpdateTask";
 					 $scope.selectedAsset.taskId=selectedTask.taskId;
 					 $scope.selectedAsset.taskName=selectedTask.taskName;
+					 $scope.selectedAsset.taskNumber=selectedTask.taskumber;
 					 $scope.selectedAsset.taskDesc=selectedTask.taskDesc;
 					 $scope.selectedAsset.planStartDate=selectedTask.planStartDate;
 					 $scope.selectedAsset.planEndDate=selectedTask.planEndDate;
@@ -597,7 +590,6 @@ chrisApp.controller('assetController',
 			 $scope.assetTaskDetails = [];
 			 
 			 $scope.getAssetTaskDetails=function(){
-					
 					$scope.assetTaskDetails=[];
 						$.each($scope.taskDataData.taskDataDataList,function(key,val){						
 							var taskDataData={

@@ -474,7 +474,8 @@ $(document).ready(function()  {
 										<table id="taskDeatils" class="table table-bordered">
 											<tbody>
 												<tr>
-													<th>Task ID</th>
+													<th>Task Id</th>
+													<th>Task Number</th>
 													<th>Task Name</th>
 													<th>Status</th>
 													<th>Action</th>
@@ -484,6 +485,7 @@ $(document).ready(function()  {
 													ng-class="{currentSelected:$index == selectedTaskRow}"
 													ng-click="rowTaskHighilited($index)">
 													<td>{{task.taskId}}</td>
+													<td>{{task.taskNumber}}</td>
 													<td>{{task.taskName}}</td>
 													<td>{{task.taskStatus}}</td>
 													<td align="center"><a href ng-click="openAssetTaskPage('U', task)"> <i

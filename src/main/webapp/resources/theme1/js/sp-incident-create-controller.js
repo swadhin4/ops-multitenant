@@ -473,7 +473,7 @@ chrisApp
 							$scope.LinkNewTicket = function(spType, spTicket){
 								  var ticketLinked=null; 
 								  $scope.linkedTicket={};
-								  if(spTicket.ticketNumber != ""){
+								  if(spTicket.ticketId != undefined){
 								  var isDuplicateTicket=false;
 										$scope.linkedTicket.ticketNumber = spTicket.ticketNumber;
 										var linkedTicket={
@@ -505,6 +505,9 @@ chrisApp
 											$scope.errorMessage="Ticket number is already linked.";
 											 $scope.getErrorMessage($scope.errorMessage);
 									}
+								  }else{
+									  $scope.errorMessage="Invalid linked ticket number. Try from suggestion list ";
+									  $scope.getErrorMessage($scope.errorMessage);
 								  }
 								}
 							
@@ -1056,7 +1059,7 @@ chrisApp
 							$scope.getAsset=function(selectedSite){
 								//console.log(selectedSite);
 								 $('#loadingDiv').show();
-								 assetService.getAssetBySite(selectedSite.siteId)
+								 assetService.getAssetBySite(selectedSite.siteId, "CUST")
 									.then(function(data) {
 										console.log(data);
 					 					$scope.assetList=[];

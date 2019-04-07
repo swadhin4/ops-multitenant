@@ -761,7 +761,7 @@ chrisApp.controller('incidentCreateController',  ['$rootScope', '$scope', '$filt
 			 $.jStorage.set('selectedSite',selectedSite);
 			 $scope.accessSite.selected.siteId = parseInt(selectedSite.siteId);
 			 $('#loadingDiv').show();
-			 assetService.getAssetBySite(selectedSite.siteId)
+			 assetService.getAssetBySite(selectedSite.siteId, "CUST")
 				.then(function(data) {
 					console.log(data);
  					$scope.assetList=[];

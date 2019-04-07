@@ -11,6 +11,7 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -111,17 +112,21 @@ public class AssetServiceImpl implements AssetService {
 		return assetVO;
 	}
 	@Override
-	public List<AssetVO> findAssetBySiteId(LoginUser user,Long siteId) throws Exception {
+	public List<AssetVO> findAssetBySiteId(LoginUser user,Long siteId, String custType) throws Exception {
 		LOGGER.info("Inside AssetServiceImpl .. findAssetsBySite");
 		List<AssetVO> assetList = null;
 		List<AssetVO> rspAssignedAssetList = new ArrayList<AssetVO>();
 		List<AssetVO> customerAssetList = new ArrayList<AssetVO>();
 		synchronized (siteId) {
-			if(user.getSpDbName().equalsIgnoreCase(user.getDbName())){
-				assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user, RSPCustomerConstants.RSP_EXT_CUST_ASSET_LIST_QUERY  );
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_CUSTOMER.getUserType())){
+				assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user, AppConstants.SITE_ASSET_LIST_QUERY);
 			}
 			else{
-				assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user, AppConstants.SITE_ASSET_LIST_QUERY);
+				if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && custType.equalsIgnoreCase("EXTCUST")){
+					assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user, RSPCustomerConstants.RSP_EXT_CUST_ASSET_LIST_QUERY  );
+				}else if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && custType.equalsIgnoreCase("CUST")){
+					assetList = getAssetDAO(user.getDbName()).findAssetBySiteId(siteId, user, AppConstants.SITE_ASSET_LIST_QUERY  );
+				}
 			}
 			for(AssetVO asset: assetList){
 				if(asset.getSpType().equalsIgnoreCase("RSP") && 
@@ -555,6 +560,8 @@ public class AssetServiceImpl implements AssetService {
 			}
 		}
 		if(assetTask.getTaskId()==null){
+			String assetTaskNumber = String.format("ATSK" + "%02d", new Date().getTime());
+			assetTask.setTaskNumber(assetTaskNumber);
 			savedAssetTask = getAssetDAO(loginUser.getDbName()).saveAssetTask(assetTask, loginUser);
 			savedAssetTask.setStatus(200);
 		}

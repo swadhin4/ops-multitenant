@@ -1116,7 +1116,7 @@ chrisApp
 							
 							 $scope.getSelectedSiteAssets=function(selectedSite){
 								 $('#loadingDiv').show();
-								 assetService.getAssetBySite(selectedSite)
+								 assetService.getAssetBySite(selectedSite,"EXTCUST")
 										.then(function(data) {
 						    			
 						    			if(data.statusCode==200){

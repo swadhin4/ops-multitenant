@@ -31,7 +31,7 @@ public interface AssetService {
 	
 	public AssetVO deleteAsset(AssetVO assetVO, LoginUser loginUser) throws Exception;
 
-	public List<AssetVO> findAssetBySiteId(LoginUser loginUser, Long siteId) throws Exception;
+	public List<AssetVO> findAssetBySiteId(LoginUser loginUser, Long siteId, String assetFor) throws Exception;
 
 	public List<AssetSubRepairType> findAssetSubRepairTypeBy(LoginUser user, Long assetSubCategoryid) throws Exception;
 

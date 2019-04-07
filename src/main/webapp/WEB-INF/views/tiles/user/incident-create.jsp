@@ -285,7 +285,7 @@ $(function() {
 			                <li><a href="#"><b>Category</b> <span class=" pull-right badge bg-blue">{{assetList.selected.assetCategoryName}}</span></a></li>
 			                <li><a href="#"><b>Component Type</b> <span class=" pull-right  badge bg-aqua">{{assetList.selected.assetSubcategory1}}</span></a></li>
 			                <li><a href="#"><b>Assigned SP <span class="badge">({{assetList.selected.spType}})</span></b><span class=" pull-right  badge bg-green">
-			                {{assetList.selected.assignedSp}} {{selectedAssetObject.assetSP}} </span></a></li>
+			                {{assetList.selected.assignedSp}}<!--  {{selectedAssetObject.assetSP}}  --></span></a></li>
 			              </ul>
 			            </div>
 			          </div>

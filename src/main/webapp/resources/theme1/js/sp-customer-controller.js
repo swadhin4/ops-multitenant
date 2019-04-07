@@ -534,17 +534,19 @@ chrisApp.controller('spCustomerController',
 						$scope.assetList=[];
 						$scope.siteList=[];
 						$scope.checkTicketsAssignedOrCreated($scope.ticketCreatedOrAssigned);
-						
+						$scope.selectedTitleName=""
 					}
 					else if($scope.rspPageViewFor=="SITES"){
 						$scope.spCustomerIncidentList.list=[];
 						$scope.assetList=[];
 						$scope.getSiteData();
+						$scope.selectedTitleName="Site List"
 					}
 					else if($scope.rspPageViewFor=="ASSETS"){
 						$scope.spCustomerIncidentList.list=[];
 						$scope.siteList=[];
 						$scope.getAssetData();
+						$scope.selectedTitleName="Asset List"
 					}
 				}
 			/*	

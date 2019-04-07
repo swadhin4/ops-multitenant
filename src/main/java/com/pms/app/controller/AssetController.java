@@ -514,8 +514,9 @@ public class AssetController extends BaseController {
 
 		return responseEntity;
 	}
-	@RequestMapping(value = "/list/{siteId}", method = RequestMethod.GET,produces="application/json")
-	public ResponseEntity<RestResponse> listAllAssetsBySite(final HttpSession session, @PathVariable (value="siteId") Long siteId) {
+	@RequestMapping(value = "/list/{siteId}/{custType}", method = RequestMethod.GET,produces="application/json")
+	public ResponseEntity<RestResponse> listAllAssetsBySite(final HttpSession session, 
+			@PathVariable (value="siteId") Long siteId,@PathVariable (value="custType") String custType) {
 		logger.info("Inside AssetController..listAllAssetsBySite");
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);
 		RestResponse response = new RestResponse();
@@ -523,13 +524,7 @@ public class AssetController extends BaseController {
 			LoginUser loginUser=getCurrentLoggedinUser(session);
 			if (loginUser!=null) {
 				List<AssetVO> assets = null;
-				String custDbName = (String) session.getAttribute("customerLocation");
-				if(StringUtils.isNotBlank(custDbName)){
-					loginUser.setDbName(custDbName);
-					assets  = assetService.findAssetBySiteId(loginUser,siteId);
-				}else{
-					assets  = assetService.findAssetBySiteId(loginUser,siteId);
-				}
+				assets  = assetService.findAssetBySiteId(loginUser,siteId, custType);
 				if (assets.isEmpty()) {
 					response.setStatusCode(404);
 					response.setMessage("No assets available");

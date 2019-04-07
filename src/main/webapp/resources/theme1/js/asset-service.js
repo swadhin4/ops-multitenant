@@ -145,9 +145,9 @@ chrisApp.factory('assetService',  ['$http', '$q',function ($http, $q) {
 		
  	    
  	// implementation
- 	    function getAssetBySite(siteId) {
+ 	    function getAssetBySite(siteId, custType) {
  	        var def = $q.defer();
- 	        $http.get(hostLocation+"/asset/list/"+siteId)
+ 	        $http.get(hostLocation+"/asset/list/"+siteId+"/"+custType)
  	            .success(function(data) {
  	            	//console.log(data)
  	                def.resolve(data);

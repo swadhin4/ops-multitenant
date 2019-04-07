@@ -831,7 +831,7 @@ background:#deefe5
 			<div class="loader">Loading...</div>
 		</div>
 													<div class="row" ng-if="ticketData.ticketAssignedType=='RSP'">
-													<!-- 	<div class="col-md-3">
+														<div class="col-md-3">
 														<div class="funkyradio">
 															<div class="funkyradio-primary">
 																<input type="radio" name="radio" id="radio1" ng-model="optionVal" value="ZERO" 
@@ -841,7 +841,7 @@ background:#deefe5
 																	</label>
 															</div>
 														</div>
-													</div> -->
+													</div>
 													<div class="col-md-3">
 														<div class="funkyradio">
 															<div class="funkyradio-primary">
@@ -881,8 +881,8 @@ background:#deefe5
 												<div class="box-header with-border">
 													<h3 class="box-title">Suggested Tickets</h3>
 												</div>
-												<div class="box-body table-responsive no-padding">
-												<div class="col-md-12">
+												<div class="box-body table-responsive no-padding" style="overflow:auto; height:300px">
+													<div class="col-md-12">
 													<table class="table table-hover">
 														<tbody style="font-size: .9em">
 															<tr>
@@ -907,6 +907,11 @@ background:#deefe5
 													</table>
 												</div>	
 												</div>
+												<div class="box-footer">
+												<div class="col-md-12">
+													<a href class="btn btn-danger">Total linked tickets : <span class="badge">{{suggestedTickets.length}}</span></a>
+												</div>
+												</div> 
 												</div>	
 												</div>
 													<div class="col-md-6">
@@ -1181,14 +1186,14 @@ background:#deefe5
 <div style="display: none" id="loadingDiv5">
 			<div class="loader">Loading...</div>
 		</div>
-												<div class="box">
+												<div class="box box-primary">
 													<div class="box-header with-border">
 														<h3 class="box-title">Cost Details</h3>
 														<sec:authorize access="hasAnyRole('ROLE_SP_AGENT')">
 														<p class="text-info">Note: Cost Name, Cost, Charge Back and Billable are required cost item(s).</p>
 														</sec:authorize>
 													</div>
-													<div class="box-body">
+													<div class="box-body no-padding ">
 														<form name="financialsForm" ng-submit="saveCostDetails()">
 															<div class="row">
 																<div class="col-md-12">
@@ -1205,8 +1210,8 @@ background:#deefe5
 																	</div>
 
 																	<table id="financialsTable"
-																		class="table table-bordered table-hover table-condensed">
-																		<thead>
+																		class="table table-striped">
+																		<tbody>
 																			<tr>
 																				<th style="width: 40%;"><b>Cost Name</b></th>
 																				<th style="width: 30%;"><b>Cost (&euro;)</b></th>
@@ -1216,8 +1221,6 @@ background:#deefe5
 																				<th style="width: 6%;" colspan="2"></th>
 																				</sec:authorize>
 																			</tr>
-																		</thead>
-																		<tbody>
 
 
 																			<tr ng-repeat="row in financialCostDetails">
@@ -1321,7 +1324,7 @@ background:#deefe5
 											
 											<!-- Added By Supravat for Related Tickets Requirements. -->
 											<div class="tab-pane" id="relatedTickets">
-																		          <div class="box">
+																		          <div class="box box-primary">
             <div class="box-header">
               <h3 class="box-title">Related Tickets</h3>
 
@@ -1338,7 +1341,7 @@ background:#deefe5
             </div>
             <!-- /.box-header -->
             <div class="box-body table-responsive no-padding">
-              <table class="table table-hover">
+              <table class="table table-striped">
               <tbody style="font-size: .9em"><tr ">
 					<th style="width:12%">Ticket Number</th>
 					<th style="width:20%">Title</th>

@@ -294,6 +294,9 @@ background:#deefe5
 				</div>
 			</div>
 			<div class="box-body table-responsive no-padding" >
+			<div class="col-md-12" >
+			 <h3 class="box-title">{{selectedTitleName}}</h3>
+			 </div>
 			<table class="table table-hover"
 				ng-show="isCustomerSelected.spCustomerListSelect.length > 0 && spCustomerIncidentList.list.length>0">
 				<tbody style="font-size: .9em">

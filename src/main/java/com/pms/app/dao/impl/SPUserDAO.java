@@ -281,7 +281,7 @@ public class SPUserDAO {
 		}
 	public ServiceProviderVO getUniqueServiceProvider(ServiceProviderVO serviceProviderVO,LoginUser user ) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		ServiceProviderVO uniqueSP = jdbcTemplate.query(AppConstants.EXT_SP_USER_DETAIL_QUERY, new Object[]{serviceProviderVO.getEmail(), user.getCompany().getCompanyId()}, new ResultSetExtractor<ServiceProviderVO>() {
+		ServiceProviderVO uniqueSP = jdbcTemplate.query(AppConstants.EXT_SP_USER_DETAIL_QUERY, new Object[]{serviceProviderVO.getEmail()}, new ResultSetExtractor<ServiceProviderVO>() {
 			@Override
 			public ServiceProviderVO extractData(ResultSet rs) throws SQLException, DataAccessException {
 				ServiceProviderVO sp= new ServiceProviderVO();

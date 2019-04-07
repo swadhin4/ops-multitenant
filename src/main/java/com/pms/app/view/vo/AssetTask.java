@@ -12,6 +12,7 @@ public class AssetTask implements Serializable {
 	private Long taskId;
 	private Long assetId;
 	private String taskName;
+	private String taskNumber;
 	private String taskDesc;
 	private String planStartDate;
 	private String planEndDate;
@@ -114,6 +115,12 @@ public class AssetTask implements Serializable {
 	}
 	public void setStatus(int status) {
 		this.status = status;
+	}
+	public String getTaskNumber() {
+		return taskNumber;
+	}
+	public void setTaskNumber(String taskNumber) {
+		this.taskNumber = taskNumber;
 	}
 	@Override
 	public int hashCode() {

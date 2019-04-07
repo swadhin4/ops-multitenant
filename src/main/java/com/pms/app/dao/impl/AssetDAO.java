@@ -560,13 +560,14 @@ public class AssetDAO {
 	            Statement.RETURN_GENERATED_KEYS);
 	        ps.setLong(1, assetTask.getAssetId());
 	        ps.setString(2, assetTask.getTaskName());
-    		ps.setString(3, assetTask.getTaskDesc());
-    		ps.setDate(4,	ApplicationUtil.getSqlDate(assetTask.getPlannedStartDate()));
-    		ps.setDate(5,   ApplicationUtil.getSqlDate(assetTask.getPlannedComplDate()));
-    		ps.setString(6, assetTask.getTaskAssignedTo());
-    		ps.setString(7, assetTask.getTaskStatus());
-    		ps.setString(8, assetTask.getResComments());
-    		ps.setString(9, user.getUsername());
+	        ps.setString(3, assetTask.getTaskNumber());
+    		ps.setString(4, assetTask.getTaskDesc());
+    		ps.setDate(5,	ApplicationUtil.getSqlDate(assetTask.getPlannedStartDate()));
+    		ps.setDate(6,   ApplicationUtil.getSqlDate(assetTask.getPlannedComplDate()));
+    		ps.setString(7, assetTask.getTaskAssignedTo());
+    		ps.setString(8, assetTask.getTaskStatus());
+    		ps.setString(9, assetTask.getResComments());
+    		ps.setString(10, user.getUsername());
 	        return ps;
 	      }
 	    }, key);
@@ -585,6 +586,7 @@ public class AssetDAO {
 							AssetTask assetTask = new AssetTask();
 							assetTask.setTaskId(rs.getLong("task_id"));
 							assetTask.setTaskName(rs.getString("task_name"));
+							assetTask.setTaskNumber(rs.getString("task_number"));
 							assetTask.setTaskDesc(rs.getString("task_desc"));
 							assetTask.setPlanStartDate(ApplicationUtil.getDateStringFromSQLDate(rs.getString("planned_start_date")));
 							assetTask.setPlanEndDate(ApplicationUtil.getDateStringFromSQLDate(rs.getString("planned_end_date")));
