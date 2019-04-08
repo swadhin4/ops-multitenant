@@ -36,48 +36,19 @@
 <div class="content-wrapper">
 		<div  ng-controller="profileController" id="profileviewWindow">
 	<div class="row">
-	<div class="col-md-12">
-			<div class="col-md-3">
-			 <h3> User Profile</h3>
-			</div>
-			<div class="col-md-4 col-sm-offset-1" style="margin-top: 21px;">
-				<div class="alert alert-success alert-dismissable" id="profile-success-alert"
-						style="display: none;  height: 34px;white-space: nowrap;">
-						<strong>Success! </strong> {{successMessage}}
-						<a href ng-click="closeMessageWindow()">	<span class="messageClose">X</span></a>
-					</div>
-				<div class="alert alert-danger alert-dismissable" id="profile-error-alert"
-						style="display: none;  height: 34px;white-space: nowrap;">
-						<strong>Error! </strong> {{errorMessage}}
-						<a href ng-click="closeMessageWindow()">	<span class="messageClose">X</span></a>
-					</div>	
-			</div>
-			</div>
     <section class="content">
       <div class="row">
-        <div class="col-md-3 col-sm-3" style="height:100%">
-
+        <div class="col-md-3 col-sm-3" >
           <!-- Profile Image -->
           <div class="box box-primary">
             <div class="box-body box-profile">
               <img class="profile-user-img img-responsive img-circle" src="${contextPath}/resources/img/swadhin.jpg" alt="User profile picture">
-
               <h3 class="profile-username text-center">{{loggedInUserDetail.firstName}} {{loggedInUserDetail.lastName}}</h3>
-              
               <p class="text-muted text-center">{{loggedInUserDetail.company.companyName}}</p> 
               <p class="text-muted text-center">{{loggedInUserDetail.role.roleName}}</p>           
-
-              
             </div>
-            <!-- /.box-body -->
           </div>
-          <!-- /.box -->
-
-          <!-- About Me Box -->
-          
-          <!-- /.box -->
         </div>
-        <!-- /.col -->
         <div class="col-md-9 col-sm-9">
           <div class="nav-tabs-custom">
             <ul class="nav nav-tabs">
@@ -89,7 +60,6 @@
                 <form class="form-horizontal" name="profileForm" ng-submit="updateProfile()">
                   <div class="form-group reqDiv required">
                     <label  class="col-sm-2 control-label">First Name</label>
-
                     <div class="col-sm-10">
                       <input type="text" class="form-control" id="firstName" 
                       ng-model="loggedInUserDetail.firstName" placeholder="Enter First Name" required>

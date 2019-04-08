@@ -268,7 +268,7 @@ public class AssetController extends BaseController {
 		}
 	}
 	//End
-	@RequestMapping(value = "/info/{siteId}", method = RequestMethod.GET)
+	@RequestMapping(value = "/site/info/{siteId}", method = RequestMethod.GET)
 	public String assetSitePage(@PathVariable(value="siteId") String siteId, final ModelMap model,
 			final HttpServletRequest request, final HttpSession session) {
 		LoginUser loginUser=getCurrentLoggedinUser(session);

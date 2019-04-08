@@ -181,8 +181,9 @@ public class TicketServiceImpl implements TicketService {
 			String ticketNumber=null;
 			Long lastIncidentNumber = getIncidentDAO(loginUser.getDbName()).getLastIncidentCreated(loginUser.getUserType(), customerTicket.getTicketAssignedType());
 			Long newIncidentNumber =null;
-			if(lastIncidentNumber == 0){
+			if(lastIncidentNumber==null || lastIncidentNumber == 0){
 				newIncidentNumber = 1l;
+				lastIncidentNumber = 0l;
 			}else{
 				newIncidentNumber = lastIncidentNumber + 1;
 			}

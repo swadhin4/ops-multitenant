@@ -67,9 +67,16 @@
  <script type="text/javascript" src="<c:url value="/resources/theme1/pms/websocket.js"></c:url>"></script>
 
 <style>
-body{
-font-size:1.4rem;
-}
+	body{
+	font-size:1.4rem;
+	}
+	table{
+	font-size: 1.1em;
+	}
+	.user-panel{
+	    background-color: #446371;
+	    color:#fff
+	}
 	thead {
 		background-color: #bfbfbf;
 		color: White;
@@ -201,6 +208,9 @@ font-size:1.4rem;
     -webkit-overflow-scrolling: touch;
     outline: 0;
     }
+    	.btn {
+        border-radius: 30px
+        }
 </style>
 <script type="text/javascript">
 /* $(window).on('load', function(){
@@ -383,11 +393,11 @@ function removeLoader(){
               <!-- Menu Footer-->
               <li class="user-footer">
                 <div class="pull-left">
-                  <a href="${contextPath}/user/profile" class="btn btn-default btn-flat">Profile</a>
+                  <a href="${contextPath}/user/profile" class="btn btn-warning">Profile</a>
                 </div>
                 <div class="pull-right">
                  <sec:authorize access="isAuthenticated()">
-                  <a href="${contextPath}/logout" class="btn btn-default btn-flat">Sign out</a>
+                  <a href="${contextPath}/logout" class="btn btn-danger">Sign out</a>
                   </sec:authorize>
                 </div>
               </li>
