@@ -1866,7 +1866,7 @@ chrisApp
 						    		 		 categoryName:$("#ticketCategorySelect option:selected").text()
 						    		 }
 						    		 $scope.categoryList.selected =category;
-						    		 //scope.getTicketPriority();
+						    		 $scope.ticketData.categoryId=category.categoryId;
 						    		 $scope.setTicketPriorityAndSLA($scope.categoryList.selected);
 						    	 }
 						    }
@@ -1890,7 +1890,7 @@ chrisApp
 										 $scope.ticketData.priorityId = data.object.priorityId;
 										 $scope.ticketData.priorityDescription = data.object.priorityName;
 										 //$scope.ticketData.sla=data.object.ticketSlaDueDate;
-										 $scope.ticketData.categoryId=data.object.ticketCategoryId;
+										// $scope.ticketData.categoryId=ticketCategory.categoryId;
 										 $scope.ticketData.unit= data.object.units;
 										 $scope.ticketData.duration = data.object.duration;
 										 $scope.ticketData.categoryName=ticketCategory.categoryName;
@@ -2066,8 +2066,8 @@ chrisApp
 								 //console.log($scope.ticketData);
 								$scope.ticketData.mode="NEW";
 								$scope.ticketData.rspAssignedAgent = $("#spAgentsSelect option:selected").text()
-								var ticketAssignedType=$.jStorage.get('ticketType');
-								$scope.ticketData.ticketAssignedType = ticketAssignedType;
+								var ticketAssignedType="RSP";
+								$scope.ticketData.ticketAssignedType = "RSP";
 								var rspMappedCustomer = $.jStorage.get("selectedRSPCustomer");
 								$scope.ticketData.rspCustMappedCompanyCode=rspMappedCustomer.custCode;
 								$scope.ticketData.rspCustMappedCompanyName=rspMappedCustomer.custName;
