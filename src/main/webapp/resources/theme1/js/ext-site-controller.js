@@ -1703,6 +1703,7 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 			}
 		 
 		 $scope.getSelectedSiteData=function(siteId){
+			 $('#loadingDiv').show();
 			 siteService.retrieveSiteDetails(siteId)
 	    		.then(function(data) {
 	    			console.log(data)
@@ -1758,8 +1759,10 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 					
 					$.jStorage.set('selectedSite', $scope.selectedSite);
 					//console.log($scope.selectedSite.siteAttachments);
+					 $('#loadingDiv').hide();
 	    		},function(data){
 	    			console.log(data);
+	    			$('#loadingDiv').hide();
 	    			
 	    		})
 	    		

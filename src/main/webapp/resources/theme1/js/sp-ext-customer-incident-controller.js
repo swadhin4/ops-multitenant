@@ -265,18 +265,14 @@ chrisApp.controller('spExtCustIncidentController',  ['$rootScope', '$scope', '$f
 		$scope.viewUpdatePage=function(){
 			if($scope.sessionTicket!=null){
 				if($scope.sessionTicket.statusId==15){
-					$('#messageWindow').show();
-					$('#infoMessageDiv').show();
-					$('#infoMessageDiv').alert();
 					$scope.InfoMessage="This ticket cannot be updated because its already closed."
+						$scope.getErrorMessage($scope.InfoMessage);
 	       		 }else{
 					window.location.href=hostLocation+"/serviceprovidercompany/ext/customer/incident/update"
 	       		 }
 			}else{
-				$('#messageWindow').show();
-				$('#infoMessageDiv').show();
-				$('#infoMessageDiv').alert();
 				$scope.InfoMessage="Please select a ticket to update."
+					$scope.getErrorMessage($scope.InfoMessage);
 			}
 		}
 		
@@ -337,13 +333,24 @@ chrisApp.controller('spExtCustIncidentController',  ['$rootScope', '$scope', '$f
 					$scope.extCustomer.companyId=custId;
 					$scope.extCustomer.companyName=custName
 					$.jStorage.set('selectedExtCustomer', $scope.extCustomer);
+					$scope.getAllTickets($scope.extCustomer.companyId);
+					console.log($scope.extCustomer);
 				}
 				//$scope.getAllSites();
-				$scope.getAllTickets($scope.extCustomer.companyId);
-				console.log($scope.extCustomer);
+				
 			}
 	
-			 
+		   $scope.getSuccessMessage=function(msg){
+				 $('#successDiv').show();
+				 $('#successDiv').alert();
+				 $('#successMessage').text(msg);
+			}
+			
+			$scope.getErrorMessage=function(msg){
+				 $('#errorDiv').show();
+				 $('#errorDiv').alert();
+				 $('#errorMessage').text(msg);
+			}
 }]);
 
 

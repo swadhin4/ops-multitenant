@@ -1921,10 +1921,50 @@ chrisApp
 										 statusId:parseInt($("#statusSelect").val()),
 								 		 statusName:$("#statusSelect option:selected").text()
 								 }
+								 if(ticketStatus.statusId == 15){
+										$scope.getCloseCode();
+										$scope.ticketData.statusId = valueId;
+										
+									}
+									else{
+										$('#ticketCloseDiv').hide();
+										$("#closeCodeSelect").attr('required', false);
+										$("#raisedOn").attr('required', false);
+										$("#closeNote").attr('required', false);
+										$.each(scope.ticketData.statusInfoList,function(key,val){
+											if(val.statusId == ticketStatus.statusId){
+												$scope.changeStatusDescription(val.description);
+												return false;
+											}
+										});
+									}
 								 $scope.statusList.selected =ticketStatus;
 							   }
 							}
-							
+							$scope.getCloseCode=function(){
+								$('#ticketCloseDiv').show();
+								$("#closeCodeSelect").attr('required', true);
+								$("#raisedOn").attr('required', true);
+								$("#closeNote").attr('required', true);			
+								$scope.closeCodeList =[{
+									'id':1,
+									'code':'Yes - Root cause fixed'
+								},
+								{
+									'id':2,
+									'code':'No - But workaround provided'
+								}];
+								
+								$("#closeCodeSelect").empty();
+								
+								var options = $("#closeCodeSelect");
+								options.append($("<option />").val("").text("Select option"));
+								$.each($scope.closeCodeList,function() {
+									options.append($("<option />").val(	this.id).text(	this.code));
+								});
+								$('#closedBy').val($scope.sessionUser.email);
+								$scope.ticketData.closedBy = $scope.sessionUser.email;
+							}
 							function validateDropdownValues(dropDownId, assetType){
 								var scope = angular.element("#spIncidentCreateWindow").scope();
 								 var valueId = parseInt($("#"+dropDownId).val());

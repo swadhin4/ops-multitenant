@@ -474,22 +474,16 @@ chrisApp.controller('spCustomerController',
 						console.log($scope.sessionTicket);
 						if($scope.sessionTicket!=null){
 							if($scope.sessionTicket.statusId==15){
-								$('#messageWindow').show();
-								$('#infoMessageDiv').show();
-								$('#infoMessageDiv').alert();
 								$scope.InfoMessage="This ticket cannot be updated because the service is already restored."
+									 $scope.getErrorMessage($scope.InfoMessage);
 				       		 }else{
 				       			//${webContextPath}/serviceprovider/rsp/incident/create
 								//Need to call rsp-incident-update.jsp
 								window.location.href=hostLocation+"/serviceprovider/rsp/incident/update"
-								$('#messageWindow').hide();
-								$('#errorMessageDiv').hide();
 				       		 }
 						}else{
-							$('#messageWindow').show();
-							$('#infoMessageDiv').show();
-							$('#infoMessageDiv').alert();
 							$scope.InfoMessage="Please select a ticket to update."
+								 $scope.getErrorMessage($scope.InfoMessage);
 						}
 					}
 				 $scope.getLoggedInUser=function(loginUser){

@@ -161,7 +161,10 @@ chrisApp.controller('assetController',
 			 $scope.displayExternalCustomerView=function(viewType){
 					$scope.pageViewFor = viewType;
 					console.log("displayExternalCustomerView--->",viewType);
-					if($scope.pageViewFor=="SITES"){
+					if($scope.pageViewFor=="INCIDENTS"){
+						window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers/incidents";
+					}
+					else if($scope.pageViewFor=="SITES"){
 						window.location.href=hostLocation+"/serviceprovidercompany/externalcustomers/sites"
 					}
 					else if($scope.pageViewFor=="CUSTOMERS"){
