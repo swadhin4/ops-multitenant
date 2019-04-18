@@ -157,6 +157,18 @@ public class ServiceProviderCompanyController extends BaseController {
 		}
 	}
 	
+	@RequestMapping(value = "/ext/customer/selectedsite/asset", method = RequestMethod.GET)
+	public String getExternalCustomersSiteAssets(final Locale locale, final ModelMap model, 
+			final HttpServletRequest request,final HttpSession session) {
+		LoginUser loginUser = getCurrentLoggedinUser(session);
+		if (loginUser != null && loginUser.getUserType().equalsIgnoreCase("SP")) {
+			model.put("user", loginUser);
+			return "sp.externalcustomers.assets";
+		} else {
+			return "redirect:/login";
+		}
+	}
+	
 	@RequestMapping(value = "/newuser", method = RequestMethod.PUT, produces = "application/json")
 	public ResponseEntity<RestResponse> createUser(@RequestBody final SPUserVo spUserVo, final HttpSession session) {
 		ResponseEntity<RestResponse> responseEntity = new ResponseEntity<RestResponse>(HttpStatus.NO_CONTENT);

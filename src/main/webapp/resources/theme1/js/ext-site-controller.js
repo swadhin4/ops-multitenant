@@ -948,13 +948,11 @@ chrisApp.controller('extSiteController',  ['$rootScope', '$scope', '$filter','si
 		 }
 		 
 		 $scope.viewAssetForSelectedSite=function(){
-			 if($scope.selectedSite!=null){
-					window.location.href=hostLocation+"/asset/info/"+$scope.selectedSite.siteId;
-			 }
+				 if($scope.selectedSite!=null){
+					 	$.jStorage.set('selectedExtCustomerSite',$scope.selectedSite);
+						window.location.href=hostLocation+"/serviceprovidercompany/ext/customer/selectedsite/asset";
+				 }
 				else{
-					$('#messageWindow').show();
-					$('#infoMessageDiv').show();
-					$('#infoMessageDiv').alert();
 					$scope.InfoMessage="Please select a site to view.";
 				}
 			}

@@ -460,6 +460,10 @@ public class IncidentController extends BaseController {
 					else if(ticketsOf.equalsIgnoreCase("RSP")){
 						selectedTicket  = ticketSerice.getRSPCreatedSelectedTicket(ticketId, loginUser, ticketsOf);
 					}
+					else if(ticketsOf.equalsIgnoreCase("EXTCUST")){
+						loginUser.setDbName(loginUser.getSpDbName());
+						selectedTicket  = ticketSerice.getRSPCreatedSelectedTicket(ticketId, loginUser, ticketsOf);
+					}
 				}
 				else{
 					selectedTicket  = ticketSerice.getSelectedTicket(ticketId, loginUser);

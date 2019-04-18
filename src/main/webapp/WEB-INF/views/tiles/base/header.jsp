@@ -31,6 +31,7 @@
 <link rel="stylesheet" href='<c:url value="/resources/theme1/css/datepicker3.css"></c:url>' />
 <%-- <link rel="stylesheet" href='<c:url value="/resources/css/bootstrap-datetimepicker.min.css"></c:url>' /> --%>
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/pms-admintLTE.css"></c:url>' />
+<%-- <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/materialize.min.css"></c:url>' /> --%>
 <%-- <link rel="stylesheet" href='<c:url value="/resources/theme1/css/style4.css"></c:url>' /> --%>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
   
@@ -54,6 +55,7 @@
 <script type="text/javascript"  src='<c:url value="/resources/theme1/js/bootstrap-multiselect.js"></c:url>'></script>
 <script type="text/javascript"  src='<c:url value="/resources/theme1/js/aws-sdk-2.0.13.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/dist/js/adminlte.min.js"></c:url>'></script>
+<%-- <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/materialize.min.js"></c:url>'></script> --%>
 <script type="text/javascript" 	src='<c:url value="/resources/dist/js/app.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/angular.min.js"></c:url>'></script>
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jstorage.js"></c:url>'></script>

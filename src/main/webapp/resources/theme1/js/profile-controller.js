@@ -65,13 +65,14 @@ chrisApp.controller('profileController',  ['$rootScope', '$scope', '$filter', '$
 		    $scope.getLoggedInUser=function(loginUser){
 				userService.getLoggedInUser(loginUser)
 	    		.then(function(data) {
-	    			
 	    			if(data.statusCode == 200){
-	    				
 	    				$scope.sessionUser=angular.copy(data.object);
 	    				console.log('User object logged in')
 	    				
 	    				$scope.loggedInUserDetail = angular.copy($scope.sessionUser);
+	    				if($scope.loggedInUserDetail.phoneNo=="null"){
+	    					$scope.loggedInUserDetail.phoneNo=null;	
+	    				}
 	    			}
 	            },
 	            function(data) {

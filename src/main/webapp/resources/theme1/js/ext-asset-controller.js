@@ -76,6 +76,10 @@ chrisApp.controller('assetController',
 				 $scope.getLoggedInUserAccess();
 				 $scope.originateFromPage = "Asset";
 				 $scope.pageViewFor = "ASSETS";
+				 var selectedSite = $.jStorage.get("selectedExtCustomerSite");
+					if(selectedSite!=null){
+						$scope.searchAsset = selectedSite.siteName;
+					}
 				 $('#assetWindow').hide();
 				 $('#assetWindow').show( "slide", { direction: "left"  }, 700 );
 				 $.jStorage.set('originateFrom', $scope.originateFromPage);
@@ -153,9 +157,6 @@ chrisApp.controller('assetController',
 					        Idle.watch();
 					        $scope.started = true;
 					      };
-					
-					 
-
 					
 			 });
 			 $scope.displayExternalCustomerView=function(viewType){
