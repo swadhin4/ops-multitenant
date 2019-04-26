@@ -37,10 +37,10 @@ public class UserDAO {
 		ConnectionManager.getInstance(userConfig);
 	}
 	
-	public UserModel getUserDetails(String username){
+	public UserModel getUserDetails(String username, final String userRoleQuery){
 		final UserModel savedUser = new UserModel();
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		return jdbcTemplate.query(AppConstants.USER_ROLE_QUERY, new Object[]{username}, new ResultSetExtractor<UserModel>() {
+		return jdbcTemplate.query(userRoleQuery, new Object[]{username}, new ResultSetExtractor<UserModel>() {
 			@Override
 			public UserModel extractData(ResultSet rs) throws SQLException, DataAccessException {
 				List<String> roleList = new ArrayList<String>();
@@ -245,12 +245,12 @@ public class UserDAO {
 		return roleList;
 	}
 
-	public int changePassword(PasswordVO passwordVO, String loggedInUserName) {
+	public int changePassword(PasswordVO passwordVO, String loggedInUserName, final String updatePasswordQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
 		      @Override
 		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_USER_PASSWORD);
+		        final PreparedStatement ps = connection.prepareStatement(updatePasswordQuery);
 	            ps.setString(1, passwordVO.getNewPassword());
 	            ps.setString(2, loggedInUserName);
 	            return ps;
@@ -259,12 +259,12 @@ public class UserDAO {
 		 	return updated;
 	}
 
-	public int updateUserProfile(AppUserVO appUserVO, LoginUser user) {
+	public int updateUserProfile(AppUserVO appUserVO, LoginUser user, final String userProfileQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
 		      @Override
 		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-		        final PreparedStatement ps = connection.prepareStatement(AppConstants.UPDATE_USER_PROFILE);
+		        final PreparedStatement ps = connection.prepareStatement(userProfileQuery);
 	            ps.setString(1, appUserVO.getFirstName());
 	            ps.setString(2, appUserVO.getLastName());
 	            ps.setLong(3, Long.parseLong(appUserVO.getPhoneNo()));
@@ -275,9 +275,9 @@ public class UserDAO {
 		 	return updated;
 	}
 
-	public List<UserModel> checkUniquePhoneForUser(Long phoneNo) {
+	public List<UserModel> checkUniquePhoneForUser(Long phoneNo, final String checkUserQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
-		List<UserModel> userList = jdbcTemplate.query(AppConstants.CHECK_UNIQUE_USER_PHONE, new Object[] {phoneNo}, new ResultSetExtractor<List<UserModel>>(){
+		List<UserModel> userList = jdbcTemplate.query(checkUserQuery, new Object[] {phoneNo}, new ResultSetExtractor<List<UserModel>>(){
 			List<UserModel>  userList = new ArrayList<UserModel>();
 			@Override
 			public List<UserModel> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -297,12 +297,12 @@ public class UserDAO {
 		return null;
 	}
 
-	public int updatePassword(String newEncodedPassword, String email) {
+	public int updatePassword(String newEncodedPassword, String email, final String forgotPasswordQuery) {
 		JdbcTemplate jdbcTemplate = new JdbcTemplate(ConnectionManager.getDataSource());
 		int updated = jdbcTemplate.update(new PreparedStatementCreator() {
 		      @Override
 		      public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-		        final PreparedStatement ps = connection.prepareStatement(AppConstants.FORGOT_USER_PASSWORD);
+		        final PreparedStatement ps = connection.prepareStatement(forgotPasswordQuery);
 	            ps.setString(1, newEncodedPassword);
 	            ps.setString(2, email);
 	            return ps;

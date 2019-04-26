@@ -651,6 +651,7 @@ public class AppConstants {
 
 	public static final String CHECK_UNIQUE_USER_PHONE = "select email_id, phone from pm_users where phone=?";
 	
+	
 	public static final String LOGGEDUSER_CUSTOMER_COUNTRY_QUERY = "select su.user_id,su.sp_cust_id,sc.customer_code,sc.customer_name,sc.cust_country_id,sc.cust_db_name, "
 			+ " sco.country_name from sp_user_access su left join sp_customers sc on su.sp_cust_id =sc.sp_cust_id "
 			+ " left join sp_country sco on sc.cust_country_id=sco.country_id where su.user_id= ?";

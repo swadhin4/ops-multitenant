@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.pms.app.constants.AppConstants;
+import com.pms.app.constants.RSPCustomerConstants;
 import com.pms.app.constants.UserType;
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.ServiceProviderDAOImpl;
@@ -195,7 +198,12 @@ public class UserServiceImpl implements UserService {
 		LOGGER.info("Inside UserServiceImpl ... changePassword");
 		RestResponse response = new RestResponse();
 		if(user.getUserId()!=null){
-			UserModel loggedInUser = getUserDAO(user.getDbName()).getUserDetails(user.getUsername());
+			UserModel loggedInUser=null;
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				loggedInUser = getSPUserDAO(user.getSpDbName()).getUserDetails(user.getUsername());
+			}else{
+				loggedInUser = getUserDAO(user.getDbName()).getUserDetails(user.getUsername(), AppConstants.USER_ROLE_QUERY);
+			}
 			final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 			String existingPassword = passwordVO.getOldPassword();
 			String dbPassword       = loggedInUser.getPassword();
@@ -204,7 +212,13 @@ public class UserServiceImpl implements UserService {
 				LOGGER.info("Old password match existing password.");
 				String newEncodedPassword = QuickPasswordEncodingGenerator.encodePassword(passwordVO.getConfirmPassword());
 				passwordVO.setNewPassword(newEncodedPassword);
-				int updated = getUserDAO(user.getDbName()).changePassword(passwordVO, user.getUsername());
+				int updated =0;
+				if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+					updated = getUserDAO(user.getSpDbName()).changePassword(passwordVO, user.getUsername(),RSPCustomerConstants.UPDATE_USER_PASSWORD);
+				}else{
+					updated = getUserDAO(user.getDbName()).changePassword(passwordVO, user.getUsername(),  AppConstants.UPDATE_USER_PASSWORD);
+				}
+				
 				if(updated>0){
 					LOGGER.info("New password saved successfully.");
 					response.setStatusCode(200);
@@ -265,16 +279,22 @@ public class UserServiceImpl implements UserService {
 		RestResponse response = new RestResponse();
 		try{
 			Tenant tenant = tenantService.getTenantDB(email, type);
-			UserModel user = getUserDAO(tenant.getDb_name()).getUserDetails(email);
+			UserModel user=null;
+			if(type.equalsIgnoreCase("SP")){
+				user = getSPUserDAO(tenant.getDb_name()).getUserDetails(email);
+			}else{
+				user = getUserDAO(tenant.getDb_name()).getUserDetails(email,  AppConstants.USER_ROLE_QUERY);
+			}
+			
 			if(user.getUserId()!=null){
 				LOGGER.info("Reseting new password for user :"+ user.getEmailId());
 				String newEncodedPassword = QuickPasswordEncodingGenerator.encodePassword(newPassword);
 				user.setPassword(newEncodedPassword);
 				PasswordVO passwordVO = new PasswordVO();
 				passwordVO.setNewPassword(newEncodedPassword);
-				UserModel userModel = getUserDAO(tenant.getDb_name()).getUserDetails(email);
-				int updated = getUserDAO(tenant.getDb_name()).changePassword(passwordVO, email);
-				if(updated>0 && userModel.getPassword().equalsIgnoreCase(newEncodedPassword))
+				//UserModel userModel = getUserDAO(tenant.getDb_name()).getUserDetails(email);
+				int updated = getUserDAO(tenant.getDb_name()).changePassword(passwordVO, email, type.equalsIgnoreCase("SP")?RSPCustomerConstants.UPDATE_USER_PASSWORD:AppConstants.UPDATE_USER_PASSWORD);
+				if(updated>0 && user.getPassword().equalsIgnoreCase(newEncodedPassword))
 					LOGGER.info("New Password reset successfully.");
 					response.setStatusCode(200);
 				}else{
@@ -299,16 +319,17 @@ public class UserServiceImpl implements UserService {
 			Tenant tenant =null;
 			if(type.equalsIgnoreCase("1")){
 			tenant = tenantService.getTenantDB(email, "USER");
-			user = getUserDAO(tenant.getDb_name()).getUserDetails(email);
+			user = getUserDAO(tenant.getDb_name()).getUserDetails(email,  AppConstants.USER_ROLE_QUERY);
 			}
 			else if(type.equalsIgnoreCase("2")){
 				 tenant = tenantService.getTenantDB(email, "SP");
-				 user = getUserDAO(tenant.getDb_name()).getUserDetails(email);
+				 user = getSPUserDAO(tenant.getDb_name()).getUserDetails(email);
 				}
 			if(user.getUserId()!=null){
 				LOGGER.info("Reseting new password for user :"+ user.getEmailId());
 				String newEncodedPassword = QuickPasswordEncodingGenerator.encodePassword(newPassword);
-				int update = getUserDAO(tenant.getDb_name()).updatePassword(newEncodedPassword, email);
+				int update = getUserDAO(tenant.getDb_name()).updatePassword(newEncodedPassword, email, 
+						type.equalsIgnoreCase("2")?RSPCustomerConstants.FORGOT_USER_PASSWORD:AppConstants.FORGOT_USER_PASSWORD);
 				if(update > 0 )
 					LOGGER.info("New Password reset successfully.");
 					response.setStatusCode(200);
@@ -328,30 +349,66 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public RestResponse updateProfile(AppUserVO appUserVO, LoginUser user) throws Exception {
-		UserModel siteUser = getUserDAO(user.getDbName()).getUserDetails(user.getUsername());
+		UserModel siteUser = null;
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			siteUser = getSPUserDAO(user.getSpDbName()).getUserDetails(user.getUsername());
+		}else{
+			siteUser = getUserDAO(user.getDbName()).getUserDetails(user.getUsername(), AppConstants.USER_ROLE_QUERY);
+		}
 		LOGGER.info("Inside UserServiceImpl ... updateProfile");
 		RestResponse response = new RestResponse();
-		List<UserModel> userModelList = getUserDAO(user.getDbName()).checkUniquePhoneForUser(Long.parseLong(appUserVO.getPhoneNo()));
+		List<UserModel> userModelList = null;
+		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+			userModelList  = getUserDAO(user.getSpDbName()).checkUniquePhoneForUser(Long.parseLong(appUserVO.getPhoneNo()), RSPCustomerConstants.CHECK_UNIQUE_SP_USER_PHONE);
+		}else{
+			userModelList  = getUserDAO(user.getDbName()).checkUniquePhoneForUser(Long.parseLong(appUserVO.getPhoneNo()), AppConstants.CHECK_UNIQUE_USER_PHONE);
+		}
+		
 		LOGGER.info("Checking existing user with same phone number");
+		
 		if(userModelList.isEmpty()){
 			LOGGER.info("No other user available with same number");
-			int updated = getUserDAO(user.getDbName()).updateUserProfile(appUserVO, user);
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				int updated = getUserDAO(user.getSpDbName()).updateUserProfile(appUserVO, user, RSPCustomerConstants.UPDATE_SP_USER_PROFILE);
 				if(updated>0){
 					response.setStatusCode(200);
 					response.setObject(siteUser);
 					response.setMessage("Profile updated successfully");
 				}
-		}
-		else if(userModelList.size()>0){
-			for(UserModel phoneUsers : userModelList){
-				if(phoneUsers.getEmailId().equalsIgnoreCase(siteUser.getEmailId())){
-					int updated = getUserDAO(user.getDbName()).updateUserProfile(appUserVO, user);
+			}
+			else{
+				int updated = getUserDAO(user.getDbName()).updateUserProfile(appUserVO, user, AppConstants.UPDATE_USER_PROFILE);
 					if(updated>0){
 						response.setStatusCode(200);
 						response.setObject(siteUser);
 						response.setMessage("Profile updated successfully");
 					}
-				 break;
+				}
+		}
+		else if(userModelList.size()>0){
+			if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())){
+				for(UserModel phoneUsers : userModelList){
+					if(phoneUsers.getEmailId().equalsIgnoreCase(siteUser.getEmailId())){
+						int updated = getUserDAO(user.getSpDbName()).updateUserProfile(appUserVO, user, RSPCustomerConstants.UPDATE_SP_USER_PROFILE);
+						if(updated>0){
+							response.setStatusCode(200);
+							response.setObject(siteUser);
+							response.setMessage("Profile updated successfully");
+						}
+					 break;
+					}
+				}
+			}else{
+				for(UserModel phoneUsers : userModelList){
+					if(phoneUsers.getEmailId().equalsIgnoreCase(siteUser.getEmailId())){
+						int updated = getUserDAO(user.getDbName()).updateUserProfile(appUserVO, user, AppConstants.UPDATE_USER_PROFILE);
+						if(updated>0){
+							response.setStatusCode(200);
+							response.setObject(siteUser);
+							response.setMessage("Profile updated successfully");
+						}
+					 break;
+					}
 				}
 			}
 		}

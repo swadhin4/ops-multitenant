@@ -4,6 +4,14 @@ public class RSPCustomerConstants {
 
 	
 	public static final String RSP_REGION_LIST_QUERY = "select * from sp_region";
+	
+	public static final String UPDATE_USER_PASSWORD = "update sp_users set password=?, sys_password='NO' where email_id=?";
+	
+	public static final String FORGOT_USER_PASSWORD = "update sp_users set password=?, sys_password='YES' where email_id=?";
+	
+	public static final String CHECK_UNIQUE_SP_USER_PHONE = "select email_id, phone from sp_users where phone=?";
+	
+	public static final String UPDATE_SP_USER_PROFILE = "update sp_users set first_name=?, last_name=?, phone=? where email_id=?";
 
 	public static final String RSP_COUNTRY_LIST_QUERY = "select * from sp_country where region_id=?";
 

@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.pms.app.constants.AppConstants;
 import com.pms.app.dao.impl.SPUserDAO;
 import com.pms.app.dao.impl.UserDAO;
 import com.pms.jpa.entities.Tenant;
@@ -101,7 +102,7 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 		UserModel appUser=null;
 		if(type.equalsIgnoreCase("USER")){
 			UserDAO userDAO = new UserDAO(tenant.getDb_name());
-			UserModel user = userDAO.getUserDetails(username);
+			UserModel user = userDAO.getUserDetails(username, AppConstants.USER_ROLE_QUERY);
 			appUser = user;
 		}
 		else if(type.equalsIgnoreCase("SP")){
