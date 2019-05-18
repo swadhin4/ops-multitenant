@@ -58,7 +58,7 @@ public class ForgotController extends BaseController{
 					response = emailService.sendForgotPasswordEmail(email,response.getMessage());
 					if(response.getStatusCode() == 202){
 						response.setStatusCode(200);
-						response.setMessage("An email has been sent to reset you password.");
+						response.setMessage("Password reset email sent successfully. ");
 						responseEntity = new ResponseEntity<RestResponse>(response,HttpStatus.OK);
 					}else{
 						response.setStatusCode(204);

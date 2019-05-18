@@ -35,6 +35,7 @@ import com.pms.web.service.TenantService;
 import com.pms.web.service.UserService;
 import com.pms.web.service.security.AuthorizedUserDetails;
 import com.pms.web.util.QuickPasswordEncodingGenerator;
+import com.pms.web.util.RandomUtils;
 import com.pms.web.util.RestResponse;
 
 @Service("userService")
@@ -125,7 +126,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public UserVO saveUser(AppUserVO appUserVO, LoginUser user) throws Exception {
-		String generatedRawPassword = "mkp006";//RandomUtils.randomAlphanumeric(8);
+		//String generatedRawPassword = "mkp006";//RandomUtils.randomAlphanumeric(8);
+		String generatedRawPassword = RandomUtils.randomAlphanumeric(8);
 		String encryptedPassword = QuickPasswordEncodingGenerator.encodePassword(generatedRawPassword);
 		appUserVO.setGeneratedPassword(encryptedPassword);
 		UserVO savedUserVO = null;
@@ -140,6 +142,7 @@ public class UserServiceImpl implements UserService {
 					boolean isCustomerCreated = getTenantsDAO("tenants").insertCustomerDetails(savedUserVO.getEmailId(),user.getCompany().getCompanyCode(), user.getDbName());
 					if(isCustomerCreated){
 						savedUserVO.setStatus(200);
+						savedUserVO.setPasswordGenerated(generatedRawPassword);
 						LOGGER.info("Customer {} tenant mapping created ", savedUserVO.getFirstName());
 					}else{
 						LOGGER.info("Unable to map customer {} ", savedUserVO.getFirstName(),"Login Denied" );
@@ -160,6 +163,7 @@ public class UserServiceImpl implements UserService {
 					boolean isSPUserCreated = getTenantsDAO("tenants").insertRegisteredSPDetails(user.getTenantId(), savedUserVO.getEmailId());
 					if(isSPUserCreated){
 						savedUserVO.setStatus(200);
+						savedUserVO.setPasswordGenerated(generatedRawPassword);
 						LOGGER.info("SP {} tenant mapping created ", savedUserVO.getEmailId());
 						List<CustomerVO> customerList = appUserVO.getCustomerList();
 						if(!customerList.isEmpty()){

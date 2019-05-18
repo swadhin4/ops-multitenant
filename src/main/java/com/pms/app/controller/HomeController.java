@@ -133,18 +133,22 @@ public class HomeController extends BaseController {
 			}else {
 				LOGGER.info("Logged in User : " + loginUser.getUsername());
 				model.addAttribute("user", loginUser);
-				if(loginUser.getUserType().equalsIgnoreCase("USER") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
-					
-					return "redirect:/user/profile";
-				}else if(loginUser.getUserType().equalsIgnoreCase("SP") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
-					return "redirect:/user/profile";
-				}
-				else if(loginUser.getUserType().equalsIgnoreCase("EXTSP") && loginUser.getSysPassword().equalsIgnoreCase("NO")){
-					return "redirect:/user/extsp/incident/details";
-				}else{
-					session.setAttribute("usercode", loginUser.getCompany().getCompanyCode());
-					return "home";
-				}
+				if(!StringUtils.isEmpty(loginUser.getSysPassword())){
+					if(loginUser.getUserType().equalsIgnoreCase("USER") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
+						return "redirect:/user/profile";
+					}else if(loginUser.getUserType().equalsIgnoreCase("SP") && loginUser.getSysPassword().equalsIgnoreCase("YES")){
+						return "redirect:/user/profile";
+					}
+					else if(loginUser.getUserType().equalsIgnoreCase("EXTSP") && loginUser.getSysPassword().equalsIgnoreCase("NO")){
+						return "redirect:/user/extsp/incident/details";
+					}else{
+						session.setAttribute("usercode", loginUser.getCompany().getCompanyCode());
+						return "home";
+					}
+				  }else{
+					    model.addAttribute("message", "System password is empty");
+						return "redirect:/";
+				  }
 				}
 		}else {
 			model.addAttribute("message", "Invalid username or password");

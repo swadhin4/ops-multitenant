@@ -268,9 +268,11 @@ public class UserController extends BaseController {
 									logger.info("Email thread started : " + Thread.currentThread().getName());
 									try {
 										emailService.sendSuccessSaveEmail(savedUser.getEmail(), appUserVO);
+										logger.info("Email for register user sent successfully");
 									} catch (Exception e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
+										logger.info("Email for register user did not sent.");
 									}
 								}
 							});
