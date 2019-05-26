@@ -3,26 +3,23 @@
  */
 package com.pms.web.service.security;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,6 +34,7 @@ import com.pms.app.dao.impl.UserDAO;
 import com.pms.jpa.entities.Tenant;
 import com.pms.jpa.entities.UserModel;
 import com.pms.web.service.TenantService;
+import com.pms.web.util.ApplicationUtil;
 
 /**
  * The Class CustomUserDetailServiceImpl.
@@ -62,7 +60,11 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 			UserModel user = null;
 			if (userType.equals("1")) {
 				user = getUserDetails(username, "USER");
-
+				boolean isCompanyRegistered = validateCompanyRegistration(user.getCompanyCode());
+				if(isCompanyRegistered){
+					user.setRegistered(isCompanyRegistered);
+				}
+				
 			} else if (userType.equals("2")) {
 				user = getUserDetails(username, "SP");
 			} else if (userType.equalsIgnoreCase("EXTSP")) {
@@ -94,6 +96,63 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 			throw new RuntimeException(e);
 		}
 
+	}
+
+
+	private boolean validateCompanyRegistration(String companyCode) {
+		boolean isPresent=false;
+		String companyPath = System.getProperty("catalina.base");
+		companyPath=companyPath.replaceAll("\\\\","/");
+		LOGGER.info("companyPath : " +companyPath );
+		File folder = FileSystems.getDefault().getPath(companyPath+"/uploads/malay-first-s3-bucket-pms-test").toFile();
+		String[] folders = folder.list();
+        for (String folderName : folders){
+        	if(companyCode.equalsIgnoreCase(folderName)){
+        		isPresent=true;
+        		break;
+        	}
+        }
+        if(!isPresent){
+        	String fileUploadLocation = ApplicationUtil.getServerUploadLocation();
+    		String fileDownloadLocation = ApplicationUtil.getServerDownloadLocation();
+    		String directoryName = companyCode;
+    		 File uploadDirectory = new File(fileUploadLocation+"\\"+directoryName);
+    		 File downloadDirectory = new File(fileDownloadLocation+"\\"+directoryName);
+    		    if (! uploadDirectory.exists()){
+    		        if(uploadDirectory.mkdir()){
+    		        	 downloadDirectory.mkdir();
+    		        	 LOGGER.info("Company code directory created : "+  uploadDirectory.getPath());
+    		        	 File siteDir = new File(fileUploadLocation+"\\"+directoryName+"\\site");
+    		        	 if(siteDir.mkdir()){
+    		        	 File licenseDir = new File(fileUploadLocation+"\\"+directoryName+"\\site\\license");
+    		        	 licenseDir.mkdir();
+    		        	 }
+    		        	 File siteDir2 = new File(fileDownloadLocation+"\\"+directoryName+"\\site");
+    		        	 siteDir2.mkdir();
+    		        	 if(siteDir2.mkdir()){
+        		        	 File licenseDir2 = new File(fileDownloadLocation+"\\"+directoryName+"\\site\\license");
+        		        	 licenseDir2.mkdir();
+        		        	 }
+    		        	 File assetDirectory = new File(fileUploadLocation+"\\"+directoryName+"\\asset");
+    		        	 assetDirectory.mkdir();
+    		        	 File assetDirectory2 = new File(fileDownloadLocation+"\\"+directoryName+"\\asset");
+    		        	 assetDirectory2.mkdir();
+    		        	 File uploadIncidentDirectory = new File(fileUploadLocation+"\\"+directoryName+"\\incident");
+    		        	 uploadIncidentDirectory.mkdir();
+    		        	 File downloadIncDic = new File(fileDownloadLocation+"\\"+directoryName+"\\incident");
+    		        	 downloadIncDic.mkdir();
+    		        	 isPresent=true;
+    		        }else{
+    		        	LOGGER.info("Unable to create code directory");
+    		        	isPresent=false;
+    		        }
+    		       
+    		    }else{
+    		    	LOGGER.info("Directory already exists");
+    		    }
+    		    
+        }
+	   return isPresent;
 	}
 
 

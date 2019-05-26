@@ -93,16 +93,15 @@ public class BaseController {
 		
 		String username = getCurrentLoggedinUserName();
 		if (!StringUtils.isNotBlank(username)){
-		//	logger.info("User session is expired or not started yet.");
 			throw new PMSTechnicalException("User session is expired. Please re-login");
-		}else if (loginUser !=null){
+		} if (loginUser !=null){
 			return loginUser;
 		}
 		else{
 			if (StringUtils.isNotBlank(username)) {
 				 if(username.equalsIgnoreCase("anonymousUser")){
 					 loginUser = null;
-					 throw new PMSTechnicalException("Invalid user credentials. Please re-login");
+					// throw new PMSTechnicalException("Invalid user credentials. Please re-login");
 				 }else{
 					Authentication springAuthentication = SecurityContextHolder.getContext().getAuthentication();
 					AuthorizedUserDetails authUser = (AuthorizedUserDetails) springAuthentication.getPrincipal() ;
@@ -150,19 +149,6 @@ public class BaseController {
 								else if (authUser.getUser().getUserType().equalsIgnoreCase("SP")){
 									loginUser.setSpDbName(authUser.getUser().getDbName());
 								}
-								//loginUser.setCompany(authUser.getUser().getCompany());
-								//loginUser.setPhoneNo(String.valueOf(authUser.getUser().getPhone()));
-							//	UserRole loggedInUserRole = userRole;
-								/*logger.info("Getting list of persmission for the user role : "+ loggedInUserRole.getRole().getRoleName());
-								try{
-									List<AppFeature> featureAccessList = rolePermissionService.getUserFeatureAccess(loggedInUserRole);
-									if(!featureAccessList.isEmpty()){
-										loginUser.setFeatureList(featureAccessList);
-									}
-
-								}catch(Exception e){
-									logger.error("Exception while getting user details ", e);
-								}*/
 								session.setAttribute("loginUser", loginUser);
 								session.setAttribute("loggedInUserDB", loginUser.getDbName());
 							}

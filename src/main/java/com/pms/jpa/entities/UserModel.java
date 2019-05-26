@@ -32,6 +32,7 @@ public class UserModel implements Serializable {
 	private String countryName;
 	private String userType;
 	private int tenantId;
+	private boolean isRegistered;
 	public Long getUserId() {
 		return userId;
 	}
@@ -165,6 +166,12 @@ public class UserModel implements Serializable {
 	}
 	public void setCountryName(String countryName) {
 		this.countryName = countryName;
+	}
+	public boolean isRegistered() {
+		return isRegistered;
+	}
+	public void setRegistered(boolean isRegistered) {
+		this.isRegistered = isRegistered;
 	}
 	@Override
 	public int hashCode() {

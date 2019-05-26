@@ -31,10 +31,12 @@ import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.pms.app.dao.impl.IncidentDAO;
 import com.pms.app.dao.impl.SiteDAO;
+import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.TicketVO;
 import com.pms.app.view.vo.UploadFile;
+import com.pms.jpa.entities.Asset;
 import com.pms.jpa.entities.Company;
 import com.pms.jpa.entities.SiteLicence;
 import com.pms.jpa.entities.TicketAttachment;
@@ -218,8 +220,8 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 		return null;
 	}
 
-	/*@Override
-	public AssetVO siteAssetFileUpload(AssetVO assetVO,UploadFile assetFile, Company company, String type)  throws IOException{
+	@Override
+	public AssetVO siteAssetFileUpload(AssetVO assetVO,UploadFile assetFile, Company company, String type)  throws IOException{/*
 		LOGGER.info("Inside FileIntegrationServiceImpl .. siteAssetFileUpload");
 		String base64Image = assetFile.getBase64ImageString().split(",")[1];
 		byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(base64Image);
@@ -294,11 +296,11 @@ public class FileIntegrationServiceImpl implements FileIntegrationService {
 				}
 			}
 		}
-		LOGGER.info("Exit FileIntegrationServiceImpl .. siteAssetFileUpload");
+		LOGGER.info("Exit FileIntegrationServiceImpl .. siteAssetFileUpload");*/
 		return assetVO;
 	}
 
-*/
+
 
 	@Override
 	public RestResponse getFileLocation(Company company, String keyName) throws Exception {

@@ -1,5 +1,6 @@
 package com.pms.web.service.impl;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -28,11 +29,13 @@ import com.pms.app.view.vo.AssetVO;
 import com.pms.app.view.vo.CreateSiteVO;
 import com.pms.app.view.vo.LoginUser;
 import com.pms.app.view.vo.ServiceProviderVO;
+import com.pms.app.view.vo.UploadFile;
 import com.pms.jpa.entities.Asset;
 import com.pms.jpa.entities.AssetCategory;
 import com.pms.jpa.entities.AssetLocation;
 import com.pms.jpa.entities.AssetRepairType;
 import com.pms.jpa.entities.AssetSubRepairType;
+import com.pms.jpa.entities.Company;
 import com.pms.web.service.AssetService;
 import com.pms.web.util.RestResponse;
 
@@ -526,7 +529,56 @@ public class AssetServiceImpl implements AssetService {
 		return assetVOList;
 	}
 	
-
+	private AssetVO uploadAssetFiles(AssetVO assetVO, LoginUser user, String type, Company company, Asset savedAsset) {
+		return assetVO;/*
+		if(assetVO.getAssetType().equalsIgnoreCase("E")){
+			if(type.equalsIgnoreCase("IMAGE")){
+				UploadFile assetFile = assetVO.getAssetImage();
+				try {
+					assetVO.setAssetId(savedAsset.getAssetId());
+					if(StringUtils.isEmpty(savedAsset.getImagePath())){
+						assetVO= fileIntegrationService.siteAssetFileUpload(assetVO, assetFile, company, type);
+						//savedAsset.setImagePath(assetVO.getImagePath());
+					}else{
+						RestResponse response = fileIntegrationService.deleteFile(null, null, savedAsset.getAssetId(), null, "IMG");
+						if(response.getStatusCode() == 0){
+							assetVO= fileIntegrationService.siteAssetFileUpload(assetVO, assetFile, company, type);
+						}else if( response.getStatusCode()==200){
+							assetVO= fileIntegrationService.siteAssetFileUpload(assetVO, assetFile, company, type);
+						}
+						else if( response.getStatusCode()==500){
+							assetVO= fileIntegrationService.siteAssetFileUpload(assetVO, assetFile, company, type);
+						}		
+					}
+					
+				} catch (Exception e) {
+					LOGGER.info("Exception in upload asset Image file..uploadAssetFiles", e);
+				}
+			}
+		}
+		
+		if(type.equalsIgnoreCase("DOC")){
+			UploadFile assetFile = assetVO.getAssetDoc();
+			try {
+				assetVO.setAssetId(savedAsset.getAssetId());
+				assetVO = fileIntegrationService.siteAssetFileUpload(assetVO, assetFile, company, type);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(assetVO.getAssetType().equalsIgnoreCase("E")){
+			if(StringUtils.isEmpty(savedAsset.getImagePath())){
+				savedAsset.setImagePath(assetVO.getImagePath());
+			}
+		}
+		
+		if(StringUtils.isEmpty(savedAsset.getDocumentPath())){
+			savedAsset.setDocumentPath(assetVO.getDocumentPath());
+		}
+		
+		return assetVO;
+		
+	*/}
 	@Override
 	@Transactional
 	public AssetVO deleteAsset(AssetVO assetVO, LoginUser user) throws Exception {
