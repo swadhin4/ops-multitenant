@@ -134,7 +134,7 @@ $(function(){
           <ul class="nav navbar-nav navbar-right" style="margin-top: 23px; ">
           <li ><a href  class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms">Get Started<span class="sr-only">(current)</span></a></li>
             <li><a href  class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms">Support</a></li>
-            <li><a href="${contextPath}/login"
+            <li><a href="${contextPath}/login?status=NEW"
             class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms">Login</a></li>
            <!--  <li><a href data-toggle="modal" data-target=".logModal" 
             class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms" id="tog" >Application Log</a></li> -->

@@ -16,9 +16,9 @@
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/responsive.css"></c:url>' /> --%>
 <link rel="stylesheet"	href='<c:url value="/resources/theme1/css/animate.min.css"></c:url>' />
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/AdminLTE.min.css"></c:url>' />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/4.0.2/bootstrap-material-design.css" rel="stylesheet">
+<%-- <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-material-design/4.0.2/bootstrap-material-design.css" rel="stylesheet">
 <link href="https://ducthanhnguyen.github.io/MaterialAdminLTE/dist/css/MaterialAdminLTE.min.css" rel="stylesheet">
-<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/materialize.min.css"></c:url>' />
+<link rel="stylesheet"	href='<c:url value="/resources/theme1/css/materialize.min.css"></c:url>' /> --%>
 <link rel="stylesheet"	href='<c:url value="/resources/dist/css/skins/skin-black-light.min.css"></c:url>' />
 
 <script type="text/javascript" 	src='<c:url value="/resources/theme1/js/jquery-2.1.4.min.js"></c:url>'></script>
@@ -139,7 +139,7 @@ $(function(){
           <li ><a href  class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms">Get Started<span class="sr-only">(current)</span></a></li>
             <li><a href  class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms">Support</a></li>
             <li>
-            <a href="${contextPath}/login" class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms">Login</a>
+            <a href="${contextPath}/login?status=NEW" class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms">Login</a>
             <!-- <a href data-toggle="modal" data-target=".loginModal" 
             class="wow fadeInUp" data-wow-duration="1000ms" data-wow-delay="400ms">Login</a> -->
             </li>
