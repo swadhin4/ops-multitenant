@@ -814,7 +814,6 @@ public class TicketServiceImpl implements TicketService {
 
 	@Override
 	public List<CustomerSPLinkedTicketVO> getAllLinkedTickets(Long custTicketId, LoginUser loginUser) throws Exception {
-		
 		List<CustomerSPLinkedTicketVO> customerSPLinkedTickets = getIncidentDAO(loginUser.getDbName()).findByCustTicketIdAndDelFlag(custTicketId);
 		return customerSPLinkedTickets== null?Collections.emptyList():customerSPLinkedTickets;
 	}

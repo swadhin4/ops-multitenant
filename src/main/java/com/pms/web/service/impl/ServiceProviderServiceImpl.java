@@ -4,17 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import com.pms.app.constants.AppConstants;
 import com.pms.app.constants.UserType;
@@ -39,12 +34,10 @@ import com.pms.web.util.QuickPasswordEncodingGenerator;
 import com.pms.web.util.RandomUtils;
 
 @Service("serviceProviderService")
-@Transactional
 public class ServiceProviderServiceImpl implements ServiceProviderService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ServiceProviderServiceImpl.class);
 	
-	private PlatformTransactionManager transactionManager;
 	@Autowired
 	private AssetService assetService;
 	
@@ -64,9 +57,6 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		
 	}
 	
-	public void setTransactionManager(PlatformTransactionManager transactionmanager) {
-	    this.transactionManager = transactionmanager;
-	}
 	@Override
 	public List<ServiceProviderVO> findAllServiceProvider(LoginUser user) throws Exception {
 		logger.info("Inside ServiceProviderServiceImpl -- findAllServiceProvider");
@@ -202,7 +192,8 @@ public class ServiceProviderServiceImpl implements ServiceProviderService {
 		return savedSP;
 	}
 	private boolean insertExternalSPTenants(ServiceProviderVO serviceProviderVO, String dbName) {
-		return getTenantsDAO("tenants").insertExtSPDetails(serviceProviderVO,dbName);
+		TenantsDAO tenantDAO = getTenantsDAO("tenants");
+		return tenantDAO.insertExtSPDetails(serviceProviderVO,dbName);
 	}
 	@Override
 	public List<Region> findAllRegions(LoginUser loginUser) throws Exception {

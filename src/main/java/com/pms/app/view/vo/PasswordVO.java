@@ -2,6 +2,7 @@ package com.pms.app.view.vo;
 
 public class PasswordVO {
 
+	
 	private String oldPassword;
 
 	private String newPassword;

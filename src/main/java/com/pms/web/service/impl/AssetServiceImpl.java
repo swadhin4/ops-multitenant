@@ -97,20 +97,21 @@ public class AssetServiceImpl implements AssetService {
 	public AssetVO findAssetById(LoginUser user, Long assetid) {
 		LOGGER.info("Inside AssetServiceImpl .. findAssetById");
 		AssetVO assetVO = null;
-		if(user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType()) && user.getDbName().equalsIgnoreCase(user.getSpDbName())){
+		if (user.getUserType().equalsIgnoreCase(UserType.LOGGEDIN_USER_RSP.getUserType())
+				&& user.getDbName().equalsIgnoreCase(user.getSpDbName())) {
 			assetVO = getAssetDAO(user.getDbName()).getExtCustAssetDetails(assetid);
 			List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());
-			if(!taskList.isEmpty()){
+			if (!taskList.isEmpty()) {
 				assetVO.setTaskList(taskList);
 			}
- 		}else{
+		} else {
 			assetVO = getAssetDAO(user.getDbName()).getAssetDetails(assetid);
 			List<AssetTask> taskList = getAssetDAO(user.getDbName()).findAssetTaskByAsset(assetVO.getAssetId());
-			if(!taskList.isEmpty()){
+			if (!taskList.isEmpty()) {
 				assetVO.setTaskList(taskList);
 			}
 		}
-		
+
 		LOGGER.info("Exit AssetServiceImpl .. findAssetById");
 		return assetVO;
 	}
@@ -352,33 +353,6 @@ public class AssetServiceImpl implements AssetService {
 			asset.setSpType(assetVO.getSpType());
 			asset.setExtCustId(assetVO.getExtCustId());
 			savedAssetList.add(asset);
-
-			/*
-			 * Asset savedAsset = getAssetDAO(user.getDbName()).saveAsset(asset,
-			 * assetVO, user); if (savedAsset.getAssetId() != null) {
-			 * //BeanUtils.copyProperties(savedAsset, savedAssetVO);
-			 * savedAssetVO.setAssetId(savedAsset.getAssetId());
-			 * assetVOList.add(savedAssetVO); LOGGER.info(
-			 * "Asset created successfully for site " + savedAsset.getAssetId()
-			 * + " / " + asset.getSiteId()); savedAssetList.add(savedAsset); }
-			 */
-
-			/*
-			 * if(assetVO.getSites().size()==1){
-			 * if(assetVO.getAssetType().equalsIgnoreCase("E")){
-			 * if(!StringUtils.isEmpty(assetVO.getAssetImage().
-			 * getBase64ImageString())){ LOGGER.info("Asset Image uploading..");
-			 * assetVO = uploadAssetFiles(assetVO, user, "IMAGE",
-			 * user.getCompany(), savedAssetList.get(0)); } }
-			 * 
-			 * if(!StringUtils.isEmpty(assetVO.getAssetDoc().
-			 * getBase64ImageString())){ LOGGER.info(
-			 * "Asset Document uploading.."); assetVO =
-			 * uploadAssetFiles(assetVO, user, "DOC", user.getCompany(),
-			 * savedAssetList.get(0)); }
-			 * 
-			 * }
-			 */
 
 		}
 		try {

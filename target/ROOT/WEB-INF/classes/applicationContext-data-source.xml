@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+
+<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close" scope="session">
+   <property name="driverClassName" value="${db.driver.class}" />
+   <property name="jdbcUrl" value="${db.jdbc.url}" />
+   <property name="username" value="${db.username}"/>
+   <property name="password" value="${db.password}"/>
+</bean>
+
+<!--  <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/myDs"/>
+    </bean>  -->
+
+  <!--  <bean id="jdbcQueryDAO" class="com.pms.jpa.repositories.JDBCQueryDAO">
+        <property name="dataSource" ref="dataSource"/>
+    </bean> -->
+   
+  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">  
+		<property name="dataSource" ref="dataSource"></property>  
+	</bean>  
+    
+   <bean id="customDAO"  class="com.pms.app.dao.impl.CustomDAOImpl">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    
+</beans>

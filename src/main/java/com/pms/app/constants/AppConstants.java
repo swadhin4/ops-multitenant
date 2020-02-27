@@ -16,6 +16,7 @@ public class AppConstants {
 	public static final String INSERT_EXTSP_TENANT="insert into ext_user_sp_mapping(sp_username,sp_email,db_name) values(?,?,?)";
 	
 	public static final String INSERT_REGSP_TENANT="insert into sp_user_mapping(tenant_id,sp_user_email) values(?,?)";
+	
 	public static final String ASSET_SUBREPAIRTYPE_QUERY = "select subcategory2_id, subcategory2_name from pm_asset_subcategory2 where "
 			+ " subcategory1_id = ? order by subcategory2_name";
 	
@@ -641,8 +642,6 @@ public class AppConstants {
 	public static final String EXT_SERVICE_PROVIDER_GENERAL_INFO = "select ps.sp_id, ps.sp_name, ps.sp_code, ps.sp_email, ps.help_desk_email, ps.access_key "
 			+ " from pm_service_provider ps where ps.sp_id = ? ";
 	
-	
-
 	public static final String UPDATE_USER_PASSWORD = "update pm_users set password=?, sys_password='NO' where email_id=?";
 	
 	public static final String FORGOT_USER_PASSWORD = "update pm_users set password=?, sys_password='YES' where email_id=?";

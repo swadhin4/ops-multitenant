@@ -1,0 +1,424 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Aircrafts API Swagger",
+    "version" : "v1",
+    "title" : "Aircrafts API Swagger"
+  },
+  "host" : "goit-dds.api.aviation.ge.com",
+  "basePath" : "/services/data/core/aircrafts",
+  "tags" : [ {
+    "name" : "coreaircrafts"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/v1/aircraftdetails" : {
+      "get" : {
+        "tags" : [ "coreaircrafts" ],
+        "summary" : "Aircrafts Details By ESN or TAIL Number",
+        "description" : "Aircrafts Details By ESN or TAIL Number",
+        "operationId" : "getAircraftDetails",
+        "produces" : [ "application/json", "application/xml" ],
+        "parameters" : [ {
+          "name" : "esn",
+          "in" : "query",
+          "description" : "ESN eg. 779641",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "tail",
+          "in" : "query",
+          "description" : "Tail Number eg. CS-TTK",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "in" : "header",
+          "name" : "ConsumerApp",
+          "description" : "Consumer Application eg. ",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/AircraftDetailsResponse"
+            }
+          }
+        },
+        "x-serviceMetaData" : {
+          "serviceOwner" : "DDS Team",
+          "dataSource" : "GEADW_EDV_BV",
+          "serviceNowCIName" : "DDS-API-Generic"
+        }
+      }
+    },
+    "/v1/aircraftsbyorganization" : {
+      "get" : {
+        "tags" : [ "coreaircrafts" ],
+        "summary" : "Aircrafts Details By Organization",
+        "description" : "Aircrafts Details By Organization",
+        "operationId" : "getAircraftsByOrganization",
+        "produces" : [ "application/json", "application/xml" ],
+        "parameters" : [ {
+          "name" : "orgtype",
+          "in" : "query",
+          "description" : "Org type eg. owner",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "dunsnumber",
+          "in" : "query",
+          "description" : "Duns Number eg. 865791560",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "icaocode",
+          "in" : "query",
+          "description" : "ICAO Code eg. EZX",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "in" : "header",
+          "name" : "ConsumerApp",
+          "description" : "Consumer Application eg. ",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/AircraftDetailsResponse"
+            }
+          }
+        },
+        "x-serviceMetaData" : {
+          "serviceOwner" : "DDS Team",
+          "dataSource" : "GEADW_EDV_BV",
+          "serviceNowCIName" : "DDS-API-Generic"
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "Aircraft" : {
+      "type" : "object",
+      "required" : [ "aircraftValidpd", "serialEngineSeriesSnum", "serializedEngineId" ],
+      "properties" : {
+        "mdmAircraftId" : {
+          "type" : "integer",
+          "format" : "int64",
+          "xml" : {
+            "name" : "MdmAircraftId"
+          }
+        },
+        "aircraftTailNum" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AircraftTailNum"
+          }
+        },
+        "serializedAircraftId" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "SerializedAircraftId"
+          }
+        },
+        "aircraftValidpd" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AircraftValidpd"
+          }
+        },
+        "aircraftTypeId" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AircraftTypeId"
+          }
+        },
+        "aircraftFamily" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AircraftFamily"
+          }
+        },
+        "owner" : {
+          "xml" : {
+            "name" : "Owner"
+          },
+          "$ref" : "#/definitions/Organization"
+        },
+        "manufactrerOrgName" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "ManufactrerOrgName"
+          }
+        },
+        "operator" : {
+          "xml" : {
+            "name" : "Operator"
+          },
+          "$ref" : "#/definitions/Organization"
+        },
+        "monitor" : {
+          "xml" : {
+            "name" : "Monitor"
+          },
+          "$ref" : "#/definitions/Organization"
+        },
+        "incomingTailNum" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "IncomingTailNum"
+          }
+        },
+        "statusId" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "StatusId"
+          }
+        },
+        "aircraftStatus" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AircraftStatus"
+          }
+        },
+        "serializedEngineId" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "SerializedEngineId"
+          }
+        },
+        "serialEngineSeriesSnum" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "SerialEngineSeriesSnum"
+          }
+        },
+        "enginePosition" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "EnginePosition"
+          }
+        },
+        "engineServiceAbility" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "EngineServiceAbility"
+          }
+        },
+        "engineStatus" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "EngineStatus"
+          }
+        },
+        "aircraftManfactureDate" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AircraftManfactureDate"
+          }
+        }
+      },
+      "xml" : {
+        "name" : "Aircraft"
+      }
+    },
+    "AircraftDetailsResponse" : {
+      "type" : "object",
+      "properties" : {
+        "status" : {
+          "type" : "string"
+        },
+        "aircraftDetails" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Aircraft"
+          }
+        }
+      },
+      "xml" : {
+        "name" : "aircraftDetailsResponse"
+      }
+    },
+    "Organization" : {
+      "type" : "object",
+      "required" : [ "alternateCode", "customerSubType", "dunsNumber", "icaoCode", "languageName", "organizationName", "organizationRoleTypeNm", "organizationType", "parentOrganization", "salesPoleName", "status", "zone" ],
+      "properties" : {
+        "organizationId" : {
+          "type" : "integer",
+          "format" : "int64",
+          "xml" : {
+            "name" : "OrganizationId"
+          }
+        },
+        "organizationName" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "OrganizationName"
+          }
+        },
+        "icaoCode" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "IcaoCode"
+          }
+        },
+        "alternateCode" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AlternateCode"
+          }
+        },
+        "organizationType" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "OrganizationType"
+          }
+        },
+        "status" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "Status"
+          }
+        },
+        "zone" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "Zone"
+          }
+        },
+        "dunsNumber" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "DunsNumber"
+          }
+        },
+        "parentOrganization" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "ParentOrganization"
+          }
+        },
+        "salesPoleName" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "SalesPoleName"
+          }
+        },
+        "languageName" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "LanguageName"
+          }
+        },
+        "legalAddress" : {
+          "xml" : {
+            "name" : "LegalAddress"
+          },
+          "$ref" : "#/definitions/TypeAddress"
+        },
+        "otherAddress" : {
+          "type" : "array",
+          "xml" : {
+            "name" : "OtherAddress"
+          },
+          "items" : {
+            "$ref" : "#/definitions/TypeAddress"
+          }
+        },
+        "organizationRoleTypeNm" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "OrganizationRoleTypeNm"
+          }
+        },
+        "customerSubType" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "CustomerSubType"
+          }
+        },
+        "fsesupportCoverageId" : {
+          "type" : "string"
+        },
+        "fsesupportCoverageNm" : {
+          "type" : "string"
+        }
+      }
+    },
+    "TypeAddress" : {
+      "type" : "object",
+      "required" : [ "addressLine1", "addressLine2", "addressType", "cityName", "countryCd", "countryName", "postalCd", "stateCd", "stateName" ],
+      "properties" : {
+        "addressId" : {
+          "type" : "integer",
+          "format" : "int64",
+          "xml" : {
+            "name" : "AddressId"
+          }
+        },
+        "addressLine1" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AddressLine1"
+          }
+        },
+        "addressLine2" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AddressLine2"
+          }
+        },
+        "cityName" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "CityName"
+          }
+        },
+        "stateCd" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "StateCd"
+          }
+        },
+        "stateName" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "StateName"
+          }
+        },
+        "countryCd" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "CountryCd"
+          }
+        },
+        "countryName" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "CountryName"
+          }
+        },
+        "postalCd" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "PostalCd"
+          }
+        },
+        "addressType" : {
+          "type" : "string",
+          "xml" : {
+            "name" : "AddressType"
+          }
+        }
+      }
+    }
+  }
+}

@@ -105,6 +105,7 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
 		companyPath=companyPath.replaceAll("\\\\","/");
 		LOGGER.info("companyPath : " +companyPath );
 		File folder = FileSystems.getDefault().getPath(companyPath+"/uploads/malay-first-s3-bucket-pms-test").toFile();
+		if(folder!=null){
 		String[] folders = folder.list();
         for (String folderName : folders){
         	if(companyCode.equalsIgnoreCase(folderName)){
@@ -151,7 +152,7 @@ public class AuthorizedUserDetailServiceImpl implements  UserDetailsService {
     		    	LOGGER.info("Directory already exists");
     		    }
     		    
-        }
+        }}
 	   return isPresent;
 	}
 
