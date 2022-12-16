@@ -11,7 +11,7 @@
 		<maven.test.failure.ignore>true</maven.test.failure.ignore>
 		<endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.framework.version>4.2.2.RELEASE</spring.framework.version>
+		<spring.framework.version>5.2.20.RELEASE</spring.framework.version>
 		<hibernate.entity.manager.version>4.3.11.Final</hibernate.entity.manager.version>
 		<hibernate.validator.version>4.3.1.Final</hibernate.validator.version>
 		<org.aspectj-version>1.6.11</org.aspectj-version>
